@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">工具箱</string>
+    <string name="exit_button">＜ 退出</string>
+    <string name="time">10:24</string>
+    <string name="setting">设置</string>
+    <string name="add_button">+</string>
+    <string name="return_button">＜ 返回</string>
+    <string name="app_icon">APP图标</string>
+    <string name="package_name">cn.minimote.toolbox</string>
+    <string name="loading_text">加载中，请稍后…</string>
+    <string name="activity_name">MainActivity</string>
+    <string name="save_button">保存</string>
+    <string name="save_success">保存成功！</string>
 </resources>

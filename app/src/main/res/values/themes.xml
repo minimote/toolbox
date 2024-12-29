@@ -1,5 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
 
-    <style name="Theme.工具箱" parent="android:Theme.Material.Light.NoActionBar" />
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="Theme.toolbox" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="Theme.toolbox.smallFont" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="Widget.App.Button.Dark" parent="Widget.MaterialComponents.Button">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:inset">0dp</item>
+        <item name="android:padding">0dp</item>
+    </style>
+
+    <style name="Widget.App.TextView.Dark" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="Widget.App.ImageButton.Dark" parent="Widget.MaterialComponents.Button">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:inset">0dp</item>
+        <item name="android:padding">0dp</item>
+    </style>
+
+
 </resources>
