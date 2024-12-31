@@ -7,6 +7,7 @@ package cn.minimote.toolbox
 
 import android.content.Context
 import com.google.gson.Gson
+import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
 import java.io.File
 import java.lang.reflect.Type
@@ -27,10 +28,30 @@ object AppInfoStorage {
         if (!file.exists()) {
             return emptySet()
         }
-        val json = file.readText()
-        val gson = Gson()
-        val type: Type = object : TypeToken<Set<StorageAppInfo>>() {}.type
-        return gson.fromJson(json, type)
+        try {
+            val json = file.readText()
+            val gson = Gson()
+            val type: Type = object : TypeToken<Set<StorageAppInfo>>() {}.type
+            return gson.fromJson(json, type)
+        } catch (e: JsonSyntaxException) {
+            // 捕获 JSON 解析错误
+            e.printStackTrace()
+            deleteFile(context)
+        } catch (e: Exception) {
+            // 捕获其他可能的异常
+            e.printStackTrace()
+            deleteFile(context)
+        }
+        return emptySet()
+    }
+
+    // 删除有问题的文件
+    private fun deleteFile(context: Context) {
+        val file = File(context.filesDir, FILE_NAME)
+        if (file.exists()) {
+            file.delete()
+//            println("Deleted corrupted file: $FILE_NAME")
+        }
     }
 
     // 获取 activityName 到 StorageAppInfo 的映射
@@ -42,4 +63,3 @@ object AppInfoStorage {
         return activityNameToStorageAppInfoMap
     }
 }
-

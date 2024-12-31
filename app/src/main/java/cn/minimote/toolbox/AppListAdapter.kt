@@ -59,7 +59,8 @@ class AppListAdapter(
                     modifiedMapActivityNameToStorageAppInfo[appInfo.activityName] = storageAppInfo
                 } ?: run {
                     // 如果之前没有，创建新的实例并映射
-                    val newStorageAppInfo = displayAppInfoToStorageAppInfo(appInfo)
+                    val newStorageAppInfo =
+                        displayAppInfoToStorageAppInfo(appInfo, position = originalAppSet.size)
                     modifiedMapActivityNameToStorageAppInfo[appInfo.activityName] =
                         newStorageAppInfo
                     // 将新的实例添加进集合

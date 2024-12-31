@@ -6,6 +6,7 @@
 package cn.minimote.toolbox
 
 import android.graphics.drawable.Drawable
+import kotlin.random.Random
 
 
 data class WidgetInfo(
@@ -14,8 +15,9 @@ data class WidgetInfo(
     val packageName: String,
     val activityName: String,
     var nickName: String = appName,
-    val widgetSize: Double = 1.0,
-    var position: Pair<Int, Int> = Pair(Int.MAX_VALUE, Int.MAX_VALUE),
+    // 1 表示满的，2 表示一半，3 表示三分之一
+    val widgetType: Int = 1,
+    var position: Int = Int.MAX_VALUE,
 )
 
 //// 将存储类型转换为小组件类型

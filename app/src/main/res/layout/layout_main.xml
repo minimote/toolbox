@@ -2,14 +2,14 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main_layout"
+    android:id="@+id/layout_main"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:fitsSystemWindows="true">
 
     <Button
         android:id="@+id/button_exit"
-        style="@style/Widget.App.Button.Dark"
+        style="@style/Button.Dark"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/exit_button"
@@ -27,7 +27,7 @@
 
     <Button
         android:id="@+id/button_add"
-        style="@style/Widget.App.Button.Dark"
+        style="@style/Button.Dark"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/add_button"
@@ -46,7 +46,7 @@
 
     <TextView
         android:id="@+id/textView_time"
-        style="@style/Widget.App.TextView.Dark"
+        style="@style/TextView.Dark"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/time"
@@ -60,26 +60,40 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.2" />
+        app:layout_constraintGuide_begin="48dp" />
 
     <FrameLayout
         android:id="@+id/frameLayout_recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constrainedHeight="true"
         app:layout_constraintTop_toBottomOf="@id/guideline3">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView_widget_list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="true"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
+            android:layout_height="wrap_content"
+            android:clipToPadding="true" />
     </FrameLayout>
+
+    <ImageView
+        android:id="@+id/edit_background"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:alpha="0.125"
+        android:importantForAccessibility="no"
+        android:src="@drawable/ic_setting"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guideline3" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

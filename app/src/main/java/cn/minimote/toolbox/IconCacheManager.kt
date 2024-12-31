@@ -9,14 +9,22 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.ShapeDrawable
+import android.graphics.drawable.shapes.OvalShape
 import android.util.LruCache
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import android.graphics.drawable.LayerDrawable
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
+import android.util.Log
 
 class IconCacheManager(private val context: Context) {
+
     private val packageManager: PackageManager = context.packageManager
 
     // 定义一个方法来获取缓存路径
@@ -96,6 +104,29 @@ class IconCacheManager(private val context: Context) {
         } else {
 //            Log.d("IconCacheManager", "从内存中获取了图标：$packageName")
         }
-        return appIcon
+        return appIcon.toCircularDrawable()
+    }
+
+    // 将 Drawable 转换为圆形 Drawable
+    private fun Drawable.toCircularDrawable(): Drawable {
+        return this
+//        Log.i("IconCacheManager", "将 Drawable 转换为圆形 Drawable")
+//        val size = intrinsicWidth.coerceAtMost(intrinsicHeight)
+//        val shapeDrawable = ShapeDrawable(OvalShape()).apply {
+//            intrinsicWidth = size
+//            intrinsicHeight = size
+//            paint.color = Color.WHITE // 你可以根据需要更改颜色
+//            paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
+//        }
+//
+//        val layerDrawable = LayerDrawable(arrayOf(shapeDrawable, this))
+//        layerDrawable.setLayerInset(
+//            1,
+//            (intrinsicWidth - size) / 2,
+//            (intrinsicHeight - size) / 2,
+//            (intrinsicWidth - size) / 2,
+//            (intrinsicHeight - size) / 2
+//        )
+//        return layerDrawable
     }
 }

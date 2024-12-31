@@ -6,6 +6,7 @@
 package cn.minimote.toolbox
 
 import android.graphics.drawable.Drawable
+import kotlin.random.Random
 
 // 用于显示的数据类
 data class DisplayAppInfo(
@@ -22,8 +23,9 @@ data class StorageAppInfo(
     val packageName: String,
     val activityName: String,
     var nickName: String = appName,
-    val widgetSize: Double = 1.0,
-    var position: Pair<Int, Int> = Pair(Int.MAX_VALUE, Int.MAX_VALUE),
+    // 1 表示满的，2 表示一半，3 表示三分之一
+    val widgetType: Int,
+    var position: Int,
 ) {
 //    override fun equals(other: Any?): Boolean {
 //        if (this === other) return true
@@ -53,10 +55,16 @@ data class StorageAppInfo(
 
 
 // 将显示类型转换为存储类型
-fun displayAppInfoToStorageAppInfo(displayAppInfo: DisplayAppInfo): StorageAppInfo {
+fun displayAppInfoToStorageAppInfo(
+    displayAppInfo: DisplayAppInfo,
+    widgetType: Int = 1,
+    position: Int = Int.MAX_VALUE,
+): StorageAppInfo {
     return StorageAppInfo(
         appName = displayAppInfo.appName,
         packageName = displayAppInfo.packageName,
         activityName = displayAppInfo.activityName,
+        widgetType = widgetType,
+        position = position,
     )
 }
