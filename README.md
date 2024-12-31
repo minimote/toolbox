@@ -47,14 +47,14 @@ Copyright (c) 2025 minimote(微尘). All rights reserved.
 <table>
   <tr>
     <td style="width: 50%; text-align: center;">
-      <img src="app\src\main\res\drawable\support_author\WeChat.jpg" alt="微信" style="width: 100%;">
+      <img src="https://gitee.com/minimote/toolbox/raw/master/app/src/main/res/drawable/support_author/WeChat.jpg" alt="微信" style="width: 100%;">
       <br>
-      微信
+      <p style="text-align: center;">微信</p>
     </td>
     <td style="width: 50%; text-align: center;">
-      <img src="app\src\main\res\drawable\support_author\Alipay.jpg" alt="支付宝" style="width: 100%;">
+      <img src="https://gitee.com/minimote/toolbox/raw/master/app/src/main/res/drawable/support_author/Alipay.jpg" alt="支付宝" style="width: 100%;">
       <br>
-      支付宝
+      <p style="text-align: center;">支付宝</p>
     </td>
   </tr>
 </table>
