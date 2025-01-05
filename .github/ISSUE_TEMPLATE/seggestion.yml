@@ -8,14 +8,14 @@ body:
       value: |
         感谢您对项目的支持和关注。在反馈之前，请确保目前没有人提出过相关建议：
         - [https://gitee.com/minimote/toolbox/issues](https://gitee.com/minimote/toolbox/issues)
-    - type: input
+  - type: input
     id: version
     attributes:
       label: 软件版本号[可选]
       description: 您当前正在使用软件的哪个版本/分支？
-      placeholder: 1.0
-    # validations:
-    #    required: true
+      placeholder: "1.0"
+    validations:
+       required: false
   - type: textarea
     attributes:
       label: 设备信息[可选]
@@ -25,8 +25,8 @@ body:
         - 分辨率(如: 378*496): 
         - 设备名称(如: OPPO Watch 4 Pro): 
         - 其他信息(如: 使用暗色模式):
-    # validations:
-    #    required: true
+    validations:
+       required: false
   - type: textarea
     id: related-problem
     attributes:
@@ -48,12 +48,6 @@ body:
       description: 在此处添加相关的图片或视频
     validations:
       required: false
-  # - type: checkboxes
-  #   attributes:
-  #      label: 意向参与贡献
-  #      options:
-  #         - label: 我有意向参与具体功能的开发实现并将代码贡献回到上游社区
-  #          required: false
   - type: markdown
     attributes:
       value: |

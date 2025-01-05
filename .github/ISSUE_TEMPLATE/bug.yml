@@ -7,13 +7,14 @@ body:
     attributes:
       value: |
         感谢您对项目的支持和关注。在反馈之前，请确保目前没有人反馈过相关问题：
-        - [https://gitee.com/minimote/toolbox/issues](https://gitee.com/minimote/toolbox/issues)
+        - [Gitee【推荐】: https://gitee.com/minimote/toolbox/issues](https://gitee.com/minimote/toolbox/issues)
+        - [Github【推荐】: https://github.com/minimote/toolbox/issues](https://github.com/minimote/toolbox/issues)
   - type: input
     id: version
     attributes:
       label: 软件版本号
       description: 您当前正在使用软件的哪个版本/分支？
-      placeholder: 1.0
+      placeholder: "1.0"
     validations:
       required: true
   - type: textarea
