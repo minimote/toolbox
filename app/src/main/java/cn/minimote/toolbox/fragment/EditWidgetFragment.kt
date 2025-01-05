@@ -3,7 +3,7 @@
  * 本项目遵循 MIT 许可协议，请务必保留此声明和署名。
  */
 
-package cn.minimote.toolbox
+package cn.minimote.toolbox.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -15,10 +15,10 @@ import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import cn.minimote.toolbox.R
 
 class EditWidgetFragment(
-    private val widgetInfo: WidgetInfo,
-    private val onSave: () -> Unit
+//    private val widgetInfo: WidgetInfo,
 ) :
     Fragment() {
 

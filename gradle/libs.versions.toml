@@ -5,16 +5,15 @@ coreSplashscreen = "1.0.0"
 customview = "1.1.0"
 gson = "2.10.1"
 kotlin = "2.0.0"
-coreKtx = "1.10.1"
+coreKtx = "1.13.0"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
-lifecycleRuntimeKtx = "2.6.1"
-activityCompose = "1.8.0"
+lifecycleRuntimeKtx = "2.6.2"
+activityCompose = "1.8.1"
 composeBom = "2024.04.01"
 constraintlayout = "2.2.0"
 material = "1.10.0"
-meLibrary = "1.1.0"
 navigationFragmentKtx = "2.7.0"
 
 [libraries]
@@ -40,7 +39,7 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
-me-library = { module = "me.imid.swipebacklayout:library", version.ref = "meLibrary" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

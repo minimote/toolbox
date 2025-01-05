@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_main"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -9,9 +8,7 @@
 
     <Button
         android:id="@+id/button_exit"
-        style="@style/Button.Dark"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        style="@style/Button.Toolbox.Dark"
         android:text="@string/exit_button"
         app:layout_constraintBottom_toTopOf="@id/guideline3"
         app:layout_constraintEnd_toStartOf="@+id/guideline1"
@@ -27,15 +24,12 @@
 
     <Button
         android:id="@+id/button_add"
-        style="@style/Button.Dark"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        style="@style/Button.Toolbox.Dark"
         android:text="@string/add_button"
         app:layout_constraintBottom_toTopOf="@id/guideline3"
         app:layout_constraintEnd_toStartOf="@id/guideline2"
         app:layout_constraintStart_toEndOf="@id/guideline1"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="TouchTargetSizeCheck" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline2"
@@ -44,11 +38,9 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.65" />
 
-    <TextView
+    <Button
         android:id="@+id/textView_time"
-        style="@style/TextView.Dark"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        style="@style/Button.Toolbox.Dark"
         android:text="@string/time"
         app:layout_constraintBottom_toTopOf="@id/guideline3"
         app:layout_constraintEnd_toEndOf="parent"
@@ -60,40 +52,28 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="48dp" />
+        app:layout_constraintGuide_begin="36dp" />
 
-    <FrameLayout
-        android:id="@+id/frameLayout_recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout_origin"
+        style="@style/ConstraintLayout.Toolbox.RecyclerView.Dark"
+        app:layout_constrainedHeight="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constrainedHeight="true"
         app:layout_constraintTop_toBottomOf="@id/guideline3">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView_widget_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clipToPadding="true" />
-    </FrameLayout>
+        <!--        <androidx.recyclerview.widget.RecyclerView-->
+        <!--            android:id="@+id/recyclerView_widget_list"-->
+        <!--            style="@style/RecyclerView.Toolbox.Dark"-->
+        <!--            app:layout_constraintBottom_toBottomOf="parent"-->
+        <!--            app:layout_constraintEnd_toEndOf="parent"-->
+        <!--            app:layout_constraintStart_toStartOf="parent"-->
+        <!--            app:layout_constraintTop_toTopOf="parent">-->
 
-    <ImageView
-        android:id="@+id/edit_background"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:alpha="0.125"
-        android:importantForAccessibility="no"
-        android:src="@drawable/ic_setting"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/guideline3" />
+        <!--        </androidx.recyclerview.widget.RecyclerView>-->
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

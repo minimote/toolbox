@@ -3,32 +3,26 @@
  * 本项目遵循 MIT 许可协议，请务必保留此声明和署名。
  */
 
-package cn.minimote.toolbox
+package cn.minimote.toolbox.others
 
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.ShapeDrawable
-import android.graphics.drawable.shapes.OvalShape
 import android.util.LruCache
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import android.graphics.drawable.LayerDrawable
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffXfermode
-import android.util.Log
+
 
 class IconCacheManager(private val context: Context) {
 
     private val packageManager: PackageManager = context.packageManager
 
     // 定义一个方法来获取缓存路径
-    private fun getAppIconCachePath(context: Context): File {
+    private fun getCachePath(context: Context): File {
         val cacheDir = context.cacheDir
         val appIconDir = File(cacheDir, "app_icon")
         if (!appIconDir.exists()) {
@@ -38,7 +32,7 @@ class IconCacheManager(private val context: Context) {
     }
 
     // 定义 LruCache
-    private val iconCache: LruCache<String, Drawable> = object : LruCache<String, Drawable>(100) {
+    private val iconCache: LruCache<String, Drawable> = object : LruCache<String, Drawable>(1024) {
         override fun sizeOf(key: String, value: Drawable): Int {
             return if (value is BitmapDrawable) {
                 value.bitmap.byteCount / 1024
@@ -48,9 +42,10 @@ class IconCacheManager(private val context: Context) {
         }
     }
 
+
     // 保存图标文件
     private fun saveIconToFile(packageName: String, drawable: Drawable) {
-        val file = File(getAppIconCachePath(context), "$packageName.png")
+        val file = File(getCachePath(context), "$packageName.png")
         val bitmap = drawableToBitmap(drawable)
         try {
             val outputStream = FileOutputStream(file)
@@ -64,7 +59,7 @@ class IconCacheManager(private val context: Context) {
 
     // 从文件加载图标
     private fun loadIconFromFile(packageName: String): Drawable? {
-        val file = File(getAppIconCachePath(context), "$packageName.png")
+        val file = File(getCachePath(context), "$packageName.png")
         return if (file.exists()) {
             Drawable.createFromPath(file.absolutePath)
         } else {
@@ -86,7 +81,7 @@ class IconCacheManager(private val context: Context) {
     }
 
     // 获取图标
-    fun getAppIcon(packageName: String): Drawable {
+    fun getIcon(packageName: String): Drawable {
         // 尝试从内存缓存中获取图标
         var appIcon = iconCache.get(packageName)
         if (appIcon == null) {

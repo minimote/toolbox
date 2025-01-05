@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 字体大小 -->
+    <dimen name="text_size_4_tiny">10sp</dimen>
+    <dimen name="text_size_3_script">12sp</dimen>
+    <dimen name="text_size_2_footnote">14sp</dimen>
+    <dimen name="text_size_1_small">16sp</dimen>
+    <dimen name="text_size_0_normal">18sp</dimen>
+    <dimen name="text_size_1_large">20sp</dimen>
+    <dimen name="text_size_2_Large">22sp</dimen>
+    <dimen name="text_size_3_LARGE">24sp</dimen>
+    <dimen name="text_size_4_huge">28sp</dimen>
+    <dimen name="text_size_5_Huge">32sp</dimen>
+
+    <!-- 布局大小 -->
+    <dimen name="layout_size_4_tiny">2dp</dimen>
+    <dimen name="layout_size_3_script">4dp</dimen>
+    <dimen name="layout_size_2_footnote">8dp</dimen>
+    <dimen name="layout_size_1_small">16dp</dimen>
+    <dimen name="layout_size_0_normal">24dp</dimen>
+    <dimen name="layout_size_1_large">32dp</dimen>
+    <dimen name="layout_size_2_Large">64dp</dimen>
+    <dimen name="layout_size_3_LARGE">128sp</dimen>
+    <dimen name="layout_size_4_huge">256sp</dimen>
+    <dimen name="layout_size_5_Huge">512sp</dimen>
+</resources>

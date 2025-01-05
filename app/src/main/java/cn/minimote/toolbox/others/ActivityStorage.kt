@@ -3,46 +3,47 @@
  * 本项目遵循 MIT 许可协议，请务必保留此声明和署名。
  */
 
-package cn.minimote.toolbox
+package cn.minimote.toolbox.others
+
 
 import android.content.Context
+import cn.minimote.toolbox.data_class.StoredActivity
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
 import java.io.File
 import java.lang.reflect.Type
 
-object AppInfoStorage {
+
+object ActivityStorage {
 
     private const val FILE_NAME = "app_info_storage.json"
 
-    fun saveAppSet(context: Context, appSet: Set<StorageAppInfo>) {
+    fun saveActivityList(context: Context, storedActivityList: MutableList<StoredActivity>) {
         val gson = Gson()
-        val json = gson.toJson(appSet)
+        val json = gson.toJson(storedActivityList)
         val file = File(context.filesDir, FILE_NAME)
         file.writeText(json)
     }
 
-    fun loadAppSet(context: Context): Set<StorageAppInfo> {
+    fun loadActivityList(context: Context): MutableList<StoredActivity> {
         val file = File(context.filesDir, FILE_NAME)
         if (!file.exists()) {
-            return emptySet()
+            return mutableListOf()
         }
         try {
             val json = file.readText()
             val gson = Gson()
-            val type: Type = object : TypeToken<Set<StorageAppInfo>>() {}.type
-            return gson.fromJson(json, type)
+            val type: Type = object : TypeToken<MutableList<StoredActivity>>() {}.type
+            return gson.fromJson(json, type) ?: mutableListOf()
         } catch (e: JsonSyntaxException) {
-            // 捕获 JSON 解析错误
             e.printStackTrace()
             deleteFile(context)
         } catch (e: Exception) {
-            // 捕获其他可能的异常
             e.printStackTrace()
             deleteFile(context)
         }
-        return emptySet()
+        return mutableListOf()
     }
 
     // 删除有问题的文件
@@ -50,16 +51,6 @@ object AppInfoStorage {
         val file = File(context.filesDir, FILE_NAME)
         if (file.exists()) {
             file.delete()
-//            println("Deleted corrupted file: $FILE_NAME")
         }
-    }
-
-    // 获取 activityName 到 StorageAppInfo 的映射
-    fun getMapActivityNameToStorageAppInfo(storageAppSet: MutableSet<StorageAppInfo>): MutableMap<String, StorageAppInfo> {
-        val activityNameToStorageAppInfoMap = mutableMapOf<String, StorageAppInfo>()
-        for (storageAppInfo in storageAppSet) {
-            activityNameToStorageAppInfoMap[storageAppInfo.activityName] = storageAppInfo
-        }
-        return activityNameToStorageAppInfoMap
     }
 }

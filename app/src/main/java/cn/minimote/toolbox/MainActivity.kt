@@ -9,59 +9,48 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
-import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.lifecycle.MutableLiveData
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import androidx.lifecycle.Observer
+import cn.minimote.toolbox.fragment.ActivityListFragment
+import cn.minimote.toolbox.fragment.WidgetListFragment
+import cn.minimote.toolbox.view_model.ActivityViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import kotlin.math.abs
-import kotlin.random.Random
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var gestureDetector: GestureDetector
-    private var initialX = 0f
+    private val viewModel: ActivityViewModel by viewModels()
+
 
     // 滑动返回的比例阈值
     private val thresholdExit = 0.2
 
-    // 主视图小组件的列数(6 是 2 和 3 的倍数)
-    private val spanCount = 6
-
-    private var widgetList: MutableList<WidgetInfo> = mutableListOf()
-    private lateinit var widgetListRecyclerView: RecyclerView
-    private lateinit var editBackground: ImageView
-    private lateinit var widgetListAdapter: WidgetListAdapter
-    private lateinit var gridLayoutManager: GridLayoutManager
-    private lateinit var iconCacheManager: IconCacheManager
-    private val job = Job()
-    private val uiScope = CoroutineScope(Dispatchers.Main + job)
-
-    // 可传递的编辑模式标志
-    private var isEditMode: MutableLiveData<Boolean> = MutableLiveData(false)
-
-    private fun isAddButton(): Boolean {
-        return buttonAdd.text == getString(R.string.add_button)
-    }
+    private var initialX = 0f
+    private var screenWidth: Int = 0
 
     private lateinit var timeTextView: TextView
     private lateinit var buttonExit: Button
     private lateinit var buttonAdd: Button
+
+    private lateinit var gestureDetector: GestureDetector
+
+    // 用于更新时间
     private val handler = Handler(Looper.getMainLooper())
     private val runnable = object : Runnable {
         override fun run() {
@@ -70,25 +59,66 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // 存储观察者引用
+    private lateinit var isModifiedObserver: Observer<Boolean>
+    private lateinit var isEditModeObserver: Observer<Boolean>
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(R.style.Theme_toolbox)
         super.onCreate(savedInstanceState)
+        Log.i("MainActivity", "onCreate")
+        // 默认暗色模式
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         enableEdgeToEdge()
         setContentView(R.layout.layout_main)
+//        printBackStackEntries()
 
-        iconCacheManager = IconCacheManager(this@MainActivity)
+        // 获取屏幕宽度
+        screenWidth = resources.displayMetrics.widthPixels
 
-        widgetListRecyclerView = findViewById(R.id.recyclerView_widget_list)
-        editBackground = findViewById(R.id.edit_background)
-
-
+        // 适配系统返回手势和按钮
         setupBackPressedCallback()
+        // 设置按钮
         setupButtons()
+        // 设置时间
         setupTimeTextView()
+        // 设置手势监听器
         setupGestureDetector()
-        setupRecyclerView()
+        // 检查 Fragment 是否已经存在
+//        if(savedInstanceState == null) {
+        showWidgetList()
+//        }
+
+        // 设置观察者
+        setupObservers()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.i("MainActivity", "onDestroy")
+        // 移除更新时间的任务
+        handler.removeCallbacks(runnable)
+        Log.i("MainActivity", "onDestroy 移除更新时间的任务")
+        // 移除观察者
+        viewModel.isModified.removeObserver(isModifiedObserver)
+        viewModel.isEditMode.removeObserver(isEditModeObserver)
+        Log.i("MainActivity", "onDestroy 移除观察者")
+        // 清空返回栈
+//        supportFragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        Log.i("MainActivity", "onDestroy 结束")
+//        printBackStackEntries()
+    }
+
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        // 恢复保存的状态
+        Log.i("MainActivity", "onRestoreInstanceState")
+//        printBackStackEntries()
+    }
+
+
+    // 适配系统返回手势和按钮
     private fun setupBackPressedCallback() {
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -98,86 +128,158 @@ class MainActivity : AppCompatActivity() {
         onBackPressedDispatcher.addCallback(this, callback)
     }
 
-    private fun setupButtons() {
-        buttonAdd = findViewById(R.id.button_add)
-        buttonExit = findViewById(R.id.button_exit)
 
+    // 设置按钮
+    private fun setupButtons() {
+        buttonExit = findViewById(R.id.button_exit)
         buttonExit.setOnClickListener {
-            returnOrExit()
+            VibrationUtil.vibrateOnClick(this)
+            when(getTopBackStackEntryName()) {
+                "WidgetListFragment" -> {
+                    if(viewModel.isEditMode.value == true) {
+                        viewModel.isEditMode.value = false
+                        Toast.makeText(
+                            this,
+                            getString(R.string.exit_edit_mode),
+                            Toast.LENGTH_SHORT,
+                        ).show()
+                    } else {
+                        returnOrExit()
+                    }
+                }
+
+                else -> {
+                    returnOrExit()
+                }
+            }
         }
 
+        buttonAdd = findViewById(R.id.button_add)
         buttonAdd.setOnClickListener {
             VibrationUtil.vibrateOnClick(this)
-            if (isAddButton()) {
-                navigateToAddAppListFragment()
-            } else {
-                if (isEditMode.value == true) {
-                    exitEditMode()
-                } else {
-                    saveChanges()
+            when(getTopBackStackEntryName()) {
+                "WidgetListFragment" -> {
+                    if(viewModel.isEditMode.value == true) {
+                        viewModel.isEditMode.value = false
+                        Toast.makeText(
+                            this,
+                            getString(R.string.save_success),
+                            Toast.LENGTH_SHORT,
+                        ).show()
+                    } else {
+                        changeToActivityListFragment()
+                    }
+                }
+
+                "ActivityListFragment" -> {
+                    viewModel.updateStorageActivityList()
+                    viewModel.saveStorageActivities()
+                    Toast.makeText(
+                        this@MainActivity,
+                        getString(R.string.save_success),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    buttonAdd.visibility = View.GONE
                 }
             }
         }
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    private fun navigateToAddAppListFragment() {
-        // 清空内容
-        widgetList.clear()
-        widgetListAdapter.notifyDataSetChanged()
 
+    // 切换到 AppListFragment
+    private fun changeToActivityListFragment() {
         val transaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.frameLayout_recyclerView, AppListFragment(buttonAdd))
-        transaction.addToBackStack(null)
-        transaction.commit()
-//        Log.i("MainActivity", "点击加号")
+        transaction.replace(R.id.constraintLayout_origin, ActivityListFragment(viewModel))
+        transaction.addToBackStack("ActivityListFragment") // 添加到返回栈
+        transaction.commitAllowingStateLoss() // 使用 commitAllowingStateLoss 避免状态丢失问题
 
         buttonExit.text = getString(R.string.return_button)
         buttonAdd.text = getString(R.string.save_button)
         buttonAdd.visibility = View.GONE
-        buttonAdd.isEnabled = false
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    override fun onResume() {
-        super.onResume()
-//        setupRecyclerView()
-//        widgetListAdapter.notifyDataSetChanged()
+
+    // 获取返回栈顶部的 Fragment 名称
+    private fun getTopBackStackEntryName(): String? {
+        val backStackEntryCount = supportFragmentManager.backStackEntryCount
+        if(backStackEntryCount > 0) {
+            val topEntry = supportFragmentManager.getBackStackEntryAt(backStackEntryCount - 1)
+            return topEntry.name
+        }
+        return null
     }
 
-    private fun saveChanges() {
-        val fragment =
-            supportFragmentManager.findFragmentById(R.id.frameLayout_recyclerView) as? AppListFragment
-        fragment?.saveChanges()
-        buttonAdd.visibility = View.GONE
-        buttonAdd.isEnabled = false
+
+    // 日志输出返回栈中的所有条目
+    private fun printBackStackEntries() {
+        for(i in 0 until supportFragmentManager.backStackEntryCount) {
+            val entry = supportFragmentManager.getBackStackEntryAt(i)
+            Log.i("返回栈", "$i: ${entry.name}")
+        }
     }
 
-    private fun exitEditMode() {
-        isEditMode.value = false
-        buttonAdd.text = getString(R.string.add_button)
-        buttonAdd.visibility = View.VISIBLE
-        buttonAdd.isEnabled = true
-        editBackground.visibility = View.GONE
-    }
 
+    // 设置时间
     private fun setupTimeTextView() {
         timeTextView = findViewById(R.id.textView_time)
         updateTime()
         handler.post(runnable)
     }
 
+
+    // 显示小组件的 Fragment
+    private fun showWidgetList() {
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.replace(R.id.constraintLayout_origin, WidgetListFragment(viewModel))
+        transaction.addToBackStack("WidgetListFragment") // 添加到返回栈
+        transaction.commitAllowingStateLoss() // 使用 commitAllowingStateLoss 避免状态丢失问题
+    }
+
+
+    // 设置观察者
+    private fun setupObservers() {
+        isModifiedObserver = Observer { isModified ->
+            when(getTopBackStackEntryName()) {
+                "WidgetListFragment" -> {
+                }
+
+                "ActivityListFragment" -> {
+                    buttonAdd.isEnabled = isModified
+                    buttonAdd.visibility = if(isModified) View.VISIBLE else View.GONE
+                    if(isModified) {
+                        buttonAdd.text = getString(R.string.save_button)
+                    } else {
+                        buttonAdd.text = getString(R.string.add_button)
+                    }
+                }
+            }
+        }
+        viewModel.isModified.observe(this, isModifiedObserver)
+        isEditModeObserver = Observer { isEditMode ->
+            if(isEditMode) {
+                buttonAdd.text = getString(R.string.save_button)
+                buttonExit.text = getString(R.string.return_button)
+            } else {
+                buttonAdd.text = getString(R.string.add_button)
+                buttonExit.text = getString(R.string.exit_button)
+            }
+        }
+        viewModel.isEditMode.observe(this, isEditModeObserver)
+    }
+
+
+    // 设置手势监听器
     private fun setupGestureDetector() {
         gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
             override fun onScroll(
                 e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float
             ): Boolean {
-                if (e1 != null) {
-                    if (initialX == 0f) {
+                if(e1 != null) {
+                    if(initialX == 0f) {
                         initialX = e1.x
                     }
                     val scrollDistance = e2.x - e1.x
-                    val opacity = 1 - abs(scrollDistance / resources.displayMetrics.widthPixels)
+                    val opacity = 1 - abs(scrollDistance / screenWidth)
                     findViewById<ConstraintLayout>(R.id.layout_main).animate()
                         .x(scrollDistance + initialX).alpha(opacity).setDuration(0).start()
                 }
@@ -187,9 +289,9 @@ class MainActivity : AppCompatActivity() {
             override fun onFling(
                 e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float
             ): Boolean {
-                if (e1 != null) {
+                if(e1 != null) {
                     val scrollDistance = e2.x - e1.x
-                    if (abs(scrollDistance) > resources.displayMetrics.widthPixels * thresholdExit) {
+                    if(abs(scrollDistance) > screenWidth * thresholdExit) {
                         finish()
                         return true
                     } else {
@@ -206,108 +308,29 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    private fun setupRecyclerView() {
-//        Log.i("MainActivity", "初始化RecyclerView")
-        uiScope.launch {
-            widgetList = AppInfoStorage.loadAppSet(this@MainActivity).map { storageAppInfo ->
-                WidgetInfo(
-                    appIcon = iconCacheManager.getAppIcon(storageAppInfo.packageName),
-                    appName = storageAppInfo.appName,
-                    packageName = storageAppInfo.packageName,
-                    activityName = storageAppInfo.activityName,
-                    nickName = storageAppInfo.nickName,
-//                    widgetType = Random.nextInt(1, 4),
-                    widgetType = storageAppInfo.widgetType,
-                    position = storageAppInfo.position
-                )
-            }.toMutableList()
-            gridLayoutManager = GridLayoutManager(this@MainActivity, spanCount)
-            widgetListAdapter = WidgetListAdapter(
-                this@MainActivity,
-                widgetList,
-                buttonAdd,
-                isEditMode,
-                ::onEditWidget, // 传递编辑点击回调
-                editBackground,
-            )
-            widgetListRecyclerView.adapter = widgetListAdapter
-
-            gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-                override fun getSpanSize(position: Int): Int {
-                    return when (widgetListAdapter.getItemViewType(position)) {
-                        WidgetListAdapter.VIEW_TYPE_FULL -> spanCount / 1 // 占一整行
-                        WidgetListAdapter.VIEW_TYPE_HALF -> spanCount / 2 // 占半行
-                        WidgetListAdapter.VIEW_TYPE_THIRD -> spanCount / 3 // 占1/3行
-                        else -> 1
-                    }
-                }
-            }
-            widgetListRecyclerView.layoutManager = gridLayoutManager
-
-            // 添加自定义分隔线装饰
-//            val dividerColor = resources.getColor(R.color.deep_gray) // 替换为你的颜色资源
-//            val dividerWidth = resources.getDimensionPixelSize(R.dimen.divider_height) // 替换为你的高度资源
-//            val paddingStart = resources.getDimensionPixelSize(R.dimen.padding_start) // 替换为你的起始间距资源
-//            val paddingEnd = resources.getDimensionPixelSize(R.dimen.padding_end) // 替换为你的结束间距资源
-
-            widgetListRecyclerView.addItemDecoration(
-                CustomDividerItemDecoration(
-                    this@MainActivity,
-//                    color = dividerColor,
-//                    width = dividerWidth,
-//                    paddingStart = paddingStart,
-//                    paddingEnd = paddingEnd
-                )
-            )
-
-        }
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    private fun onEditWidget(widget: WidgetInfo) {
-//        // 清空内容
-//        widgetList.clear()
-//        widgetListAdapter.notifyDataSetChanged()
-//
-//        val transaction = supportFragmentManager.beginTransaction()
-//        transaction.replace(
-//            R.id.frameLayout_recyclerView,
-//            EditWidgetFragment(widget, ::saveChanges)
-//        )
-//        transaction.addToBackStack(null)
-//        transaction.commit()
-////        Log.i("MainActivity", "点击加号")
-//
-//        buttonExit.text = getString(R.string.return_button)
-//        buttonAdd.text = getString(R.string.save_button)
-//        buttonAdd.visibility = View.GONE
-//        buttonAdd.isEnabled = false
-    }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun returnOrExit() {
         VibrationUtil.vibrateOnClick(this)
-        if (supportFragmentManager.backStackEntryCount > 0) {
+        // 最后一级是空的，不需要返回
+        if(supportFragmentManager.backStackEntryCount > 1) {
             supportFragmentManager.popBackStack()
             buttonExit.text = getString(R.string.exit_button)
             buttonAdd.text = getString(R.string.add_button)
             buttonAdd.visibility = View.VISIBLE
             buttonAdd.isEnabled = true
-            setupRecyclerView()
-            widgetListAdapter.notifyDataSetChanged()
+            // 如果需要刷新 RecyclerView，可以在这里调用
+            // widgetListAdapter.notifyDataSetChanged()
         } else {
             finish()
         }
     }
 
+
     private fun updateTime() {
         timeTextView.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        handler.removeCallbacks(runnable)
-    }
 
     private fun resetLayout() {
         findViewById<ConstraintLayout>(R.id.layout_main).animate().x(0f).alpha(1f).setDuration(300)
@@ -315,11 +338,13 @@ class MainActivity : AppCompatActivity() {
         initialX = 0f
     }
 
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        if (event.action == MotionEvent.ACTION_UP) {
+        if(event.action == MotionEvent.ACTION_UP) {
             resetLayout()
         }
         gestureDetector.onTouchEvent(event)
         return super.onTouchEvent(event)
     }
+
 }

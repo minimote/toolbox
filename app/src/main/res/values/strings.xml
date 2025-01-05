@@ -17,4 +17,5 @@
     <string name="widget_type">组件类型：</string>
     <string name="widget_type_full">整行</string>
     <string name="already_enter_edit_mode">已经在编辑模式了</string>
+    <string name="exit_edit_mode">已退出编辑模式</string>
 </resources>

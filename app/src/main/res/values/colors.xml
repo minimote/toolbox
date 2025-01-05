@@ -8,4 +8,12 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="deep_gray">#FF2D2D2D</color>
+    <color name="light_gray">#FFD3D3D3</color>
+    <color name="deep_blue">#FF214283</color>
+    <color name="light_blue">#FF24ADF3</color>
+    <color name="switch_thumb_on">#FF5BB9E0</color>
+    <color name="switch_thumb_off">#FFE6E1E5</color>
+    <color name="switch_track_on">#FF214283</color>
+    <color name="switch_track_off">#FF938F99</color>
+
 </resources>
