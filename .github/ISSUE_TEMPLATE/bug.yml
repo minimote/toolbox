@@ -3,57 +3,57 @@ description: 您可以在这里反馈您遇到的问题
 title: "[Bug]: "
 labels: ["bug"]
 body:
-    - type: markdown
-        attributes:
-            value: |
-                感谢您对项目的支持和关注。在反馈之前，请确保目前没有人反馈过相关问题：
-                - [https://gitee.com/minimote/toolbox/issues](https://gitee.com/minimote/toolbox/issues)
-    - type: input
-        id: version
-        attributes:
-            label: 软件版本号
-            description: 您当前正在使用软件的哪个版本/分支？
-            placeholder: 1.0
-        validations:
-            required: true
-    - type: textarea
-        attributes:
-            label: 设备信息
-            description: 请填写您的设备信息 (注：本项目最低支持安卓 8)
-            value: |
-                - 安卓大版本(如: 15): 
-                - 分辨率(如: 378*496): 
-                - 设备名称(如: OPPO Watch 4 Pro): 
-                - 其他信息(如: 使用暗色模式):
-        validations:
-            required: true
-    - type: textarea
-        attributes:
-            label: 如何复现
-            description: 请详细告诉我如何复现您遇到的问题
-            placeholder: |
-                1. ...
-                2. ...
-                3. ...
-        validations:
-            required: true
-    - type: textarea
-        attributes:
-            label: 预期结果
-            description: 请告诉我您预期会发生什么
-        validations:
-            required: true
-    - type: textarea
-        attributes:
-            label: 实际结果
-            description: 请告诉我实际发生了什么
-        validations:
-            required: true
-    - type: textarea
-        attributes:
-            label: 截图或视频[可选]
-            description: 如果可以的话，上传任何关于 bug 的截图或视频
-    - type: markdown
-      attributes:
-          value: |
-              感谢您的反馈，我会尽快处理。
+  - type: markdown
+    attributes:
+      value: |
+        感谢您对项目的支持和关注。在反馈之前，请确保目前没有人反馈过相关问题：
+        - [https://gitee.com/minimote/toolbox/issues](https://gitee.com/minimote/toolbox/issues)
+  - type: input
+    id: version
+    attributes:
+      label: 软件版本号
+      description: 您当前正在使用软件的哪个版本/分支？
+      placeholder: 1.0
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 设备信息
+      description: 请填写您的设备信息 (注：本项目最低支持安卓 8)
+      value: |
+        - 安卓大版本(如: 15): 
+        - 分辨率(如: 378*496): 
+        - 设备名称(如: OPPO Watch 4 Pro): 
+        - 其他信息(如: 使用暗色模式):
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 如何复现
+      description: 请详细告诉我如何复现您遇到的问题
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 预期结果
+      description: 请告诉我您预期会发生什么
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 实际结果
+      description: 请告诉我实际发生了什么
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 截图或视频[可选]
+      description: 如果可以的话，上传任何关于 bug 的截图或视频
+  - type: markdown
+    attributes:
+      value: |
+        感谢您的反馈，我会尽快处理。
