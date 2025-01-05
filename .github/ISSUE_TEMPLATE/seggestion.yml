@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        感谢您对项目的支持和关注。在反馈之前，请确保目前没有人提出过相关建议：
+        &emsp;&emsp;感谢您对项目的支持和关注。在反馈之前，请确保目前没有人提出过相关建议：
         - [Gitee【推荐】: https://gitee.com/minimote/toolbox/issues](https://gitee.com/minimote/toolbox/issues)
         - [Github: https://github.com/minimote/toolbox/issues](https://github.com/minimote/toolbox/issues)
   - type: input
@@ -46,7 +46,7 @@ body:
     id: additional-context
     attributes:
       label: 您有相关图片或视频吗？[可选]
-      description: 在此处添加相关的图片或视频
+      description: 如果可以的话，请上传相关的图片或视频
     validations:
       required: false
   - type: markdown
