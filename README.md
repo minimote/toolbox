@@ -4,8 +4,6 @@ Copyright (c) 2024-2025 minimote(微尘). All rights reserved.
 
 # 安卓手表APP - 工具箱
 
-[TOC]
-
 ## 反馈问题或提出建议
 
 - [Gitee【推荐】: https://gitee.com/minimote/toolbox/issues](https://gitee.com/minimote/toolbox/issues)
@@ -20,9 +18,8 @@ Copyright (c) 2024-2025 minimote(微尘). All rights reserved.
 ## TODO
 
 - 功能：
-  - 编辑模式下可修改名称、大小、位置，也可恢复默认
+  - 编辑模式下可拖动修改组件位置
   - 清理本软件缓存 / 数据
-  - 长按拖动小组件排序
   - 振动强度调节
   - 关于
   - 搜索活动
@@ -40,7 +37,9 @@ Copyright (c) 2024-2025 minimote(微尘). All rights reserved.
   - 优化启动速度
   - 全局侧滑返回
   - 应用列表显示可拖动的滑动条
-  - 配置更改时的闪退
+  - 重绘进度环样式
+  - 图标添加固定形状的遮罩
+  - 组件添加背景或边框
 - 待定：
   - 更换本软件图标
   - 更换组件图标

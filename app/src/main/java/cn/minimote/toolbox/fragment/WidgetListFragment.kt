@@ -13,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -26,7 +27,8 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class WidgetListFragment(
-    private val viewModel: ActivityViewModel
+    private val viewModel: ActivityViewModel,
+    private val fragmentManager: FragmentManager,
 ) : Fragment() {
 
 //    private val viewModel: ActivityViewModel by viewModels()
@@ -49,8 +51,7 @@ class WidgetListFragment(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d("WidgetListFragment", "onCreate")
-        viewModel.fragmentName.value = this::class.simpleName
+        Log.i("WidgetListFragment", "onCreate")
         context = requireContext()
 ////        viewModel = ViewModelProvider(this)[WidgetListViewModel::class.java]
 //        Log.i("WidgetListFragment", "viewModel:${System.identityHashCode(viewModel)}")
@@ -62,13 +63,13 @@ class WidgetListFragment(
 //    }
 
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        Log.i(TAG, "onSaveInstanceState")
-        // 保存 RecyclerView 的滚动位置
-        val layoutManager = recyclerView.layoutManager as GridLayoutManager
-        outState.putInt("scroll_position", layoutManager.findFirstVisibleItemPosition())
-    }
+//    override fun onSaveInstanceState(outState: Bundle) {
+//        super.onSaveInstanceState(outState)
+//        Log.i(TAG, "onSaveInstanceState")
+//        // 保存 RecyclerView 的滚动位置
+//        val layoutManager = recyclerView.layoutManager as GridLayoutManager
+//        outState.putInt("scroll_position", layoutManager.findFirstVisibleItemPosition())
+//    }
 
 
     override fun onCreateView(
@@ -76,6 +77,7 @@ class WidgetListFragment(
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_widget_list, container, false)
+//        this::class.simpleName?.let { viewModel.updateFragmentName(it) }
         Log.i(TAG, "onCreateView")
         editBackground = view.findViewById(R.id.edit_background)
 
@@ -83,23 +85,25 @@ class WidgetListFragment(
         recyclerView = view.findViewById(R.id.recyclerView_widget_list)
         val gridLayoutManager = GridLayoutManager(requireContext(), spanCount)
         val adapter = WidgetListAdapter(
-            requireActivity(),
-            viewModel,
+            context = requireActivity(),
+            viewModel = viewModel,
+            fragmentManager = fragmentManager
         )
         recyclerView.adapter = adapter
         gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
-                return spanCount / (viewModel.storedActivityList.value?.get(position)?.widgetType
+                return spanCount / (viewModel.storedActivityList.value?.get(position)?.widgetSize
                     ?: 1)
             }
         }
         recyclerView.layoutManager = gridLayoutManager
 
         // 恢复 RecyclerView 的滑动位置
-        if(savedInstanceState != null) {
-            val position = savedInstanceState.getInt("scroll_position", 0)
-            gridLayoutManager.scrollToPosition(position)
-        }
+//        if(savedInstanceState != null) {
+//            Log.i("WidgetListFragment", "恢复滚动位置")
+//            val position = savedInstanceState.getInt("scroll_position", 0)
+//            gridLayoutManager.scrollToPosition(position)
+//        }
 
         // 添加分割线
         recyclerView.addItemDecoration(

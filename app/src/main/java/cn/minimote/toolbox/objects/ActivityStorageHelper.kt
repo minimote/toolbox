@@ -3,7 +3,7 @@
  * 本项目遵循 MIT 许可协议，请务必保留此声明和署名。
  */
 
-package cn.minimote.toolbox.others
+package cn.minimote.toolbox.objects
 
 
 import android.content.Context
@@ -15,7 +15,7 @@ import java.io.File
 import java.lang.reflect.Type
 
 
-object ActivityStorage {
+object ActivityStorageHelper {
 
     private const val FILE_NAME = "app_info_storage.json"
 
@@ -28,7 +28,7 @@ object ActivityStorage {
 
     fun loadActivityList(context: Context): MutableList<StoredActivity> {
         val file = File(context.filesDir, FILE_NAME)
-        if (!file.exists()) {
+        if(!file.exists()) {
             return mutableListOf()
         }
         try {
@@ -36,10 +36,10 @@ object ActivityStorage {
             val gson = Gson()
             val type: Type = object : TypeToken<MutableList<StoredActivity>>() {}.type
             return gson.fromJson(json, type) ?: mutableListOf()
-        } catch (e: JsonSyntaxException) {
+        } catch(e: JsonSyntaxException) {
             e.printStackTrace()
             deleteFile(context)
-        } catch (e: Exception) {
+        } catch(e: Exception) {
             e.printStackTrace()
             deleteFile(context)
         }
@@ -49,7 +49,7 @@ object ActivityStorage {
     // 删除有问题的文件
     private fun deleteFile(context: Context) {
         val file = File(context.filesDir, FILE_NAME)
-        if (file.exists()) {
+        if(file.exists()) {
             file.delete()
         }
     }

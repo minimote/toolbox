@@ -11,10 +11,19 @@ data class StoredActivity(
     val appName: String,
     val packageName: String,
     val activityName: String,
+    var iconName: String = packageName,
     // 在主页显示的昵称
     var nickName: String = appName,
     // 1 表示整行，2 表示半行，3 表示三分之一行
-    val widgetType: Int = 1,
+    var widgetSize: Int = 1,
     // 整行默认显示名称
-    var showName: Boolean = (widgetType == 1),
-)
+    var showName: Boolean = (widgetSize == 1),
+) {
+    // 用一个新的 StoredActivity 的属性覆盖原有的属性
+    fun update(storedActivity: StoredActivity) {
+        this.iconName = storedActivity.iconName
+        this.nickName = storedActivity.nickName
+        this.widgetSize = storedActivity.widgetSize
+        this.showName = storedActivity.showName
+    }
+}

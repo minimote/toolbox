@@ -17,7 +17,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import cn.minimote.toolbox.data_class.InstalledActivity
 import cn.minimote.toolbox.data_class.StoredActivity
-import cn.minimote.toolbox.others.ActivityStorage
+import cn.minimote.toolbox.objects.ActivityStorageHelper
 import cn.minimote.toolbox.others.IconCacheManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -30,10 +30,11 @@ class ActivityViewModel
 @Inject constructor(
     application: Application,
     private val iconCacheManager: IconCacheManager,
-) : AndroidViewModel(application) {
 
-    // 主视图小组件的列数(6 是 2 和 3 的倍数)
-    val spanCount = 6
+    ) : AndroidViewModel(application) {
+
+    // 主视图小组件的列数(1-6的最小公倍数)
+    val spanCount = 60
 
     private val _storedActivityList = MutableLiveData<MutableList<StoredActivity>>()
     val storedActivityList: LiveData<MutableList<StoredActivity>> = _storedActivityList
@@ -47,25 +48,71 @@ class ActivityViewModel
 
     private val _activityNameToInstallActivityMap = mutableMapOf<String, InstalledActivity>()
 
-    var fragmentName = MutableLiveData("")
+    // 修改组件
+    var originWidget = MutableLiveData<StoredActivity>()
+    var modifiedWidget = MutableLiveData<StoredActivity>()
+
+    // 最大组件大小
+    val maxWidgetSize = 6
+
+    val editList = listOf(
+        0, // 显示的名称
+        1, // 是否显示名称
+        2, // 组件大小
+    )
+
+    //    var fragmentStark = MutableLiveData<Stack<String>>()
+//        .apply {
+//            value = Stack<String>().apply {
+//                push("No Fragment")
+//            }
+//        }
+    private var _fragmentName = MutableLiveData("No Fragment")
+    val fragmentName: LiveData<String> = _fragmentName
+//    fragmentStark.observeForever {
+//        fragmentName.value = fragmentStark.peek()
+//    }
 
     var isModified = MutableLiveData(false)
     var isEditMode = MutableLiveData(false)
 
 //    var scrollPosition: Int = SavedStateHandle.get("scrollPosition") ?: 0
 
+    fun updateFragmentName(fragmentName: String?) {
+        _fragmentName.value = fragmentName
+    }
+
+    fun getFragmentName(): String {
+        return _fragmentName.value ?: "No Fragment"
+    }
+
+    // 编辑列表是否发生改变
+    fun hasEditListChanged(): Boolean {
+        return modifiedWidget.value != originWidget.value
+    }
+
+    // 更新要存储的活动列表
+    fun updateStorageWidgetList() {
+        if(!hasEditListChanged()) {
+            return
+        }
+        val activityName = modifiedWidget.value?.activityName ?: return
+        _storedActivityList
+        _activityNameToStorageActivityMap[activityName]?.update(modifiedWidget.value!!)
+    }
+
 
     // 加载存储的活动信息
     fun loadStorageActivities() {
-        Log.i("ActivityViewModel", "加载活动0")
+//        Log.i("ActivityViewModel", "加载活动0")
         if(_storedActivityList.value != null) {
             return
         }
         val context = getApplication<Application>().applicationContext
-        val storageActivityList = ActivityStorage.loadActivityList(context)
+        val storageActivityList = ActivityStorageHelper.loadActivityList(context)
         _storedActivityList.value = storageActivityList
 
-        Log.i("ActivityViewModel", "加载活动1：${_storedActivityList.value?.size}")
+//        Log.i("ActivityViewModel", "加载活动1：${_storedActivityList.value?.size}")
         for(storageActivity in storageActivityList) {
             // 建立活动名到应用信息的映射
             val activityName = storageActivity.activityName
@@ -80,7 +127,9 @@ class ActivityViewModel
     // 保存活动列表到存储中
     fun saveStorageActivities() {
         val context = getApplication<Application>().applicationContext
-        _storedActivityList.value?.let { ActivityStorage.saveActivityList(context, it) }
+
+        _storedActivityList.value?.let { ActivityStorageHelper.saveActivityList(context, it) }
+        isModified.value = false
     }
 
 

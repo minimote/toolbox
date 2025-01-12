@@ -11,9 +11,6 @@ import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.graphics.drawable.ColorDrawable
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -21,18 +18,21 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
-import cn.minimote.toolbox.VibrationUtil
 import cn.minimote.toolbox.data_class.StoredActivity
+import cn.minimote.toolbox.fragment.EditWidgetFragment
+import cn.minimote.toolbox.objects.FragmentManagerHelper
+import cn.minimote.toolbox.objects.VibrationHelper
 import cn.minimote.toolbox.view_model.ActivityViewModel
 
 
 class WidgetListAdapter(
     private val context: Context,
     private val viewModel: ActivityViewModel,
+    private val fragmentManager: FragmentManager,
 ) : RecyclerView.Adapter<WidgetListAdapter.WidgetViewHolder>() {
 
     private lateinit var itemTouchHelper: ItemTouchHelper
@@ -77,12 +77,19 @@ class WidgetListAdapter(
         holder.appIcon.setImageDrawable(viewModel.getIcon(appInfo.packageName))
 
         holder.itemView.setOnClickListener {
-            toggleBackgroundColor(holder.itemView)
-            VibrationUtil.vibrateOnClick(context)
+//            toggleBackgroundColor(holder.itemView)
+            VibrationHelper.vibrateOnClick(context)
             if(viewModel.isEditMode.value == true) {
                 Log.i("WidgetListAdapter", "编辑小组件<${appInfo.appName}>")
-//                editWidget(widgetInfo)
-//            onEditClick(widgetInfo) // 调用编辑点击回调
+                val fragment = EditWidgetFragment(viewModel)
+                FragmentManagerHelper.replaceFragment(
+                    fragmentManager = fragmentManager,
+                    fragment = fragment,
+                    viewModel = viewModel,
+                )
+
+                viewModel.originWidget.value = appInfo
+                viewModel.modifiedWidget.value = appInfo.copy()
             } else {
                 Log.i("WidgetListAdapter", "启动 ${appInfo.appName}")
                 // 启动相应活动并结束当前应用
@@ -107,7 +114,7 @@ class WidgetListAdapter(
         }
 
         holder.itemView.setOnLongClickListener {
-            VibrationUtil.vibrateOnClick(context)
+            VibrationHelper.vibrateOnClick(context)
             if(viewModel.isEditMode.value != true) {
                 viewModel.isEditMode.value = true
                 Log.i("WidgetListAdapter", "进入编辑模式")
@@ -127,20 +134,20 @@ class WidgetListAdapter(
         }
     }
 
-    private fun toggleBackgroundColor(view: View) {
-        val currentColor = (view.background as ColorDrawable).color
-        val newColor = if(currentColor == ContextCompat.getColor(view.context, R.color.black)) {
-            ContextCompat.getColor(view.context, R.color.deep_gray)
-        } else {
-            ContextCompat.getColor(view.context, R.color.light_gray)
-        }
-        view.setBackgroundColor(newColor)
-
-        // 50 毫秒（0.05 秒）后切换回原来的颜色
-        Handler(Looper.getMainLooper()).postDelayed({
-            view.setBackgroundColor(currentColor)
-        }, 50)
-    }
+//    private fun toggleBackgroundColor(view: View) {
+//        val currentColor = (view.background as ColorDrawable).color
+//        val newColor = if(currentColor == ContextCompat.getColor(view.context, R.color.black)) {
+//            ContextCompat.getColor(view.context, R.color.deep_gray)
+//        } else {
+//            ContextCompat.getColor(view.context, R.color.light_gray)
+//        }
+//        view.setBackgroundColor(newColor)
+//
+//        // 50 毫秒（0.05 秒）后切换回原来的颜色
+//        Handler(Looper.getMainLooper()).postDelayed({
+//            view.setBackgroundColor(currentColor)
+//        }, 50)
+//    }
 
     override fun getItemCount(): Int = activityList.size
 

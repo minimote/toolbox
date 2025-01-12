@@ -20,11 +20,13 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Observer
 import cn.minimote.toolbox.fragment.ActivityListFragment
 import cn.minimote.toolbox.fragment.WidgetListFragment
+import cn.minimote.toolbox.objects.FragmentManagerHelper
+import cn.minimote.toolbox.objects.VibrationHelper
 import cn.minimote.toolbox.view_model.ActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
@@ -62,13 +64,14 @@ class MainActivity : AppCompatActivity() {
     // 存储观察者引用
     private lateinit var isModifiedObserver: Observer<Boolean>
     private lateinit var isEditModeObserver: Observer<Boolean>
+    private lateinit var fragmentNameObserver: Observer<String>
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.i("MainActivity", "onCreate")
-        // 默认暗色模式
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        // 默认暗色模式(使用后会出现亮色模式无法打开的问题)
+//        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         enableEdgeToEdge()
         setContentView(R.layout.layout_main)
 //        printBackStackEntries()
@@ -84,13 +87,19 @@ class MainActivity : AppCompatActivity() {
         setupTimeTextView()
         // 设置手势监听器
         setupGestureDetector()
-        // 检查 Fragment 是否已经存在
-//        if(savedInstanceState == null) {
-        showWidgetList()
-//        }
 
         // 设置观察者
         setupObservers()
+
+        // 在配置更改时，清空返回栈并重新加载 Fragment
+        if(savedInstanceState != null) {
+            Log.i("MainActivity", "配置更改了")
+            supportFragmentManager.popBackStackImmediate(
+                null,
+                FragmentManager.POP_BACK_STACK_INCLUSIVE
+            )
+        }
+        showWidgetList()
     }
 
     override fun onDestroy() {
@@ -102,6 +111,7 @@ class MainActivity : AppCompatActivity() {
         // 移除观察者
         viewModel.isModified.removeObserver(isModifiedObserver)
         viewModel.isEditMode.removeObserver(isEditModeObserver)
+        viewModel.fragmentName.removeObserver(fragmentNameObserver)
         Log.i("MainActivity", "onDestroy 移除观察者")
         // 清空返回栈
 //        supportFragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
@@ -133,31 +143,14 @@ class MainActivity : AppCompatActivity() {
     private fun setupButtons() {
         buttonExit = findViewById(R.id.button_exit)
         buttonExit.setOnClickListener {
-            VibrationUtil.vibrateOnClick(this)
-            when(getTopBackStackEntryName()) {
-                "WidgetListFragment" -> {
-                    if(viewModel.isEditMode.value == true) {
-                        viewModel.isEditMode.value = false
-                        Toast.makeText(
-                            this,
-                            getString(R.string.exit_edit_mode),
-                            Toast.LENGTH_SHORT,
-                        ).show()
-                    } else {
-                        returnOrExit()
-                    }
-                }
-
-                else -> {
-                    returnOrExit()
-                }
-            }
+            VibrationHelper.vibrateOnClick(this)
+            returnOrExit()
         }
 
         buttonAdd = findViewById(R.id.button_add)
         buttonAdd.setOnClickListener {
-            VibrationUtil.vibrateOnClick(this)
-            when(getTopBackStackEntryName()) {
+            VibrationHelper.vibrateOnClick(this)
+            when(viewModel.getFragmentName()) {
                 "WidgetListFragment" -> {
                     if(viewModel.isEditMode.value == true) {
                         viewModel.isEditMode.value = false
@@ -169,6 +162,17 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         changeToActivityListFragment()
                     }
+                }
+
+                "EditWidgetFragment" -> {
+                    viewModel.updateStorageWidgetList()
+                    viewModel.saveStorageActivities()
+                    Toast.makeText(
+                        this@MainActivity,
+                        getString(R.string.save_success),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    buttonAdd.visibility = View.GONE
                 }
 
                 "ActivityListFragment" -> {
@@ -188,34 +192,16 @@ class MainActivity : AppCompatActivity() {
 
     // 切换到 AppListFragment
     private fun changeToActivityListFragment() {
-        val transaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.constraintLayout_origin, ActivityListFragment(viewModel))
-        transaction.addToBackStack("ActivityListFragment") // 添加到返回栈
-        transaction.commitAllowingStateLoss() // 使用 commitAllowingStateLoss 避免状态丢失问题
+        val fragment = ActivityListFragment(viewModel)
+        FragmentManagerHelper.replaceFragment(
+            fragmentManager = supportFragmentManager,
+            fragment = fragment,
+            viewModel = viewModel,
+        )
 
-        buttonExit.text = getString(R.string.return_button)
+//        buttonExit.text = getString(R.string.return_button)
         buttonAdd.text = getString(R.string.save_button)
         buttonAdd.visibility = View.GONE
-    }
-
-
-    // 获取返回栈顶部的 Fragment 名称
-    private fun getTopBackStackEntryName(): String? {
-        val backStackEntryCount = supportFragmentManager.backStackEntryCount
-        if(backStackEntryCount > 0) {
-            val topEntry = supportFragmentManager.getBackStackEntryAt(backStackEntryCount - 1)
-            return topEntry.name
-        }
-        return null
-    }
-
-
-    // 日志输出返回栈中的所有条目
-    private fun printBackStackEntries() {
-        for(i in 0 until supportFragmentManager.backStackEntryCount) {
-            val entry = supportFragmentManager.getBackStackEntryAt(i)
-            Log.i("返回栈", "$i: ${entry.name}")
-        }
     }
 
 
@@ -229,42 +215,83 @@ class MainActivity : AppCompatActivity() {
 
     // 显示小组件的 Fragment
     private fun showWidgetList() {
-        val transaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.constraintLayout_origin, WidgetListFragment(viewModel))
-        transaction.addToBackStack("WidgetListFragment") // 添加到返回栈
-        transaction.commitAllowingStateLoss() // 使用 commitAllowingStateLoss 避免状态丢失问题
+        val fragment = WidgetListFragment(
+            viewModel = viewModel,
+            fragmentManager = supportFragmentManager,
+        )
+        FragmentManagerHelper.replaceFragment(
+            fragmentManager = supportFragmentManager,
+            fragment = fragment,
+            viewModel = viewModel,
+        )
     }
 
 
     // 设置观察者
     private fun setupObservers() {
         isModifiedObserver = Observer { isModified ->
-            when(getTopBackStackEntryName()) {
+            Log.i(
+                "isModifiedObserver",
+                "fragmentName: ${viewModel.getFragmentName()}, isModified: $isModified"
+            )
+            when(viewModel.getFragmentName()) {
                 "WidgetListFragment" -> {
+
+                }
+
+                "EditWidgetFragment" -> {
+                    if(isModified) {
+                        buttonAdd.visibility = View.VISIBLE
+                        buttonAdd.text = getString(R.string.save_button)
+                    } else {
+                        buttonAdd.visibility = View.GONE
+                    }
                 }
 
                 "ActivityListFragment" -> {
-                    buttonAdd.isEnabled = isModified
-                    buttonAdd.visibility = if(isModified) View.VISIBLE else View.GONE
                     if(isModified) {
+                        buttonAdd.visibility = View.VISIBLE
                         buttonAdd.text = getString(R.string.save_button)
                     } else {
-                        buttonAdd.text = getString(R.string.add_button)
+                        buttonAdd.visibility = View.GONE
                     }
                 }
             }
         }
         viewModel.isModified.observe(this, isModifiedObserver)
+
         isEditModeObserver = Observer { isEditMode ->
+            Log.i(
+                "isEditModeObserver",
+                "fragmentName: ${viewModel.getFragmentName()}, isEditMode: $isEditMode"
+            )
             if(isEditMode) {
-                buttonAdd.text = getString(R.string.save_button)
+//                buttonAdd.text = getString(R.string.save_button)
+                buttonAdd.visibility = View.GONE
                 buttonExit.text = getString(R.string.return_button)
             } else {
                 buttonAdd.text = getString(R.string.add_button)
+                buttonAdd.visibility = View.VISIBLE
                 buttonExit.text = getString(R.string.exit_button)
             }
         }
         viewModel.isEditMode.observe(this, isEditModeObserver)
+
+        fragmentNameObserver = Observer {
+            val fragmentName = viewModel.getFragmentName()
+            Log.i(
+                "fragmentNameObserver",
+                "fragmentName: $fragmentName, isEditMode: ${viewModel.isEditMode.value}"
+            )
+            if(fragmentName == "WidgetListFragment" && viewModel.isEditMode.value == false) {
+                buttonExit.text = getString(R.string.exit_button)
+                buttonAdd.visibility = View.VISIBLE
+                buttonAdd.text = getString(R.string.add_button)
+            } else {
+                buttonExit.text = getString(R.string.return_button)
+            }
+        }
+        viewModel.fragmentName.observe(this, fragmentNameObserver)
     }
 
 
@@ -311,19 +338,22 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun returnOrExit() {
-        VibrationUtil.vibrateOnClick(this)
-        // 最后一级是空的，不需要返回
-        if(supportFragmentManager.backStackEntryCount > 1) {
-            supportFragmentManager.popBackStack()
-            buttonExit.text = getString(R.string.exit_button)
-            buttonAdd.text = getString(R.string.add_button)
-            buttonAdd.visibility = View.VISIBLE
-            buttonAdd.isEnabled = true
-            // 如果需要刷新 RecyclerView，可以在这里调用
-            // widgetListAdapter.notifyDataSetChanged()
-        } else {
-            finish()
+        Log.i("returnOrExit", "fragrantName:${viewModel.getFragmentName()}")
+        if(viewModel.getFragmentName() == "WidgetListFragment" && viewModel.isEditMode.value == true) {
+            viewModel.isEditMode.value = false
+            Toast.makeText(
+                this,
+                getString(R.string.exit_edit_mode),
+                Toast.LENGTH_SHORT,
+            ).show()
+            return
         }
+        viewModel.isModified.value = false
+        FragmentManagerHelper.popFragment(
+            fragmentManager = supportFragmentManager,
+            viewModel = viewModel,
+            activity = this,
+        )
     }
 
 

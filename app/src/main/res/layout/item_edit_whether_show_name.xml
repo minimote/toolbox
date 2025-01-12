@@ -1,29 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    style="@style/ConstraintLayout.Toolbox.Clickable.Dark">
 
     <TextView
-        android:id="@+id/textView_widget_type_name"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:id="@+id/textView_whether_show_widgetName"
+        style="@style/TextView.Toolbox.EditOperateName.Dark"
         android:gravity="start"
-        android:text="@string/widget_type"
+        android:text="@string/show_widget_name"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/textView_widget_type"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/textView_widget_type"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:gravity="end"
-        android:text="@string/widget_type_full"
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/switch_whether_show_widgetName"
+        style="@style/Switch.Toolbox.Dark"
+        android:contentDescription="@string/switch_description_whether_show_widget_name"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/textView_widget_type_name"
         app:layout_constraintTop_toTopOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

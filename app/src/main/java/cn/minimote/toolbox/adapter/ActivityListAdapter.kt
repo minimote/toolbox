@@ -13,8 +13,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
-import cn.minimote.toolbox.VibrationUtil
 import cn.minimote.toolbox.data_class.InstalledActivity
+import cn.minimote.toolbox.objects.VibrationHelper
 import cn.minimote.toolbox.view_model.ActivityViewModel
 import com.google.android.material.switchmaterial.SwitchMaterial
 
@@ -33,7 +33,7 @@ class ActivityListAdapter(
         val appIcon: ImageView = itemView.findViewById(R.id.app_icon)
         val appName: TextView = itemView.findViewById(R.id.app_name)
         val activityName: TextView = itemView.findViewById(R.id.activity_name)
-        val switch: SwitchMaterial = itemView.findViewById(R.id.switchButton)
+        val switch: SwitchMaterial = itemView.findViewById(R.id.switch_whether_show_in_home)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppViewHolder {
@@ -60,7 +60,7 @@ class ActivityListAdapter(
             holder.switch.isChecked = !holder.switch.isChecked
 
             // 触发设备振动
-            VibrationUtil.vibrateOnClick(context)
+            VibrationHelper.vibrateOnClick(context)
 
             // 根据开关状态更新字典
             viewModel.toggleSwitch(holder.switch.isChecked, installedActivity)

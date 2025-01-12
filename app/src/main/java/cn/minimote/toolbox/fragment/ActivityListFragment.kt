@@ -24,14 +24,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
+
 @AndroidEntryPoint
 class ActivityListFragment(
     private val viewModel: ActivityViewModel
 ) : Fragment() {
-    //    private val viewModel: ActivityViewModel by viewModels()
-    companion object {
-        private const val TAG = "ActivityListFragment"
-    }
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: ActivityListAdapter
@@ -44,8 +41,6 @@ class ActivityListFragment(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.fragmentName.value = this::class.simpleName
-        Log.i(TAG, "onCreate:${this::class.simpleName}")
     }
 
 
@@ -60,6 +55,7 @@ class ActivityListFragment(
     ): View? {
         Log.i("AppListFragment", "onCreateView")
         val view = inflater.inflate(R.layout.fragment_activity_list, container, false)
+//        this::class.simpleName?.let { viewModel.updateFragmentName(it) }
         // 初始化 RecyclerView
         recyclerView = view.findViewById(R.id.recyclerView_activity_list)
         recyclerView.layoutManager = LinearLayoutManager(context)
@@ -86,7 +82,13 @@ class ActivityListFragment(
 
         return view
     }
-    // 保存修改
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+    }
+}
+
+// 保存修改
 //    fun saveChanges() {
 //        if (originalMapActivityNameToStorageAppInfo != modifiedMapActivityNameToStorageAppInfo) {
 //            Log.i("AppListFragment", "有修改，开始保存")
@@ -178,4 +180,3 @@ class ActivityListFragment(
 //    private fun isSystemPackage(appInfo: ApplicationInfo): Boolean {
 //        return appInfo.flags and ApplicationInfo.FLAG_SYSTEM != 0
 //    }
-}

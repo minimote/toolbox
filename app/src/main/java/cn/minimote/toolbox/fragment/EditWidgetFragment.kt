@@ -9,23 +9,28 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.adapter.EditListAdapter
+import cn.minimote.toolbox.view_model.ActivityViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+
+@AndroidEntryPoint
 class EditWidgetFragment(
-//    private val widgetInfo: WidgetInfo,
+    private val viewModel: ActivityViewModel
 ) :
     Fragment() {
 
-    private lateinit var appIcon: ImageView
-    private lateinit var widgetNameEditText: EditText
-    private lateinit var saveButton: Button
-    private lateinit var editListRecyclerView: RecyclerView
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: EditListAdapter
+
+
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//    }
 
 
     override fun onCreateView(
@@ -34,11 +39,27 @@ class EditWidgetFragment(
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_edit_list, container, false)
+//        this::class.simpleName?.let { viewModel.updateFragmentName(it) }
+//        Log.i("${this::class.simpleName}", "当前：${viewModel.fragmentName.value}")
 
         // 初始化 RecyclerView
-        editListRecyclerView = view.findViewById(R.id.fragment_edit_list)
-        editListRecyclerView.layoutManager = LinearLayoutManager(context)
+        recyclerView = view.findViewById(R.id.recyclerView_edit_list)
+        recyclerView.layoutManager = LinearLayoutManager(context)
+        adapter = EditListAdapter(
+            context = requireContext(),
+            viewModel = viewModel,
+        )
+        recyclerView.adapter = adapter
+
+//        // 添加分割线
+//        recyclerView.addItemDecoration(
+//            DividerItemDecoration(requireContext())
+//        )
 
         return view
     }
+
+//    override fun onDestroyView() {
+//        super.onDestroyView()
+//    }
 }

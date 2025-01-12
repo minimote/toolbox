@@ -13,6 +13,7 @@
     <dimen name="text_size_5_Huge">32sp</dimen>
 
     <!-- 布局大小 -->
+    <dimen name="layout_size_5_very_tiny">2dp</dimen>
     <dimen name="layout_size_4_tiny">2dp</dimen>
     <dimen name="layout_size_3_script">4dp</dimen>
     <dimen name="layout_size_2_footnote">8dp</dimen>
@@ -20,7 +21,8 @@
     <dimen name="layout_size_0_normal">24dp</dimen>
     <dimen name="layout_size_1_large">32dp</dimen>
     <dimen name="layout_size_2_Large">64dp</dimen>
-    <dimen name="layout_size_3_LARGE">128sp</dimen>
-    <dimen name="layout_size_4_huge">256sp</dimen>
-    <dimen name="layout_size_5_Huge">512sp</dimen>
+    <dimen name="layout_size_2.5_Large">96dp</dimen>
+    <dimen name="layout_size_3_LARGE">128dp</dimen>
+    <dimen name="layout_size_4_huge">256dp</dimen>
+    <dimen name="layout_size_5_Huge">512dp</dimen>
 </resources>
