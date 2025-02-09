@@ -15,13 +15,13 @@ import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.data_class.InstalledActivity
 import cn.minimote.toolbox.objects.VibrationHelper
-import cn.minimote.toolbox.view_model.ActivityViewModel
+import cn.minimote.toolbox.view_model.ToolboxViewModel
 import com.google.android.material.switchmaterial.SwitchMaterial
 
 
 class ActivityListAdapter(
     private val context: Context,
-    private val viewModel: ActivityViewModel,
+    private val viewModel: ToolboxViewModel,
 ) : RecyclerView.Adapter<ActivityListAdapter.AppViewHolder>() {
 
     private var installedAppList: List<InstalledActivity> =
@@ -30,7 +30,7 @@ class ActivityListAdapter(
 
     class AppViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        val appIcon: ImageView = itemView.findViewById(R.id.app_icon)
+        val appIcon: ImageView = itemView.findViewById(R.id.widget_icon)
         val appName: TextView = itemView.findViewById(R.id.app_name)
         val activityName: TextView = itemView.findViewById(R.id.activity_name)
         val switch: SwitchMaterial = itemView.findViewById(R.id.switch_whether_show_in_home)
@@ -45,7 +45,7 @@ class ActivityListAdapter(
     override fun onBindViewHolder(holder: AppViewHolder, position: Int) {
         val installedActivity = installedAppList[position]
 
-        holder.appIcon.setImageDrawable(viewModel.getIcon(installedActivity.packageName))
+        holder.appIcon.setImageDrawable(viewModel.getIcon(installedActivity.iconName))
         holder.appName.text = installedActivity.appName
         // 活动名仅显示最后一个点后面的部分
         holder.activityName.text = installedActivity.activityName.substringAfterLast('.')

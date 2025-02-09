@@ -19,3 +19,8 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keep class cn.minimote.toolbox.objects.ActivityStorageHelper { *; }
+-keep class cn.minimote.toolbox.data_class.StoredActivity { *; }
+# 保持 Gson 库的关键类不被混淆
+-keep class com.google.gson.** { *; }

@@ -39,7 +39,7 @@
         app:layout_constraintGuide_percent="0.65" />
 
     <Button
-        android:id="@+id/textView_time"
+        android:id="@+id/button_time"
         style="@style/Button.Toolbox.Dark"
         android:text="@string/time"
         app:layout_constraintBottom_toTopOf="@id/guideline4"

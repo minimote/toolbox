@@ -7,6 +7,7 @@ package cn.minimote.toolbox.objects
 
 
 import android.content.Context
+import android.util.Log
 import cn.minimote.toolbox.data_class.StoredActivity
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
@@ -23,11 +24,13 @@ object ActivityStorageHelper {
         val gson = Gson()
         val json = gson.toJson(storedActivityList)
         val file = File(context.filesDir, FILE_NAME)
+//        Log.i("ActivityStorageHelper", "保存文件: ${file.absolutePath}")
         file.writeText(json)
     }
 
     fun loadActivityList(context: Context): MutableList<StoredActivity> {
         val file = File(context.filesDir, FILE_NAME)
+//        Log.i("ActivityStorageHelper", "读取文件: ${file.absolutePath}")
         if(!file.exists()) {
             return mutableListOf()
         }
@@ -37,9 +40,11 @@ object ActivityStorageHelper {
             val type: Type = object : TypeToken<MutableList<StoredActivity>>() {}.type
             return gson.fromJson(json, type) ?: mutableListOf()
         } catch(e: JsonSyntaxException) {
+            // Log.e("ActivityStorageHelper", "读取文件出错:${e}")
             e.printStackTrace()
             deleteFile(context)
         } catch(e: Exception) {
+            // Log.e("ActivityStorageHelper", "读取文件出错:${e}")
             e.printStackTrace()
             deleteFile(context)
         }
@@ -48,6 +53,7 @@ object ActivityStorageHelper {
 
     // 删除有问题的文件
     private fun deleteFile(context: Context) {
+        // Log.e("ActivityStorageHelper", "删除文件")
         val file = File(context.filesDir, FILE_NAME)
         if(file.exists()) {
             file.delete()

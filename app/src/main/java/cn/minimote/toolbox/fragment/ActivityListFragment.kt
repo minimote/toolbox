@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.adapter.ActivityListAdapter
-import cn.minimote.toolbox.view_model.ActivityViewModel
+import cn.minimote.toolbox.view_model.ToolboxViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ActivityListFragment(
-    private val viewModel: ActivityViewModel
+    private val viewModel: ToolboxViewModel
 ) : Fragment() {
 
     private lateinit var recyclerView: RecyclerView

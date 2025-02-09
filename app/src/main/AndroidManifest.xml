@@ -7,12 +7,14 @@
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!--    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />-->
 
 
     <application
         android:name=".ToolboxApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
+        android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@drawable/ic_toolbox"
         android:label="@string/app_name"
@@ -20,7 +22,7 @@
         android:roundIcon="@drawable/ic_toolbox"
         android:supportsRtl="true"
         android:theme="@style/Theme.Toolbox.Dark"
-        tools:targetApi="31">
+        tools:targetApi="tiramisu">
         <!--        <activity-->
         <!--            android:name=".SplashActivity"-->
         <!--            android:exported="true"-->

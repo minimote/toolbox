@@ -5,8 +5,11 @@
 
 package cn.minimote.toolbox.data_class
 
+import androidx.annotation.Keep
+
 
 // 用于存储的数据类
+@Keep
 data class StoredActivity(
     val appName: String,
     val packageName: String,
@@ -14,10 +17,10 @@ data class StoredActivity(
     var iconName: String = packageName,
     // 在主页显示的昵称
     var nickName: String = appName,
-    // 1 表示整行，2 表示半行，3 表示三分之一行
-    var widgetSize: Int = 1,
+    // 列数
+    var widgetSize: Int,
     // 整行默认显示名称
-    var showName: Boolean = (widgetSize == 1),
+    var showName: Boolean = true,
 ) {
     // 用一个新的 StoredActivity 的属性覆盖原有的属性
     fun update(storedActivity: StoredActivity) {

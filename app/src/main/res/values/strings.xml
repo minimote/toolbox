@@ -1,9 +1,11 @@
 <resources>
     <string name="add_button">+</string>
-    <string name="activity_name">MainActivity</string>
+    <string name="activity_name">alipays://showpage=codepay</string>
     <string name="app_icon">APP图标</string>
     <string name="app_name">工具箱</string>
-    <string name="enter_edit_mode">进入编辑模式，单击组件可编辑</string>
+    <string name="app_name_en">toolbox</string>
+    <string name="textView_activity_name">活动名称</string>
+    <string name="enter_edit_mode">进入编辑模式，单击组件可编辑，拖动组件可移动</string>
     <string name="exit_button">＜ 退出</string>
     <string name="have_reset">已经重置了</string>
     <string name="loading_text">加载中，请稍后…</string>
@@ -12,19 +14,26 @@
     <string name="save_button">保存</string>
     <string name="save_success">已保存</string>
     <string name="setting">设置</string>
-    <string name="start_fail">%1$s 不存在</string>
+    <string name="split_char">\n</string>
+    <string name="sort">排序</string>
+    <string name="start_fail">%1$s 启动失败</string>
     <string name="switch_description_whether_show_in_home">是否在主页显示的开关</string>
     <string name="switch_description_whether_show_widget_name">是否显示组件名称的开关</string>
     <string name="time">10:24</string>
+    <string name="time_format">HH:mm</string>
     <string name="widget_type_full">整行</string>
     <string name="already_enter_edit_mode">已经在编辑模式了</string>
     <string name="exit_edit_mode">已退出编辑模式</string>
-    <string name="widget_size">组件大小</string>
-    <string name="widget_size_num">1 / %1$d</string>
-    <string name="widget_size_increase">+</string>
-    <string name="widget_size_decrease">-</string>
-    <string name="show_widget_name">显示组件名称</string>
-    <string name="widget_name">组件名称</string>
     <string name="reset">重置</string>
-    <string name="widget_size_full">1 / 1</string>
+    <string name="show_widget_name">显示组件名称</string>
+    <string name="widgetSize">组件大小</string>
+    <string name="widgetSize_fraction">%1$d / %2$d</string>
+    <string name="widgetSize_increase">+</string>
+    <string name="widgetSize_decrease">-</string>
+    <string name="widgetName">组件名称</string>
+    <string name="widgetSize_num">%1d</string>
+    <string name="widgetSize_maxSize">%1d</string>
+    <string name="widget_icon">小组件图标</string>
+    <string name="toast_no_widget_return_home">当前没有组件，返回主页</string>
+    <string name="textView_no_widget">↑\n点击 + 号添加组件</string>
 </resources>

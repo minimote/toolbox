@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import cn.minimote.toolbox.R
-import cn.minimote.toolbox.view_model.ActivityViewModel
+import cn.minimote.toolbox.view_model.ToolboxViewModel
 
 
 object FragmentManagerHelper {
@@ -21,7 +21,7 @@ object FragmentManagerHelper {
         fragment: Fragment,
         addToBackStack: Boolean = true,
         tag: String? = fragment::class.java.simpleName,
-        viewModel: ActivityViewModel,
+        viewModel: ToolboxViewModel,
     ) {
         val transaction = fragmentManager.beginTransaction()
         transaction.replace(containerId, fragment, tag)
@@ -31,7 +31,7 @@ object FragmentManagerHelper {
         }
         // 使用 commitAllowingStateLoss 避免状态丢失问题
         transaction.commitAllowingStateLoss()
-        Log.i("Fragment 栈", "进栈: $tag")
+        // Log.i("Fragment 栈", "进栈: $tag")
         printBackStackEntries(fragmentManager)
     }
 
@@ -39,7 +39,7 @@ object FragmentManagerHelper {
     // 弹出顶部的 Fragment
     fun popFragment(
         fragmentManager: FragmentManager,
-        viewModel: ActivityViewModel,
+        viewModel: ToolboxViewModel,
         activity: AppCompatActivity,
     ) {
         // 栈底是 WidgetListFragment，不用再弹出了
@@ -51,7 +51,7 @@ object FragmentManagerHelper {
             )
             viewModel.updateFragmentName(tag)
             fragmentManager.popBackStack()
-            Log.i("Fragment 栈", "出栈: $tag")
+            // Log.i("Fragment 栈", "出栈: $tag")
             printBackStackEntries(fragmentManager)
         } else {
             activity.finish()
@@ -77,7 +77,7 @@ object FragmentManagerHelper {
     private fun printBackStackEntries(fragmentManager: FragmentManager) {
         for(i in 0 until fragmentManager.backStackEntryCount) {
             val entry = fragmentManager.getBackStackEntryAt(i)
-            Log.i("栈内元素", "$i: ${entry.name}")
+            // Log.i("栈内元素", "$i: ${entry.name}")
         }
     }
 }

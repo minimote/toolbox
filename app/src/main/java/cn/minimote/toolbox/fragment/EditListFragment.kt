@@ -1,0 +1,83 @@
+/*
+ * Copyright (c) 2024-2025 minimote(微尘). All rights reserved.
+ * 本项目遵循 MIT 许可协议，请务必保留此声明和署名。
+ */
+
+package cn.minimote.toolbox.fragment
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import cn.minimote.toolbox.R
+import cn.minimote.toolbox.adapter.EditListAdapter
+import cn.minimote.toolbox.view_model.ToolboxViewModel
+import dagger.hilt.android.AndroidEntryPoint
+
+
+@AndroidEntryPoint
+class EditListFragment(
+    private val viewModel: ToolboxViewModel
+) :
+    Fragment() {
+
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: EditListAdapter
+
+
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//    }
+
+
+//    override fun onDestroy() {
+//        super.onDestroy()
+//    }
+
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        // Inflate the layout for this fragment
+        val view = inflater.inflate(R.layout.fragment_edit_list, container, false)
+//        this::class.simpleName?.let { viewModel.updateFragmentName(it) }
+//        Log.i("${this::class.simpleName}", "当前：${viewModel.fragmentName.value}")
+
+        // 初始化 RecyclerView
+        recyclerView = view.findViewById(R.id.recyclerView_edit_list)
+        recyclerView.layoutManager = LinearLayoutManager(context)
+        adapter = EditListAdapter(
+            context = requireContext(),
+            viewModel = viewModel,
+            lifecycleOwner = viewLifecycleOwner,
+        )
+        recyclerView.adapter = adapter
+
+//        // 添加分割线
+//        recyclerView.addItemDecoration(
+//            DividerItemDecoration(requireContext())
+//        )
+
+        return view
+    }
+
+
+//    override fun onDestroyView() {
+//        super.onDestroyView()
+//    }
+
+
+//    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+//        super.onViewCreated(view, savedInstanceState)
+//    }
+
+//    override fun onDestroyView() {
+//        super.onDestroyView()
+//        removeObserver()
+//    }
+
+}

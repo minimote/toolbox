@@ -7,11 +7,9 @@ package cn.minimote.toolbox.adapter
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,29 +21,31 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.data_class.StoredActivity
-import cn.minimote.toolbox.fragment.EditWidgetFragment
+import cn.minimote.toolbox.fragment.EditListFragment
 import cn.minimote.toolbox.objects.FragmentManagerHelper
 import cn.minimote.toolbox.objects.VibrationHelper
-import cn.minimote.toolbox.view_model.ActivityViewModel
+import cn.minimote.toolbox.view_model.ToolboxViewModel
 
 
 class WidgetListAdapter(
     private val context: Context,
-    private val viewModel: ActivityViewModel,
+    private val viewModel: ToolboxViewModel,
     private val fragmentManager: FragmentManager,
 ) : RecyclerView.Adapter<WidgetListAdapter.WidgetViewHolder>() {
 
     private lateinit var itemTouchHelper: ItemTouchHelper
-    private var activityList: MutableList<StoredActivity> =
-        viewModel.storedActivityList.value ?: mutableListOf()
+    //    var activityList: MutableList<StoredActivity> =
+//        viewModel.storedActivityList.value ?: mutableListOf()
+    var activityList: MutableList<StoredActivity> = loadActivityList()
+
+
 //    private var buttonSave: Button = viewModel.buttonSave
 //    private var isEditMode: MutableLiveData<Boolean> = viewModel.isEditMode
 //    private val editBackground: ImageView = viewModel.editBackground
 
 
     class WidgetViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
-        val appIcon: ImageView = itemView.findViewById(R.id.app_icon)
+        val appIcon: ImageView = itemView.findViewById(R.id.widget_icon)
         val widgetName: TextView? = itemView.findViewById(R.id.widget_name)
     }
 
@@ -56,8 +56,7 @@ class WidgetListAdapter(
     }
 
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int):
-            WidgetViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WidgetViewHolder {
 //        Log.i("WidgetListAdapter", "viewModel:${System.identityHashCode(viewModel)}")
         val layoutId = when(viewType) {
             1 -> R.layout.item_widget_icon_and_name
@@ -74,14 +73,14 @@ class WidgetListAdapter(
         if(appInfo.showName) {
             holder.widgetName?.text = appInfo.nickName
         }
-        holder.appIcon.setImageDrawable(viewModel.getIcon(appInfo.packageName))
+        holder.appIcon.setImageDrawable(viewModel.getIcon(appInfo.iconName))
 
         holder.itemView.setOnClickListener {
 //            toggleBackgroundColor(holder.itemView)
             VibrationHelper.vibrateOnClick(context)
-            if(viewModel.isEditMode.value == true) {
-                Log.i("WidgetListAdapter", "编辑小组件<${appInfo.appName}>")
-                val fragment = EditWidgetFragment(viewModel)
+            if(viewModel.editMode.value == true) {
+//                Log.i("WidgetListAdapter", "编辑小组件<${appInfo.appName}>")
+                val fragment = EditListFragment(viewModel)
                 FragmentManagerHelper.replaceFragment(
                     fragmentManager = fragmentManager,
                     fragment = fragment,
@@ -91,71 +90,101 @@ class WidgetListAdapter(
                 viewModel.originWidget.value = appInfo
                 viewModel.modifiedWidget.value = appInfo.copy()
             } else {
-                Log.i("WidgetListAdapter", "启动 ${appInfo.appName}")
-                // 启动相应活动并结束当前应用
-                val intent = Intent().apply {
-                    // 设置目标应用的包名和活动名
-                    component = ComponentName(appInfo.packageName, appInfo.activityName)
-                    // 添加标志以清除当前任务栈
-                    flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                }
-                try {
-                    context.startActivity(intent)
-                    // 结束当前应用
-                    (context as? Activity)?.finishAffinity()
-                } catch(e: ActivityNotFoundException) {
-                    Toast.makeText(
-                        context,
-                        context.getString(R.string.start_fail, appInfo.activityName),
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
+                // 启动新活动并结束当前活动
+                startActivityAndFinishCurrent(appInfo)
             }
         }
 
         holder.itemView.setOnLongClickListener {
             VibrationHelper.vibrateOnClick(context)
-            if(viewModel.isEditMode.value != true) {
-                viewModel.isEditMode.value = true
-                Log.i("WidgetListAdapter", "进入编辑模式")
+            if(viewModel.editMode.value != true) {
+                viewModel.editMode.value = true
+//                Log.i("WidgetListAdapter", "进入编辑模式")
                 Toast.makeText(
                     context,
                     context.getString(R.string.enter_edit_mode),
                     Toast.LENGTH_SHORT,
                 ).show()
             } else {
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.already_enter_edit_mode),
-                    Toast.LENGTH_SHORT,
-                ).show()
+//                Toast.makeText(
+//                    context,
+//                    context.getString(R.string.already_enter_edit_mode),
+//                    Toast.LENGTH_SHORT,
+//                ).show()
+                itemTouchHelper.startDrag(holder)
             }
             true // 返回 true 以表示事件已处理，不再继续传递
         }
     }
 
-//    private fun toggleBackgroundColor(view: View) {
-//        val currentColor = (view.background as ColorDrawable).color
-//        val newColor = if(currentColor == ContextCompat.getColor(view.context, R.color.black)) {
-//            ContextCompat.getColor(view.context, R.color.deep_gray)
-//        } else {
-//            ContextCompat.getColor(view.context, R.color.light_gray)
-//        }
-//        view.setBackgroundColor(newColor)
-//
-//        // 50 毫秒（0.05 秒）后切换回原来的颜色
-//        Handler(Looper.getMainLooper()).postDelayed({
-//            view.setBackgroundColor(currentColor)
-//        }, 50)
-//    }
+
+    // 启动新活动并结束当前活动
+    private fun startActivityAndFinishCurrent(appInfo: StoredActivity) {
+        val intentList = listOf(
+            // 按包名和活动名启动
+            Intent().apply {
+                component = ComponentName(appInfo.packageName, appInfo.activityName)
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+            },
+            // 使用 parseUri 启动
+            Intent.parseUri(appInfo.activityName, Intent.URI_INTENT_SCHEME),
+            // 使用 putExtra 启动
+            getIntentPutExtra(appInfo),
+        )
+        for(intent in intentList) {
+            try {
+                context.startActivity(intent)
+                (context as? Activity)?.finishAffinity()
+                return
+            } catch(e: Exception) {
+                // 如果启动失败，继续尝试下一个 Intent
+            }
+        }
+        // 启动失败，显示错误信息
+        Toast.makeText(
+            context,
+            context.getString(R.string.start_fail, appInfo.activityName),
+            Toast.LENGTH_LONG,
+        ).show()
+    }
+
+
+    private fun getIntentPutExtra(appInfo: StoredActivity): Intent? {
+        val activityName = appInfo.activityName
+        val parts = activityName.split(context.getString(R.string.split_char))
+        if(parts.size != 3) {
+            if(parts.size == 1) {
+                return context.packageManager.getLaunchIntentForPackage(appInfo.packageName)
+                    ?.apply {
+                        putExtra(activityName, true)
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    }
+            }
+            return null
+        }
+        val action = parts[0]
+        val extraKey = parts[1]
+        val extraValue = parts[2]
+
+        return Intent(action).apply {
+            putExtra(extraKey, extraValue)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+    }
+
 
     override fun getItemCount(): Int = activityList.size
 
 
     @SuppressLint("NotifyDataSetChanged")
     fun submitList() {
-        activityList = viewModel.storedActivityList.value ?: mutableListOf()
+        activityList = loadActivityList()
         notifyDataSetChanged()
+    }
+
+
+    private fun loadActivityList(): MutableList<StoredActivity> {
+        return viewModel.storedActivityList.value ?: mutableListOf()
     }
 
 
@@ -163,10 +192,4 @@ class WidgetListAdapter(
         this.itemTouchHelper = itemTouchHelper
     }
 
-
-//    private fun editWidget(widget: WidgetInfo) {
-////        Log.i("WidgetListAdapter", "编辑小组件<${widget.appName}>")
-//
-//        onEditClick(widget) // 调用编辑点击回调
-//    }
 }

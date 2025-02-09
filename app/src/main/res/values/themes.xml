@@ -2,20 +2,56 @@
 
     <!-- 默认主题 -->
     <style name="Theme.Toolbox.Dark" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="android:background">@color/black</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:textSize">@dimen/text_size_0_normal</item>
-        <item name="android:background">@color/black</item>
+        <item name="android:gravity">center</item>
+        <!-- 右滑返回 -->
+        <item name="android:windowSwipeToDismiss">true</item>
+        <!--<item name="android:windowIsTranslucent">true</item>-->
     </style>
 
 
     <!-- Button -->
     <style name="Button.Toolbox.Dark" parent="Widget.Material3.Button.TextButton">
         <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_height">0dp</item>
         <item name="android:textColor">@color/white</item>
-        <item name="android:inset">0dp</item>
+        <item name="android:layout_margin">0dp</item>
         <item name="android:padding">0dp</item>
-        <!--        <item name="android:background">@android:color/transparent</item>-->
+    </style>
+
+
+    <!-- Button: 删除组件 -->
+    <style name="Button.Toolbox.DeleteWidget.Dark" parent="Widget.Material3.Button.TextButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:text">@string/delete_widget</item>
+        <item name="android:textColor">@color/red</item>
+        <item name="android:layout_margin">0dp</item>
+        <item name="android:padding">0dp</item>
+    </style>
+
+
+    <!-- Button: 恢复组件 -->
+    <style name="Button.Toolbox.RestoreWidget.Dark" parent="Widget.Material3.Button.TextButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:text">@string/restore_widget</item>
+        <item name="android:textColor">@color/green</item>
+        <item name="android:layout_margin">0dp</item>
+        <item name="android:padding">0dp</item>
+    </style>
+
+
+    <!-- Button: 重置按钮 -->
+    <style name="Button.Toolbox.Reset.Dark" parent="Widget.Material3.Button.TextButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">@dimen/layout_size_1_large</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">@dimen/text_size_1_small</item>
+        <item name="android:layout_margin">0dp</item>
+        <item name="android:padding">0dp</item>
     </style>
 
 
@@ -27,14 +63,29 @@
         <!--        <item name="android:layout_marginEnd">@dimen/layout_size_2_footnote</item>-->
         <item name="android:layout_marginTop">@dimen/layout_size_2_footnote</item>
         <item name="android:layout_marginBottom">@dimen/layout_size_2_footnote</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+
+    <!-- ImageView：小组件图标 -->
+    <style name="ImageView.Toolbox.WidgetIcon.Dark" parent="Theme.Toolbox.Dark">
+        <item name="android:layout_width">@dimen/layout_size_1_large</item>
+        <item name="android:layout_height">@dimen/layout_size_1_large</item>
+        <item name="android:layout_margin">@dimen/layout_size_2_footnote</item>
+        <!--        <item name="android:layout_marginStart">@dimen/layout_size_2_footnote</item>-->
+        <!--        <item name="android:layout_marginEnd">@dimen/layout_size_2_footnote</item>-->
+        <!--        <item name="android:layout_marginTop">@dimen/layout_size_2_footnote</item>-->
+        <!--        <item name="android:layout_marginBottom">@dimen/layout_size_2_footnote</item>-->
+        <item name="android:background">@android:color/transparent</item>
     </style>
 
 
     <!-- ImageView：编辑模式背景 -->
     <style name="ImageView.Toolbox.EditBackground.Dark" parent="Theme.Toolbox.Dark">
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">0dp</item>
-        <item name="android:alpha">0.125</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:alpha">0.256</item>
     </style>
 
 
@@ -68,10 +119,12 @@
     <style name="TextView.Toolbox.WidgetName.Dark" parent="Theme.Toolbox.Dark">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginStart">@dimen/layout_size_3_script</item>
+        <item name="android:gravity">start</item>
+        <!--        <item name="android:padding">@dimen/layout_size_3_script</item>&ndash;&gt;-->
+        <!--        <item name="android:layout_marginStart">@dimen/layout_size_3_script</item>-->
         <item name="android:layout_marginEnd">@dimen/layout_size_3_script</item>
-        <item name="android:layout_marginTop">@dimen/layout_size_2_footnote</item>
-        <item name="android:layout_marginBottom">@dimen/layout_size_2_footnote</item>
+        <!--        <item name="android:layout_marginTop">@dimen/layout_size_2_footnote</item>-->
+        <!--        <item name="android:layout_marginBottom">@dimen/layout_size_2_footnote</item>-->
         <item name="android:textSize">@dimen/text_size_1_large</item>
         <item name="android:background">@android:color/transparent</item>
     </style>
@@ -81,6 +134,7 @@
     <style name="TextView.Toolbox.AppName.Dark" parent="Theme.Toolbox.Dark">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">start</item>
         <item name="android:layout_marginStart">@dimen/layout_size_2_footnote</item>
         <!--        <item name="android:layout_marginEnd">@dimen/layout_size_2_footnote</item>-->
         <!--        <item name="android:layout_marginTop">@dimen/layout_size_2_footnote</item>-->
@@ -94,6 +148,7 @@
     <style name="TextView.Toolbox.ActivityName.Dark" parent="TextView.Toolbox.AppName.Dark">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">start</item>
         <item name="android:layout_marginStart">@dimen/layout_size_2_footnote</item>
         <!--        <item name="android:layout_marginEnd">@dimen/layout_size_2_footnote</item>-->
         <!--        <item name="android:layout_marginTop">@dimen/layout_size_2_footnote</item>-->
@@ -119,9 +174,12 @@
 
 
     <!-- 放置 RecyclerView 的 ConstraintLayout -->
-    <style name="ConstraintLayout.Toolbox.RecyclerView.Dark" parent="RecyclerView.Toolbox.Dark">
+    <style name="ConstraintLayout.Toolbox.RecyclerView.Dark" parent="Theme.Toolbox.Dark">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:padding">@dimen/layout_size_3_script</item>
-        <!--        <item name="app:layout_constrainedHeight">true</item>-->
+        <!--        <item name="android:layout_height">match_parent</item>-->
+        <item name="layout_constrainedHeight">true</item>
     </style>
 
 
@@ -132,6 +190,19 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:background">@drawable/background_ripple</item>
+    </style>
+
+
+    <!-- 小组件样式(可点击) -->
+    <style name="ConstraintLayout.Toolbox.Widget.Dark" parent="RecyclerView.Toolbox.Dark">
+        <item name="android:clickable">true</item>
+        <!--        <item name="android:focusable">true</item>-->
+        <item name="android:padding">@dimen/layout_size_4_tiny</item>
+        <item name="android:layout_margin">@dimen/layout_size_4_tiny</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!--        <item name="android:background">@drawable/background_widget_edge</item>-->
+        <item name="android:background">@drawable/background_widget_full</item>
     </style>
 
 
@@ -157,6 +228,7 @@
         <item name="android:focusable">false</item>
     </style>
 
+
     <!-- EditText: 输入框 -->
     <style name="EditText.Toolbox.Dark" parent="Widget.Material3.TextInputEditText.FilledBox.Dense">
         <item name="android:layout_width">match_parent</item>
@@ -172,4 +244,6 @@
     </style>
 
 
+    <string name="delete_widget">删除组件</string>
+    <string name="restore_widget">恢复组件</string>
 </resources>

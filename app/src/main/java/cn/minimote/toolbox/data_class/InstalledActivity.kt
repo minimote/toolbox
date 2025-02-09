@@ -11,4 +11,5 @@ data class InstalledActivity(
     val appName: String,
     val packageName: String,
     val activityName: String,
+    var iconName: String = packageName,
 )

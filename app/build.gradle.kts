@@ -1,3 +1,6 @@
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -23,8 +26,23 @@ android {
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+
+        }
+
+        getByName("debug") {
+            isMinifyEnabled = false
+            isShrinkResources = false
+            isDebuggable = true
+            applicationIdSuffix = ".debug" // 可选：区分调试和发布版本
+            versionNameSuffix = "-debug"   // 可选：添加版本后缀
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
             )
         }
     }
@@ -38,11 +56,72 @@ android {
     buildFeatures {
         compose = true
     }
+//    afterEvaluate {
+//        tasks.named("assembleRelease") {
+//            finalizedBy("copyAndRenameApkTask")
+//        }
+//    }
+    android.applicationVariants.all {
+        val config = project.android.defaultConfig
+        val versionName = config.versionName
+        val formatter = DateTimeFormatter.ofPattern("yyyy_MMdd_HHmm")
+        val createTime = LocalDateTime.now().format(formatter)
+        val appName = "toolbox"
+        outputs.all {
+            // 判断是否是输出 apk 类型
+            if(this is com.android.build.gradle.internal.api.ApkVariantOutputImpl
+            ) {
+                this.outputFileName = "${appName}_${versionName}_${createTime}.apk"
+            }
+        }
+        if(buildType.name == "release") {
+            // 也可以用 assembleProvider.configure {
+            assembleProvider.get().doLast {
+                // 可以这样过滤 if (name == "assembleRelease")
+                project.copy {
+                    val fromDir =
+                        packageApplicationProvider.get().outputDirectory.asFile.get().absolutePath
+                    val outDir = File(project.rootDir, "apks")
+                    outDir.mkdirs()
+                    from(fromDir) {
+                        include("**/*.apk")
+                    }
+                    into(outDir)
+                    println("> Task :copy from $fromDir into $outDir")
+                    rename { _ -> "${appName}_${versionName}_${createTime}.apk" }
+                }
+            }
+        }
+    }
+}
+
+
+//gradlew copyAndRenameApkTask
+val copyAndRenameApkTask by tasks.registering(Copy::class) {
+    dependsOn("assembleRelease") // 确保 app-release.apk 已经生成
+
+    val config = project.android.defaultConfig
+    val versionName = config.versionName
+    val formatter = DateTimeFormatter.ofPattern("yyyy_MMdd_HHmm")
+    val createTime = LocalDateTime.now().format(formatter)
+    val appName = "toolbox"
+    val destDir = File(
+        rootDir,
+        "app/build/outputs/apk/release"
+    )
+    // 确保目标目录存在
+    doFirst {
+        destDir.mkdirs()
+    }
+    from(destDir) {
+        include("app-release.apk")
+    }
+    into(destDir)
+    rename { _ -> "${appName}_${versionName}_${createTime}.apk" }
 }
 
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -59,8 +138,9 @@ dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.gson)
     implementation(libs.androidx.core.splashscreen)
-    implementation("com.google.dagger:hilt-android:2.51.1")
-    kapt("com.google.dagger:hilt-android-compiler:2.51.1")
+    implementation(libs.hilt.android)
+    implementation(libs.androidx.room.ktx)
+    kapt(libs.hilt.android.compiler)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

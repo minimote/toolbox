@@ -2,16 +2,8 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/fragment_activity_list"
-    style="@style/ConstraintLayout.Toolbox.RecyclerView.Dark"
-    app:layout_constrainedHeight="true">
+    style="@style/ConstraintLayout.Toolbox.RecyclerView.Dark">
 
-    <!--    <FrameLayout-->
-    <!--        android:id="@+id/frameLayout_recyclerView"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:layout_constraintTop_toTopOf="parent">-->
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView_activity_list"
@@ -19,8 +11,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-
-    <!--    </FrameLayout>                      /-->
 
     <ProgressBar
         android:id="@+id/progressBar"

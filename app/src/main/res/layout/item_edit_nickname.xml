@@ -4,31 +4,31 @@
     style="@style/ConstraintLayout.Toolbox.Clickable.Dark">
 
     <TextView
-        android:id="@+id/textView_widgetName"
+        android:id="@+id/textView_nickname"
         style="@style/TextView.Toolbox.EditOperateName.Dark"
         android:gravity="start"
-        android:text="@string/widget_name"
-        app:layout_constraintBottom_toTopOf="@id/editText_nickName"
+        android:text="@string/widgetName"
+        app:layout_constraintBottom_toTopOf="@id/textView_activityName"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/button_reset_nickName"
-        style="@style/Button.Toolbox.Dark"
+        style="@style/Button.Toolbox.Reset.Dark"
         android:text="@string/reset"
-        android:textSize="@dimen/text_size_1_small"
-        app:layout_constraintBottom_toTopOf="@id/editText_nickName"
+        app:layout_constraintBottom_toTopOf="@id/textView_activityName"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textView_nickname"
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/editText_nickName"
+        android:id="@+id/textView_activityName"
         style="@style/EditText.Toolbox.Dark"
         android:autofillHints="@string/app_name"
         android:hint="@string/app_name"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView_widgetName" />
+        app:layout_constraintTop_toBottomOf="@+id/textView_nickname" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
