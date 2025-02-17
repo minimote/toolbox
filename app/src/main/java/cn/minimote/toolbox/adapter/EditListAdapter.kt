@@ -42,12 +42,6 @@ class EditListAdapter(
 
     // 创建一个 ViewModel 的 EditViewTypes 本地引用
     private val editViewTypes = viewModel.editViewTypes
-    // 定义不同的视图类型
-//    companion object {
-//        const val VIEW_TYPE_NAME = 0
-//        const val VIEW_TYPE_SHOW_NAME = 1
-//        const val VIEW_TYPE_SIZE = 2
-//    }
 
 
     class EditViewHolder(
@@ -55,6 +49,8 @@ class EditListAdapter(
         viewType: Int,
         editViewTypes: EditViewTypes,
     ) : RecyclerView.ViewHolder(itemView) {
+        lateinit var textViewPackageName: TextView
+
         lateinit var textViewActivityName: TextView
 
         lateinit var editTextNickname: EditText
@@ -71,14 +67,19 @@ class EditListAdapter(
 
         init {
             when(viewType) {
-                // 活动名称
+                // 包名
+                editViewTypes.EDIT_VIEW_TYPE_PACKAGE_NAME -> {
+                    textViewPackageName = itemView.findViewById(R.id.editText_searchBox)
+                }
+
+                // 活动名
                 editViewTypes.EDIT_VIEW_TYPE_ACTIVITY_NAME -> {
-                    textViewActivityName = itemView.findViewById(R.id.textView_activityName)
+                    textViewActivityName = itemView.findViewById(R.id.editText_searchBox)
                 }
 
                 // 显示名称修改
                 editViewTypes.EDIT_VIEW_TYPE_NICKNAME -> {
-                    editTextNickname = itemView.findViewById(R.id.textView_activityName)
+                    editTextNickname = itemView.findViewById(R.id.editText_searchBox)
                     buttonResetNickname = itemView.findViewById(R.id.button_reset_nickName)
                 }
 
@@ -118,6 +119,7 @@ class EditListAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EditViewHolder {
         val layoutId = when(viewType) {
+            editViewTypes.EDIT_VIEW_TYPE_PACKAGE_NAME -> R.layout.item_edit_package_name
             editViewTypes.EDIT_VIEW_TYPE_ACTIVITY_NAME -> R.layout.item_edit_activity_name
             editViewTypes.EDIT_VIEW_TYPE_NICKNAME -> R.layout.item_edit_nickname
             editViewTypes.EDIT_VIEW_TYPE_SHOW_NAME -> R.layout.item_edit_whether_show_name
@@ -133,6 +135,11 @@ class EditListAdapter(
     override fun onBindViewHolder(holder: EditViewHolder, position: Int) {
 
         when(holder.itemViewType) {
+            editViewTypes.EDIT_VIEW_TYPE_PACKAGE_NAME -> {
+                setupPackageName(holder)
+            }
+
+
             editViewTypes.EDIT_VIEW_TYPE_ACTIVITY_NAME -> {
                 setupActivityName(holder)
             }
@@ -164,7 +171,13 @@ class EditListAdapter(
     }
 
 
-    // 活动名称
+    // 包名
+    private fun setupPackageName(holder: EditViewHolder) {
+        holder.textViewPackageName.text = originWidget.value?.packageName
+    }
+
+
+    // 活动名
     private fun setupActivityName(holder: EditViewHolder) {
         holder.textViewActivityName.text = originWidget.value?.activityName
     }
@@ -184,7 +197,7 @@ class EditListAdapter(
     private fun setupButtonResetNickname(holder: EditViewHolder) {
         // 默认隐藏重置按钮
         holder.buttonResetNickname.visibility = View.GONE
-        viewModel.widgetNameWasModified()
+        viewModel.widgetWasModified()
         widgetNameWasModifiedObserver = Observer { wasModified ->
             if(wasModified) {
                 holder.buttonResetNickname.visibility = View.VISIBLE
@@ -200,7 +213,7 @@ class EditListAdapter(
             holder.editTextNickname.setText(originWidget.value?.appName)
             modifiedWidget.value?.nickName = originWidget.value?.appName.toString()
             //            viewModel.updateWidgetWasChanged()
-            viewModel.widgetNameWasModified()
+            viewModel.widgetWasModified()
         }
     }
 
@@ -231,7 +244,6 @@ class EditListAdapter(
                     val newText = s.toString()
                     viewModel.modifiedWidget.value?.nickName = newText
                     viewModel.widgetWasModified()
-                    viewModel.widgetNameWasModified()
                 }
 
                 override fun beforeTextChanged(
@@ -285,7 +297,7 @@ class EditListAdapter(
 
         // 减小按钮
         holder.buttonWidgetSizeDecrease.setOnClickListener {
-            if(modifiedWidget.value?.widgetSize == 1) {
+            if(modifiedWidget.value?.widgetSize == viewModel.minWidgetSize) {
                 return@setOnClickListener
             }
             updateWidgetSize(holder, -1)
@@ -316,11 +328,8 @@ class EditListAdapter(
 
         // 重置按钮点击事件
         holder.buttonResetWidgetSize.setOnClickListener {
-            VibrationHelper.vibrateOnClick(context)
             modifiedWidget.value?.widgetSize = originWidget.value?.widgetSize!!
             updateWidgetSize(holder, 0)
-            //            viewModel.updateWidgetWasChanged()
-            viewModel.widgetSizeWasModified()
         }
     }
 
@@ -344,15 +353,12 @@ class EditListAdapter(
         VibrationHelper.vibrateOnClick(context)
         modifiedWidget.value!!.widgetSize += diff
         viewModel.widgetWasModified()
-        viewModel.widgetSizeWasModified()
         showWidgetSize(holder)
     }
 
 
     // 删除组件
     private fun setupDeleteWidget(holder: EditViewHolder) {
-        // 设置修改字典
-        viewModel.setupModifiedActivityNameToStorageActivityMap()
         holder.buttonDeleteWidget.let { button: Button ->
             button.setOnClickListener {
                 VibrationHelper.vibrateOnClick(context)

@@ -5,16 +5,13 @@
 
 package cn.minimote.toolbox.data_class
 
-import androidx.annotation.Keep
-
 
 // 用于存储的数据类
-@Keep
 data class StoredActivity(
     val appName: String,
     val packageName: String,
     val activityName: String,
-    var iconName: String = packageName,
+    var iconName: String = activityName,
     // 在主页显示的昵称
     var nickName: String = appName,
     // 列数

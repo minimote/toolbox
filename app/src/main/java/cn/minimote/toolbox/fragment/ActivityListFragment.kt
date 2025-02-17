@@ -5,18 +5,28 @@
 
 package cn.minimote.toolbox.fragment
 
+// import com.heytap.wearable.support.recycler.widget.RecyclerView
+// import com.heytap.wearable.support.recycler.widget.LinearLayoutManager
+import android.content.Context
 import android.os.Bundle
-import android.util.Log
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import android.widget.Button
+import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.adapter.ActivityListAdapter
+import cn.minimote.toolbox.objects.VibrationHelper
 import cn.minimote.toolbox.view_model.ToolboxViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -26,22 +36,36 @@ import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
-class ActivityListFragment(
-    private val viewModel: ToolboxViewModel
-) : Fragment() {
+class ActivityListFragment : Fragment() {
 
-    private lateinit var recyclerView: RecyclerView
+    private val viewModel: ToolboxViewModel by activityViewModels()
+
+    lateinit var recyclerView: RecyclerView
     private lateinit var adapter: ActivityListAdapter
     private lateinit var progressBar: ProgressBar
     private lateinit var loadingTextView: TextView
+    lateinit var searchBox: EditText
+    lateinit var buttonCancel: Button
+
+    private val alpha = 0.3f
+    private val originalAlpha = 1.0f
 
     private val job = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main + job)
 
+    // 观察者
+    private lateinit var searchModeObserver: Observer<Boolean>
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
+
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+////        viewModel = ViewModelProvider(this)[ToolboxViewModel::class.java]
+////        Log.e("", "${getHash(viewModel)},${getHash(vi)}")
+//    }
+//
+//    private fun getHash(viewModel: ToolboxViewModel): Int {
+//        return System.identityHashCode(viewModel)
+//    }
 
 
     override fun onDestroy() {
@@ -53,38 +77,176 @@ class ActivityListFragment(
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
-        Log.i("AppListFragment", "onCreateView")
-        val view = inflater.inflate(R.layout.fragment_activity_list, container, false)
+//        Log.i("AppListFragment", "onCreateView")
+//        val view = inflater.inflate(R.layout.fragment_activity_list, container, false)
+        val view = inflater.inflate(R.layout.fragment_activity_list_new, container, false)
 //        this::class.simpleName?.let { viewModel.updateFragmentName(it) }
         // 初始化 RecyclerView
         recyclerView = view.findViewById(R.id.recyclerView_activity_list)
         recyclerView.layoutManager = LinearLayoutManager(context)
+
 //        // 检查权限并获取应用列表
 //        checkPermissionAndGetAppList()
+
+        // 显示加载信息
         progressBar = view.findViewById(R.id.progressBar)
         loadingTextView = view.findViewById(R.id.textView_loading)
-        // 显示加载信息
         progressBar.visibility = View.VISIBLE
         loadingTextView.visibility = View.VISIBLE
+
         // 在后台线程获取应用列表
         uiScope.launch {
             viewModel.getInstalledActivitiesCoroutine()
-            // 隐藏加载信息
-            progressBar.visibility = View.GONE
-            loadingTextView.visibility = View.GONE
+
             // 设置 Adapter
             adapter = ActivityListAdapter(
                 context = requireContext(),
+                fragment = this@ActivityListFragment,
                 viewModel = viewModel,
             )
             recyclerView.adapter = adapter
+
+            setupSearchBoxAndCancelButton(view)
+
+            setupObservers()
+
+//            val dividerItemDecoration = DividerItemDecoration(requireContext(), viewModel)
+//            recyclerView.addItemDecoration(dividerItemDecoration)
+
+            // 隐藏加载信息
+            progressBar.visibility = View.GONE
+            loadingTextView.visibility = View.GONE
         }
+
 
         return view
     }
 
+
+    // 设置搜索框和取消按钮
+    private fun setupSearchBoxAndCancelButton(view: View) {
+        searchBox = view.findViewById(R.id.editText_searchBox)
+        searchBox.visibility = View.VISIBLE
+        buttonCancel = view.findViewById(R.id.button_cancel)
+
+        searchBox.hint = getString(
+            R.string.hint_search_activities, viewModel.installedAppListSize,
+        )
+
+        // 手动请求输入法，避免第一次点击出现闪烁
+        searchBox.onFocusChangeListener = View.OnFocusChangeListener { v, hasFocus ->
+            if(hasFocus) {
+                VibrationHelper.vibrateOnClick(requireContext())
+                val imm =
+                    v.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.showSoftInput(v, InputMethodManager.SHOW_IMPLICIT)
+
+                // 进入搜索模式
+                viewModel.searchMode.value = true
+            } else {
+                // 退出搜索模式
+                viewModel.searchMode.value = false
+            }
+        }
+
+        // 点击输入框时触发振动
+        searchBox.setOnClickListener {
+            VibrationHelper.vibrateOnClick(requireContext())
+        }
+
+        // 添加 TextWatcher 监听文本变化
+        searchBox.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                // 恢复 RecyclerView 的不透明度
+                recyclerView.alpha = originalAlpha
+
+                // 获取输入的文本
+                val query = s.toString().trim()
+
+                // 过滤数据
+                val filteredList = viewModel.installedActivityList.value?.filter { activity ->
+                    if(viewModel.searchMode.value == true and query.isNotEmpty()) {
+                        activity.appName.contains(
+                            query, ignoreCase = true
+                        ) && activity.packageName.isNotEmpty()
+                    } else {
+                        activity.appName.contains(
+                            query, ignoreCase = true
+                        )
+                    }
+                } ?: emptyList()
+
+                // 更新 Adapter 的数据
+                adapter.submitList(filteredList)
+
+                // 检查文本框内容是否为空
+                if(query.isEmpty()) {
+                    recyclerView.alpha = alpha
+                }
+            }
+
+            override fun beforeTextChanged(
+                s: CharSequence?, start: Int, count: Int, after: Int
+            ) {
+            }
+
+            override fun onTextChanged(
+                s: CharSequence?, start: Int, before: Int, count: Int
+            ) {
+            }
+        })
+
+        // 设置取消按钮点击事件
+        buttonCancel.setOnClickListener {
+            VibrationHelper.vibrateOnClick(requireContext())
+            exitSearchMode()
+        }
+    }
+
+
+    // 退出搜索模式
+    private fun exitSearchMode() {
+        searchBox.setText("")
+        searchBox.clearFocus()
+        val imm =
+            requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(searchBox.windowToken, 0)
+    }
+
+
+    // 设置观察者
+    private fun setupObservers() {
+        searchModeObserver = Observer { isSearchMode ->
+            if(isSearchMode) {
+                // 显示取消按钮
+                buttonCancel.visibility = View.VISIBLE
+
+                // 设置 RecyclerView 半透明
+                recyclerView.alpha = alpha
+            } else {
+                // 隐藏取消按钮
+                buttonCancel.visibility = View.GONE
+                exitSearchMode()
+
+                // 恢复 RecyclerView 不透明
+                recyclerView.alpha = originalAlpha
+
+                adapter.submitList()
+            }
+        }
+        viewModel.searchMode.observe(viewLifecycleOwner, searchModeObserver)
+    }
+
+
+    // 移除观察者
+    private fun removeObservers() {
+        viewModel.searchMode.removeObserver(searchModeObserver)
+    }
+
+
     override fun onDestroyView() {
         super.onDestroyView()
+        removeObservers()
     }
 }
 

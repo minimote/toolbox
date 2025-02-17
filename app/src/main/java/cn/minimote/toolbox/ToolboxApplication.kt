@@ -10,10 +10,4 @@ import dagger.hilt.android.HiltAndroidApp
 
 
 @HiltAndroidApp
-class ToolboxApplication : Application() {
-
-    override fun onCreate() {
-        super.onCreate()
-        // Hilt 初始化会自动处理
-    }
-}
+class ToolboxApplication : Application()

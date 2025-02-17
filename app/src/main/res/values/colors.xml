@@ -7,8 +7,10 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="deep_gray">#FF2D2D2D</color>
-    <color name="light_gray">#FFD3D3D3</color>
+    <color name="deep_gray_trans">#88222222</color>
+    <color name="deep_gray">#FF222222</color>
+    <color name="mid_gray">#FF777777</color>
+    <color name="light_gray">#FFCCCCCC</color>
     <color name="deep_blue">#FF214283</color>
     <color name="light_blue">#FF24ADF3</color>
     <color name="green">#FF00FF00</color>

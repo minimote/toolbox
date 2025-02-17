@@ -25,6 +25,9 @@ dependencyResolutionManagement {
         maven { url = uri("https://maven.aliyun.com/nexus/content/repositories/jcenter") }
         google()
         mavenCentral()
+        flatDir {
+            dirs("libs")
+        }
     }
 }
 

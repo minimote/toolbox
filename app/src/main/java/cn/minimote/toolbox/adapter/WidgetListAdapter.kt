@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.data_class.StoredActivity
 import cn.minimote.toolbox.fragment.EditListFragment
+import cn.minimote.toolbox.fragment.WidgetListFragment
 import cn.minimote.toolbox.objects.FragmentManagerHelper
 import cn.minimote.toolbox.objects.VibrationHelper
 import cn.minimote.toolbox.view_model.ToolboxViewModel
@@ -30,6 +31,7 @@ import cn.minimote.toolbox.view_model.ToolboxViewModel
 class WidgetListAdapter(
     private val context: Context,
     private val viewModel: ToolboxViewModel,
+    private val fragment: WidgetListFragment,
     private val fragmentManager: FragmentManager,
 ) : RecyclerView.Adapter<WidgetListAdapter.WidgetViewHolder>() {
 
@@ -73,22 +75,22 @@ class WidgetListAdapter(
         if(appInfo.showName) {
             holder.widgetName?.text = appInfo.nickName
         }
-        holder.appIcon.setImageDrawable(viewModel.getIcon(appInfo.iconName))
+        holder.appIcon.setImageDrawable(viewModel.getIcon(appInfo))
 
         holder.itemView.setOnClickListener {
 //            toggleBackgroundColor(holder.itemView)
             VibrationHelper.vibrateOnClick(context)
             if(viewModel.editMode.value == true) {
 //                Log.i("WidgetListAdapter", "编辑小组件<${appInfo.appName}>")
-                val fragment = EditListFragment(viewModel)
+                viewModel.originWidget.value = appInfo
+                viewModel.modifiedWidget.value = appInfo.copy()
+
+                val fragment = EditListFragment()
                 FragmentManagerHelper.replaceFragment(
                     fragmentManager = fragmentManager,
                     fragment = fragment,
                     viewModel = viewModel,
                 )
-
-                viewModel.originWidget.value = appInfo
-                viewModel.modifiedWidget.value = appInfo.copy()
             } else {
                 // 启动新活动并结束当前活动
                 startActivityAndFinishCurrent(appInfo)
@@ -100,11 +102,7 @@ class WidgetListAdapter(
             if(viewModel.editMode.value != true) {
                 viewModel.editMode.value = true
 //                Log.i("WidgetListAdapter", "进入编辑模式")
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.enter_edit_mode),
-                    Toast.LENGTH_SHORT,
-                ).show()
+                fragment.showEnterEditModeToast()
             } else {
 //                Toast.makeText(
 //                    context,
@@ -121,13 +119,10 @@ class WidgetListAdapter(
     // 启动新活动并结束当前活动
     private fun startActivityAndFinishCurrent(appInfo: StoredActivity) {
         val intentList = listOf(
-            // 按包名和活动名启动
-            Intent().apply {
-                component = ComponentName(appInfo.packageName, appInfo.activityName)
-                flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-            },
+            // 使用包名和活动名启动
+            getIntentPackageNameAndActivityName(appInfo),
             // 使用 parseUri 启动
-            Intent.parseUri(appInfo.activityName, Intent.URI_INTENT_SCHEME),
+            getIntentParseUri(appInfo),
             // 使用 putExtra 启动
             getIntentPutExtra(appInfo),
         )
@@ -144,8 +139,21 @@ class WidgetListAdapter(
         Toast.makeText(
             context,
             context.getString(R.string.start_fail, appInfo.activityName),
-            Toast.LENGTH_LONG,
+            Toast.LENGTH_SHORT,
         ).show()
+    }
+
+
+    private fun getIntentPackageNameAndActivityName(appInfo: StoredActivity): Intent {
+        return Intent().apply {
+            component = ComponentName(appInfo.packageName, appInfo.activityName)
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+    }
+
+
+    private fun getIntentParseUri(appInfo: StoredActivity): Intent? {
+        return Intent.parseUri(appInfo.activityName, Intent.URI_INTENT_SCHEME)
     }
 
 
@@ -177,8 +185,8 @@ class WidgetListAdapter(
 
 
     @SuppressLint("NotifyDataSetChanged")
-    fun submitList() {
-        activityList = loadActivityList()
+    fun submitList(newActivityList: MutableList<StoredActivity> = loadActivityList()) {
+        activityList = newActivityList
         notifyDataSetChanged()
     }
 

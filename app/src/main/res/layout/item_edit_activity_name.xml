@@ -9,14 +9,14 @@
         android:gravity="start"
         android:text="@string/textView_activity_name"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/textView_activityName"
+        app:layout_constraintEnd_toStartOf="@id/editText_searchBox"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textView_activityName"
+        android:id="@+id/editText_searchBox"
         style="@style/TextView.Toolbox.ActivityName.Dark"
-        android:hint="@string/activity_name"
+        android:text="@string/activity_name"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/textView_nickname"

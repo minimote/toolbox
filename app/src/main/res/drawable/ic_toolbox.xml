@@ -13,7 +13,7 @@
 
     <group
         android:translateX="250"
-        android:translateY="250">
+        android:translateY="200">
         <!-- 放大后需要向左右移动 -->
 
         <path

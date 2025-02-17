@@ -13,7 +13,7 @@
     <dimen name="text_size_5_Huge">32sp</dimen>
 
     <!-- 布局大小 -->
-    <dimen name="layout_size_5_very_tiny">2dp</dimen>
+    <dimen name="layout_size_5_very_tiny">1dp</dimen>
     <dimen name="layout_size_4_tiny">2dp</dimen>
     <dimen name="layout_size_3_script">4dp</dimen>
     <dimen name="layout_size_2_footnote">8dp</dimen>

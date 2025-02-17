@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
@@ -19,11 +20,9 @@ import dagger.hilt.android.AndroidEntryPoint
 
 
 @AndroidEntryPoint
-class EditListFragment(
-    private val viewModel: ToolboxViewModel
-) :
-    Fragment() {
+class EditListFragment : Fragment() {
 
+    private val viewModel: ToolboxViewModel by activityViewModels()
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: EditListAdapter
 
@@ -33,9 +32,12 @@ class EditListFragment(
 //    }
 
 
-//    override fun onDestroy() {
-//        super.onDestroy()
-//    }
+    override fun onDestroy() {
+        super.onDestroy()
+
+        viewModel.originWidget.value = null
+        viewModel.modifiedWidget.value = null
+    }
 
 
     override fun onCreateView(

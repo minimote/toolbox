@@ -25,8 +25,8 @@ android {
 
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false
-            isShrinkResources = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -64,16 +64,19 @@ android {
     android.applicationVariants.all {
         val config = project.android.defaultConfig
         val versionName = config.versionName
-        val formatter = DateTimeFormatter.ofPattern("yyyy_MMdd_HHmm")
+        val formatter = DateTimeFormatter.ofPattern("yyyy_MMdd_HHmmss")
         val createTime = LocalDateTime.now().format(formatter)
         val appName = "toolbox"
+        val filename = "${appName}_${versionName}_${buildType.name}_${createTime}.apk"
         outputs.all {
             // 判断是否是输出 apk 类型
             if(this is com.android.build.gradle.internal.api.ApkVariantOutputImpl
             ) {
-                this.outputFileName = "${appName}_${versionName}_${createTime}.apk"
+                this.outputFileName = filename
+
             }
         }
+        // 保存 release 版本的 apk
         if(buildType.name == "release") {
             // 也可以用 assembleProvider.configure {
             assembleProvider.get().doLast {
@@ -87,8 +90,8 @@ android {
                         include("**/*.apk")
                     }
                     into(outDir)
-                    println("> Task :copy from $fromDir into $outDir")
-                    rename { _ -> "${appName}_${versionName}_${createTime}.apk" }
+                    println("> My Task :copy from $fromDir into $outDir")
+                    rename { _ -> filename }
                 }
             }
         }
@@ -120,8 +123,11 @@ val copyAndRenameApkTask by tasks.registering(Copy::class) {
     rename { _ -> "${appName}_${versionName}_${createTime}.apk" }
 }
 
-
 dependencies {
+//    // 引入 libs 目录中的所有 AAR 文件
+//    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.aar", "*.jar"))))
+//    // 单独引入 heytap-widget-v7.0.18.aar 文件
+//    implementation(files("libs/heytap-widget-v7.0.18.aar"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

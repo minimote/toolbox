@@ -16,18 +16,6 @@ import android.provider.Settings
 
 object VibrationHelper {
 
-    private fun getVibrator(context: Context): Vibrator {
-        return if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val vibratorManager =
-                context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-            vibratorManager.defaultVibrator
-        } else {
-            @Suppress("DEPRECATION")
-            context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        }
-    }
-
-
     // 点击时震动
     fun vibrateOnClick(
         context: Context,
@@ -40,6 +28,19 @@ object VibrationHelper {
             )
         ) {
             clickVibration(vibrator, milliseconds)
+        }
+    }
+
+
+    // 获取振动器
+    private fun getVibrator(context: Context): Vibrator {
+        return if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val vibratorManager =
+                context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+            vibratorManager.defaultVibrator
+        } else {
+            @Suppress("DEPRECATION")
+            context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         }
     }
 

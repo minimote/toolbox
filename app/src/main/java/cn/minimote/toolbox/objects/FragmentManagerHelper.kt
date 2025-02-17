@@ -5,7 +5,6 @@
 
 package cn.minimote.toolbox.objects
 
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -14,6 +13,8 @@ import cn.minimote.toolbox.view_model.ToolboxViewModel
 
 
 object FragmentManagerHelper {
+//    val fragmentManager = requireActivity().supportFragmentManager
+
     // 替换 Fragment
     fun replaceFragment(
         fragmentManager: FragmentManager,
@@ -32,7 +33,7 @@ object FragmentManagerHelper {
         // 使用 commitAllowingStateLoss 避免状态丢失问题
         transaction.commitAllowingStateLoss()
         // Log.i("Fragment 栈", "进栈: $tag")
-        printBackStackEntries(fragmentManager)
+//        printBackStackEntries(fragmentManager)
     }
 
 
@@ -47,12 +48,11 @@ object FragmentManagerHelper {
             // 更新为顶部第 2 个 Fragment 名称
             val tag = getNameAtTopN(
                 fragmentManager = fragmentManager,
-                n = 2,
             )
             viewModel.updateFragmentName(tag)
             fragmentManager.popBackStack()
             // Log.i("Fragment 栈", "出栈: $tag")
-            printBackStackEntries(fragmentManager)
+//            printBackStackEntries(fragmentManager)
         } else {
             activity.finish()
         }
@@ -62,7 +62,7 @@ object FragmentManagerHelper {
     // 获取返回栈顶部的第 n 个 Fragment 名称
     private fun getNameAtTopN(
         fragmentManager: FragmentManager,
-        n: Int,
+        n: Int = 2,
     ): String? {
         val backStackEntryCount = fragmentManager.backStackEntryCount
         if(backStackEntryCount >= n) {
@@ -74,10 +74,10 @@ object FragmentManagerHelper {
 
 
     // 打印返回栈中的所有条目
-    private fun printBackStackEntries(fragmentManager: FragmentManager) {
-        for(i in 0 until fragmentManager.backStackEntryCount) {
-            val entry = fragmentManager.getBackStackEntryAt(i)
-            // Log.i("栈内元素", "$i: ${entry.name}")
-        }
-    }
+//    private fun printBackStackEntries(fragmentManager: FragmentManager) {
+//        for(i in 0 until fragmentManager.backStackEntryCount) {
+//            val entry = fragmentManager.getBackStackEntryAt(i)
+//            // Log.i("栈内元素", "$i: ${entry.name}")
+//        }
+//    }
 }

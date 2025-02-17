@@ -4,7 +4,8 @@
     <string name="app_icon">APP图标</string>
     <string name="app_name">工具箱</string>
     <string name="app_name_en">toolbox</string>
-    <string name="textView_activity_name">活动名称</string>
+    <string name="textView_package_name">包名</string>
+    <string name="textView_activity_name">活动名</string>
     <string name="enter_edit_mode">进入编辑模式，单击组件可编辑，拖动组件可移动</string>
     <string name="exit_button">＜ 退出</string>
     <string name="have_reset">已经重置了</string>
@@ -36,4 +37,9 @@
     <string name="widget_icon">小组件图标</string>
     <string name="toast_no_widget_return_home">当前没有组件，返回主页</string>
     <string name="textView_no_widget">↑\n点击 + 号添加组件</string>
+    <string name="hint_search_activities">搜索 %1d 项</string>
+    <string name="cancel">取消</string>
+    <string name="no_result">无结果</string>
+    <string name="recommended_activity">推荐活动</string>
+    <string name="other_activity">其他活动</string>
 </resources>

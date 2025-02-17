@@ -5,23 +5,14 @@
 
 package cn.minimote.toolbox.di
 
-import android.content.Context
-import cn.minimote.toolbox.others.IconCacheManager
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
 
+//@Module
+//@InstallIn(SingletonComponent::class)
+//object AppModule {
 
-@Module
-@InstallIn(SingletonComponent::class)
-object AppModule {
-
-    @Provides
-    @Singleton
-    fun provideIconCacheManager(@ApplicationContext context: Context): IconCacheManager {
-        return IconCacheManager(context)
-    }
-}
+//    @Provides
+//    @Singleton
+//    fun provideIconCacheManager(@ApplicationContext context: Context): IconCacheManager {
+//        return IconCacheManager(context)
+//    }
+//}

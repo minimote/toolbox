@@ -8,7 +8,7 @@
         <item name="android:gravity">center</item>
         <!-- 右滑返回 -->
         <item name="android:windowSwipeToDismiss">true</item>
-        <!--<item name="android:windowIsTranslucent">true</item>-->
+        <item name="android:windowIsTranslucent">true</item>
     </style>
 
 
@@ -52,6 +52,14 @@
         <item name="android:textSize">@dimen/text_size_1_small</item>
         <item name="android:layout_margin">0dp</item>
         <item name="android:padding">0dp</item>
+    </style>
+
+
+    <!-- View：水平线 -->
+    <style name="View.Toolbox.Dark" parent="Theme.Toolbox.Dark">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">@dimen/layout_size_5_very_tiny</item>
+        <item name="android:background">@color/mid_gray</item>
     </style>
 
 
@@ -160,16 +168,31 @@
 
     <!-- TextView：进度条提示文本 -->
     <style name="TextView.Toolbox.LoadingText.Dark" parent="Theme.Toolbox.Dark">
-        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">@dimen/layout_size_1_small</item>
         <item name="android:background">@android:color/transparent</item>
+    </style>
+
+
+    <!-- TextView：软件名首字母 -->
+    <style name="TextView.Toolbox.FirstChar.Dark" parent="Theme.Toolbox.Dark">
+        <item name="android:layout_width">@dimen/layout_size_1_large</item>
+        <item name="android:layout_height">@dimen/layout_size_1_large</item>
+        <item name="android:background">@drawable/background_first_char</item>
+        <item name="android:layout_marginEnd">@dimen/layout_size_1_large</item>
     </style>
 
 
     <!-- RecyclerView -->
     <style name="RecyclerView.Toolbox.Dark" parent="Theme.Toolbox.Dark">
         <item name="android:layout_width">match_parent</item>
+        <!--        <item name="android:layout_height">0dp</item>-->
+        <!--        <item name="layout_constraintHeight_default">wrap</item>-->
         <item name="android:layout_height">wrap_content</item>
+        <item name="layout_constrainedHeight">true</item>
+        <item name="android:fastScrollEnabled">true</item>
+        <item name="android:scrollbars">vertical</item>
     </style>
 
 
@@ -178,7 +201,6 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:padding">@dimen/layout_size_3_script</item>
-        <!--        <item name="android:layout_height">match_parent</item>-->
         <item name="layout_constrainedHeight">true</item>
     </style>
 

@@ -57,21 +57,11 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout_origin"
         style="@style/ConstraintLayout.Toolbox.RecyclerView.Dark"
-        app:layout_constrainedHeight="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/guideline4">
 
-        <!--        <androidx.recyclerview.widget.RecyclerView-->
-        <!--            android:id="@+id/recyclerView_widget_list"-->
-        <!--            style="@style/RecyclerView.Toolbox.Dark"-->
-        <!--            app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--            app:layout_constraintEnd_toEndOf="parent"-->
-        <!--            app:layout_constraintStart_toStartOf="parent"-->
-        <!--            app:layout_constraintTop_toTopOf="parent">-->
-
-        <!--        </androidx.recyclerview.widget.RecyclerView>-->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

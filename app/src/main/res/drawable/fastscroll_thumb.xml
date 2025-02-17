@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+    <item>
+        <shape android:shape="rectangle">
+            <size
+                android:width="@dimen/layout_size_0_normal"
+                android:height="@dimen/layout_size_1_large" />
+            <solid android:color="@color/deep_gray" />
+            <corners android:radius="@dimen/layout_size_3_LARGE" />
+        </shape>
+    </item>
+<!--    <item-->
+<!--        android:bottom="@dimen/layout_size_0_normal"-->
+<!--        android:top="0dp">-->
+<!--        <rotate-->
+<!--            android:fromDegrees="180"-->
+<!--            android:pivotX="50%"-->
+<!--            android:pivotY="50%">-->
+<!--            <vector-->
+<!--                android:width="@dimen/layout_size_0_normal"-->
+<!--                android:height="@dimen/layout_size_0_normal"-->
+<!--                android:viewportWidth="24"-->
+<!--                android:viewportHeight="36">-->
+<!--                <path-->
+<!--                    android:fillColor="@color/white"-->
+<!--                    android:pathData="M7.41,8.59L12,13.17L16.59,8.59L18,10L12,16L6,10L7.41,8.59Z" />-->
+<!--            </vector>-->
+<!--        </rotate>-->
+<!--    </item>-->
+<!--    <item-->
+<!--        android:bottom="0dp"-->
+<!--        android:top="@dimen/layout_size_0_normal">-->
+<!--        <vector-->
+<!--            android:width="@dimen/layout_size_0_normal"-->
+<!--            android:height="@dimen/layout_size_0_normal"-->
+<!--            android:viewportWidth="24"-->
+<!--            android:viewportHeight="36">-->
+<!--            <path-->
+<!--                android:fillColor="@color/white"-->
+<!--                android:pathData="M7.41,8.59L12,13.17L16.59,8.59L18,10L12,16L6,10L7.41,8.59Z" />-->
+<!--        </vector>-->
+<!--    </item>-->
+</layer-list>
