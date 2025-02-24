@@ -12,23 +12,23 @@
     <!--        app:layout_constraintTop_toTopOf="parent" />-->
 
     <ImageView
-        android:id="@+id/widget_icon"
+        android:id="@+id/imageView_app_icon"
         style="@style/ImageView.Toolbox.WidgetIcon.Dark"
         android:contentDescription="@string/widget_icon"
         android:src="@drawable/ic_default"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/widget_name"
+        app:layout_constraintEnd_toStartOf="@+id/textView_app_name"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
 
     <TextView
-        android:id="@+id/widget_name"
+        android:id="@+id/textView_app_name"
         style="@style/TextView.Toolbox.WidgetName.Dark"
         android:text="@string/app_name"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/widget_icon"
+        app:layout_constraintStart_toEndOf="@+id/imageView_app_icon"
         app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

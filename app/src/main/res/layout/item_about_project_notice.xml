@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/ConstraintLayout.Toolbox.Dark">
+
+
+    <TextView
+        style="@style/TextView.Toolbox.Dark"
+        android:gravity="start"
+        android:paddingVertical="@dimen/layout_size_2_footnote"
+        android:paddingHorizontal="@dimen/layout_size_3_script"
+        android:text="@string/about_project_notice"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

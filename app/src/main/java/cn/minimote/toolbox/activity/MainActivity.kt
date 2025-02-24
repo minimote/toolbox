@@ -5,9 +5,13 @@
 
 package cn.minimote.toolbox.activity
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.VectorDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
@@ -15,14 +19,19 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
+import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
-import cn.minimote.toolbox.fragment.ActivityListFragment
-import cn.minimote.toolbox.fragment.WidgetListFragment
-import cn.minimote.toolbox.objects.FragmentManagerHelper
+import cn.minimote.toolbox.adapter.ToolboxFragmentStateAdapter
+import cn.minimote.toolbox.objects.FragmentHelper
 import cn.minimote.toolbox.objects.VibrationHelper
-import cn.minimote.toolbox.view_model.ToolboxViewModel
+import cn.minimote.toolbox.pageTransformer.ViewPager2Transformer
+import cn.minimote.toolbox.viewModel.ToolboxViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import java.io.File
+import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -33,7 +42,8 @@ class MainActivity : AppCompatActivity() {
 
     private val viewModel: ToolboxViewModel by viewModels()
 
-    private lateinit var fragmentNames: ToolboxViewModel.Constants.FragmentNames
+    private val fragmentNames = ToolboxViewModel.Constants.FragmentNames
+//    private val fragmentPositions = ToolboxViewModel.Constants.FragmentPositions
 
     // 滑动返回的比例阈值
 //    private val thresholdExit = 0.2
@@ -44,6 +54,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var buttonTime: Button
     private lateinit var buttonExit: Button
     private lateinit var buttonAdd: Button
+
+    private lateinit var viewPager: ViewPager2
+    private lateinit var constraintLayoutOrigin: ConstraintLayout
 
 //    private late init var layoutMain: ConstraintLayout
 //    private late init var gestureDetector: GestureDetector
@@ -91,10 +104,12 @@ class MainActivity : AppCompatActivity() {
 //        layoutMain = findViewById(R.id.layout_main)
 //        printBackStackEntries()
 
-        fragmentNames = viewModel.fragmentNames
-        // 获取屏幕尺寸
-        viewModel.screenWidth = resources.displayMetrics.widthPixels
-        viewModel.screenHeight = resources.displayMetrics.heightPixels
+        constraintLayoutOrigin = findViewById(R.id.constraintLayout_origin)
+
+//        // 获取屏幕尺寸
+//        viewModel.screenWidth = resources.displayMetrics.widthPixels
+//        viewModel.screenHeight = resources.displayMetrics.heightPixels
+        viewModel.updateScreenSize(resources.displayMetrics)
 
         // 适配系统返回手势和按钮
         setupBackPressedCallback()
@@ -107,8 +122,48 @@ class MainActivity : AppCompatActivity() {
         // 设置观察者
         setupObservers()
 
+
+        // 设置 ViewPager
+        setupViewPager()
+
         // 显示首页小组件
-        showWidgetList()
+//        showWidgetList()
+
+//        saveVectorDrawableAsPng()
+    }
+
+    private fun saveVectorDrawableAsPng() {
+        val drawable = ContextCompat.getDrawable(this, R.drawable.ic_toolbox) as? VectorDrawable
+            ?: //            Toast.makeText(this, "无法加载 VectorDrawable", Toast.LENGTH_SHORT).show()
+            return
+
+        // 定义放大比例
+        val scaleFactor = 2.0f
+
+        // 调整 Bitmap 的尺寸
+        val bitmapWidth = (drawable.intrinsicWidth * scaleFactor).toInt()
+        val bitmapHeight = (drawable.intrinsicHeight * scaleFactor).toInt()
+
+        val bitmap = Bitmap.createBitmap(bitmapWidth, bitmapHeight, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+
+        // 设置 VectorDrawable 的边界以适应放大后的 Bitmap
+        drawable.setBounds(0, 0, bitmapWidth, bitmapHeight)
+        drawable.draw(canvas)
+
+        val directory = this.cacheDir
+        val file = File(directory, "ic_toolbox.png")
+
+        try {
+            val fos = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
+            fos.flush()
+            fos.close()
+//            Toast.makeText(this, "图片已保存到 ${file.absolutePath}", Toast.LENGTH_LONG).show()
+        } catch(e: Exception) {
+//            e.printStackTrace()
+//            Toast.makeText(this, "保存图片失败", Toast.LENGTH_SHORT).show()
+        }
     }
 
 
@@ -135,7 +190,14 @@ class MainActivity : AppCompatActivity() {
     private fun setupBackPressedCallback() {
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                returnOrExit()
+//                returnOrExit()
+                FragmentHelper.returnFragment(
+                    fragmentManager = supportFragmentManager,
+                    viewModel = viewModel,
+                    activity = this@MainActivity,
+                    viewPager = viewPager,
+                    constraintLayoutOrigin = constraintLayoutOrigin,
+                )
             }
         }
         onBackPressedDispatcher.addCallback(this, callback)
@@ -147,7 +209,14 @@ class MainActivity : AppCompatActivity() {
         buttonExit = findViewById(R.id.button_exit)
         buttonExit.setOnClickListener {
             VibrationHelper.vibrateOnClick(this)
-            returnOrExit()
+//            returnOrExit()
+            FragmentHelper.returnFragment(
+                fragmentManager = supportFragmentManager,
+                viewModel = viewModel,
+                activity = this@MainActivity,
+                viewPager = viewPager,
+                constraintLayoutOrigin = constraintLayoutOrigin,
+            )
         }
 
 
@@ -165,9 +234,7 @@ class MainActivity : AppCompatActivity() {
 
             viewModel.saveWidgetList()
             Toast.makeText(
-                this@MainActivity,
-                getString(R.string.save_success),
-                Toast.LENGTH_SHORT
+                this@MainActivity, getString(R.string.save_success), Toast.LENGTH_SHORT
             ).show()
             buttonAdd.visibility = View.GONE
         }
@@ -180,12 +247,14 @@ class MainActivity : AppCompatActivity() {
 
     // 切换到 AppListFragment
     private fun changeToActivityListFragment() {
-        val fragment = ActivityListFragment()
-        FragmentManagerHelper.replaceFragment(
+        FragmentHelper.switchFragment(
+            fragmentName = fragmentNames.ACTIVITY_LIST_FRAGMENT,
             fragmentManager = supportFragmentManager,
-            fragment = fragment,
             viewModel = viewModel,
+            viewPager = viewPager,
+            constraintLayoutOrigin = constraintLayoutOrigin,
         )
+
     }
 
 
@@ -193,12 +262,14 @@ class MainActivity : AppCompatActivity() {
     private fun setupTimeButton() {
         buttonTime = findViewById(R.id.button_time)
         buttonTime.setOnClickListener {
+            Log.e(viewModel.getFragmentName(), viewModel.editMode.value.toString())
             if(viewModel.editMode.value == true && viewModel.getFragmentName() == fragmentNames.WIDGET_LIST_FRAGMENT) {
                 // 组件排序
                 VibrationHelper.vibrateOnClick(this)
                 viewModel.sortStoredActivityList()
             }
         }
+        // 第一次更新时间
         updateTime()
         handler.post(runnable)
         // 启动后台任务
@@ -215,15 +286,41 @@ class MainActivity : AppCompatActivity() {
 
 
     // 显示小组件的 Fragment
-    private fun showWidgetList() {
-        val fragment = WidgetListFragment(
-            viewModel = viewModel,
+//    private fun showWidgetList() {
+//        val fragment = WidgetListFragment(
+////            viewModel = viewModel,
+//        )
+//        FragmentManagerHelper.replaceFragment(
+//            fragmentManager = supportFragmentManager,
+//            fragment = fragment,
+//            viewModel = viewModel,
+//        )
+//    }
+
+
+    // 设置 ViewPager
+    private fun setupViewPager() {
+        viewPager = findViewById(R.id.viewPager_origin)
+
+        val adapter = ToolboxFragmentStateAdapter(
+            fragmentActivity = this,
+            viewPager = viewPager,
+            constraintLayoutOrigin = constraintLayoutOrigin,
         )
-        FragmentManagerHelper.replaceFragment(
-            fragmentManager = supportFragmentManager,
-            fragment = fragment,
-            viewModel = viewModel,
-        )
+        viewPager.adapter = adapter
+
+        // 手表禁用页面切换动画
+        if(!viewModel.isWatch()) {
+            // 设置页面切换动画
+            viewPager.setPageTransformer(ViewPager2Transformer())
+        }
+
+    }
+
+
+    // 更新 viewPager.isUserInputEnabled
+    private fun updateViewPagerUserInputEnabled(enable: Boolean) {
+        viewPager.isUserInputEnabled = enable
     }
 
 
@@ -266,31 +363,36 @@ class MainActivity : AppCompatActivity() {
             //     "isEditModeObserver",
             //     "fragmentName: ${viewModel.getFragmentName()}, isEditMode: $isEditMode"
             // )
+            // 非编辑模式才允许滑动
+            updateViewPagerUserInputEnabled(!isEditMode)
             if(isEditMode) {
                 buttonAdd.text = getString(R.string.save_button)
                 buttonAdd.visibility = View.GONE
                 buttonExit.text = getString(R.string.return_button)
                 buttonTime.text = getString(R.string.sort)
+                buttonTime.isClickable = true
             } else {
                 viewModel.widgetListOrderWasModified.value = false
                 buttonAdd.text = getString(R.string.add_button)
                 buttonAdd.visibility = View.VISIBLE
                 buttonExit.text = getString(R.string.exit_button)
                 updateTime()
+                buttonTime.isClickable = false
             }
         }
         viewModel.editMode.observe(this, isEditModeObserver)
 
 
         fragmentNameObserver = Observer { fragmentName ->
-            // Log.i(
-            //     "fragmentNameObserver",
-            //     "fragmentName: $fragmentName, isEditMode: ${viewModel.editMode.value}"
-            // )
+//             Log.e(
+//                 "fragmentNameObserver",
+//                 "fragmentName: $fragmentName, isEditMode: ${viewModel.editMode.value}"
+//             )
             when(fragmentName) {
                 fragmentNames.WIDGET_LIST_FRAGMENT -> {
                     if(viewModel.editMode.value == true) {
                         buttonTime.text = getString(R.string.sort)
+                        buttonTime.isClickable = true
                         if(viewModel.widgetListOrderWasModified.value == true) {
                             buttonAdd.visibility = View.VISIBLE
                         } else {
@@ -304,12 +406,21 @@ class MainActivity : AppCompatActivity() {
 
                 fragmentNames.EDIT_LIST_FRAGMENT -> {
                     updateTime()
+                    buttonTime.isClickable = false
                     buttonAdd.visibility = View.GONE
                 }
 
                 fragmentNames.ACTIVITY_LIST_FRAGMENT -> {
                     buttonAdd.visibility = View.GONE
                     buttonAdd.text = getString(R.string.save_button)
+                }
+
+                fragmentNames.SUPPORT_AUTHOR_FRAGMENT -> {
+                    buttonAdd.visibility = View.GONE
+                }
+
+                fragmentNames.ABOUT_PROJECT_FRAGMENT -> {
+                    buttonAdd.visibility = View.GONE
                 }
             }
             if(fragmentName == fragmentNames.WIDGET_LIST_FRAGMENT && viewModel.editMode.value == false) {
@@ -327,109 +438,9 @@ class MainActivity : AppCompatActivity() {
     private fun removeObservers() {
         viewModel.widgetListOrderWasModified.removeObserver(widgetListOrderWasModifiedObserver)
         viewModel.widgetListSizeWasModified.removeObserver(widgetListSizeWasModifiedObserver)
+        viewModel.widgetWasModified.removeObserver(widgetWasModifiedObserver)
         viewModel.editMode.removeObserver(isEditModeObserver)
         viewModel.fragmentName.removeObserver(fragmentNameObserver)
     }
-
-
-    private fun returnOrExit() {
-        val fragmentName = viewModel.getFragmentName()
-        // Log.i("returnOrExit", fragmentName)
-        if(fragmentName == fragmentNames.WIDGET_LIST_FRAGMENT && viewModel.editMode.value == true) {
-            viewModel.editMode.value = false
-            Toast.makeText(
-                this,
-                getString(R.string.exit_edit_mode),
-                Toast.LENGTH_SHORT,
-            ).show()
-            return
-        }
-
-        // 如果处于搜索模式，则仅退出搜索模式
-        if(fragmentName == fragmentNames.ACTIVITY_LIST_FRAGMENT && viewModel.searchMode.value == true) {
-            viewModel.searchMode.value = false
-            return
-        }
-
-        // 从编辑界面返回时剩余组件为空，则返回主页
-        if(fragmentName == fragmentNames.EDIT_LIST_FRAGMENT && viewModel.storedActivityList.value?.size == 0) {
-            viewModel.editMode.value = false
-            Toast.makeText(
-                this,
-                getString(R.string.toast_no_widget_return_home),
-                Toast.LENGTH_SHORT,
-            ).show()
-        }
-
-        viewModel.widgetListSizeWasModified.value = false
-        FragmentManagerHelper.popFragment(
-            fragmentManager = supportFragmentManager,
-            viewModel = viewModel,
-            activity = this,
-        )
-    }
-
-
-//    private fun resetLayout() {
-//        layoutMain.animate().x(0f).alpha(1f).setDuration(300)
-//            .start()
-//        initialX = 0f
-//    }
-
-
-//    override fun onTouchEvent(event: MotionEvent): Boolean {
-//        if(event.action == MotionEvent.ACTION_UP) {
-//            resetLayout()
-//        }
-//        gestureDetector.onTouchEvent(event)
-//        return super.onTouchEvent(event)
-//    }
-
-    // 设置手势监听器
-//    private fun setupGestureDetector() {
-//        gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
-//            override fun onScroll(
-//                e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float
-//            ): Boolean {
-//                if(e1 != null) {
-////                    if(initialX == 0f) {
-////                        initialX = e1.x
-////                    }
-////                    val scrollDistance = e2.x - e1.x
-//                    // 获取当前坐标
-//                    val left = layoutMain.left
-//                    Log.i("onScroll", "left: $left")
-//
-////                    val opacity = 1 - abs(scrollDistance / screenWidth)
-//                    val opacity = left.toFloat() / screenWidth
-//                    layoutMain.animate()
-////                        .x(scrollDistance + initialX)
-//                        .alpha(opacity).setDuration(0).start()
-//                }
-//                return true
-//            }
-//
-////            // 快速滑动
-////            override fun onFling(
-////                e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float
-////            ): Boolean {
-////                if(e1 != null) {
-////                    val scrollDistance = e2.x - e1.x
-////                    if(abs(scrollDistance) > screenWidth * thresholdExit) {
-////                        finish()
-////                        return true
-////                    } else {
-////                        resetLayout()
-////                    }
-////                }
-////                return false
-////            }
-//
-////            override fun onSingleTapUp(e: MotionEvent): Boolean {
-////                resetLayout()
-////                return true
-////            }
-//        })
-//    }
 
 }

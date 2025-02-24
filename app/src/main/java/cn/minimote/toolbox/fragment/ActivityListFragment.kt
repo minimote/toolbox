@@ -27,7 +27,7 @@ import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.adapter.ActivityListAdapter
 import cn.minimote.toolbox.objects.VibrationHelper
-import cn.minimote.toolbox.view_model.ToolboxViewModel
+import cn.minimote.toolbox.viewModel.ToolboxViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -79,7 +79,7 @@ class ActivityListFragment : Fragment() {
     ): View? {
 //        Log.i("AppListFragment", "onCreateView")
 //        val view = inflater.inflate(R.layout.fragment_activity_list, container, false)
-        val view = inflater.inflate(R.layout.fragment_activity_list_new, container, false)
+        val view = inflater.inflate(R.layout.fragment_activity_list, container, false)
 //        this::class.simpleName?.let { viewModel.updateFragmentName(it) }
         // 初始化 RecyclerView
         recyclerView = view.findViewById(R.id.recyclerView_activity_list)
@@ -157,31 +157,37 @@ class ActivityListFragment : Fragment() {
         // 添加 TextWatcher 监听文本变化
         searchBox.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                // 恢复 RecyclerView 的不透明度
-                recyclerView.alpha = originalAlpha
+
 
                 // 获取输入的文本
                 val query = s.toString().trim()
 
+                // 更新搜索词
+                viewModel.searchQuery.value = query
+
                 // 过滤数据
-                val filteredList = viewModel.installedActivityList.value?.filter { activity ->
-                    if(viewModel.searchMode.value == true and query.isNotEmpty()) {
+                if(viewModel.searchMode.value == true and query.isNotEmpty()) {
+                    val filteredList = viewModel.installedActivityList.value?.filter { activity ->
+//                        if(viewModel.searchMode.value == true and query.isNotEmpty()) {
                         activity.appName.contains(
                             query, ignoreCase = true
                         ) && activity.packageName.isNotEmpty()
-                    } else {
-                        activity.appName.contains(
-                            query, ignoreCase = true
-                        )
-                    }
-                } ?: emptyList()
+//                        } else {
+//                            true
+//                        }
+                    } ?: emptyList()
 
-                // 更新 Adapter 的数据
-                adapter.submitList(filteredList)
-
+                    // 更新 Adapter 的数据
+                    adapter.submitList(filteredList)
+                } else {
+                    adapter.submitList()
+                }
                 // 检查文本框内容是否为空
                 if(query.isEmpty()) {
                     recyclerView.alpha = alpha
+                } else {
+                    // 恢复 RecyclerView 的不透明度
+                    recyclerView.alpha = originalAlpha
                 }
             }
 

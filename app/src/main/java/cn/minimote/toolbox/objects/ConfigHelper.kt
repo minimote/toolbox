@@ -6,7 +6,7 @@
 package cn.minimote.toolbox.objects
 
 import android.content.Context
-import cn.minimote.toolbox.view_model.ToolboxViewModel
+import cn.minimote.toolbox.viewModel.ToolboxViewModel
 import org.json.JSONObject
 import java.io.File
 import java.io.FileInputStream

@@ -3,7 +3,7 @@
  * 本项目遵循 MIT 许可协议，请务必保留此声明和署名。
  */
 
-package cn.minimote.toolbox.data_class
+package cn.minimote.toolbox.dataClass
 
 
 // 用于存储的数据类
@@ -14,16 +14,19 @@ data class StoredActivity(
     var iconName: String = activityName,
     // 在主页显示的昵称
     var nickName: String = appName,
-    // 列数
-    var widgetSize: Int,
-    // 整行默认显示名称
+    // 宽度
+    var width: Int,
+    // 高度
+    var height: Int = 1,
+    // 默认显示名称
     var showName: Boolean = true,
 ) {
     // 用一个新的 StoredActivity 的属性覆盖原有的属性
     fun update(storedActivity: StoredActivity) {
         this.iconName = storedActivity.iconName
         this.nickName = storedActivity.nickName
-        this.widgetSize = storedActivity.widgetSize
+        this.width = storedActivity.width
+        this.height = storedActivity.height
         this.showName = storedActivity.showName
     }
 }

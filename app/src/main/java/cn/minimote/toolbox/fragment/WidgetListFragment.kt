@@ -13,25 +13,30 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.adapter.WidgetListAdapter
-import cn.minimote.toolbox.data_class.StoredActivity
 import cn.minimote.toolbox.objects.VibrationHelper
-import cn.minimote.toolbox.view_model.ToolboxViewModel
-import kotlin.math.min
+import cn.minimote.toolbox.viewModel.ToolboxViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
 
-//@AndroidEntryPoint
+@AndroidEntryPoint
 class WidgetListFragment(
-    private val viewModel: ToolboxViewModel,
+//    private val viewModel: ToolboxViewModel,
+    val viewPager: ViewPager2,
+    val constraintLayoutOrigin: ConstraintLayout,
 ) : Fragment() {
 
-//    private val viewModel: ToolboxViewModel by activityViewModels()
+    private val viewModel: ToolboxViewModel by activityViewModels()
+//    val viewModel: ToolboxViewModel = ViewModelProvider(this)[ToolboxViewModel::class.java]
 //    private val viewModel: ToolboxViewModel by viewModels()
 
     private lateinit var context: Context
@@ -42,10 +47,18 @@ class WidgetListFragment(
     private lateinit var itemTouchHelper: ItemTouchHelper
 
     // 主视图小组件的列数
-    private val spanCount = viewModel.spanCount
+    private var spanCount = 0
 
-    // 存储观察者引用
-    private lateinit var activityListObserver: Observer<List<StoredActivity>>
+    private val fragmentNames = ToolboxViewModel.Constants.FragmentNames
+
+    // 观察者
+//    private lateinit var widgetListOrderWasModifiedObserver: Observer<Boolean>
+//    private lateinit var storedActivityListObserver: Observer<Boolean>
+    private lateinit var fragmentNameObserver: Observer<String>
+    private lateinit var widgetListWasSortedObserver: Observer<Boolean>
+    private lateinit var widgetListSizeWasModifiedObserver: Observer<Boolean>
+    private lateinit var widgetWasModifiedObserver: Observer<Boolean>
+
     private lateinit var isEditModeObserver: Observer<Boolean>
 
 
@@ -75,10 +88,11 @@ class WidgetListFragment(
 
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
 //        Log.d("WidgetListFragment", "onCreateView")
+        spanCount = viewModel.spanCount
+
         val view = inflater.inflate(R.layout.fragment_widget_list, container, false)
 //        this::class.simpleName?.let { viewModel.updateFragmentName(it) }
 //        Log.i(TAG, "onCreateView")
@@ -88,7 +102,7 @@ class WidgetListFragment(
         setEditModeBackground(view)
 
         // 设置 RecyclerView
-        setupRecyclerView(view)
+        setRecyclerView(view)
 
         // 设置 ItemTouchHelper
         setItemTouchHelper()
@@ -102,7 +116,7 @@ class WidgetListFragment(
 
     // 设置编辑模式的背景
     private fun setEditModeBackground(view: View) {
-        val imageViewSize = (0.8 * min(viewModel.screenWidth, viewModel.screenHeight)).toInt()
+        val imageViewSize = viewModel.imageSize
         imageViewEditBackground = view.findViewById(R.id.edit_background)
         imageViewEditBackground.layoutParams.width = imageViewSize
         imageViewEditBackground.layoutParams.height = imageViewSize
@@ -110,10 +124,10 @@ class WidgetListFragment(
 
 
     // 设置 RecyclerView
-    private fun setupRecyclerView(view: View) {
+    private fun setRecyclerView(view: View) {
         viewModel.loadStorageActivities()
         recyclerView = view.findViewById(R.id.recyclerView_widget_list)
-        val gridLayoutManager = GridLayoutManager(requireContext(), spanCount)
+
         adapter = WidgetListAdapter(
             context = requireActivity(),
             viewModel = viewModel,
@@ -121,20 +135,32 @@ class WidgetListFragment(
             fragmentManager = requireActivity().supportFragmentManager,
         )
         recyclerView.adapter = adapter
+
+        // 使用 GridLayoutManager
+        val gridLayoutManager = GridLayoutManager(requireContext(), spanCount)
         gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
-                return viewModel.storedActivityList.value?.get(position)?.widgetSize
-                    ?: viewModel.maxWidgetSize
+                return adapter.activityList[position].width
             }
         }
         recyclerView.layoutManager = gridLayoutManager
 
-        // 恢复 RecyclerView 的滑动位置
-//        if(savedInstanceState != null) {
-//            Log.i("WidgetListFragment", "恢复滚动位置")
-//            val position = savedInstanceState.getInt("scroll_position", 0)
-//            gridLayoutManager.scrollToPosition(position)
-//        }
+
+//        // 使用 StaggeredGridLayoutManager
+//        val staggeredGridLayoutManager =
+//            StaggeredGridLayoutManager(spanCount, StaggeredGridLayoutManager.VERTICAL)
+//
+//        recyclerView.layoutManager = staggeredGridLayoutManager
+
+
+//        // 使用 FlexboxLayoutManager
+//        val flexboxLayoutManager = FlexboxLayoutManager(context)
+//        flexboxLayoutManager.flexWrap = FlexWrap.WRAP
+//        flexboxLayoutManager.flexDirection = FlexDirection.ROW
+//        flexboxLayoutManager.alignItems = AlignItems.CENTER
+//        flexboxLayoutManager.justifyContent = JustifyContent.FLEX_START
+//        recyclerView.layoutManager = flexboxLayoutManager
+
 
 //        // 添加分割线
 //        recyclerView.addItemDecoration(
@@ -194,15 +220,58 @@ class WidgetListFragment(
 
     // 设置观察者
     private fun setObservers() {
-        activityListObserver = Observer { activityList ->
-            if(activityList.isEmpty()) {
-                textViewNoWidget.visibility = View.VISIBLE
-            } else {
-                textViewNoWidget.visibility = View.GONE
+        // 顺序改变就刷新列表会导致拖动异常
+//        widgetListOrderWasModifiedObserver = Observer { widgetListOrderWasModified ->
+////            Log.e("顺序观察者", "$widgetListOrderWasModified")
+//            if(widgetListOrderWasModified) {
+////                updateData()
+//            }
+//        }
+//        viewModel.widgetListOrderWasModified.observe(
+//            viewLifecycleOwner,
+//            widgetListOrderWasModifiedObserver
+//        )
+
+//        storedActivityListObserver = Observer {
+//            updateData()
+//        }
+//        viewModel.storedActivityList.observe(viewLifecycleOwner, storedActivityListObserver)
+        fragmentNameObserver = Observer { fragmentName ->
+            if(fragmentName == fragmentNames.WIDGET_LIST_FRAGMENT) {
+                updateData()
             }
-            adapter.submitList()
         }
-        viewModel.storedActivityList.observe(viewLifecycleOwner, activityListObserver)
+        viewModel.fragmentName.observe(viewLifecycleOwner, fragmentNameObserver)
+
+        widgetListWasSortedObserver = Observer { widgetListWasSorted ->
+            if(widgetListWasSorted) {
+                updateData()
+                viewModel.widgetListWasSorted.value = false
+            }
+        }
+        viewModel.widgetListWasSorted.observe(viewLifecycleOwner, widgetListWasSortedObserver)
+
+
+        widgetListSizeWasModifiedObserver = Observer { widgetListSizeWasModified ->
+//            Log.e("大小观察者", "$widgetListSizeWasModified")
+//            Toast.makeText(
+//                context, "大小观察者:$widgetListSizeWasModified", Toast.LENGTH_SHORT
+//            ).show()
+            if(widgetListSizeWasModified) {
+                updateData()
+            }
+        }
+        viewModel.widgetListSizeWasModified.observe(
+            viewLifecycleOwner, widgetListSizeWasModifiedObserver
+        )
+
+
+        widgetWasModifiedObserver = Observer { widgetWasModified ->
+            if(widgetWasModified) {
+                updateData()
+            }
+        }
+        viewModel.widgetWasModified.observe(viewLifecycleOwner, widgetWasModifiedObserver)
 
 
         isEditModeObserver = Observer { isEditMode ->
@@ -218,16 +287,54 @@ class WidgetListFragment(
 
                 // 返回时可能没有保存，恢复原始数据
                 viewModel.restoreOriginStoredActivityList()
-                adapter.submitList()
+                updateData()
             }
         }
         viewModel.editMode.observe(viewLifecycleOwner, isEditModeObserver)
     }
 
 
+    // 更新数据
+    private fun updateData() {
+        adapter.submitList()
+//        Toast.makeText(
+//            context,
+//            "更新数据：${viewModel.storedActivityList.value?.size}",
+//            Toast.LENGTH_SHORT,
+//        ).show()
+        showNoWidget()
+    }
+
+
+    // 显示无组件提示
+    private fun showNoWidget() {
+        if(viewModel.storedActivityList.value?.isEmpty() == true) {
+            textViewNoWidget.visibility = View.VISIBLE
+        } else {
+            textViewNoWidget.visibility = View.GONE
+        }
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+//        Toast.makeText(
+//            context,
+//            "onResume",
+//            Toast.LENGTH_SHORT,
+//        ).show()
+        // 刷新数据
+        updateData()
+    }
+
+
     // 移除观察者
     private fun removeObservers() {
-        viewModel.storedActivityList.removeObserver(activityListObserver)
+        viewModel.fragmentName.removeObserver(fragmentNameObserver)
+//        viewModel.widgetListOrderWasModified.removeObserver(widgetListOrderWasModifiedObserver)
+        viewModel.widgetListWasSorted.removeObserver(widgetListWasSortedObserver)
+        viewModel.widgetListSizeWasModified.removeObserver(widgetListSizeWasModifiedObserver)
+        viewModel.widgetWasModified.removeObserver(widgetWasModifiedObserver)
         viewModel.editMode.removeObserver(isEditModeObserver)
     }
 

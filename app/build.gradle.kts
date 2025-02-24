@@ -38,7 +38,7 @@ android {
             isMinifyEnabled = false
             isShrinkResources = false
             isDebuggable = true
-            applicationIdSuffix = ".debug" // 可选：区分调试和发布版本
+            applicationIdSuffix = ".debug" // 可选：添加包名后缀
             versionNameSuffix = "-debug"   // 可选：添加版本后缀
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -147,6 +147,9 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.androidx.room.ktx)
     kapt(libs.hilt.android.compiler)
+    implementation(libs.androidx.viewpager2)
+    implementation(libs.google.flexbox)
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

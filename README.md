@@ -3,6 +3,11 @@ Copyright (c) 2024-2025 minimote(微尘). All rights reserved.
 
 # 安卓手表APP - 工具箱
 
+## 项目地址
+
+- [Gitee【推荐】: https://gitee.com/minimote/toolbox](https://gitee.com/minimote/toolbox)
+- [GitHub: https://github.com/minimote/toolbox](https://github.com/minimote/toolbox)
+
 ## 反馈问题或提出建议
 
 - [Gitee【推荐】: https://gitee.com/minimote/toolbox/issues](https://gitee.com/minimote/toolbox/issues)
@@ -17,15 +22,16 @@ Copyright (c) 2024-2025 minimote(微尘). All rights reserved.
 ## TODO
 
 - 功能：
-    - 关于
-    - 清理本软件缓存 / 数据
     - 添加自定义活动
     - 组件高度设置
     - 工具：
         - 清理后台
         - 浏览器
         - 木鱼
+    - 不同尺寸的设备配置不同的布局大小
 - 待定：
+    - 在线更新
+    - 可选页面切换样式
     - 右滑退出的透明度
     - 重绘进度环样式
     - 列表越界回弹
@@ -33,8 +39,6 @@ Copyright (c) 2024-2025 minimote(微尘). All rights reserved.
     - 更换组件图标
     - 提取软件安装包
     - 导入导出配置
-    - 浏览器跳转反馈页面
-    - 在线更新
 
 ## 支持作者
 
@@ -57,8 +61,8 @@ Copyright (c) 2024-2025 minimote(微尘). All rights reserved.
 
 |                                              微信                                              |                                              支付宝                                              |
 |:--------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------:|
-| ![微信](https://gitee.com/minimote/toolbox/raw/master/app/src/main/res/drawable/qr_wechat.jpg) | ![支付宝](https://gitee.com/minimote/toolbox/raw/master/app/src/main/res/drawable/qr_alipay.jpg) |
+| ![微信](https://gitee.com/minimote/toolbox/raw/master/app/src/main/res/drawable/qr_wechat.png) | ![支付宝](https://gitee.com/minimote/toolbox/raw/master/app/src/main/res/drawable/qr_alipay.png) |
 
-> 注：只接受成年大朋友的打赏，如果你是未成年的小朋友，欢迎你给项目点点 Star，多和他人分享一下本项目，这就是对作者最大的支持。
+> 注：只接受成年朋友的打赏，如果你是未成年的朋友，欢迎你给项目点点 Star，和他人分享一下本项目，这就是对作者最大的支持。
 
 ## [更新日志](更新日志.md)

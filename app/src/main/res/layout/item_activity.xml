@@ -4,7 +4,7 @@
     style="@style/ConstraintLayout.Toolbox.Clickable.Dark">
 
     <ImageView
-        android:id="@+id/widget_icon"
+        android:id="@+id/imageView_app_icon"
         style="@style/ImageView.Toolbox.AppIcon.Dark"
         android:contentDescription="@string/app_icon"
         android:src="@drawable/ic_toolbox"

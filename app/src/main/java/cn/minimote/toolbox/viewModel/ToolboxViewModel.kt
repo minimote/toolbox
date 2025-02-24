@@ -3,23 +3,25 @@
  * 本项目遵循 MIT 许可协议，请务必保留此声明和署名。
  */
 
-package cn.minimote.toolbox.view_model
+package cn.minimote.toolbox.viewModel
 
 import android.app.Application
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.content.res.Configuration
 import android.graphics.drawable.Drawable
+import android.os.Environment
+import android.util.DisplayMetrics
+import androidx.core.content.ContextCompat.getString
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import cn.minimote.toolbox.R
-import cn.minimote.toolbox.data_class.InstalledActivity
-import cn.minimote.toolbox.data_class.StoredActivity
+import cn.minimote.toolbox.dataClass.InstalledActivity
+import cn.minimote.toolbox.dataClass.StoredActivity
 import cn.minimote.toolbox.objects.ConfigHelper
 import cn.minimote.toolbox.objects.ConfigHelper.ConfigName
 import cn.minimote.toolbox.objects.InstalledActivityHelper
@@ -27,9 +29,11 @@ import cn.minimote.toolbox.objects.StoredActivityHelper
 import cn.minimote.toolbox.others.IconCacheManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.io.File
 import java.text.Collator
 import java.util.Locale
 import javax.inject.Inject
+import kotlin.math.min
 
 
 @HiltViewModel
@@ -50,6 +54,9 @@ class ToolboxViewModel
     // 屏幕尺寸
     var screenWidth = 0
     var screenHeight = 0
+    // 屏幕短边
+    var screenShortSide = 0
+    var imageSize = 0
 
     // 最后一个推荐活动的名称(用于画分隔线)
 //    var lastRecommendedActivityName = ""
@@ -89,10 +96,14 @@ class ToolboxViewModel
     var originWidget = MutableLiveData<StoredActivity>()
     var modifiedWidget = MutableLiveData<StoredActivity>()
 
+    // 搜索词(用于高亮显示结果)
+    val searchQuery = MutableLiveData("")
+
     // 中文排序器
     private val collator: Collator = Collator.getInstance(Locale.CHINA)
 
     companion object Constants {
+
         // 编辑视图类型
         object EditViewTypes {
             const val EDIT_VIEW_TYPE_PACKAGE_NAME = 0
@@ -103,15 +114,54 @@ class ToolboxViewModel
             const val EDIT_VIEW_TYPE_DELETE = 5
         }
 
+        // 我的视图类型
+        object MyViewTypes {
+            const val APP_INFO = 0
+            const val CLEAR_CACHE = 1
+            const val CLEAR_DATA = 2
+            const val SUPPORT_AUTHOR = 3
+            const val ABOUT_PROJECT = 4
+        }
+
+        // 支持作者视图类型
+        object SupportAuthorViewTypes {
+            const val WELCOME = 0
+            const val NOTICE = 1
+            const val QR_ALIPAY = 2
+            const val OPERATE_ALIPAY = 3
+            const val QR_WECHAT = 4
+            const val OPERATE_WECHAT = 5
+        }
+
+
+        // 关于项目视图类型
+        object AboutProjectViewTypes {
+            const val NOTICE = 0
+            const val PROJECT_PATH_NAME = 1
+            const val PROJECT_PATH_GITEE = 2
+            const val PROJECT_PATH_GITHUB = 3
+        }
+
+
         // Fragment 名称
         object FragmentNames {
+            const val NO_FRAGMENT = "NoFragment"
             const val WIDGET_LIST_FRAGMENT = "WidgetListFragment"
             const val EDIT_LIST_FRAGMENT = "EditListFragment"
             const val ACTIVITY_LIST_FRAGMENT = "ActivityListFragment"
+            const val SUPPORT_AUTHOR_FRAGMENT = "SupportAuthorFragment"
+            const val ABOUT_PROJECT_FRAGMENT = "AboutProjectFragment"
+        }
+
+        // Fragment 序号
+        object FragmentPositions {
+            const val SIZE = 2
+            const val WIDGET_LIST_FRAGMENT = 0
+            const val MY_LIST_FRAGMENT = 1
         }
 
         // 设备类型
-        object DeviceType {
+        object DeviceTypes {
             const val ALL = "all"
             const val PHONE = "phone"
             const val WATCH = "watch"
@@ -130,24 +180,66 @@ class ToolboxViewModel
         }
     }
 
-    val editViewTypes = EditViewTypes
-    val fragmentNames = FragmentNames
-    val configKeys = ConfigKeys
-
+    // 编辑列表
+//    val editViewTypes = EditViewTypes
     val editList = listOf(
-        editViewTypes.EDIT_VIEW_TYPE_PACKAGE_NAME, // 包名
-        editViewTypes.EDIT_VIEW_TYPE_ACTIVITY_NAME, // 活动名
-        editViewTypes.EDIT_VIEW_TYPE_NICKNAME, // 显示的名称
-        editViewTypes.EDIT_VIEW_TYPE_SHOW_NAME, // 是否显示名称
-        editViewTypes.EDIT_VIEW_TYPE_SIZE, // 组件大小
-        editViewTypes.EDIT_VIEW_TYPE_DELETE, // 删除组件
+        EditViewTypes.EDIT_VIEW_TYPE_PACKAGE_NAME, // 包名
+        EditViewTypes.EDIT_VIEW_TYPE_ACTIVITY_NAME, // 活动名
+        EditViewTypes.EDIT_VIEW_TYPE_NICKNAME, // 显示的名称
+        EditViewTypes.EDIT_VIEW_TYPE_SHOW_NAME, // 是否显示名称
+        EditViewTypes.EDIT_VIEW_TYPE_SIZE, // 组件大小
+        EditViewTypes.EDIT_VIEW_TYPE_DELETE, // 删除组件
     )
 
-    private var _fragmentName = MutableLiveData("No Fragment")
+    // 我的列表
+//    private val myViewTypes = MyViewTypes
+    val myList = listOf(
+        MyViewTypes.APP_INFO, // 应用信息
+        MyViewTypes.CLEAR_CACHE, // 清理缓存
+        MyViewTypes.CLEAR_DATA, // 清除数据
+        MyViewTypes.SUPPORT_AUTHOR, // 支持作者
+        MyViewTypes.ABOUT_PROJECT, // 关于项目
+    )
+
+    // 支持作者
+//    private val supportAuthorViewTypes = SupportAuthorViewTypes
+    val supportAuthorViewList = listOf(
+        SupportAuthorViewTypes.WELCOME, // 欢迎
+        SupportAuthorViewTypes.NOTICE, // 说明
+        SupportAuthorViewTypes.QR_ALIPAY, // 支付宝收款码
+        SupportAuthorViewTypes.OPERATE_ALIPAY, // 支付宝相关操作
+        SupportAuthorViewTypes.QR_WECHAT, // 微信收款码
+        SupportAuthorViewTypes.OPERATE_WECHAT, // 微信相关操作
+    )
+
+
+    // 关于项目
+    val aboutProjectViewList = listOf(
+        AboutProjectViewTypes.NOTICE, // 说明
+        AboutProjectViewTypes.PROJECT_PATH_NAME, // 项目地址
+        AboutProjectViewTypes.PROJECT_PATH_GITEE, // Gitee 地址
+        AboutProjectViewTypes.PROJECT_PATH_GITHUB, // Github 地址
+    )
+
+
+    //    private val fragmentNames = FragmentNames
+    val configKeys = ConfigKeys
+
+
+    // 默认就是组件列表
+    private var _fragmentName = MutableLiveData(FragmentNames.WIDGET_LIST_FRAGMENT)
     val fragmentName: LiveData<String> = _fragmentName
+
+    // 保存路径
+    val savePath = File(
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+        context.getString(R.string.app_name_en),
+    )
 
     // 首页拖动场景使用
     var widgetListOrderWasModified = MutableLiveData(false)
+    // 首页排序使用
+    var widgetListWasSorted = MutableLiveData(false)
     // 编辑列表和活动列表共用
     var widgetListSizeWasModified = MutableLiveData(false)
     // 编辑列表使用
@@ -162,29 +254,54 @@ class ToolboxViewModel
 
 
     // 获取上下文
-    val context: Context
-        get() = getApplication<Application>().applicationContext
+    val context: Context get() = getApplication<Application>().applicationContext
 
 
     // 获取 PackageManager
-    private val packageManager: PackageManager
-        get() = context.packageManager
+    private val packageManager: PackageManager get() = context.packageManager
+
+
+    // 获取应用名
+    val appName: String get() = context.applicationInfo.loadLabel(packageManager).toString()
+
+
+    // 获取包名
+    val packageName: String get() = context.packageName
+
+
+    // 获取版本号
+    val versionName: String
+        get() = packageManager.getPackageInfo(
+            context.packageName,
+            0
+        ).versionName ?: getString(context, R.string.unknown)
 
 
     // 判断设备是否为手表
-    private fun isWatch(): Boolean {
+    fun isWatch(): Boolean {
         val uiMode = context.resources.configuration.uiMode
         return uiMode and Configuration.UI_MODE_TYPE_MASK == Configuration.UI_MODE_TYPE_WATCH
     }
 
 
     fun updateFragmentName(fragmentName: String?) {
+//        Log.e("updateFragmentName", fragmentName.toString())
         _fragmentName.value = fragmentName
     }
 
 
     fun getFragmentName(): String {
-        return _fragmentName.value ?: "No Fragment"
+        return _fragmentName.value ?: FragmentNames.NO_FRAGMENT
+    }
+
+
+    // 更新屏幕尺寸
+    fun updateScreenSize(displayMetrics: DisplayMetrics) {
+        screenWidth = displayMetrics.widthPixels
+        screenHeight = displayMetrics.heightPixels
+        // 屏幕短边
+        screenShortSide = min(screenWidth, screenHeight)
+        imageSize = (0.8 * screenShortSide).toInt()
     }
 
 
@@ -253,7 +370,7 @@ class ToolboxViewModel
 
     // 小组件大小是否发生改变
     private fun widgetSizeWasModified() {
-        val flag = modifiedWidget.value?.widgetSize != originWidget.value?.widgetSize
+        val flag = modifiedWidget.value?.width != originWidget.value?.width
         if(widgetSizeWasModified.value != flag) {
             widgetSizeWasModified.value = flag
         }
@@ -281,9 +398,9 @@ class ToolboxViewModel
     // 加载存储的活动信息
     fun loadStorageActivities() {
 //        Log.i("ActivityViewModel", "加载活动0")
-        if(_storedActivityList.value != null) {
-            return
-        }
+//        if(_storedActivityList.value != null) {
+//            return
+//        }
 
         val storageActivityList = StoredActivityHelper.loadStoredActivityList(context)
         _storedActivityList.value = storageActivityList
@@ -411,12 +528,15 @@ class ToolboxViewModel
 
     // 给 _storedActivityList 排序
     fun sortStoredActivityList() {
+//        Log.e("排序", "开始排序")
         _storedActivityList.value?.let { activities ->
+//            Log.e("排序", "进入排序")
             _storedActivityList.value =
                 activities.sortedWith(compareBy(collator) { activity -> activity.nickName })
                     .toMutableList()
             _modifiedOrderStorageActivityMap = builtMapFromList(_storedActivityList.value!!)
-            widgetListOrderWasModified()
+            modifyStoredActivityListOrder()
+            widgetListWasSorted.value = true
         }
     }
 
@@ -473,7 +593,9 @@ class ToolboxViewModel
             installedAppListSize -= 2
         }
 
-        _installedActivityList.value = installedActivities
+        // 强加一个空白项，然后在 RecyclerView 底部加一个 padding
+        // 暂时解决 RecyclerView 被搜索框挤下去的问题
+        _installedActivityList.value = installedActivities //+ getEmptyInstalledActivity()
 
         // 获取活动名到应用信息的映射
         for(installedActivity in installedActivities) {
@@ -483,6 +605,12 @@ class ToolboxViewModel
             }
         }
     }
+    // 获取空白项
+//    fun getEmptyInstalledActivity() = InstalledActivity(
+//        appName = "",
+//        packageName = "",
+//        activityName = "",
+//    )
 
 
     // 获取推荐活动列表
@@ -490,7 +618,7 @@ class ToolboxViewModel
 //        val splitChar = context.getString(R.string.split_char)
         var recommendedActivities = InstalledActivityHelper.loadInstalledActivityList(
             context = context,
-            deviceType = DeviceType.ALL,
+            deviceType = DeviceTypes.ALL,
         )
 //        Log.e("recommendedActivities", "$recommendedActivities")
 //        Log.e("ToolboxViewModel", "isWatch: ${isWatch()}")
@@ -499,13 +627,13 @@ class ToolboxViewModel
             // 手表活动
             InstalledActivityHelper.loadInstalledActivityList(
                 context = context,
-                deviceType = DeviceType.WATCH,
+                deviceType = DeviceTypes.WATCH,
             )
         } else {
             // 手机活动
             InstalledActivityHelper.loadInstalledActivityList(
                 context = context,
-                deviceType = DeviceType.PHONE,
+                deviceType = DeviceTypes.PHONE,
             )
         }
 
@@ -540,45 +668,6 @@ class ToolboxViewModel
         }
 
         return recommendedActivities
-    }
-
-
-    // 获取该 package 下所有导出的 Activity
-    private fun getAllExportedActivities(
-        packageName: String
-    ): List<ActivityInfo> {
-        return packageManager.getPackageInfo(
-            packageName, PackageManager.GET_ACTIVITIES
-        ).activities?.filter { it.exported } ?: emptyList() // 过滤出被导出的Activity
-    }
-
-
-    // 获取全部可导出的活动列表
-    private fun getAllExportedActivities(): List<ResolveInfo> {
-//        val packages = packageManager.getInstalledPackages(PackageManager.GET_INTENT_FILTERS)
-        val packages = packageManager.getInstalledPackages(PackageManager.MATCH_ALL)
-//        Log.e("getAllExportedActivities", "${packages.size}")
-        val exportedActivities = mutableListOf<ResolveInfo>()
-
-        for(packageInfo in packages) {
-//            Log.e("getAllExportedActivities", packageInfo.packageName)
-//            val activities = packageInfo.activities ?: continue
-            val activities = getAllExportedActivities(packageInfo.packageName)
-//            if(activities.isNotEmpty()) {
-//                Log.e("getAllExportedActivities", "${packageInfo.packageName}:${activities.size}")
-//            }
-            for(activity in activities) {
-//                Log.e("getAllExportedActivities", activity.name)
-                val intent = Intent(Intent.ACTION_VIEW)
-                intent.setClassName(packageInfo.packageName, activity.name)
-                val resolveInfo = packageManager.resolveActivity(intent, 0)
-                if(resolveInfo != null) {
-                    exportedActivities.add(resolveInfo)
-                }
-            }
-        }
-
-        return exportedActivities
     }
 
 
@@ -696,9 +785,19 @@ class ToolboxViewModel
             appName = installedActivity.appName,
             packageName = installedActivity.packageName,
             activityName = installedActivity.activityName,
-            widgetSize = widgetSize,
+            width = widgetSize,
             iconName = installedActivity.iconName,
         )
         return storageActivity
     }
+
+
+//    // 获取该 package 下所有导出的 Activity
+//    private fun getAllExportedActivities(
+//        packageName: String
+//    ): List<ActivityInfo> {
+//        return packageManager.getPackageInfo(
+//            packageName, PackageManager.GET_ACTIVITIES
+//        ).activities?.filter { it.exported } ?: emptyList() // 过滤出被导出的Activity
+//    }
 }

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/ConstraintLayout.Toolbox.Dark">
+
+    <TextView
+        style="@style/TextView.Toolbox.Dark"
+        android:id="@+id/name"
+        android:text="@string/github"
+        android:layout_marginTop="@dimen/layout_size_2_footnote"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/textView_url"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        style="@style/TextView.Toolbox.URL.Dark"
+        android:id="@+id/textView_url"
+        android:text="@string/projectPath_github"
+        app:layout_constraintTop_toBottomOf="@id/name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/imageView_qr_github"
+        style="@style/ImageView.Toolbox.QR.Dark"
+        android:contentDescription="@string/qr_github"
+        android:src="@drawable/qr_github"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView_url" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -5,7 +5,7 @@
     style="@style/ConstraintLayout.Toolbox.Clickable.Dark">
 
     <TextView
-        android:id="@+id/textView_nickname"
+        android:id="@+id/textView_clearData"
         style="@style/TextView.Toolbox.EditOperateName.Dark"
         android:gravity="start"
         android:text="@string/widgetSize"

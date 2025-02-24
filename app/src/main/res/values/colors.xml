@@ -13,6 +13,7 @@
     <color name="light_gray">#FFCCCCCC</color>
     <color name="deep_blue">#FF214283</color>
     <color name="light_blue">#FF24ADF3</color>
+    <color name="primary">#FF24ADF3</color>
     <color name="green">#FF00FF00</color>
     <color name="red">#FFFF0000</color>
     <color name="switch_thumb_on">#FFDDDDDD</color>
@@ -20,5 +21,7 @@
     <color name="switch_track_on">#FF217CFF</color>
     <color name="switch_track_off">#FF535353</color>
     <color name="yellow">#FFF8D714</color>
-    <color name="ic_color">#FFF8D714</color>
+    <color name="ic_color">#FF24ADF3</color>
+    <color name="alipay_blue">#FF0066FF</color>
+    <color name="wechat_green">#FF2CA138</color>
 </resources>

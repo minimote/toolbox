@@ -7,7 +7,7 @@ package cn.minimote.toolbox.objects
 
 
 import android.content.Context
-import cn.minimote.toolbox.data_class.StoredActivity
+import cn.minimote.toolbox.dataClass.StoredActivity
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken

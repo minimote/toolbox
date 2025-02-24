@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    style="@style/ConstraintLayout.Toolbox.Clickable.Dark">
+    style="@style/ConstraintLayout.Toolbox.Dark">
 
     <View
         style="@style/View.Toolbox.Dark"
+        android:id="@+id/view_left"
         app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginVertical="@dimen/layout_size_0_normal"
         app:layout_constraintEnd_toStartOf="@id/app_name"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -13,7 +15,7 @@
     <TextView
         android:id="@+id/app_name"
         style="@style/TextView.Toolbox.Dark"
-        android:padding="@dimen/layout_size_2_footnote"
+        android:paddingHorizontal="@dimen/layout_size_2_footnote"
         android:textSize="@dimen/text_size_1_large"
         android:text="@string/recommended_activity"
         android:textStyle="bold"
@@ -24,6 +26,7 @@
 
     <View
         style="@style/View.Toolbox.Dark"
+        android:id="@+id/view_right"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/app_name"
         app:layout_constraintEnd_toEndOf="parent"

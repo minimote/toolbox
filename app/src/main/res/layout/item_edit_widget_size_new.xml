@@ -2,10 +2,10 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/ConstraintLayout.Toolbox.Clickable.Dark">
+    style="@style/ConstraintLayout.Toolbox.Dark">
 
     <TextView
-        android:id="@+id/textView_nickname"
+        android:id="@+id/textView_clearData"
         style="@style/TextView.Toolbox.EditOperateName.Dark"
         android:gravity="start"
         android:text="@string/widgetSize"
@@ -16,10 +16,9 @@
     <Button
         android:id="@+id/button_reset_widgetSize"
         style="@style/Button.Toolbox.Reset.Dark"
-        android:text="@string/reset"
         app:layout_constraintBottom_toTopOf="@id/button_widgetSize_increase"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView_nickname"
+        app:layout_constraintStart_toEndOf="@+id/textView_clearData"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
@@ -29,7 +28,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/textView_widgetSize_fraction"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textView_nickname" />
+        app:layout_constraintTop_toBottomOf="@id/textView_clearData" />
 
     <TextView
         android:id="@+id/textView_widgetSize_fraction"
@@ -39,7 +38,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/button_widgetSize_increase"
         app:layout_constraintStart_toEndOf="@+id/button_widgetSize_decrease"
-        app:layout_constraintTop_toBottomOf="@id/textView_nickname" />
+        app:layout_constraintTop_toBottomOf="@id/textView_clearData" />
 
     <Button
         android:id="@+id/button_widgetSize_increase"

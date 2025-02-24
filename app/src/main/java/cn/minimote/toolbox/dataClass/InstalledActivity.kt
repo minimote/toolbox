@@ -3,7 +3,7 @@
  * 本项目遵循 MIT 许可协议，请务必保留此声明和署名。
  */
 
-package cn.minimote.toolbox.data_class
+package cn.minimote.toolbox.dataClass
 
 
 // 用于存储的数据类

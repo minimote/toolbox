@@ -33,7 +33,7 @@
     <methods>;
 }
 # 保持所有数据类及其字段
--keep class cn.minimote.toolbox.data_class.** {
+-keep class cn.minimote.toolbox.dataClass.** {
     <fields>;
 }
 

@@ -9,18 +9,24 @@ package cn.minimote.toolbox.adapter
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Typeface
+import android.graphics.drawable.Drawable
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
-import cn.minimote.toolbox.data_class.InstalledActivity
+import cn.minimote.toolbox.dataClass.InstalledActivity
 import cn.minimote.toolbox.fragment.ActivityListFragment
 import cn.minimote.toolbox.objects.VibrationHelper
-import cn.minimote.toolbox.view_model.ToolboxViewModel
+import cn.minimote.toolbox.viewModel.ToolboxViewModel
 import com.google.android.material.switchmaterial.SwitchMaterial
+import java.util.Locale
 
 
 class ActivityListAdapter(
@@ -35,26 +41,70 @@ class ActivityListAdapter(
     }
 
     private var installedAppList: List<InstalledActivity> =
-        viewModel.installedActivityList.value ?: getEmptyList()
+        viewModel.installedActivityList.value ?: getNoResultList()
 
 
-    class AppViewHolder(itemView: View, val viewType: Int) : RecyclerView.ViewHolder(itemView) {
-        val appName: TextView = itemView.findViewById(R.id.app_name)
+    inner class AppViewHolder(itemView: View, val viewType: Int) :
+        RecyclerView.ViewHolder(itemView) {
+        val textViewAppName: TextView = itemView.findViewById(R.id.app_name)
 
         lateinit var appIcon: ImageView
         lateinit var activityName: TextView
         lateinit var switch: SwitchMaterial
 
+        // 左右的横线
+        lateinit var viewLeft: View
+        lateinit var viewRight: View
+
         init {
             when(viewType) {
                 VIEW_TYPE_NORMAL -> {
-                    appIcon = itemView.findViewById(R.id.widget_icon)
+                    appIcon = itemView.findViewById(R.id.imageView_app_icon)
                     activityName = itemView.findViewById(R.id.activity_name)
                     switch = itemView.findViewById(R.id.switch_whether_show_in_home)
                 }
+
+                VIEW_TYPE_TITLE -> {
+                    viewLeft = itemView.findViewById(R.id.view_left)
+                    viewRight = itemView.findViewById(R.id.view_right)
+                }
             }
         }
+
+
+        fun bind(activity: InstalledActivity) {
+            val appName = activity.appName
+            val query = viewModel.searchQuery.value.orEmpty()
+            // 手表不高亮显示
+            if(viewModel.isWatch() || query.isEmpty()) {
+                textViewAppName.text = appName
+                return
+            }
+            textViewAppName.text = highlightSearchTerm(appName, query)
+        }
     }
+
+
+    // 高亮显示搜索结果中的匹配项
+    private fun highlightSearchTerm(text: String, query: String): SpannableString {
+        val spannableString = SpannableString(text)
+        val lowerCaseText = text.lowercase(Locale.getDefault())
+        val lowerCaseQuery = query.lowercase(Locale.getDefault())
+
+        var index = lowerCaseText.indexOf(lowerCaseQuery)
+        while(index >= 0) {
+            spannableString.setSpan(
+                ForegroundColorSpan(ContextCompat.getColor(context, R.color.light_blue)),
+                index,
+                index + query.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            index = lowerCaseText.indexOf(lowerCaseQuery, index + query.length)
+        }
+
+        return spannableString
+    }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppViewHolder {
         val layoutId = when(viewType) {
@@ -65,6 +115,7 @@ class ActivityListAdapter(
         val view = LayoutInflater.from(parent.context).inflate(layoutId, parent, false)
         return AppViewHolder(view, viewType)
     }
+
 
     override fun onBindViewHolder(holder: AppViewHolder, position: Int) {
         val installedActivity = installedAppList[position]
@@ -89,26 +140,46 @@ class ActivityListAdapter(
             }
         }
 
-        holder.itemView.setOnClickListener() {
+        holder.itemView.setOnClickListener {
             toggleSwitch()
         }
 
-        holder.appName.text = installedActivity.appName
         if(holder.viewType == VIEW_TYPE_TITLE) {
-            // 无结果提示为灰色正常字体
-            if(installedActivity.appName == context.getString(R.string.no_result)) {
-                // 设置字体样式为正常
-                holder.appName.setTypeface(null, Typeface.NORMAL)
-                // 设置字体颜色为灰色
-                holder.appName.setTextColor(context.getColor(R.color.mid_gray))
-            } else {
-                // 设置字体样式为粗体
-                holder.appName.setTypeface(null, Typeface.BOLD)
-                // 设置字体颜色为白色
-                holder.appName.setTextColor(context.getColor(R.color.white))
+            holder.textViewAppName.text = installedActivity.appName
+            // 标题都不可点击
+//            holder.itemView.isClickable = false
+            // 需要手动设置线条颜色，不然可能会受到无名称项的影响而变成空
+            setLineBackground(holder)
+//            Log.e("title", installedActivity.appName)
+
+            when(installedActivity.appName) {
+                // 无名称则不显示
+                "" -> {
+//                    Log.e("title", "无内容")
+                    setLineBackground(holder, null)
+                }
+
+                // 无结果提示为灰色正常字体
+                context.getString(R.string.no_result) -> {
+                    // 设置字体样式为正常
+                    holder.textViewAppName.setTypeface(null, Typeface.NORMAL)
+                    // 设置字体颜色为灰色
+                    holder.textViewAppName.setTextColor(context.getColor(R.color.mid_gray))
+                }
+
+                else -> {
+                    // 设置字体样式为粗体
+                    holder.textViewAppName.setTypeface(null, Typeface.BOLD)
+                    // 设置字体颜色为白色
+                    holder.textViewAppName.setTextColor(context.getColor(R.color.white))
+                }
+
             }
             return
         }
+
+        // 高亮显示搜索结果
+        holder.bind(installedActivity)
 
         holder.appIcon.setImageDrawable(viewModel.getIcon(installedActivity))
         // 活动名仅显示最后一个点后面的部分
@@ -118,6 +189,16 @@ class ActivityListAdapter(
 //            "ActivityListAdapter",
 //            " ${installedActivity.appName} ${holder.switch.isChecked}"
 //        )
+    }
+
+
+    // 设置线的背景
+    private fun setLineBackground(
+        holder: AppViewHolder,
+        color: Drawable? = ContextCompat.getDrawable(context, R.color.mid_gray)
+    ) {
+        holder.viewLeft.background = color
+        holder.viewRight.background = color
     }
 
 
@@ -135,14 +216,17 @@ class ActivityListAdapter(
 
     @SuppressLint("NotifyDataSetChanged")
     fun submitList(newInstalledAppList: List<InstalledActivity> = loadActivityList()) {
-        installedAppList = newInstalledAppList.ifEmpty {
-            getEmptyList()
+        installedAppList = if(newInstalledAppList.isNotEmpty()) {
+            // 搜索结果非空，添加一个空的活动来占位
+            newInstalledAppList//.plus(viewModel.getEmptyInstalledActivity())
+        } else {
+            getNoResultList()
         }
         notifyDataSetChanged()
     }
 
 
-    private fun getEmptyList(): List<InstalledActivity> {
+    private fun getNoResultList(): List<InstalledActivity> {
         return mutableListOf(
             InstalledActivity(
                 appName = context.getString(R.string.no_result),

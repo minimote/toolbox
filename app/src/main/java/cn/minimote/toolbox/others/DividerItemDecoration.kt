@@ -13,7 +13,7 @@ import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
-import cn.minimote.toolbox.view_model.ToolboxViewModel
+import cn.minimote.toolbox.viewModel.ToolboxViewModel
 
 
 class DividerItemDecoration(

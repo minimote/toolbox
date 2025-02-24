@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.adapter.EditListAdapter
-import cn.minimote.toolbox.view_model.ToolboxViewModel
+import cn.minimote.toolbox.viewModel.ToolboxViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 

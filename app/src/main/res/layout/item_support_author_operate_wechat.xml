@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/ConstraintLayout.Toolbox.Dark">
+
+    <!--    <Button-->
+    <!--        android:id="@+id/button1"-->
+    <!--        style="@style/Button.Toolbox.alipay.Dark"-->
+    <!--        android:text="@string/save"-->
+    <!--        app:layout_constraintEnd_toStartOf="@id/button2"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toBottomOf="@+id/imageView_qr_wechat" />-->
+
+    <!--    <Button-->
+    <!--        android:id="@+id/button2"-->
+    <!--        style="@style/Button.Toolbox.alipay.Dark"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:text="@string/alipay_scan"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toEndOf="@id/button1"-->
+    <!--        app:layout_constraintTop_toBottomOf="@+id/imageView_qr_wechat" />-->
+
+    <Button
+        android:id="@+id/button_save_qr"
+        style="@style/Button.Toolbox.Wechat.Dark"
+        android:text="@string/save"
+        app:layout_constraintEnd_toStartOf="@id/button_open_wechat_scan"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+
+    <Button
+        android:id="@+id/button_open_wechat_scan"
+        style="@style/Button.Toolbox.Wechat.Dark"
+        android:text="@string/open_wechat_scan"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/button_save_qr" />
+
+
+    <View
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/layout_size_0_normal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/button_open_wechat_scan" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

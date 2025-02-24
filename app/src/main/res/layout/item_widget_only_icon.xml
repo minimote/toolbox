@@ -12,7 +12,7 @@
     <!--        app:layout_constraintTop_toTopOf="parent" />-->
 
     <ImageView
-        android:id="@+id/widget_icon"
+        android:id="@+id/imageView_app_icon"
         style="@style/ImageView.Toolbox.WidgetIcon.Dark"
         android:contentDescription="@string/app_icon"
         android:src="@drawable/ic_default"

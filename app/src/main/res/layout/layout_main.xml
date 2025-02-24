@@ -3,12 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/layout_main"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
     <Button
         android:id="@+id/button_exit"
-        style="@style/Button.Toolbox.Dark"
+        style="@style/Button.Toolbox.Top.Dark"
         android:text="@string/exit_button"
         app:layout_constraintBottom_toTopOf="@id/guideline4"
         app:layout_constraintEnd_toStartOf="@+id/guideline1"
@@ -24,7 +24,7 @@
 
     <Button
         android:id="@+id/button_add"
-        style="@style/Button.Toolbox.Dark"
+        style="@style/Button.Toolbox.Top.Dark"
         android:text="@string/add_button"
         app:layout_constraintBottom_toTopOf="@id/guideline4"
         app:layout_constraintEnd_toStartOf="@id/guideline3"
@@ -40,7 +40,8 @@
 
     <Button
         android:id="@+id/button_time"
-        style="@style/Button.Toolbox.Dark"
+        style="@style/Button.Toolbox.Top.Dark"
+        android:clickable="false"
         android:text="@string/time"
         app:layout_constraintBottom_toTopOf="@id/guideline4"
         app:layout_constraintEnd_toEndOf="parent"
@@ -52,18 +53,26 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="36dp" />
+        app:layout_constraintGuide_begin="40dp" />
+
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager_origin"
+        style="@style/ViewPager2.Toolbox.Dark"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guideline4" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout_origin"
         style="@style/ConstraintLayout.Toolbox.RecyclerView.Dark"
+        android:layout_height="match_parent"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/guideline4">
-
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        app:layout_constraintTop_toBottomOf="@id/guideline4" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

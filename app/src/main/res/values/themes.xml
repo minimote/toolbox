@@ -9,49 +9,76 @@
         <!-- 右滑返回 -->
         <item name="android:windowSwipeToDismiss">true</item>
         <item name="android:windowIsTranslucent">true</item>
+        <!-- 应用主题色 -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="android:colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary</item>
+        <item name="android:colorPrimaryDark">@color/primary</item>
+        <item name="colorAccent">@color/yellow</item>
+        <item name="android:colorAccent">@color/yellow</item>
     </style>
 
 
     <!-- Button -->
     <style name="Button.Toolbox.Dark" parent="Widget.Material3.Button.TextButton">
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">0dp</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_margin">0dp</item>
         <item name="android:padding">0dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:inset">0dp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="cornerRadius">0dp</item>
+    </style>
+
+
+    <!-- Button：顶部的按钮 -->
+    <style name="Button.Toolbox.Top.Dark" parent="Button.Toolbox.Dark">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">0dp</item>
+    </style>
+
+
+    <!-- Button：支付宝 -->
+    <style name="Button.Toolbox.Alipay.Dark" parent="Button.Toolbox.Dark">
+        <!--        <item name="android:layout_width">match_parent</item>-->
+        <item name="backgroundTint">@color/alipay_blue</item>
+        <item name="android:padding">@dimen/layout_size_1_small</item>
+        <!--        <item name="android:paddingHorizontal">@dimen/layout_size_2_footnote</item>-->
+        <!--        <item name="android:paddingRight">@dimen/layout_size_2_footnote</item>-->
+        <!--        <item name="android:layout_marginHorizontal">@dimen/layout_size_1_small</item>-->
+    </style>
+
+
+    <!-- Button：微信 -->
+    <style name="Button.Toolbox.Wechat.Dark" parent="Button.Toolbox.Alipay.Dark">
+        <item name="backgroundTint">@color/wechat_green</item>
     </style>
 
 
     <!-- Button: 删除组件 -->
-    <style name="Button.Toolbox.DeleteWidget.Dark" parent="Widget.Material3.Button.TextButton">
+    <style name="Button.Toolbox.DeleteWidget.Dark" parent="Button.Toolbox.Dark">
         <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">0dp</item>
+        <!--        <item name="android:layout_height">0dp</item>-->
         <item name="android:text">@string/delete_widget</item>
         <item name="android:textColor">@color/red</item>
-        <item name="android:layout_margin">0dp</item>
-        <item name="android:padding">0dp</item>
+        <item name="android:padding">@dimen/layout_size_3_script</item>
     </style>
 
 
-    <!-- Button: 恢复组件 -->
-    <style name="Button.Toolbox.RestoreWidget.Dark" parent="Widget.Material3.Button.TextButton">
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">0dp</item>
-        <item name="android:text">@string/restore_widget</item>
-        <item name="android:textColor">@color/green</item>
-        <item name="android:layout_margin">0dp</item>
-        <item name="android:padding">0dp</item>
-    </style>
+    <!--    &lt;!&ndash; Button: 恢复组件 &ndash;&gt;-->
+    <!--    <style name="Button.Toolbox.RestoreWidget.Dark" parent="Button.Toolbox.DeleteWidget.Dark">-->
+    <!--        <item name="android:textColor">@color/green</item>-->
+    <!--    </style>-->
 
 
     <!-- Button: 重置按钮 -->
-    <style name="Button.Toolbox.Reset.Dark" parent="Widget.Material3.Button.TextButton">
+    <style name="Button.Toolbox.Reset.Dark" parent="Button.Toolbox.Dark">
+        <item name="android:text">@string/reset</item>
         <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">@dimen/layout_size_1_large</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">@dimen/text_size_1_small</item>
-        <item name="android:layout_margin">0dp</item>
-        <item name="android:padding">0dp</item>
     </style>
 
 
@@ -64,13 +91,24 @@
 
 
     <!-- ImageView：软件图标 -->
+    <style name="ImageView.Toolbox.AppIcon.MyList.Dark" parent="Theme.Toolbox.Dark">
+        <item name="android:layout_width">@dimen/layout_size_2_Large</item>
+        <item name="android:layout_height">@dimen/layout_size_2_Large</item>
+        <!--        <item name="android:layout_marginStart">@dimen/layout_size_2_footnote</item>-->
+        <!--        <item name="android:layout_marginEnd">@dimen/layout_size_2_footnote</item>-->
+        <!--        <item name="android:layout_marginTop">@dimen/layout_size_2_footnote</item>-->
+        <!--        <item name="android:layout_marginBottom">@dimen/layout_size_2_footnote</item>-->
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+
+    <!-- ImageView：软件图标 -->
     <style name="ImageView.Toolbox.AppIcon.Dark" parent="Theme.Toolbox.Dark">
         <item name="android:layout_width">@dimen/layout_size_1_large</item>
         <item name="android:layout_height">@dimen/layout_size_1_large</item>
         <!--        <item name="android:layout_marginStart">@dimen/layout_size_2_footnote</item>-->
         <!--        <item name="android:layout_marginEnd">@dimen/layout_size_2_footnote</item>-->
-        <item name="android:layout_marginTop">@dimen/layout_size_2_footnote</item>
-        <item name="android:layout_marginBottom">@dimen/layout_size_2_footnote</item>
+        <item name="android:layout_marginVertical">@dimen/layout_size_2_footnote</item>
         <item name="android:background">@android:color/transparent</item>
     </style>
 
@@ -80,6 +118,19 @@
         <item name="android:layout_width">@dimen/layout_size_1_large</item>
         <item name="android:layout_height">@dimen/layout_size_1_large</item>
         <item name="android:layout_margin">@dimen/layout_size_2_footnote</item>
+        <!--        <item name="android:layout_marginStart">@dimen/layout_size_2_footnote</item>-->
+        <!--        <item name="android:layout_marginEnd">@dimen/layout_size_2_footnote</item>-->
+        <!--        <item name="android:layout_marginTop">@dimen/layout_size_2_footnote</item>-->
+        <!--        <item name="android:layout_marginBottom">@dimen/layout_size_2_footnote</item>-->
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+
+    <!-- ImageView：收款码 -->
+    <style name="ImageView.Toolbox.QR.Dark" parent="Theme.Toolbox.Dark">
+        <item name="android:layout_width">@dimen/layout_size_3_LARGE</item>
+        <item name="android:layout_height">@dimen/layout_size_3_LARGE</item>
+        <!--        <item name="android:layout_margin">@dimen/layout_size_2_footnote</item>-->
         <!--        <item name="android:layout_marginStart">@dimen/layout_size_2_footnote</item>-->
         <!--        <item name="android:layout_marginEnd">@dimen/layout_size_2_footnote</item>-->
         <!--        <item name="android:layout_marginTop">@dimen/layout_size_2_footnote</item>-->
@@ -110,14 +161,39 @@
     </style>
 
 
+    <!-- TextView：网址 -->
+    <style name="TextView.Toolbox.URL.Dark" parent="TextView.Toolbox.Dark">
+        <item name="android:textColor">@color/light_blue</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:padding">@dimen/layout_size_2_footnote</item>
+        <!--        <item name="android:textIsSelectable">true</item>-->
+        <!--        <item name="android:clickable">true</item>-->
+        <item name="android:background">@drawable/background_ripple</item>
+    </style>
+
+
+    <!-- TextView：支付宝 -->
+    <style name="TextView.Toolbox.Alipay.Dark" parent="TextView.Toolbox.Dark">
+        <item name="android:layout_marginTop">@dimen/layout_size_2_footnote</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/alipay_blue</item>
+        <item name="android:textSize">@dimen/text_size_2_Large</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+
+    <!-- TextView：微信 -->
+    <style name="TextView.Toolbox.Wechat.Dark" parent="TextView.Toolbox.Alipay.Dark">
+        <item name="android:textColor">@color/wechat_green</item>
+    </style>
+
+
     <!-- TextView：修改操作的名称 -->
     <style name="TextView.Toolbox.EditOperateName.Dark" parent="Theme.Toolbox.Dark">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <!--        <item name="android:layout_marginStart">@dimen/layout_size_3_script</item>-->
-        <!--        <item name="android:layout_marginEnd">@dimen/layout_size_3_script</item>-->
-        <item name="android:layout_marginTop">@dimen/layout_size_2_footnote</item>
-        <item name="android:layout_marginBottom">@dimen/layout_size_2_footnote</item>
+        <item name="android:layout_marginHorizontal">@dimen/layout_size_3_script</item>
+        <item name="android:layout_marginVertical">@dimen/layout_size_2_footnote</item>
         <!--        <item name="android:textSize">@dimen/text_size_1_large</item>-->
         <item name="android:background">@android:color/transparent</item>
     </style>
@@ -152,16 +228,61 @@
     </style>
 
 
-    <!-- TextView：活动名称 -->
-    <style name="TextView.Toolbox.ActivityName.Dark" parent="TextView.Toolbox.AppName.Dark">
+    <!-- TextView：编辑页面活动名称 -->
+    <style name="TextView.Toolbox.EditActivityName.Dark" parent="Theme.Toolbox.Dark">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">start</item>
+        <item name="android:layout_marginHorizontal">@dimen/layout_size_3_script</item>
+        <!--        <item name="android:layout_marginTop">@dimen/layout_size_2_footnote</item>-->
+        <!--        <item name="android:layout_marginBottom">@dimen/layout_size_2_footnote</item>-->
+        <item name="android:textSize">@dimen/text_size_3_script</item>
+        <item name="android:textColor">@color/light_gray</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+
+    <!-- TextView：活动列表活动名称 -->
+    <style name="TextView.Toolbox.ActivityName.Dark" parent="Theme.Toolbox.Dark">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:gravity">start</item>
         <item name="android:layout_marginStart">@dimen/layout_size_2_footnote</item>
-        <!--        <item name="android:layout_marginEnd">@dimen/layout_size_2_footnote</item>-->
         <!--        <item name="android:layout_marginTop">@dimen/layout_size_2_footnote</item>-->
         <!--        <item name="android:layout_marginBottom">@dimen/layout_size_2_footnote</item>-->
         <item name="android:textSize">@dimen/text_size_3_script</item>
+        <item name="android:textColor">@color/light_gray</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+
+    <!-- TextView：我的列表-右边的细节显示 -->
+    <style name="TextView.Toolbox.MyListDetail.Dark" parent="TextView.Toolbox.AppName.Dark">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">end</item>
+        <item name="android:layout_marginStart">@dimen/layout_size_2_footnote</item>
+        <item name="android:layout_marginEnd">@dimen/layout_size_3_script</item>
+        <!--        <item name="android:layout_marginTop">@dimen/layout_size_2_footnote</item>-->
+        <!--        <item name="android:layout_marginBottom">@dimen/layout_size_2_footnote</item>-->
+        <!--        <item name="android:textSize">@dimen/text_size_3_script</item>-->
+        <item name="android:textColor">@color/light_gray</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+
+    <!-- TextView：版本号和作者 -->
+    <style name="TextView.Toolbox.VersionName.Dark" parent="Theme.Toolbox.Dark">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!--        <item name="android:gravity">start</item>-->
+        <!--        <item name="android:layout_marginStart">@dimen/layout_size_2_footnote</item>-->
+        <!--        <item name="android:layout_marginEnd">@dimen/layout_size_2_footnote</item>-->
+        <!--        <item name="android:layout_marginTop">@dimen/layout_size_2_footnote</item>-->
+        <!--        <item name="android:layout_marginBottom">@dimen/layout_size_2_footnote</item>-->
+        <item name="android:padding">@dimen/layout_size_4_tiny</item>
+        <item name="android:textSize">@dimen/text_size_3_script</item>
+        <item name="android:textColor">@color/light_gray</item>
         <item name="android:background">@android:color/transparent</item>
     </style>
 
@@ -196,22 +317,41 @@
     </style>
 
 
+    <!-- ConstraintLayout -->
+    <style name="ConstraintLayout.Toolbox.Dark" parent="Theme.Toolbox.Dark">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!--        <item name="android:paddingHorizontal">@dimen/layout_size_3_script</item>-->
+        <item name="layout_constrainedHeight">true</item>
+    </style>
+
+
     <!-- 放置 RecyclerView 的 ConstraintLayout -->
     <style name="ConstraintLayout.Toolbox.RecyclerView.Dark" parent="Theme.Toolbox.Dark">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:padding">@dimen/layout_size_3_script</item>
+        <item name="android:paddingHorizontal">@dimen/layout_size_3_script</item>
         <item name="layout_constrainedHeight">true</item>
     </style>
 
 
     <!-- 可点击的的 ConstraintLayout -->
-    <style name="ConstraintLayout.Toolbox.Clickable.Dark" parent="RecyclerView.Toolbox.Dark">
+    <style name="ConstraintLayout.Toolbox.Clickable.Dark" parent="Theme.Toolbox.Dark">
         <item name="android:clickable">true</item>
         <!--        <item name="android:focusable">true</item>-->
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:background">@drawable/background_ripple</item>
+    </style>
+
+
+    <!-- ViewPager2 -->
+    <style name="ViewPager2.Toolbox.Dark" parent="Theme.Toolbox.Dark">
+        <item name="android:layout_width">match_parent</item>
+        <!--        <item name="android:layout_height">0dp</item>-->
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:paddingHorizontal">@dimen/layout_size_3_script</item>
+        <item name="layout_constrainedHeight">true</item>
     </style>
 
 
@@ -257,7 +397,9 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:inputType">text</item>
         <item name="android:gravity">center</item>
+        <item name="android:maxLines">1</item>
         <item name="android:padding">@dimen/layout_size_2_footnote</item>
+        <item name="android:layout_marginVertical">@dimen/layout_size_3_script</item>
         <!--        <item name="android:paddingTop">@dimen/layout_size_3_script</item>-->
         <!--        <item name="android:paddingBottom">@dimen/layout_size_3_script</item>-->
         <!--    <item name="android:hintTextColor">@color/hint_text_color</item>-->
@@ -266,6 +408,4 @@
     </style>
 
 
-    <string name="delete_widget">删除组件</string>
-    <string name="restore_widget">恢复组件</string>
 </resources>

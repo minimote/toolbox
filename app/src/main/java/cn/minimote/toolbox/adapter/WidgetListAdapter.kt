@@ -20,12 +20,11 @@ import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
-import cn.minimote.toolbox.data_class.StoredActivity
-import cn.minimote.toolbox.fragment.EditListFragment
+import cn.minimote.toolbox.dataClass.StoredActivity
 import cn.minimote.toolbox.fragment.WidgetListFragment
-import cn.minimote.toolbox.objects.FragmentManagerHelper
+import cn.minimote.toolbox.objects.FragmentHelper
 import cn.minimote.toolbox.objects.VibrationHelper
-import cn.minimote.toolbox.view_model.ToolboxViewModel
+import cn.minimote.toolbox.viewModel.ToolboxViewModel
 
 
 class WidgetListAdapter(
@@ -40,6 +39,8 @@ class WidgetListAdapter(
 //        viewModel.storedActivityList.value ?: mutableListOf()
     var activityList: MutableList<StoredActivity> = loadActivityList()
 
+    private val fragmentNames = ToolboxViewModel.Constants.FragmentNames
+
 
 //    private var buttonSave: Button = viewModel.buttonSave
 //    private var isEditMode: MutableLiveData<Boolean> = viewModel.isEditMode
@@ -47,8 +48,8 @@ class WidgetListAdapter(
 
 
     class WidgetViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val appIcon: ImageView = itemView.findViewById(R.id.widget_icon)
-        val widgetName: TextView? = itemView.findViewById(R.id.widget_name)
+        val appIcon: ImageView = itemView.findViewById(R.id.imageView_app_icon)
+        val widgetName: TextView? = itemView.findViewById(R.id.textView_app_name)
     }
 
 
@@ -77,6 +78,14 @@ class WidgetListAdapter(
         }
         holder.appIcon.setImageDrawable(viewModel.getIcon(appInfo))
 
+//        holder.itemView.layoutParams.width =
+//            viewModel.screenWidth / viewModel.spanCount * appInfo.width
+//        holder.itemView.layoutParams.height = holder.itemView.layoutParams.width
+//        if(appInfo.packageName == "com.android.settings") {
+//            holder.appIcon.layoutParams.height *= 2
+////            holder.appIcon.requestLayout()
+//        }
+
         holder.itemView.setOnClickListener {
 //            toggleBackgroundColor(holder.itemView)
             VibrationHelper.vibrateOnClick(context)
@@ -85,12 +94,19 @@ class WidgetListAdapter(
                 viewModel.originWidget.value = appInfo
                 viewModel.modifiedWidget.value = appInfo.copy()
 
-                val fragment = EditListFragment()
-                FragmentManagerHelper.replaceFragment(
+                FragmentHelper.switchFragment(
+                    fragmentName = fragmentNames.EDIT_LIST_FRAGMENT,
                     fragmentManager = fragmentManager,
-                    fragment = fragment,
                     viewModel = viewModel,
+                    viewPager = fragment.viewPager,
+                    constraintLayoutOrigin = fragment.constraintLayoutOrigin,
                 )
+//                val fragment = EditListFragment()
+//                FragmentManagerHelper.replaceFragment(
+//                    fragmentManager = fragmentManager,
+//                    fragment = fragment,
+//                    viewModel = viewModel,
+//                )
             } else {
                 // 启动新活动并结束当前活动
                 startActivityAndFinishCurrent(appInfo)

@@ -40,7 +40,7 @@
         style="@style/ImageView.Toolbox.EditBackground.Dark"
         android:importantForAccessibility="no"
         android:src="@drawable/ic_setting"
-        android:visibility="gone"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

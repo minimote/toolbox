@@ -1,34 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    style="@style/ConstraintLayout.Toolbox.Clickable.Dark">
+    style="@style/ConstraintLayout.Toolbox.Dark">
 
     <TextView
-        android:id="@+id/textView_nickname"
+        android:id="@+id/textView_clearData"
         style="@style/TextView.Toolbox.EditOperateName.Dark"
-        android:gravity="start"
         android:text="@string/widgetName"
-        app:layout_constraintBottom_toTopOf="@id/editText_searchBox"
+        app:layout_constraintBottom_toTopOf="@id/textView_nickName"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/button_reset_nickName"
         style="@style/Button.Toolbox.Reset.Dark"
-        android:text="@string/reset"
-        app:layout_constraintBottom_toTopOf="@id/editText_searchBox"
+        app:layout_constraintBottom_toTopOf="@id/textView_nickName"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView_nickname"
+        app:layout_constraintStart_toEndOf="@+id/textView_clearData"
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/editText_searchBox"
+        android:id="@+id/textView_nickName"
         style="@style/EditText.Toolbox.Dark"
-        android:autofillHints="@string/app_name"
+        android:layout_marginHorizontal="@dimen/layout_size_3_script"
+        android:autofillHints=""
         android:hint="@string/app_name"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView_nickname" />
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
