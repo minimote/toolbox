@@ -1,12 +1,12 @@
 <resources>
-    <string name="add_button">+</string>
+    <string name="add_button">＋</string>
     <string name="activity_name">alipays://showpage=codepay</string>
     <string name="app_icon">应用图标</string>
     <string name="app_name">工具箱</string>
     <string name="app_name_en">toolbox</string>
     <string name="app_version">版本：%s</string>
-    <string name="app_author">作者：minimote(微尘)</string>
-    <string name="author_name">minimote(微尘)</string>
+    <string name="app_author">作者：微尘 (minimote)</string>
+    <string name="author_name">微尘 (minimote)</string>
     <string name="textView_package_name">包名</string>
     <string name="textView_activity_name">活动名</string>
     <string name="enter_edit_mode">进入编辑模式，单击组件可编辑，拖动组件可移动</string>
@@ -30,10 +30,10 @@
     <string name="exit_edit_mode">已退出编辑模式</string>
     <string name="reset">重置</string>
     <string name="show_widget_name">显示组件名称</string>
-    <string name="widgetSize">组件大小</string>
+    <string name="widgetSize">组件宽度</string>
     <string name="widgetSize_fraction">%1$d / %2$d</string>
-    <string name="widgetSize_increase">+</string>
-    <string name="widgetSize_decrease">-</string>
+    <string name="widgetSize_increase">＋</string>
+    <string name="widgetSize_decrease">－</string>
     <string name="widgetName">组件名称</string>
     <string name="widgetSize_num">%1d</string>
     <string name="widgetSize_maxSize">%1d</string>
@@ -74,12 +74,11 @@
     <string name="packageName_wechat">com.tencent.mm</string>
     <string name="wechat_not_installed">未安装微信</string>
     <string name="unable_to_create_folder">无法创建文件夹</string>
-    <string name="qr_wechat_file_name">工具箱-微信收款码.png</string>
     <string name="has_been_saved_to">已保存到 %s</string>
     <string name="image_save_failed">保存失败，请手动截图</string>
     <string name="about_project">关于项目</string>
     <string name="blank">\u3000</string>
-    <string name="about_project_notice">\u3000\u3000该项目由 minimote (微尘) 独立开发，遵循 MIT 许可协议，改版请务必保留此声明和署名。</string>
+    <string name="about_project_notice">\u3000\u3000该项目由微尘 (minimote) 独立开发，遵循 MIT 许可协议，改版请务必保留此声明和署名。</string>
     <string name="projectPath_name">项目地址</string>
     <string name="gitee">Gitee【推荐】</string>
     <string name="projectPath_gitee">https://gitee.com/minimote/toolbox</string>
@@ -89,4 +88,10 @@
     <string name="qr_github">GitHub 网站二维码</string>
     <string name="openUrlError">无法打开 %s</string>
     <string name="clipboard_copy_success">已复制到剪贴板</string>
+    <string name="save_image">保存图片</string>
+    <string name="qr_alipay_file_name">工具箱-支付宝收款码.png</string>
+    <string name="qr_wechat_file_name">工具箱-微信收款码.png</string>
+    <string name="qr_gitee_file_name">工具箱-项目地址-Gitee.png</string>
+    <string name="qr_github_file_name">工具箱-项目地址-GitHub.png</string>
+    <string name="can_be_empty">（当前为空）</string>
 </resources>

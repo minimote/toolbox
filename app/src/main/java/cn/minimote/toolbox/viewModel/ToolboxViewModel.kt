@@ -696,6 +696,13 @@ class ToolboxViewModel
     }
 
 
+    // 判断活动是否被在修改大小的字典中
+    fun inModifiedSizeMap(activityName: String): Boolean {
+//        Log.i("ActivityViewModel", "${activityName},${_activityNameToStorageActivityMap.size}")
+        return activityName in _modifiedSizeStorageActivityMap
+    }
+
+
     // 切换活动列表开关状态
     fun toggleSwitch(isChecked: Boolean, installedActivity: InstalledActivity) {
         if(isChecked) {

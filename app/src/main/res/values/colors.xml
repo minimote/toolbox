@@ -7,6 +7,7 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="my_white">#FFFFFEFF</color>
     <color name="deep_gray_trans">#88222222</color>
     <color name="deep_gray">#FF222222</color>
     <color name="mid_gray">#FF777777</color>
@@ -17,7 +18,7 @@
     <color name="green">#FF00FF00</color>
     <color name="red">#FFFF0000</color>
     <color name="switch_thumb_on">#FFDDDDDD</color>
-    <color name="switch_thumb_off">#FFCCCCCC</color>
+    <color name="switch_thumb_off">#FF888888</color>
     <color name="switch_track_on">#FF217CFF</color>
     <color name="switch_track_off">#FF535353</color>
     <color name="yellow">#FFF8D714</color>

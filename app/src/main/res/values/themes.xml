@@ -16,6 +16,7 @@
         <item name="android:colorPrimaryDark">@color/primary</item>
         <item name="colorAccent">@color/yellow</item>
         <item name="android:colorAccent">@color/yellow</item>
+        <item name="popupMenuStyle">@style/PopupMenu.Toolbox.Dark</item>
     </style>
 
 
@@ -220,6 +221,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:gravity">start</item>
         <item name="android:layout_marginStart">@dimen/layout_size_2_footnote</item>
+        <item name="android:layout_marginTop">@dimen/layout_size_3_script</item>
         <!--        <item name="android:layout_marginEnd">@dimen/layout_size_2_footnote</item>-->
         <!--        <item name="android:layout_marginTop">@dimen/layout_size_2_footnote</item>-->
         <!--        <item name="android:layout_marginBottom">@dimen/layout_size_2_footnote</item>-->
@@ -249,7 +251,7 @@
         <item name="android:gravity">start</item>
         <item name="android:layout_marginStart">@dimen/layout_size_2_footnote</item>
         <!--        <item name="android:layout_marginTop">@dimen/layout_size_2_footnote</item>-->
-        <!--        <item name="android:layout_marginBottom">@dimen/layout_size_2_footnote</item>-->
+        <item name="android:layout_marginBottom">@dimen/layout_size_3_script</item>
         <item name="android:textSize">@dimen/text_size_3_script</item>
         <item name="android:textColor">@color/light_gray</item>
         <item name="android:background">@android:color/transparent</item>
@@ -405,6 +407,12 @@
         <!--    <item name="android:hintTextColor">@color/hint_text_color</item>-->
         <item name="android:background">@drawable/background_edittext</item>
         <!--        <item name="android:backgroundTint">#FFFFFF</item> &lt;!&ndash; 设置背景颜色 &ndash;&gt;-->
+    </style>
+
+    <style name="PopupMenu.Toolbox.Dark" parent="Widget.Material3.PopupMenu.Overflow">
+        <!--        <item name="android:textColor">@color/your_text_color</item>-->
+        <!--        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Medium</item>-->
+        <item name="android:background">@color/light_blue</item>
     </style>
 
 

@@ -17,6 +17,7 @@ import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.objects.ClipboardHelper
+import cn.minimote.toolbox.objects.ImageSaveHelper
 import cn.minimote.toolbox.objects.VibrationHelper
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
 
@@ -84,6 +85,12 @@ class AboutProjectAdapter(
             aboutProjectViewTypes.PROJECT_PATH_GITEE -> {
                 holder.imageViewQRGitee.layoutParams.width = imageSize
                 holder.imageViewQRGitee.layoutParams.height = imageSize
+                ImageSaveHelper.setPopupMenu(
+                    holder.imageViewQRGitee,
+                    context.getString(R.string.qr_gitee_file_name),
+                    viewModel,
+                    context,
+                )
                 setTextViewUrl(
                     holder.textViewURL,
                     context.getString(R.string.projectPath_gitee),
@@ -93,6 +100,12 @@ class AboutProjectAdapter(
             aboutProjectViewTypes.PROJECT_PATH_GITHUB -> {
                 holder.imageViewQRGitHub.layoutParams.width = imageSize
                 holder.imageViewQRGitHub.layoutParams.height = imageSize
+                ImageSaveHelper.setPopupMenu(
+                    holder.imageViewQRGitHub,
+                    context.getString(R.string.qr_github_file_name),
+                    viewModel,
+                    context,
+                )
                 setTextViewUrl(
                     holder.textViewURL,
                     context.getString(R.string.projectPath_github),

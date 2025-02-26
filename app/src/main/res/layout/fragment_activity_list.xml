@@ -41,7 +41,7 @@
     <ProgressBar
         android:id="@+id/progressBar"
         style="@style/ProgressBar.Toolbox.Dark"
-        android:layout_marginTop="@dimen/layout_size_1_small"
+        android:layout_marginTop="@dimen/layout_size_3_script"
         app:layout_constraintBottom_toTopOf="@+id/textView_loading"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -120,30 +120,6 @@ class ActivityListAdapter(
     override fun onBindViewHolder(holder: AppViewHolder, position: Int) {
         val installedActivity = installedAppList[position]
 
-        // 项目被点到时切换开关状态
-        val toggleSwitch = {
-            val searchBoxText = fragment.searchBox.text.toString().trim()
-            if(viewModel.searchMode.value == true && searchBoxText.isEmpty()
-            ) {
-                fragment.buttonCancel.performClick()
-            } else {
-                if(holder.viewType == VIEW_TYPE_NORMAL) {
-                    holder.switch.isChecked = !holder.switch.isChecked
-
-                    // 触发设备振动
-                    VibrationHelper.vibrateOnClick(context)
-
-                    // 根据开关状态更新字典
-                    viewModel.toggleSwitch(holder.switch.isChecked, installedActivity)
-                } else {
-                }
-            }
-        }
-
-        holder.itemView.setOnClickListener {
-            toggleSwitch()
-        }
-
         if(holder.viewType == VIEW_TYPE_TITLE) {
             holder.textViewAppName.text = installedActivity.appName
             // 标题都不可点击
@@ -182,13 +158,42 @@ class ActivityListAdapter(
         holder.bind(installedActivity)
 
         holder.appIcon.setImageDrawable(viewModel.getIcon(installedActivity))
-        // 活动名仅显示最后一个点后面的部分
-        holder.activityName.text = installedActivity.activityName.substringAfterLast('.')
-        holder.switch.isChecked = viewModel.isStoredActivity(installedActivity.activityName)
+        // 手表活动名仅显示最后一个点后面的部分
+        holder.activityName.text = if(viewModel.isWatch()) {
+            installedActivity.activityName.substringAfterLast('.')
+        } else {
+            installedActivity.activityName
+        }
+//        holder.switch.isChecked = viewModel.isStoredActivity(installedActivity.activityName)
+        holder.switch.isChecked = viewModel.inModifiedSizeMap(installedActivity.activityName)
 //        Log.i(
 //            "ActivityListAdapter",
 //            " ${installedActivity.appName} ${holder.switch.isChecked}"
 //        )
+        
+        // 项目被点到时切换开关状态
+        val toggleSwitch = {
+            val searchBoxText = fragment.searchBox.text.toString().trim()
+            if(viewModel.searchMode.value == true && searchBoxText.isEmpty()
+            ) {
+                fragment.buttonCancel.performClick()
+            } else {
+                if(holder.viewType == VIEW_TYPE_NORMAL) {
+                    holder.switch.isChecked = !holder.switch.isChecked
+
+                    // 触发设备振动
+                    VibrationHelper.vibrateOnClick(context)
+
+                    // 根据开关状态更新字典
+                    viewModel.toggleSwitch(holder.switch.isChecked, installedActivity)
+                } else {
+                }
+            }
+        }
+
+        holder.itemView.setOnClickListener {
+            toggleSwitch()
+        }
     }
 
 

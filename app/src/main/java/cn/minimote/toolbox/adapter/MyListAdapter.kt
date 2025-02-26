@@ -9,6 +9,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -16,8 +17,10 @@ import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.fragment.MyListFragment
+import cn.minimote.toolbox.objects.ClipboardHelper
 import cn.minimote.toolbox.objects.DataCleanHelper
 import cn.minimote.toolbox.objects.FragmentHelper
+import cn.minimote.toolbox.objects.ImageSaveHelper
 import cn.minimote.toolbox.objects.VibrationHelper
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
 
@@ -38,6 +41,7 @@ class MyListAdapter(
         viewType: Int,
     ) : RecyclerView.ViewHolder(itemView) {
 
+        lateinit var imageViewAppIcon: ImageView
         lateinit var textViewAppName: TextView
         lateinit var textViewPackageName: TextView
         lateinit var textViewAppVersion: TextView
@@ -52,6 +56,7 @@ class MyListAdapter(
             when(viewType) {
                 // 应用信息
                 myViewTypes.APP_INFO -> {
+                    imageViewAppIcon = itemView.findViewById(R.id.imageView_appIcon)
                     textViewAppName = itemView.findViewById(R.id.textView_appName)
                     textViewPackageName = itemView.findViewById(R.id.textView_packageName)
                     textViewAppVersion = itemView.findViewById(R.id.textView_app_version)
@@ -125,8 +130,30 @@ class MyListAdapter(
 
     // 设置应用信息
     private fun setupAppInfo(holder: MyViewHolder) {
+        ImageSaveHelper.setPopupMenu(
+            holder.imageViewAppIcon,
+            viewModel.appName,
+            viewModel,
+            context,
+        )
         holder.textViewAppName.text = viewModel.appName
+        holder.textViewAppName.setOnLongClickListener {
+            VibrationHelper.vibrateOnClick(context)
+            ClipboardHelper.copyToClipboard(
+                context = context,
+                text = holder.textViewAppName.text as String,
+            )
+            true
+        }
         holder.textViewPackageName.text = viewModel.packageName
+        holder.textViewPackageName.setOnLongClickListener {
+            VibrationHelper.vibrateOnClick(context)
+            ClipboardHelper.copyToClipboard(
+                context = context,
+                text = holder.textViewPackageName.text as String,
+            )
+            true
+        }
         holder.textViewAppVersion.text =
             context.getString(R.string.app_version, viewModel.versionName)
     }

@@ -7,8 +7,6 @@ package cn.minimote.toolbox.adapter
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.media.MediaScannerConnection
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
@@ -16,14 +14,11 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.core.content.res.ResourcesCompat
-import androidx.core.graphics.drawable.toBitmap
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.objects.ImageSaveHelper
 import cn.minimote.toolbox.objects.VibrationHelper
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
-import java.io.File
-import java.io.FileOutputStream
 
 
 class SupportAuthorAdapter(
@@ -104,6 +99,12 @@ class SupportAuthorAdapter(
             supportAuthorViewTypes.QR_ALIPAY -> {
                 holder.imageViewQRAlipay.layoutParams.width = imageSize
                 holder.imageViewQRAlipay.layoutParams.height = imageSize
+                ImageSaveHelper.setPopupMenu(
+                    imageView = holder.imageViewQRAlipay,
+                    fileName = context.getString(R.string.qr_alipay_file_name),
+                    viewModel = viewModel,
+                    context = context,
+                )
             }
 
             supportAuthorViewTypes.OPERATE_ALIPAY -> {
@@ -113,6 +114,12 @@ class SupportAuthorAdapter(
             supportAuthorViewTypes.QR_WECHAT -> {
                 holder.imageViewQRWechat.layoutParams.width = imageSize
                 holder.imageViewQRWechat.layoutParams.height = imageSize
+                ImageSaveHelper.setPopupMenu(
+                    imageView = holder.imageViewQRWechat,
+                    fileName = context.getString(R.string.qr_wechat_file_name),
+                    viewModel = viewModel,
+                    context = context,
+                )
             }
 
             supportAuthorViewTypes.OPERATE_WECHAT -> {
@@ -177,7 +184,7 @@ class SupportAuthorAdapter(
         } else {
             holder.buttonSaveWechatQR.setOnClickListener {
                 VibrationHelper.vibrateOnClick(context)
-                saveWechatQR(context)
+                saveWechatQR(holder.imageViewQRWechat, context)
             }
 
             holder.buttonOpenWechatScan.setOnClickListener {
@@ -189,58 +196,13 @@ class SupportAuthorAdapter(
 
 
     // 保存微信二维码
-    private fun saveWechatQR(context: Context) {
-        // 从 drawable 中获取图片
-        val drawable =
-            ResourcesCompat.getDrawable(context.resources, R.drawable.qr_wechat, context.theme)
-
-        val imagePath = viewModel.savePath
-
-        // 检查文件夹是否存在，如果不存在则创建
-        if(!imagePath.exists()) {
-            if(!imagePath.mkdirs()) {
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.unable_to_create_folder),
-                    Toast.LENGTH_SHORT
-                ).show()
-                return
-            }
-        }
-
-//        Log.e("下载路径", "$imagePath")
-        val fileName = context.getString(R.string.qr_wechat_file_name)
-        val file = File(imagePath, fileName)
-
-        // 将 bitmap 保存为文件
-        try {
-            FileOutputStream(file).use { out ->
-                drawable?.toBitmap()?.compress(Bitmap.CompressFormat.PNG, 100, out)
-
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.has_been_saved_to, imagePath),
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-
-            // 通知系统扫描新文件
-            MediaScannerConnection.scanFile(
-                context,
-                arrayOf(file.absolutePath),
-                null
-            ) { _, _ ->
-//                Log.i("ExternalStorage", "Scanned $path:")
-//                Log.i("ExternalStorage", "-> uri=$uri")
-            }
-        } catch(e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(
-                context,
-                context.getString(R.string.image_save_failed),
-                Toast.LENGTH_SHORT
-            ).show()
-        }
+    private fun saveWechatQR(imageView: ImageView, context: Context) {
+        ImageSaveHelper.saveImage(
+            imageView = imageView,
+            context = context,
+            fileName = context.getString(R.string.qr_wechat_file_name),
+            viewModel = viewModel,
+        )
     }
 
 
