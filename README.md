@@ -7,9 +7,13 @@ Copyright (c) 2024-2025 minimote(微尘). All rights reserved.
 
 &emsp;&emsp;一款专为安卓手表设计的 APP，**最低支持安卓 8**，主要适配方形表盘，**同时支持手机使用**。
 
+<div align="center">
+
 | 手机版 | 手表版 |
 |:-:|:-:|
 | ![手机版](instructions/images/首页-手机版.jpg) | ![手表版](instructions/images/首页-手表版.png) |
+
+</div>
 
 &emsp;&emsp;软件核心功能是将常用工具和应用集中管理，便于快速访问。用户可以将手电筒、支付宝收款码、最近任务等常用功能或软件添加到工具箱中，并且**支持自定义组件的顺序、大小和显示名称等**。由于手表通常只能通过按键快速启动一到两个应用，将本应用设为快速启动后，用户可以自由添加和调整常用应用，极大提升操作效率。
 <!-- 后续会添加一些内置小工具，如木鱼，基于 WebView 的简易浏览器等。 -->
@@ -66,8 +70,12 @@ Copyright (c) 2024-2025 minimote(微尘). All rights reserved.
   </div>
 </div> -->
 
+<div align="center">
+
 | 微信 | 支付宝 |
 |:-:|:-:|
 | ![微信](app/src/main/res/drawable/qr_wechat.png) | ![支付宝](app/src/main/res/drawable/qr_alipay.png) |
+
+</div>
 
 > 注：只接受成年朋友的打赏，如果你是未成年的朋友，欢迎你给项目点点 Star，和他人分享一下本项目，这就是对作者最大的支持。
