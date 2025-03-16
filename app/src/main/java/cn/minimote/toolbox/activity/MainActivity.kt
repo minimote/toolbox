@@ -25,8 +25,8 @@ import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.adapter.ToolboxFragmentStateAdapter
-import cn.minimote.toolbox.objects.FragmentHelper
-import cn.minimote.toolbox.objects.VibrationHelper
+import cn.minimote.toolbox.helper.FragmentHelper
+import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.pageTransformer.ViewPager2Transformer
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -339,20 +339,46 @@ class MainActivity : AppCompatActivity() {
 
         widgetListSizeWasModifiedObserver = Observer { widgetListSizeWasModified ->
             // Log.e("大小观察者", "$widgetListSizeWasModified")
-            if(widgetListSizeWasModified) {
-                buttonAdd.visibility = View.VISIBLE
-            } else {
-                buttonAdd.visibility = View.GONE
+            when(viewModel.getFragmentName()) {
+                fragmentNames.EDIT_LIST_FRAGMENT -> {
+                    // 编辑列表存在大小改变和组件改变，必须同时不变才取消保存按钮
+                    if(widgetListSizeWasModified) {
+                        buttonAdd.visibility = View.VISIBLE
+                    } else if(viewModel.widgetWasModified.value == false) {
+                        buttonAdd.visibility = View.GONE
+                    }
+                }
+
+                else -> {
+                    if(widgetListSizeWasModified) {
+                        buttonAdd.visibility = View.VISIBLE
+                    } else {
+                        buttonAdd.visibility = View.GONE
+                    }
+                }
             }
         }
         viewModel.widgetListSizeWasModified.observe(this, widgetListSizeWasModifiedObserver)
 
 
         widgetWasModifiedObserver = Observer { widgetWasModified ->
-            if(widgetWasModified) {
-                buttonAdd.visibility = View.VISIBLE
-            } else {
-                buttonAdd.visibility = View.GONE
+            when(viewModel.getFragmentName()) {
+                fragmentNames.EDIT_LIST_FRAGMENT -> {
+                    // 编辑列表存在大小改变和组件改变，必须同时不变才取消保存按钮
+                    if(widgetWasModified) {
+                        buttonAdd.visibility = View.VISIBLE
+                    } else if(viewModel.widgetListSizeWasModified.value == false) {
+                        buttonAdd.visibility = View.GONE
+                    }
+                }
+
+                else -> {
+                    if(widgetWasModified) {
+                        buttonAdd.visibility = View.VISIBLE
+                    } else {
+                        buttonAdd.visibility = View.GONE
+                    }
+                }
             }
         }
         viewModel.widgetWasModified.observe(this, widgetWasModifiedObserver)

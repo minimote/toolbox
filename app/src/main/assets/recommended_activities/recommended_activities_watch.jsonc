@@ -18,24 +18,36 @@
     //        "iconName": "com.heytap.wearable.themestore.component.activity.other.SplashActivity",
     //        "packageName": "com.heytap.wearable.themestore"
     //    },
+    {
+        "activityName": "com.oplus.finddeviceservice.watch.ui.SplashActivity",
+        "appName": "查找",
+        "iconName": "com.oplus.finddeviceservice.watch.ui.SplashActivity",
+        "packageName": "com.oplus.finddeviceservice"
+    },
     //    {
     //        "activityName": "com.heytap.wearable.powermanager.ui.PowerManagerMainActivity",
     //        "appName": "电池管家",
     //        "iconName": "com.heytap.wearable.powermanager.ui.PowerManagerMainActivity",
     //        "packageName": "com.heytap.wearable.powermanager"
     //    },
-    //    {
-    //        "activityName": "com.heytap.wearable.dialer.TelecomActivity",
-    //        "appName": "电话",
-    //        "iconName": "com.heytap.wearable.dialer.TelecomActivity",
-    //        "packageName": "com.heytap.wearable.dialer"
-    //    },
+    {
+        "activityName": "com.heytap.wearable.dialer.TelecomActivity",
+        "appName": "电话",
+        "iconName": "com.heytap.wearable.dialer.TelecomActivity",
+        "packageName": "com.heytap.wearable.dialer"
+    },
     //    {
     //        "activityName": "com.heytap.wearable.relax.main.RelaxMainActivity",
     //        "appName": "放松",
     //        "iconName": "com.heytap.wearable.relax.main.RelaxMainActivity",
     //        "packageName": "com.heytap.wearable.relax"
     //    },
+    {
+        "activityName": "com.heytap.wearable.altitude.component.activity.main.AltitudePressureActivity",
+        "appName": "海拔气压计",
+        "iconName": "com.heytap.wearable.altitude.component.activity.main.AltitudePressureActivity",
+        "packageName": "com.heytap.wearable.altitude"
+    },
     {
         "activityName": "com.heytap.wearable.clock.countdown.ui.CountdownActivity",
         "appName": "计时器",
@@ -126,12 +138,12 @@
         "iconName": "com.heytap.wearable.weather.ui.home.AttendCityActivity",
         "packageName": "com.heytap.wearable.weather"
     },
-    {
-        "activityName": "com.heytap.wearable.launcher.wechat.ProxyWeChatPayActivity",
-        "appName": "微信支付",
-        "iconName": "com.heytap.wearable.launcher.wechat.ProxyWeChatPayActivity",
-        "packageName": "com.heytap.wearable.launcher"
-    },
+    //    {
+    //        "activityName": "com.heytap.wearable.launcher.wechat.ProxyWeChatPayActivity",
+    //        "appName": "微信支付",
+    //        "iconName": "com.heytap.wearable.launcher.wechat.ProxyWeChatPayActivity",
+    //        "packageName": "com.heytap.wearable.launcher"
+    //    },
     {
         "activityName": "com.heytap.wearable.breeno.MainActivity",
         "appName": "小布助手",
@@ -180,12 +192,12 @@
     //        "iconName": "com.heytap.wearable.stress.StressMainActivity",
     //        "packageName": "com.heytap.wearable.stress"
     //    },
-    //    {
-    //        "activityName": "com.heytap.wearable.musiccontroller.activity.MainActivity",
-    //        "appName": "音乐控制",
-    //        "iconName": "com.heytap.wearable.musiccontroller.activity.MainActivity",
-    //        "packageName": "com.heytap.wearable.musiccontroller"
-    //    },
+    {
+        "activityName": "com.heytap.wearable.musiccontroller.activity.MainActivity",
+        "appName": "音乐控制",
+        "iconName": "com.heytap.wearable.musiccontroller.activity.MainActivity",
+        "packageName": "com.heytap.wearable.musiccontroller"
+    },
     {
         "activityName": "com.heytap.wearable.sports.MainActivity",
         "appName": "运动",

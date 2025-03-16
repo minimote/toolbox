@@ -23,7 +23,7 @@ import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.dataClass.InstalledActivity
 import cn.minimote.toolbox.fragment.ActivityListFragment
-import cn.minimote.toolbox.objects.VibrationHelper
+import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
 import com.google.android.material.switchmaterial.SwitchMaterial
 import java.util.Locale
@@ -55,6 +55,9 @@ class ActivityListAdapter(
         // 左右的横线
         lateinit var viewLeft: View
         lateinit var viewRight: View
+
+        // 添加 rootView 引用
+        val rootView: View = itemView
 
         init {
             when(viewType) {
@@ -166,13 +169,16 @@ class ActivityListAdapter(
         }
 //        holder.switch.isChecked = viewModel.isStoredActivity(installedActivity.activityName)
         holder.switch.isChecked = viewModel.inModifiedSizeMap(installedActivity.activityName)
+        // 设置暗淡效果的滤镜
+        setDimmingEffect(holder, !holder.switch.isChecked)
+
 //        Log.i(
 //            "ActivityListAdapter",
 //            " ${installedActivity.appName} ${holder.switch.isChecked}"
 //        )
-        
+
         // 项目被点到时切换开关状态
-        val toggleSwitch = {
+        fun toggleSwitch() {
             val searchBoxText = fragment.searchBox.text.toString().trim()
             if(viewModel.searchMode.value == true && searchBoxText.isEmpty()
             ) {
@@ -184,15 +190,44 @@ class ActivityListAdapter(
                     // 触发设备振动
                     VibrationHelper.vibrateOnClick(context)
 
+                    // 设置暗淡效果的滤镜
+                    setDimmingEffect(holder, !holder.switch.isChecked)
+
                     // 根据开关状态更新字典
                     viewModel.toggleSwitch(holder.switch.isChecked, installedActivity)
-                } else {
                 }
             }
         }
 
         holder.itemView.setOnClickListener {
             toggleSwitch()
+        }
+    }
+
+
+    // 设置暗淡效果的方法
+    private fun setDimmingEffect(holder: AppViewHolder, shouldDim: Boolean) {
+        // 调整亮度为原来的比例
+        val colorScale = 0.6f
+        if(shouldDim) {
+            // 添加黑色滤镜
+            val colorMatrix = android.graphics.ColorMatrix().apply {
+                setScale(colorScale, colorScale, colorScale, 1f)
+            }
+            val paint = android.graphics.Paint().apply {
+                colorFilter = android.graphics.ColorMatrixColorFilter(colorMatrix)
+            }
+
+            // 应用滤镜到整个视图
+            holder.rootView.setLayerType(View.LAYER_TYPE_HARDWARE, paint)
+            // 可选：添加半透明黑色背景
+//            holder.rootView.background = ContextCompat.getDrawable(context, R.drawable.dim_overlay)
+
+
+        } else {
+            // 移除滤镜
+            holder.rootView.setLayerType(View.LAYER_TYPE_NONE, null)
+//            holder.rootView.background = null
         }
     }
 

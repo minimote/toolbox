@@ -16,9 +16,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
-import cn.minimote.toolbox.objects.ClipboardHelper
-import cn.minimote.toolbox.objects.ImageSaveHelper
-import cn.minimote.toolbox.objects.VibrationHelper
+import cn.minimote.toolbox.helper.ClipboardHelper
+import cn.minimote.toolbox.helper.ImageSaveHelper
+import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
 
 

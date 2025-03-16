@@ -3,7 +3,7 @@
 // * 本项目遵循 MIT 许可协议，请务必保留此声明和署名。
 // */
 
-package cn.minimote.toolbox.objects
+package cn.minimote.toolbox.helper
 
 import android.content.Context
 import cn.minimote.toolbox.viewModel.ToolboxViewModel

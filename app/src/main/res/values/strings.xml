@@ -3,9 +3,13 @@
     <string name="activity_name">alipays://showpage=codepay</string>
     <string name="app_icon">应用图标</string>
     <string name="app_name">工具箱</string>
+    <string name="toast_package_name">包名</string>
+    <string name="toast_app_name">应用名</string>
+    <string name="toast_app_version">版本号</string>
+    <string name="toast_author_name">作者名</string>
     <string name="app_name_en">toolbox</string>
     <string name="app_version">版本：%s</string>
-    <string name="app_author">作者：微尘 (minimote)</string>
+    <string name="app_author">作者：%s</string>
     <string name="author_name">微尘 (minimote)</string>
     <string name="textView_package_name">包名</string>
     <string name="textView_activity_name">活动名</string>
@@ -57,7 +61,7 @@
     <string name="clear_data_success">数据清除成功！</string>
     <string name="supportAuthor">支持作者</string>
     <string name="right">＞</string>
-    <string name="supportAuthor_welcome">感谢您的支持！</string>
+    <string name="supportAuthor_welcome">感谢你的支持！</string>
     <string name="supportAuthor_notice">注：只接受成年朋友的打赏，如果你是未成年的朋友，欢迎你给项目点点 Star，和他人分享一下本项目，这就是对作者最大的支持。</string>
     <string name="qr_wechat">微信收款码</string>
     <string name="qr_alipay">支付宝收款码</string>
@@ -80,6 +84,7 @@
     <string name="blank">\u3000</string>
     <string name="about_project_notice">\u3000\u3000该项目由微尘 (minimote) 独立开发，遵循 MIT 许可协议，改版请务必保留此声明和署名。</string>
     <string name="projectPath_name">项目地址</string>
+    <string name="issuePath_name">反馈地址</string>
     <string name="gitee">Gitee【推荐】</string>
     <string name="projectPath_gitee">https://gitee.com/minimote/toolbox</string>
     <string name="github">GitHub</string>
@@ -94,4 +99,5 @@
     <string name="qr_gitee_file_name">工具箱-项目地址-Gitee.png</string>
     <string name="qr_github_file_name">工具箱-项目地址-GitHub.png</string>
     <string name="can_be_empty">（当前为空）</string>
+    <string name="package_name_debug">cn.minimote.toolbox.debug</string>
 </resources>

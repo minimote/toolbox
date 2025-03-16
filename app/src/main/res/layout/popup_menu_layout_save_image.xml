@@ -5,10 +5,10 @@
 
     <Button
         android:id="@+id/save_image"
-        style="@style/Button.Toolbox.Dark"
-        android:padding="@dimen/layout_size_1_small"
-        android:textSize="@dimen/text_size_2_Large"
+        style="@style/Button.Toolbox.Round.Dark"
         android:backgroundTint="@color/deep_gray"
+        android:backgroundTintMode="src_over"
+        android:padding="@dimen/layout_size_1_small"
         android:text="@string/save_image"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

@@ -3,7 +3,7 @@
  * 本项目遵循 MIT 许可协议，请务必保留此声明和署名。
  */
 
-package cn.minimote.toolbox.objects
+package cn.minimote.toolbox.helper
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -18,6 +18,7 @@ object ClipboardHelper {
     fun copyToClipboard(
         context: Context,
         text: String,
+        toastString: String? = "",
         label: String = "",
     ) {
         val clipboard =
@@ -27,10 +28,12 @@ object ClipboardHelper {
             text,
         )
         clipboard.setPrimaryClip(clip)
-        Toast.makeText(
-            context,
-            context.getString(R.string.clipboard_copy_success),
-            Toast.LENGTH_SHORT,
-        ).show()
+        if(toastString != null) {
+            Toast.makeText(
+                context,
+                toastString + context.getString(R.string.clipboard_copy_success),
+                Toast.LENGTH_SHORT,
+            ).show()
+        }
     }
 }

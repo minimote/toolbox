@@ -26,7 +26,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.adapter.ActivityListAdapter
-import cn.minimote.toolbox.objects.VibrationHelper
+import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -57,11 +57,13 @@ class ActivityListFragment : Fragment() {
     private lateinit var searchModeObserver: Observer<Boolean>
 
 
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-////        viewModel = ViewModelProvider(this)[ToolboxViewModel::class.java]
-////        Log.e("", "${getHash(viewModel)},${getHash(vi)}")
-//    }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel.widgetListSizeWasModified.value = false
+//        Log.e("ActivityListFragment", "onCreate")
+//        viewModel = ViewModelProvider(this)[ToolboxViewModel::class.java]
+//        Log.e("", "${getHash(viewModel)},${getHash(vi)}")
+    }
 //
 //    private fun getHash(viewModel: ToolboxViewModel): Int {
 //        return System.identityHashCode(viewModel)
@@ -70,6 +72,7 @@ class ActivityListFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
+//        viewModel.widgetListSizeWasModified.value = false
         job.cancel()
     }
 
@@ -81,9 +84,7 @@ class ActivityListFragment : Fragment() {
 //        val view = inflater.inflate(R.layout.fragment_activity_list, container, false)
         val view = inflater.inflate(R.layout.fragment_activity_list, container, false)
 //        this::class.simpleName?.let { viewModel.updateFragmentName(it) }
-        // 初始化 RecyclerView
-        recyclerView = view.findViewById(R.id.recyclerView_activity_list)
-        recyclerView.layoutManager = LinearLayoutManager(context)
+
 
 //        // 检查权限并获取应用列表
 //        checkPermissionAndGetAppList()
@@ -97,6 +98,10 @@ class ActivityListFragment : Fragment() {
         // 在后台线程获取应用列表
         uiScope.launch {
             viewModel.getInstalledActivitiesCoroutine()
+
+            // 初始化 RecyclerView
+            recyclerView = view.findViewById(R.id.recyclerView_activity_list)
+            recyclerView.layoutManager = LinearLayoutManager(context)
 
             // 设置 Adapter
             adapter = ActivityListAdapter(

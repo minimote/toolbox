@@ -3,7 +3,7 @@
  * 本项目遵循 MIT 许可协议，请务必保留此声明和署名。
  */
 
-package cn.minimote.toolbox.others
+package cn.minimote.toolbox.helper
 
 import android.content.ComponentName
 import android.content.Context
@@ -19,13 +19,16 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.util.LruCache
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.drawable.toDrawable
+import androidx.core.graphics.scale
 import cn.minimote.toolbox.R
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
 
-class IconCacheManager(
+class IconCacheHelper(
     private val context: Context,
 ) {
 
@@ -187,7 +190,7 @@ class IconCacheManager(
         val targetSizePx = (targetSizeDp * context.resources.displayMetrics.density).toInt()
 
         // 创建一个与目标大小相同的 Bitmap
-        val bitmap = Bitmap.createBitmap(targetSizePx, targetSizePx, Bitmap.Config.ARGB_8888)
+        val bitmap = createBitmap(targetSizePx, targetSizePx)
         val canvas = Canvas(bitmap)
 
         // 获取背景颜色资源
@@ -215,70 +218,66 @@ class IconCacheManager(
         val rect = RectF(0f, 0f, targetSizePx.toFloat(), targetSizePx.toFloat())
         canvas.drawOval(rect, paint)
 
-        return BitmapDrawable(context.resources, bitmap)
+        return bitmap.toDrawable(context.resources)
     }
 
 
-    // 将 Drawable 转换为圆角矩形 Drawable，外部透明
-    private fun Drawable.toRoundedCornerDrawable(
-        cornerRadiusResId: Int = R.dimen.layout_size_1_small,
-        backgroundColorResId: Int = android.R.color.transparent,
-        targetSizeResId: Int = R.dimen.layout_size_1_large,
-    ): Drawable {
-        val cornerRadius = context.resources.getDimensionPixelSize(cornerRadiusResId).toFloat()
-        val targetSizeDp = context.resources.getDimensionPixelSize(targetSizeResId)
-
-        // 将 dp 转换为 px
-        val targetSizePx = (targetSizeDp * context.resources.displayMetrics.density).toInt()
-
-        // 创建一个与目标大小相同的 Bitmap
-        val bitmap = Bitmap.createBitmap(targetSizePx, targetSizePx, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-
-        // 获取背景颜色资源
-        val backgroundColor = context.resources.getColor(backgroundColorResId, context.theme)
-
-        // 设置背景颜色
-        val backgroundPaint = android.graphics.Paint()
-        backgroundPaint.color = backgroundColor
-        canvas.drawRect(0f, 0f, targetSizePx.toFloat(), targetSizePx.toFloat(), backgroundPaint)
-
-        // 缩放 Drawable 到目标大小
-        val scaledDrawable = resizeDrawable(this, targetSizePx, targetSizePx)
-
-        // 使用 BitmapShader 将 Drawable 转换为 Shader
-        val shader = BitmapShader(
-            drawableToBitmap(scaledDrawable),
-            Shader.TileMode.CLAMP,
-            Shader.TileMode.CLAMP
-        )
-        val paint = android.graphics.Paint()
-        paint.shader = shader
-
-        // 设置圆角
-        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_OVER)
-        val rect = RectF(0f, 0f, targetSizePx.toFloat(), targetSizePx.toFloat())
-        canvas.drawRoundRect(rect, cornerRadius, cornerRadius, paint)
-
-        return BitmapDrawable(context.resources, bitmap)
-    }
+//    // 将 Drawable 转换为圆角矩形 Drawable，外部透明
+//    private fun Drawable.toRoundedCornerDrawable(
+//        cornerRadiusResId: Int = R.dimen.layout_size_1_small,
+//        backgroundColorResId: Int = android.R.color.transparent,
+//        targetSizeResId: Int = R.dimen.layout_size_1_large,
+//    ): Drawable {
+//        val cornerRadius = context.resources.getDimensionPixelSize(cornerRadiusResId).toFloat()
+//        val targetSizeDp = context.resources.getDimensionPixelSize(targetSizeResId)
+//
+//        // 将 dp 转换为 px
+//        val targetSizePx = (targetSizeDp * context.resources.displayMetrics.density).toInt()
+//
+//        // 创建一个与目标大小相同的 Bitmap
+//        val bitmap = createBitmap(targetSizePx, targetSizePx)
+//        val canvas = Canvas(bitmap)
+//
+//        // 获取背景颜色资源
+//        val backgroundColor = context.resources.getColor(backgroundColorResId, context.theme)
+//
+//        // 设置背景颜色
+//        val backgroundPaint = android.graphics.Paint()
+//        backgroundPaint.color = backgroundColor
+//        canvas.drawRect(0f, 0f, targetSizePx.toFloat(), targetSizePx.toFloat(), backgroundPaint)
+//
+//        // 缩放 Drawable 到目标大小
+//        val scaledDrawable = resizeDrawable(this, targetSizePx, targetSizePx)
+//
+//        // 使用 BitmapShader 将 Drawable 转换为 Shader
+//        val shader = BitmapShader(
+//            drawableToBitmap(scaledDrawable),
+//            Shader.TileMode.CLAMP,
+//            Shader.TileMode.CLAMP
+//        )
+//        val paint = android.graphics.Paint()
+//        paint.shader = shader
+//
+//        // 设置圆角
+//        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_OVER)
+//        val rect = RectF(0f, 0f, targetSizePx.toFloat(), targetSizePx.toFloat())
+//        canvas.drawRoundRect(rect, cornerRadius, cornerRadius, paint)
+//
+//        return bitmap.toDrawable(context.resources)
+//    }
 
 
     // 辅助方法：缩放 Drawable 到指定大小
     private fun resizeDrawable(drawable: Drawable, width: Int, height: Int): Drawable {
         val resizedBitmap =
-            Bitmap.createScaledBitmap(drawableToBitmap(drawable), width, height, true)
-        return BitmapDrawable(context.resources, resizedBitmap)
+            drawableToBitmap(drawable).scale(width, height)
+        return resizedBitmap.toDrawable(context.resources)
     }
 
 
     // 将 Drawable 转换为 Bitmap
     private fun drawableToBitmap(drawable: Drawable): Bitmap {
-        val bitmap = Bitmap.createBitmap(
-            drawable.intrinsicWidth,
-            drawable.intrinsicHeight,
-            Bitmap.Config.ARGB_8888
-        )
+        val bitmap = createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight)
         val canvas = Canvas(bitmap)
         drawable.setBounds(0, 0, canvas.width, canvas.height)
         drawable.draw(canvas)

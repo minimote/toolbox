@@ -17,8 +17,24 @@ android {
         applicationId = "cn.minimote.toolbox"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+
+        // 版本号
+        val versionCodeList = listOf(1, 0, 1)
+        var versionCodeCombined = 0
+        for(x in versionCodeList) {
+            // 每位的取值范围是 0 ~ 99
+            versionCodeCombined *= 100
+            versionCodeCombined += x
+        }
+
+        versionCode = versionCodeCombined
+
+//        versionName = "1.0"
+        // 使用当前时间动态设置版本名
+        val formatter = DateTimeFormatter.ofPattern("yyMMdd.HHmmss")
+        val dateTime = LocalDateTime.now().format(formatter)
+        versionName = versionCodeList.joinToString(".") + "+" + dateTime
+//        versionName = "1.0.1+$dateTime"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -39,6 +55,10 @@ android {
             isShrinkResources = false
             isDebuggable = true
             applicationIdSuffix = ".debug" // 可选：添加包名后缀
+            // 使用当前时间动态设置版本名
+//            val formatter = DateTimeFormatter.ofPattern("yyMMdd.HHmmss")
+//            val dateTime = LocalDateTime.now().format(formatter)
+//            versionNameSuffix = "-$dateTime-debug"   // 可选：添加版本后缀
             versionNameSuffix = "-debug"   // 可选：添加版本后缀
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -64,16 +84,17 @@ android {
     android.applicationVariants.all {
         val config = project.android.defaultConfig
         val versionName = config.versionName
-        val formatter = DateTimeFormatter.ofPattern("yyyy_MMdd_HHmmss")
-        val createTime = LocalDateTime.now().format(formatter)
+//        val formatter = DateTimeFormatter.ofPattern("yyyy_MMdd_HHmmss")
+//        val createTime = LocalDateTime.now().format(formatter)
         val appName = "toolbox"
-        val filename = "${appName}_${versionName}_${buildType.name}_${createTime}.apk"
+//        val filename = "${appName}_${buildType.name}_${versionName}_${createTime}.apk"
+//        val filename = "${appName}_${buildType.name}_${versionName}.apk"
+        val filename = "${appName}_${versionName}.apk"
         outputs.all {
             // 判断是否是输出 apk 类型
             if(this is com.android.build.gradle.internal.api.ApkVariantOutputImpl
             ) {
                 this.outputFileName = filename
-
             }
         }
         // 保存 release 版本的 apk
@@ -91,7 +112,7 @@ android {
                     }
                     into(outDir)
                     println("> My Task :copy from $fromDir into $outDir")
-                    rename { _ -> filename }
+//                    rename { _ -> filename }
                 }
             }
         }
@@ -100,28 +121,29 @@ android {
 
 
 //gradlew copyAndRenameApkTask
-val copyAndRenameApkTask by tasks.registering(Copy::class) {
-    dependsOn("assembleRelease") // 确保 app-release.apk 已经生成
-
-    val config = project.android.defaultConfig
-    val versionName = config.versionName
-    val formatter = DateTimeFormatter.ofPattern("yyyy_MMdd_HHmm")
-    val createTime = LocalDateTime.now().format(formatter)
-    val appName = "toolbox"
-    val destDir = File(
-        rootDir,
-        "app/build/outputs/apk/release"
-    )
-    // 确保目标目录存在
-    doFirst {
-        destDir.mkdirs()
-    }
-    from(destDir) {
-        include("app-release.apk")
-    }
-    into(destDir)
-    rename { _ -> "${appName}_${versionName}_${createTime}.apk" }
-}
+//val copyAndRenameApkTask by tasks.registering(Copy::class) {
+//    dependsOn("assembleRelease") // 确保 app-release.apk 已经生成
+//
+//    val config = project.android.defaultConfig
+//    val versionName = config.versionName
+//    val formatter = DateTimeFormatter.ofPattern("yyyy_MMdd_HHmm")
+//    val createTime = LocalDateTime.now().format(formatter)
+//    val appName = "toolbox"
+//    val destDir = File(
+//        rootDir,
+//        "app/build/outputs/apk/release"
+//    )
+//    // 确保目标目录存在
+//    doFirst {
+//        destDir.mkdirs()
+//    }
+//    from(destDir) {
+//        include("app-release.apk")
+//    }
+//    into(destDir)
+////    rename { _ -> "${appName}_${versionName}_${createTime}.apk" }
+//    rename { _ -> "${appName}_${versionName}.apk" }
+//}
 
 dependencies {
 //    // 引入 libs 目录中的所有 AAR 文件

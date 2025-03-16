@@ -3,7 +3,7 @@
  * 本项目遵循 MIT 许可协议，请务必保留此声明和署名。
  */
 
-package cn.minimote.toolbox.objects
+package cn.minimote.toolbox.helper
 
 import android.content.Context
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
@@ -68,7 +68,7 @@ object DataCleanHelper {
     fun clearData(
         viewModel: ToolboxViewModel,
     ) {
-        val pathList = getDataPathList(viewModel.context).plus(viewModel.savePath)
+        val pathList = getDataPathList(viewModel.myContext).plus(viewModel.savePath)
         for(path in pathList) {
             if(path != null) {
                 deleteDirectory(path)

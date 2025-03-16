@@ -3,10 +3,12 @@
  * 本项目遵循 MIT 许可协议，请务必保留此声明和署名。
  */
 
-package cn.minimote.toolbox.objects
+package cn.minimote.toolbox.helper
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.media.MediaScannerConnection
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -25,6 +27,7 @@ import java.io.FileOutputStream
 
 object ImageSaveHelper {
 
+    @SuppressLint("ClickableViewAccessibility")
     fun setPopupMenu(
         imageView: ImageView,
         fileName: String,
@@ -51,7 +54,7 @@ object ImageSaveHelper {
             true
         }
 
-        imageView.setOnTouchListener { view, event ->
+        imageView.setOnTouchListener { _, event ->
             if(event.action == MotionEvent.ACTION_DOWN) {
                 x = event.rawX.toInt()
                 y = event.rawY.toInt()
@@ -115,12 +118,12 @@ object ImageSaveHelper {
         saveButton.setOnClickListener {
             VibrationHelper.vibrateOnClick(context)
             saveImage(
-                imageView,
-                fileName,
-                viewModel,
-                context,
-                quality,
-                imagePath,
+                imageView = imageView,
+                fileName = fileName,
+                viewModel = viewModel,
+                context = context,
+                quality = quality,
+                imagePath = imagePath,
             )
             popupWindow.dismiss()
         }
@@ -132,15 +135,15 @@ object ImageSaveHelper {
 
 
     fun saveImage(
-        imageView: ImageView,
+        drawable: Drawable? = null,
+        imageView: ImageView? = null,
         fileName: String,
         viewModel: ToolboxViewModel,
         context: Context,
         quality: Int = 100,
         imagePath: File = viewModel.savePath,
     ) {
-        // 从 imageView 中获取图片
-        val drawable = imageView.drawable
+        val actualDrawable = drawable ?: imageView?.drawable ?: return
 
         // 检查文件夹是否存在，如果不存在则创建
         if(!imagePath.exists()) {
@@ -167,7 +170,7 @@ object ImageSaveHelper {
         // 将 bitmap 保存为文件
         try {
             FileOutputStream(file).use { out ->
-                drawable?.toBitmap()?.compress(Bitmap.CompressFormat.PNG, quality, out)
+                actualDrawable.toBitmap().compress(Bitmap.CompressFormat.PNG, quality, out)
 
                 Toast.makeText(
                     context,

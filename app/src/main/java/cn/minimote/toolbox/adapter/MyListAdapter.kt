@@ -17,11 +17,11 @@ import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.fragment.MyListFragment
-import cn.minimote.toolbox.objects.ClipboardHelper
-import cn.minimote.toolbox.objects.DataCleanHelper
-import cn.minimote.toolbox.objects.FragmentHelper
-import cn.minimote.toolbox.objects.ImageSaveHelper
-import cn.minimote.toolbox.objects.VibrationHelper
+import cn.minimote.toolbox.helper.ClipboardHelper
+import cn.minimote.toolbox.helper.DataCleanHelper
+import cn.minimote.toolbox.helper.FragmentHelper
+import cn.minimote.toolbox.helper.ImageSaveHelper
+import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
 
 
@@ -45,6 +45,7 @@ class MyListAdapter(
         lateinit var textViewAppName: TextView
         lateinit var textViewPackageName: TextView
         lateinit var textViewAppVersion: TextView
+        lateinit var textViewAppAuthor: TextView
 
         lateinit var textViewClearCache: TextView
         lateinit var textViewCacheSize: TextView
@@ -60,6 +61,7 @@ class MyListAdapter(
                     textViewAppName = itemView.findViewById(R.id.textView_appName)
                     textViewPackageName = itemView.findViewById(R.id.textView_packageName)
                     textViewAppVersion = itemView.findViewById(R.id.textView_app_version)
+                    textViewAppAuthor = itemView.findViewById(R.id.textView_app_author)
                 }
 
                 // 清除缓存
@@ -130,32 +132,59 @@ class MyListAdapter(
 
     // 设置应用信息
     private fun setupAppInfo(holder: MyViewHolder) {
+        // 长按弹出保存图片的选项
         ImageSaveHelper.setPopupMenu(
             holder.imageViewAppIcon,
-            viewModel.appName,
+            viewModel.myAppName,
             viewModel,
             context,
         )
-        holder.textViewAppName.text = viewModel.appName
+
+        holder.textViewAppName.text = viewModel.myAppName
         holder.textViewAppName.setOnLongClickListener {
             VibrationHelper.vibrateOnClick(context)
             ClipboardHelper.copyToClipboard(
                 context = context,
-                text = holder.textViewAppName.text as String,
+                text = viewModel.myAppName,
+                toastString = context.getString(R.string.toast_app_name),
             )
             true
         }
-        holder.textViewPackageName.text = viewModel.packageName
+
+        holder.textViewPackageName.text = viewModel.myPackageName
         holder.textViewPackageName.setOnLongClickListener {
             VibrationHelper.vibrateOnClick(context)
             ClipboardHelper.copyToClipboard(
                 context = context,
-                text = holder.textViewPackageName.text as String,
+                text = viewModel.myPackageName,
+                toastString = context.getString(R.string.toast_package_name),
             )
             true
         }
+
         holder.textViewAppVersion.text =
-            context.getString(R.string.app_version, viewModel.versionName)
+            context.getString(R.string.app_version, viewModel.myVersionName)
+        holder.textViewAppVersion.setOnLongClickListener {
+            VibrationHelper.vibrateOnClick(context)
+            ClipboardHelper.copyToClipboard(
+                context = context,
+                text = viewModel.myVersionName,
+                toastString = context.getString(R.string.toast_app_version),
+            )
+            true
+        }
+
+        holder.textViewAppAuthor.text =
+            context.getString(R.string.app_author, viewModel.myAuthorName)
+        holder.textViewAppAuthor.setOnLongClickListener {
+            VibrationHelper.vibrateOnClick(context)
+            ClipboardHelper.copyToClipboard(
+                context = context,
+                text = viewModel.myAuthorName,
+                toastString = context.getString(R.string.toast_author_name),
+            )
+            true
+        }
     }
 
 

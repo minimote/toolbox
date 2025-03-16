@@ -18,8 +18,8 @@ import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
-import cn.minimote.toolbox.objects.ClipboardHelper
-import cn.minimote.toolbox.objects.VibrationHelper
+import cn.minimote.toolbox.helper.ClipboardHelper
+import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
 import cn.minimote.toolbox.viewModel.ToolboxViewModel.Constants.EditViewTypes
 import com.google.android.material.switchmaterial.SwitchMaterial
@@ -381,19 +381,12 @@ class EditListAdapter(
             button.setOnClickListener {
                 VibrationHelper.vibrateOnClick(context)
                 // 删除组件
-                if(button.text == context.getString(R.string.delete_widget)) {
-                    viewModel.deleteOrRestoreWidget(
-                        isDelete = true,
-                        modifiedWidget.value!!.activityName,
-                    )
-                    setupButtonDeleteOrRestoreWidget(button, false)
-                } else { // 恢复组件
-                    viewModel.deleteOrRestoreWidget(
-                        isDelete = false,
-                        modifiedWidget.value!!.activityName,
-                    )
-                    setupButtonDeleteOrRestoreWidget(button, true)
-                }
+                val isDelete = button.text == context.getString(R.string.delete_widget)
+                viewModel.deleteOrRestoreWidget(
+                    isDelete = isDelete,
+                    modifiedWidget.value!!.activityName,
+                )
+                setupButtonDeleteOrRestoreWidget(button, !isDelete)
             }
         }
     }

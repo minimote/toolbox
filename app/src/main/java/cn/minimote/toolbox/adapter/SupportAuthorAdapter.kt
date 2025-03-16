@@ -14,10 +14,11 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
-import cn.minimote.toolbox.objects.ImageSaveHelper
-import cn.minimote.toolbox.objects.VibrationHelper
+import cn.minimote.toolbox.helper.ImageSaveHelper
+import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
 
 
@@ -184,7 +185,7 @@ class SupportAuthorAdapter(
         } else {
             holder.buttonSaveWechatQR.setOnClickListener {
                 VibrationHelper.vibrateOnClick(context)
-                saveWechatQR(holder.imageViewQRWechat, context)
+                saveWechatQR(context)
             }
 
             holder.buttonOpenWechatScan.setOnClickListener {
@@ -196,9 +197,10 @@ class SupportAuthorAdapter(
 
 
     // 保存微信二维码
-    private fun saveWechatQR(imageView: ImageView, context: Context) {
+    private fun saveWechatQR(context: Context) {
+        val drawable = ContextCompat.getDrawable(context, R.drawable.qr_wechat)
         ImageSaveHelper.saveImage(
-            imageView = imageView,
+            drawable = drawable,
             context = context,
             fileName = context.getString(R.string.qr_wechat_file_name),
             viewModel = viewModel,

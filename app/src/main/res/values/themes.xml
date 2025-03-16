@@ -34,6 +34,13 @@
     </style>
 
 
+    <!-- Button：圆角 -->
+    <style name="Button.Toolbox.Round.Dark" parent="Button.Toolbox.Dark">
+        <!--        <item name="android:background">@color/deep_gray</item>-->
+        <!--        <item name="cornerRadius">@dimen/layout_size_1_small</item>-->
+    </style>
+
+
     <!-- Button：顶部的按钮 -->
     <style name="Button.Toolbox.Top.Dark" parent="Button.Toolbox.Dark">
         <item name="android:layout_width">0dp</item>

@@ -22,11 +22,11 @@ import androidx.lifecycle.viewModelScope
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.dataClass.InstalledActivity
 import cn.minimote.toolbox.dataClass.StoredActivity
-import cn.minimote.toolbox.objects.ConfigHelper
-import cn.minimote.toolbox.objects.ConfigHelper.ConfigName
-import cn.minimote.toolbox.objects.InstalledActivityHelper
-import cn.minimote.toolbox.objects.StoredActivityHelper
-import cn.minimote.toolbox.others.IconCacheManager
+import cn.minimote.toolbox.helper.ConfigHelper
+import cn.minimote.toolbox.helper.ConfigHelper.ConfigName
+import cn.minimote.toolbox.helper.IconCacheHelper
+import cn.minimote.toolbox.helper.InstalledActivityHelper
+import cn.minimote.toolbox.helper.StoredActivityHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.io.File
@@ -43,7 +43,7 @@ class ToolboxViewModel
 //    private val iconCacheManager: IconCacheManager,
 ) : AndroidViewModel(application) {
 
-    private val iconCacheManager: IconCacheManager = IconCacheManager(context)
+    private val iconCacheHelper: IconCacheHelper = IconCacheHelper(myContext)
 
     // 主视图小组件的列数(1-6的最小公倍数)
 //    val spanCount = 60
@@ -84,11 +84,11 @@ class ToolboxViewModel
 
     // 配置文件
     var defaultConfig = ConfigHelper.loadConfig(
-        context = context,
+        context = myContext,
         configName = ConfigName.DEFAULT_CONFIG,
     )
     var userConfig = ConfigHelper.loadConfig(
-        context = context,
+        context = myContext,
         configName = ConfigName.USER_CONFIG,
     )
 
@@ -233,7 +233,7 @@ class ToolboxViewModel
     // 保存路径
     val savePath = File(
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-        context.getString(R.string.app_name_en),
+        myContext.getString(R.string.app_name_en),
     )
 
     // 首页拖动场景使用
@@ -254,32 +254,36 @@ class ToolboxViewModel
 
 
     // 获取上下文
-    val context: Context get() = getApplication<Application>().applicationContext
+    val myContext: Context get() = getApplication<Application>().applicationContext
 
 
     // 获取 PackageManager
-    private val packageManager: PackageManager get() = context.packageManager
+    private val myPackageManager: PackageManager get() = myContext.packageManager
 
 
     // 获取应用名
-    val appName: String get() = context.applicationInfo.loadLabel(packageManager).toString()
+    val myAppName: String get() = myContext.applicationInfo.loadLabel(myPackageManager).toString()
 
 
     // 获取包名
-    val packageName: String get() = context.packageName
+    val myPackageName: String get() = myContext.packageName
 
 
     // 获取版本号
-    val versionName: String
-        get() = packageManager.getPackageInfo(
-            context.packageName,
-            0
-        ).versionName ?: getString(context, R.string.unknown)
+    val myVersionName: String
+        get() = myPackageManager.getPackageInfo(
+            myContext.packageName, 0
+        ).versionName ?: getString(myContext, R.string.unknown)
+
+
+    // 获取作者名
+    val myAuthorName: String
+        get() = getString(myContext, R.string.author_name)
 
 
     // 判断设备是否为手表
     fun isWatch(): Boolean {
-        val uiMode = context.resources.configuration.uiMode
+        val uiMode = myContext.resources.configuration.uiMode
         return uiMode and Configuration.UI_MODE_TYPE_MASK == Configuration.UI_MODE_TYPE_WATCH
     }
 
@@ -323,12 +327,7 @@ class ToolboxViewModel
             _storageActivityMap.size != _modifiedSizeStorageActivityMap.size || _storageActivityMap.entries.zip(
                 _modifiedSizeStorageActivityMap.entries
             ).any { (a, b) -> a != b }
-//         Log.e("大小是否发生改变",
-//            "${_storageActivityMap.size != _modifiedSizeStorageActivityMap.size},${
-//                _storageActivityMap.entries.zip(
-//                    _modifiedSizeStorageActivityMap.entries
-//                ).any { (a, b) -> a != b }
-//            }")
+//        Log.e("大小是否发生改变", "${widgetListSizeWasModified.value}->${flag}")
         if(widgetListSizeWasModified.value != flag) {
             widgetListSizeWasModified.value = flag
             // Log.e("大小发生改变", flag.toString())
@@ -391,7 +390,7 @@ class ToolboxViewModel
 
     // 保存配置文件
     fun saveUserConfig() {
-        ConfigHelper.saveUserConfig(context, userConfig)
+        ConfigHelper.saveUserConfig(myContext, userConfig)
     }
 
 
@@ -402,7 +401,7 @@ class ToolboxViewModel
 //            return
 //        }
 
-        val storageActivityList = StoredActivityHelper.loadStoredActivityList(context)
+        val storageActivityList = StoredActivityHelper.loadStoredActivityList(myContext)
         _storedActivityList.value = storageActivityList
 
 //        Log.i("ActivityViewModel", "加载活动1：${_storedActivityList.value?.size}")
@@ -458,12 +457,12 @@ class ToolboxViewModel
 
         if(getFragmentName() == FragmentNames.WIDGET_LIST_FRAGMENT) {
             updateStorageActivityListOrder()
-            StoredActivityHelper.saveStoredActivityList(context, _storedActivityList.value!!)
+            StoredActivityHelper.saveStoredActivityList(myContext, _storedActivityList.value!!)
         } else {
             updateWidget()
             updateStorageActivityListSize()
             StoredActivityHelper.saveStoredActivityList(
-                context, _storageActivityMap.values.toMutableList()
+                myContext, _storageActivityMap.values.toMutableList()
             )
         }
 
@@ -564,25 +563,31 @@ class ToolboxViewModel
         intent.addCategory(Intent.CATEGORY_LAUNCHER)
 
         val resolveInfoList: List<ResolveInfo> =
-            packageManager.queryIntentActivities(intent, PackageManager.MATCH_ALL)
+            myPackageManager.queryIntentActivities(intent, PackageManager.MATCH_ALL)
 //        val resolveInfoList: List<ResolveInfo> = getAllExportedActivities()
 //        Log.e("ToolboxViewModel", "获取活动列表：${resolveInfoList.size}")
 
 
-        var installedActivities = resolveInfoList.map { resolveInfo ->
+        var installedActivities = resolveInfoList.mapNotNull { resolveInfo ->
             val applicationInfo = resolveInfo.activityInfo.applicationInfo
             // 应用名
 //            val appName = packageManager.getApplicationLabel(applicationInfo).toString()
             // 活动名
-            val appName = resolveInfo.activityInfo.loadLabel(packageManager).toString()
+            val appName = resolveInfo.activityInfo.loadLabel(myPackageManager).toString()
             val packageName = applicationInfo.packageName
             val activityName = resolveInfo.activityInfo.name
+            if(packageName == myPackageName) {
+                // 不能启动自己，防止出错
+//                Log.e(myPackageName, "获取包名：$packageName")
+                null
+            } else {
+                InstalledActivity(
+                    appName = appName,
+                    packageName = packageName,
+                    activityName = activityName,
+                )
+            }
 
-            InstalledActivity(
-                appName = appName,
-                packageName = packageName,
-                activityName = activityName,
-            )
         }.sortedWith(compareBy(collator) { it.appName })
 
         installedActivities = (recommendedActivities + installedActivities).distinct()
@@ -617,7 +622,7 @@ class ToolboxViewModel
     private fun getRecommendedActivities(): List<InstalledActivity> {
 //        val splitChar = context.getString(R.string.split_char)
         var recommendedActivities = InstalledActivityHelper.loadInstalledActivityList(
-            context = context,
+            context = myContext,
             deviceType = DeviceTypes.ALL,
         )
 //        Log.e("recommendedActivities", "$recommendedActivities")
@@ -626,13 +631,13 @@ class ToolboxViewModel
         recommendedActivities += if(isWatch()) {
             // 手表活动
             InstalledActivityHelper.loadInstalledActivityList(
-                context = context,
+                context = myContext,
                 deviceType = DeviceTypes.WATCH,
             )
         } else {
             // 手机活动
             InstalledActivityHelper.loadInstalledActivityList(
-                context = context,
+                context = myContext,
                 deviceType = DeviceTypes.PHONE,
             )
         }
@@ -640,7 +645,7 @@ class ToolboxViewModel
         // 过滤掉不存在的活动
         recommendedActivities = recommendedActivities.filter { activity ->
             try {
-                packageManager.getApplicationInfo(activity.packageName, 0)
+                myPackageManager.getApplicationInfo(activity.packageName, 0)
                 true
             } catch(e: PackageManager.NameNotFoundException) {
 //                Log.e("不存在的活动", "$activity")
@@ -654,13 +659,13 @@ class ToolboxViewModel
         if(recommendedActivities.isNotEmpty()) {
             recommendedActivities = (mutableListOf(
                 InstalledActivity(
-                    appName = context.getString(R.string.recommended_activity),
+                    appName = myContext.getString(R.string.recommended_activity),
                     packageName = "",
                     activityName = "",
                 ),
             ) + recommendedActivities + mutableListOf(
                 InstalledActivity(
-                    appName = context.getString(R.string.other_activity),
+                    appName = myContext.getString(R.string.other_activity),
                     packageName = "",
                     activityName = "",
                 ),
@@ -673,7 +678,7 @@ class ToolboxViewModel
 
     // 获取图标
     fun getIcon(installedActivity: InstalledActivity): Drawable? {
-        return iconCacheManager.getIcon(
+        return iconCacheHelper.getIcon(
             iconName = installedActivity.iconName,
             packageName = installedActivity.packageName,
             activityName = installedActivity.activityName,
@@ -681,7 +686,7 @@ class ToolboxViewModel
     }
     // 获取图标
     fun getIcon(storedActivity: StoredActivity): Drawable? {
-        return iconCacheManager.getIcon(
+        return iconCacheHelper.getIcon(
             iconName = storedActivity.iconName,
             packageName = storedActivity.packageName,
             activityName = storedActivity.activityName,
@@ -703,17 +708,6 @@ class ToolboxViewModel
     }
 
 
-    // 切换活动列表开关状态
-    fun toggleSwitch(isChecked: Boolean, installedActivity: InstalledActivity) {
-        if(isChecked) {
-            addToModifiedMap(installedActivity)
-        } else {
-            removeFromModifiedMap(installedActivity)
-        }
-        widgetListSizeWasModified()
-    }
-
-
     // 删除或恢复组件
     fun deleteOrRestoreWidget(isDelete: Boolean, activityName: String) {
         if(isDelete) {
@@ -725,17 +719,43 @@ class ToolboxViewModel
     }
 
 
+    // 切换活动列表开关状态
+    fun toggleSwitch(isChecked: Boolean, installedActivity: InstalledActivity) {
+        if(isChecked) {
+            addToModifiedMap(installedActivity)
+        } else {
+            removeFromModifiedMap(installedActivity)
+        }
+        // 如果修改后的关键字集合与原来的一样，直接重建映射
+        if(_storageActivityMap.keys.toSet() == _modifiedSizeStorageActivityMap.keys.toSet()) {
+//            Log.e("ViewModel", "重建映射")
+            _modifiedSizeStorageActivityMap = builtMapFromMap(_storageActivityMap)
+        }
+        widgetListSizeWasModified()
+        //        widgetListOrderWasModified()
+    }
+
+
     // 将活动添加到修改的字典
     private fun addToModifiedMap(installedActivity: InstalledActivity) {
-//        Log.i("ActivityViewModel", "添加到修改字典：${installedActivity.activityName}")
-        // 如果之前就有，直接映射；否则新建一个实例
-        val storageActivity = _storageActivityMap[installedActivity.activityName]
-            ?: installedActivityToStorageActivity(
+//        Log.e("ViewModel", "添加：${installedActivity.appName}")
+        // 如果之前就有，重建映射；否则新建一个实例
+        if(_storageActivityMap.containsKey(installedActivity.activityName)) {
+            val storageActivity = _storageActivityMap[installedActivity.activityName]
+            _modifiedSizeStorageActivityMap[installedActivity.activityName] = storageActivity!!
+//            Log.e("原始集合", "${_storageActivityMap.keys.toSortedSet()}")
+//            Log.e("修改集合", "${_modifiedSizeStorageActivityMap.keys.toSortedSet()}")
+
+
+        } else {
+//            Log.e("ViewModel", "新建活动：${installedActivity.appName}")
+            val storageActivity = installedActivityToStorageActivity(
                 installedActivity = installedActivity,
             )
-        _modifiedSizeStorageActivityMap[installedActivity.activityName] = storageActivity
+            _modifiedSizeStorageActivityMap[installedActivity.activityName] = storageActivity
+        }
     }
-    // 将活动添加到修改的字典
+    // 组件编辑页的恢复按钮
     private fun addToModifiedMap(activityName: String) {
         // Log.e(
         //     "添加到修改字典",
@@ -756,10 +776,10 @@ class ToolboxViewModel
 
     // 将活动从修改的字典中移除
     private fun removeFromModifiedMap(installedActivity: InstalledActivity) {
-        // Log.i("ActivityViewModel", "从修改字典中移除：${installedActivity.activityName}")
+//        Log.e("ViewModel", "移除：${installedActivity.appName}")
         _modifiedSizeStorageActivityMap.remove(installedActivity.activityName)
     }
-    // 函数重载
+    // 组件编辑页的删除按钮
     private fun removeFromModifiedMap(activityName: String) {
         // Log.e("从修改字典中移除", activityName)
         _modifiedSizeStorageActivityMap.remove(activityName)
