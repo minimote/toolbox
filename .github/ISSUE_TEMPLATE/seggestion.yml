@@ -31,7 +31,7 @@ body:
   - type: textarea
     id: related-problem
     attributes:
-      label: 您的建议是否和某个场景相关？
+      label: 您的建议是否和某个场景相关？ [可选]
       description: 例如：当...时，...应该...
     validations:
       required: false

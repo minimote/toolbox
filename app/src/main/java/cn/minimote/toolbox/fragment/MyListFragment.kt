@@ -20,6 +20,7 @@ import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.adapter.MyListAdapter
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
+import cn.minimote.toolbox.viewModel.ToolboxViewModel.Companion.FragmentNames
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -35,7 +36,6 @@ class MyListFragment(
 
     private lateinit var fragmentNameObserver: Observer<String>
 
-    private val fragmentNames = ToolboxViewModel.Constants.FragmentNames
 
 //    override fun onCreate(savedInstanceState: Bundle?) {
 //        super.onCreate(savedInstanceState)
@@ -108,7 +108,7 @@ class MyListFragment(
     // 设置观察者
     private fun setObservers() {
         fragmentNameObserver = Observer { fragmentName ->
-            if(fragmentName == fragmentNames.WIDGET_LIST_FRAGMENT) {
+            if(fragmentName == FragmentNames.WIDGET_LIST_FRAGMENT) {
                 // 切换回来的时候刷新数据，主要是从活动列表返回的时候
                 refreshData()
             }

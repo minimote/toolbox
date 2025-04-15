@@ -13,7 +13,7 @@ body:
     id: version
     attributes:
       label: 软件版本号
-      description: 您当前正在使用软件的哪个版本/分支？
+      description: 您当前正在使用软件的哪个版本？
       placeholder: "1.0"
     validations:
       required: true

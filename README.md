@@ -11,7 +11,7 @@ Copyright (c) 2024-2025 minimote(微尘). All rights reserved.
 
 |                  手机版                   |                  手表版                   |
 |:--------------------------------------:|:--------------------------------------:|
-| ![手机版](instructions/images/首页-手机版.jpg) | ![手表版](instructions/images/首页-手表版.png) |
+| ![手机版](instruction/images/首页-手机版.jpg) | ![手表版](instruction/images/首页-手表版.png) |
 
 </div>
 
@@ -24,10 +24,10 @@ Copyright (c) 2024-2025 minimote(微尘). All rights reserved.
 
 ## [更新日志](更新日志.md)
 
-<!-- ## 项目地址
+## 下载地址
 
-- [Gitee【推荐】: https://gitee.com/minimote/toolbox](https://gitee.com/minimote/toolbox)
-- [GitHub: https://github.com/minimote/toolbox](https://github.com/minimote/toolbox) -->
+- [Gitee【推荐】: https://gitee.com/minimote/toolbox/releases/latest](https://gitee.com/minimote/toolbox/releases/latest)
+- [GitHub: https://github.com/minimote/toolbox/releases/latest](https://github.com/minimote/toolbox/releases/latest)
 
 ## 反馈问题或提出建议
 
@@ -37,8 +37,9 @@ Copyright (c) 2024-2025 minimote(微尘). All rights reserved.
 ## TODO
 
 - 功能：
-    - 问题反馈页面
-    - 适配欧加系手机的流体云
+    - 创建桌面快捷方式
+    - 不同排序方式：文件名、创建时间、修改时间
+    - 多选删除
     - 组件高度设置
     - 添加自定义活动
     - 工具：
@@ -47,23 +48,25 @@ Copyright (c) 2024-2025 minimote(微尘). All rights reserved.
         - 手机手表互传文件(蓝牙、局域网)
         - 浏览器
         - 木鱼
+        - 滚动弹幕
+        - 发送通知
     - 不同尺寸的设备配置不同的布局大小
     - 部分按钮改为圆角矩形
 - 待定：
-    - 在线更新
     - 阅读电子书
     - 查看图片，动图，视频
     - 首页可放工具或文件夹
     - 可选页面切换样式
-    - 图片适配中转站
     - 手机手表联动功能
     - 右滑退出的透明度
-    - 重绘进度环样式
+    - 优化进度环样式
+    - 优化 SeekBar 样式
     - 列表越界回弹
     - 更换本软件图标
     - 更换组件图标
     - 提取软件安装包
     - 导入导出配置
+    - 申请安装权限后返回本软件
 
 ## 支持作者
 

@@ -5,9 +5,6 @@
 
 package cn.minimote.toolbox.activity
 
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.drawable.VectorDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -20,18 +17,21 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
+import androidx.constraintlayout.widget.Guideline
 import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.adapter.ToolboxFragmentStateAdapter
+import cn.minimote.toolbox.helper.CheckUpdateHelper
+import cn.minimote.toolbox.helper.ConfigHelper
 import cn.minimote.toolbox.helper.FragmentHelper
 import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.pageTransformer.ViewPager2Transformer
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
+import cn.minimote.toolbox.viewModel.ToolboxViewModel.Companion.FragmentNames
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
-import java.io.File
-import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -42,7 +42,6 @@ class MainActivity : AppCompatActivity() {
 
     private val viewModel: ToolboxViewModel by viewModels()
 
-    private val fragmentNames = ToolboxViewModel.Constants.FragmentNames
 //    private val fragmentPositions = ToolboxViewModel.Constants.FragmentPositions
 
     // 滑动返回的比例阈值
@@ -56,6 +55,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var buttonAdd: Button
 
     private lateinit var viewPager: ViewPager2
+    private lateinit var tabLayout: TabLayout
+
     private lateinit var constraintLayoutOrigin: ConstraintLayout
 
 //    private late init var layoutMain: ConstraintLayout
@@ -76,7 +77,7 @@ class MainActivity : AppCompatActivity() {
 //            backgroundHandler.postDelayed(this, 1000)
             handler.postDelayed(this, 1000)
             // 编辑模式下显示的是排序，所以不更新时间
-            if(viewModel.editMode.value == true && viewModel.getFragmentName() == fragmentNames.WIDGET_LIST_FRAGMENT) {
+            if(viewModel.editMode.value == true && viewModel.getFragmentName() == FragmentNames.WIDGET_LIST_FRAGMENT) {
                 return
             }
             updateTime()
@@ -90,6 +91,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var isEditModeObserver: Observer<Boolean>
     private lateinit var fragmentNameObserver: Observer<String>
+
+    private lateinit var settingWasModifiedObserver: Observer<Boolean>
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -107,21 +110,16 @@ class MainActivity : AppCompatActivity() {
         constraintLayoutOrigin = findViewById(R.id.constraintLayout_origin)
 
 //        // 获取屏幕尺寸
-//        viewModel.screenWidth = resources.displayMetrics.widthPixels
-//        viewModel.screenHeight = resources.displayMetrics.heightPixels
         viewModel.updateScreenSize(resources.displayMetrics)
 
         // 适配系统返回手势和按钮
         setupBackPressedCallback()
-        // 设置按钮
-        setupButtons()
-
-//        // 设置手势监听器
-//        setupGestureDetector()
 
         // 设置观察者
         setupObservers()
 
+        // 设置按钮
+        setupButtons()
 
         // 设置 ViewPager
         setupViewPager()
@@ -129,41 +127,11 @@ class MainActivity : AppCompatActivity() {
         // 显示首页小组件
 //        showWidgetList()
 
-//        saveVectorDrawableAsPng()
-    }
 
-    private fun saveVectorDrawableAsPng() {
-        val drawable = ContextCompat.getDrawable(this, R.drawable.ic_toolbox) as? VectorDrawable
-            ?: //            Toast.makeText(this, "无法加载 VectorDrawable", Toast.LENGTH_SHORT).show()
-            return
-
-        // 定义放大比例
-        val scaleFactor = 2.0f
-
-        // 调整 Bitmap 的尺寸
-        val bitmapWidth = (drawable.intrinsicWidth * scaleFactor).toInt()
-        val bitmapHeight = (drawable.intrinsicHeight * scaleFactor).toInt()
-
-        val bitmap = Bitmap.createBitmap(bitmapWidth, bitmapHeight, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-
-        // 设置 VectorDrawable 的边界以适应放大后的 Bitmap
-        drawable.setBounds(0, 0, bitmapWidth, bitmapHeight)
-        drawable.draw(canvas)
-
-        val directory = this.cacheDir
-        val file = File(directory, "ic_toolbox.png")
-
-        try {
-            val fos = FileOutputStream(file)
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
-            fos.flush()
-            fos.close()
-//            Toast.makeText(this, "图片已保存到 ${file.absolutePath}", Toast.LENGTH_LONG).show()
-        } catch(e: Exception) {
-//            e.printStackTrace()
-//            Toast.makeText(this, "保存图片失败", Toast.LENGTH_SHORT).show()
-        }
+        // 检查更新
+        CheckUpdateHelper.autoCheckUpdate(
+            context = this, viewModel = viewModel,
+        )
     }
 
 
@@ -190,7 +158,6 @@ class MainActivity : AppCompatActivity() {
     private fun setupBackPressedCallback() {
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-//                returnOrExit()
                 FragmentHelper.returnFragment(
                     fragmentManager = supportFragmentManager,
                     viewModel = viewModel,
@@ -206,9 +173,15 @@ class MainActivity : AppCompatActivity() {
 
     // 设置按钮
     private fun setupButtons() {
+        if(viewModel.isWatch()) {
+            // 将手表顶部的顶部按钮间距设为 30dp
+            val guideline = findViewById<Guideline>(R.id.guideline4)
+            guideline.setGuidelineBegin(viewModel.dpToPx(30f))
+        }
+
         buttonExit = findViewById(R.id.button_exit)
         buttonExit.setOnClickListener {
-            VibrationHelper.vibrateOnClick(this)
+            VibrationHelper.vibrateOnClick(this, viewModel)
 //            returnOrExit()
             FragmentHelper.returnFragment(
                 fragmentManager = supportFragmentManager,
@@ -222,19 +195,27 @@ class MainActivity : AppCompatActivity() {
 
         buttonAdd = findViewById(R.id.button_add)
         buttonAdd.setOnClickListener {
-            VibrationHelper.vibrateOnClick(this)
+            VibrationHelper.vibrateOnClick(this, viewModel)
             when(viewModel.getFragmentName()) {
-                fragmentNames.WIDGET_LIST_FRAGMENT -> {
+                FragmentNames.WIDGET_LIST_FRAGMENT -> {
                     if(viewModel.editMode.value != true) {
                         changeToActivityListFragment()
                         return@setOnClickListener
                     }
                 }
+
+                FragmentNames.SETTING_FRAGMENT -> {
+                    ConfigHelper.saveUserConfig(viewModel)
+                    return@setOnClickListener
+                }
+
             }
 
             viewModel.saveWidgetList()
             Toast.makeText(
-                this@MainActivity, getString(R.string.save_success), Toast.LENGTH_SHORT
+                this@MainActivity,
+                getString(R.string.save_success),
+                Toast.LENGTH_SHORT,
             ).show()
             buttonAdd.visibility = View.GONE
         }
@@ -248,13 +229,12 @@ class MainActivity : AppCompatActivity() {
     // 切换到 AppListFragment
     private fun changeToActivityListFragment() {
         FragmentHelper.switchFragment(
-            fragmentName = fragmentNames.ACTIVITY_LIST_FRAGMENT,
+            fragmentName = FragmentNames.ACTIVITY_LIST_FRAGMENT,
             fragmentManager = supportFragmentManager,
             viewModel = viewModel,
             viewPager = viewPager,
             constraintLayoutOrigin = constraintLayoutOrigin,
         )
-
     }
 
 
@@ -263,9 +243,9 @@ class MainActivity : AppCompatActivity() {
         buttonTime = findViewById(R.id.button_time)
         buttonTime.setOnClickListener {
             Log.e(viewModel.getFragmentName(), viewModel.editMode.value.toString())
-            if(viewModel.editMode.value == true && viewModel.getFragmentName() == fragmentNames.WIDGET_LIST_FRAGMENT) {
+            if(viewModel.editMode.value == true && viewModel.getFragmentName() == FragmentNames.WIDGET_LIST_FRAGMENT) {
                 // 组件排序
-                VibrationHelper.vibrateOnClick(this)
+                VibrationHelper.vibrateOnClick(this, viewModel)
                 viewModel.sortStoredActivityList()
             }
         }
@@ -285,32 +265,64 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    // 显示小组件的 Fragment
-//    private fun showWidgetList() {
-//        val fragment = WidgetListFragment(
-////            viewModel = viewModel,
-//        )
-//        FragmentManagerHelper.replaceFragment(
-//            fragmentManager = supportFragmentManager,
-//            fragment = fragment,
-//            viewModel = viewModel,
-//        )
-//    }
-
-
     // 设置 ViewPager
     private fun setupViewPager() {
         viewPager = findViewById(R.id.viewPager_origin)
+        tabLayout = findViewById(R.id.tabLayout)
 
         val adapter = ToolboxFragmentStateAdapter(
             fragmentActivity = this,
             viewPager = viewPager,
             constraintLayoutOrigin = constraintLayoutOrigin,
+            viewModel = viewModel,
         )
         viewPager.adapter = adapter
 
-        // 手表禁用页面切换动画
-        if(!viewModel.isWatch()) {
+        // 关联 ViewPager2 和 TabLayout
+        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+            // 设置每个 Tab 的标题或图标
+            tab.text = viewModel.viewPaperFragmentNameList[position]
+            // 设置点击事件
+            tab.view.setOnClickListener {
+                VibrationHelper.vibrateOnClick(this@MainActivity, viewModel)
+            }
+            if(viewModel.isWatch()) {
+                tab.customView = if(position == 0) {
+                    layoutInflater.inflate(R.layout.tablayout_dot_selected, tabLayout, false)
+                } else {
+                    layoutInflater.inflate(R.layout.tablayout_dot, tabLayout, false)
+                }
+            }
+        }.attach()
+
+        // 设置手表
+        if(viewModel.isWatch()) {
+            // 手表使用小圆点，并且居中
+            tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+                override fun onTabSelected(tab: TabLayout.Tab) {
+                    // 设置选中状态的布局
+                    tab.customView =
+                        layoutInflater.inflate(R.layout.tablayout_dot_selected, tabLayout, false)
+                }
+
+                override fun onTabUnselected(tab: TabLayout.Tab) {
+                    // 设置未选中状态的布局
+                    tab.customView =
+                        layoutInflater.inflate(R.layout.tablayout_dot, tabLayout, false)
+                }
+
+                override fun onTabReselected(tab: TabLayout.Tab) {
+                    // 重新选中时可以设置特定的布局
+                    tab.customView =
+                        layoutInflater.inflate(R.layout.tablayout_dot_selected, tabLayout, false)
+                }
+            })
+
+            tabLayout.tabGravity = TabLayout.GRAVITY_CENTER
+            // 设置 TabLayout 的高度
+            tabLayout.layoutParams.height =
+                resources.getDimensionPixelSize(R.dimen.layout_size_1_small)
+        } else {
             // 设置页面切换动画
             viewPager.setPageTransformer(ViewPager2Transformer())
         }
@@ -340,7 +352,7 @@ class MainActivity : AppCompatActivity() {
         widgetListSizeWasModifiedObserver = Observer { widgetListSizeWasModified ->
             // Log.e("大小观察者", "$widgetListSizeWasModified")
             when(viewModel.getFragmentName()) {
-                fragmentNames.EDIT_LIST_FRAGMENT -> {
+                FragmentNames.EDIT_LIST_FRAGMENT -> {
                     // 编辑列表存在大小改变和组件改变，必须同时不变才取消保存按钮
                     if(widgetListSizeWasModified) {
                         buttonAdd.visibility = View.VISIBLE
@@ -363,7 +375,7 @@ class MainActivity : AppCompatActivity() {
 
         widgetWasModifiedObserver = Observer { widgetWasModified ->
             when(viewModel.getFragmentName()) {
-                fragmentNames.EDIT_LIST_FRAGMENT -> {
+                FragmentNames.EDIT_LIST_FRAGMENT -> {
                     // 编辑列表存在大小改变和组件改变，必须同时不变才取消保存按钮
                     if(widgetWasModified) {
                         buttonAdd.visibility = View.VISIBLE
@@ -415,7 +427,7 @@ class MainActivity : AppCompatActivity() {
 //                 "fragmentName: $fragmentName, isEditMode: ${viewModel.editMode.value}"
 //             )
             when(fragmentName) {
-                fragmentNames.WIDGET_LIST_FRAGMENT -> {
+                FragmentNames.WIDGET_LIST_FRAGMENT -> {
                     if(viewModel.editMode.value == true) {
                         buttonTime.text = getString(R.string.sort)
                         buttonTime.isClickable = true
@@ -430,26 +442,35 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
 
-                fragmentNames.EDIT_LIST_FRAGMENT -> {
+                FragmentNames.EDIT_LIST_FRAGMENT -> {
                     updateTime()
                     buttonTime.isClickable = false
                     buttonAdd.visibility = View.GONE
                 }
 
-                fragmentNames.ACTIVITY_LIST_FRAGMENT -> {
+                FragmentNames.ACTIVITY_LIST_FRAGMENT -> {
                     buttonAdd.visibility = View.GONE
                     buttonAdd.text = getString(R.string.save_button)
                 }
 
-                fragmentNames.SUPPORT_AUTHOR_FRAGMENT -> {
+                FragmentNames.SUPPORT_AUTHOR_FRAGMENT -> {
                     buttonAdd.visibility = View.GONE
                 }
 
-                fragmentNames.ABOUT_PROJECT_FRAGMENT -> {
+                FragmentNames.ABOUT_PROJECT_FRAGMENT -> {
+                    buttonAdd.visibility = View.GONE
+                }
+
+                FragmentNames.SETTING_FRAGMENT -> {
+                    buttonAdd.visibility = View.GONE
+                    buttonAdd.text = getString(R.string.save_button)
+                }
+
+                FragmentNames.WEB_VIEW_FRAGMENT -> {
                     buttonAdd.visibility = View.GONE
                 }
             }
-            if(fragmentName == fragmentNames.WIDGET_LIST_FRAGMENT && viewModel.editMode.value == false) {
+            if(fragmentName == FragmentNames.WIDGET_LIST_FRAGMENT && viewModel.editMode.value == false) {
                 buttonExit.text = getString(R.string.exit_button)
             } else {
                 buttonExit.text = getString(R.string.return_button)
@@ -457,6 +478,16 @@ class MainActivity : AppCompatActivity() {
 
         }
         viewModel.fragmentName.observe(this, fragmentNameObserver)
+
+
+        settingWasModifiedObserver = Observer { wasModified ->
+            if(wasModified) {
+                buttonAdd.visibility = View.VISIBLE
+            } else {
+                buttonAdd.visibility = View.GONE
+            }
+        }
+        viewModel.settingWasModified.observe(this, settingWasModifiedObserver)
     }
 
 
@@ -467,6 +498,7 @@ class MainActivity : AppCompatActivity() {
         viewModel.widgetWasModified.removeObserver(widgetWasModifiedObserver)
         viewModel.editMode.removeObserver(isEditModeObserver)
         viewModel.fragmentName.removeObserver(fragmentNameObserver)
+        viewModel.settingWasModified.removeObserver(settingWasModifiedObserver)
     }
 
 }

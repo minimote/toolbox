@@ -13,32 +13,34 @@ import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.fragment.MyListFragment
 import cn.minimote.toolbox.fragment.WidgetListFragment
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
+import cn.minimote.toolbox.viewModel.ToolboxViewModel.Companion.FragmentNames
 
 
 class ToolboxFragmentStateAdapter(
     fragmentActivity: FragmentActivity,
     val viewPager: ViewPager2,
     val constraintLayoutOrigin: ConstraintLayout,
+    val viewModel: ToolboxViewModel,
 ) :
     FragmentStateAdapter(fragmentActivity) {
 
-    private val fragmentPositions = ToolboxViewModel.Constants.FragmentPositions
+    private val fragmentList = viewModel.viewPaperFragmentList
 
 //    val viewModel: ToolboxViewModel =
 //        ViewModelProvider(fragmentActivity)[ToolboxViewModel::class.java]
 
-    override fun getItemCount(): Int = fragmentPositions.SIZE
+    override fun getItemCount(): Int = fragmentList.size
 
     override fun createFragment(position: Int): Fragment {
-        return when(position) {
-            fragmentPositions.WIDGET_LIST_FRAGMENT -> {
+        return when(fragmentList[position]) {
+            FragmentNames.WIDGET_LIST_FRAGMENT -> {
                 WidgetListFragment(
                     viewPager = viewPager,
                     constraintLayoutOrigin = constraintLayoutOrigin,
                 )
             }
 
-            fragmentPositions.MY_LIST_FRAGMENT -> {
+            FragmentNames.MY_LIST_FRAGMENT -> {
                 MyListFragment(
                     viewPager = viewPager,
                     constraintLayoutOrigin = constraintLayoutOrigin,
@@ -50,4 +52,5 @@ class ToolboxFragmentStateAdapter(
             }
         }
     }
+
 }

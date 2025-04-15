@@ -29,15 +29,17 @@
         <item name="android:minWidth">0dp</item>
         <item name="android:minHeight">0dp</item>
         <item name="android:inset">0dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
         <item name="android:textColor">@color/white</item>
+        <item name="background">@color/yellow</item>
         <item name="cornerRadius">0dp</item>
     </style>
 
 
     <!-- Button：圆角 -->
     <style name="Button.Toolbox.Round.Dark" parent="Button.Toolbox.Dark">
-        <!--        <item name="android:background">@color/deep_gray</item>-->
-        <!--        <item name="cornerRadius">@dimen/layout_size_1_small</item>-->
+        <item name="cornerRadius">@dimen/layout_size_1_small</item> <!-- 圆角半径 -->
     </style>
 
 
@@ -49,7 +51,7 @@
 
 
     <!-- Button：支付宝 -->
-    <style name="Button.Toolbox.Alipay.Dark" parent="Button.Toolbox.Dark">
+    <style name="Button.Toolbox.Alipay.Dark" parent="Button.Toolbox.Round.Dark">
         <!--        <item name="android:layout_width">match_parent</item>-->
         <item name="backgroundTint">@color/alipay_blue</item>
         <item name="android:padding">@dimen/layout_size_1_small</item>
@@ -93,8 +95,8 @@
     <!-- View：水平线 -->
     <style name="View.Toolbox.Dark" parent="Theme.Toolbox.Dark">
         <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">@dimen/layout_size_5_very_tiny</item>
-        <item name="android:background">@color/mid_gray</item>
+        <item name="android:layout_height">@dimen/layout_size_4_tiny</item>
+        <item name="android:background">@color/deep_gray</item>
     </style>
 
 
@@ -166,6 +168,21 @@
         <!--        <item name="android:layout_marginBottom">@dimen/layout_size_2_footnote</item>-->
         <!--        <item name="android:textSize">@dimen/text_size_1_large</item>-->
         <item name="android:background">@android:color/transparent</item>
+    </style>
+
+
+    <!-- TextView：一级设置项 -->
+    <style name="TextView.Toolbox.Setting1.Dark" parent="TextView.Toolbox.Dark">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:gravity">start</item>
+        <item name="android:paddingVertical">@dimen/layout_size_4_tiny</item>
+    </style>
+
+
+    <!-- TextView：二级设置项 -->
+    <style name="TextView.Toolbox.Setting2.Dark" parent="TextView.Toolbox.Setting1.Dark">
+        <item name="android:textColor">@color/mid_gray</item>
+        <item name="android:textSize">@dimen/layout_size_1_small</item>
     </style>
 
 
@@ -266,7 +283,7 @@
 
 
     <!-- TextView：我的列表-右边的细节显示 -->
-    <style name="TextView.Toolbox.MyListDetail.Dark" parent="TextView.Toolbox.AppName.Dark">
+    <style name="TextView.Toolbox.MyListDetail.Dark" parent="Theme.Toolbox.Dark">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:gravity">end</item>
@@ -335,6 +352,14 @@
     </style>
 
 
+    <!-- 放置 WebView 的 ConstraintLayout -->
+    <style name="ConstraintLayout.Toolbox.WebView.Dark" parent="Theme.Toolbox.Dark">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:paddingHorizontal">@dimen/layout_size_3_script</item>
+    </style>
+
+
     <!-- 放置 RecyclerView 的 ConstraintLayout -->
     <style name="ConstraintLayout.Toolbox.RecyclerView.Dark" parent="Theme.Toolbox.Dark">
         <item name="android:layout_width">match_parent</item>
@@ -368,7 +393,7 @@
     <style name="ConstraintLayout.Toolbox.Widget.Dark" parent="RecyclerView.Toolbox.Dark">
         <item name="android:clickable">true</item>
         <!--        <item name="android:focusable">true</item>-->
-        <item name="android:padding">@dimen/layout_size_4_tiny</item>
+        <!--        <item name="android:padding">@dimen/layout_size_4_tiny</item>-->
         <item name="android:layout_margin">@dimen/layout_size_4_tiny</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -420,6 +445,50 @@
         <!--        <item name="android:textColor">@color/your_text_color</item>-->
         <!--        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Medium</item>-->
         <item name="android:background">@color/light_blue</item>
+    </style>
+
+
+    <style name="SeekBar.Toolbox.Dark" parent="Widget.AppCompat.SeekBar">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!--        <item name="android:progressDrawable">@drawable/seekbar_progress</item>-->
+        <item name="android:progressDrawable">@color/mid_gray</item>
+        <item name="android:paddingVertical">@dimen/layout_size_2_footnote</item>
+        <item name="android:maxHeight">@dimen/layout_size_4_tiny</item>
+    </style>
+
+
+    <style name="WebView.Toolbox.Dark" parent="Theme.Toolbox.Dark">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:scrollbarStyle">insideOverlay</item>
+        <item name="android:fadeScrollbars">true</item>
+    </style>
+
+
+    <!--  分页指示器  -->
+    <style name="TabLayoutTextAppearance.Toolbox.Dark" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">@dimen/text_size_0_normal</item>
+    </style>
+
+    <style name="TabLayout.Toolbox.Dark" parent="Widget.Material3.TabLayout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <!--        <item name="tabGravity">center</item>-->
+        <!--        <item name="tabMode">fixed</item>-->
+        <!--        <item name="tabMinWidth">0dp</item>-->
+        <!--        <item name="tabPaddingTop">0dp</item>-->
+        <!--        <item name="tabPaddingEnd">4dp</item>-->
+        <item name="tabTextColor">@color/mid_gray</item>
+        <item name="tabTextAppearance">@style/TabLayoutTextAppearance.Toolbox.Dark</item>
+        <item name="tabSelectedTextColor">@color/white</item>
+        <!--        <item name="tabSelectedTextAppearance">@style/TabLayoutTextAppearance.Toolbox.Dark</item>-->
+    </style>
+
+    <style name="TabLayout.Dot.Toolbox.Dark" parent="Theme.Toolbox.Dark">
+        <item name="android:layout_marginTop">@dimen/layout_size_2.5_script</item>
+        <item name="android:layout_width">@dimen/layout_size_2_footnote</item>
+        <item name="android:layout_height">@dimen/layout_size_2_footnote</item>
     </style>
 
 

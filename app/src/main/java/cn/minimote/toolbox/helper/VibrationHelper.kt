@@ -12,19 +12,24 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import android.provider.Settings
+import cn.minimote.toolbox.viewModel.ToolboxViewModel
+import cn.minimote.toolbox.viewModel.ToolboxViewModel.Companion.ConfigKeys
+import cn.minimote.toolbox.viewModel.ToolboxViewModel.Companion.ConfigValues.VibrationMode
 
 
 object VibrationHelper {
 
+
     // 点击时震动
     fun vibrateOnClick(
         context: Context,
+        viewModel: ToolboxViewModel,
         milliseconds: Long = 100L,
     ) {
         val vibrator = getVibrator(context)
         if(enableVibration(
-                vibrator = vibrator,
-                context = context,
+                vibrator = vibrator, context = context,
+                viewModel = viewModel
             )
         ) {
             clickVibration(vibrator, milliseconds)
@@ -45,23 +50,27 @@ object VibrationHelper {
     }
 
 
-    // 判断是否有振动器以及是否开启系统振动
+    // 判断是否有振动器以及是否允许振动
     private fun enableVibration(
         vibrator: Vibrator,
         context: Context,
+        viewModel: ToolboxViewModel,
     ): Boolean {
-//        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        // 判断设备是否处于静音模式(静音模式不振动)
-//        Toast.makeText(context, "${audioManager.ringerMode}", Toast.LENGTH_SHORT).show()
-//        if(audioManager.ringerMode == AudioManager.RINGER_MODE_SILENT) {
-//            return false
-//        }
-        return vibrator.hasVibrator() && isSystemVibrationEnabled(context)
+        val vibrationMode = ConfigHelper.getConfigValue(
+            key = ConfigKeys.VIBRATION_MODE,
+            viewModel = viewModel,
+        ) as String
+        if(!vibrator.hasVibrator() || vibrationMode == VibrationMode.OFF) {
+            return false
+        }
+        return vibrationMode == VibrationMode.ON || systemVibrationEnabled(context)
     }
 
 
     // 判断是否开启了系统振动
-    private fun isSystemVibrationEnabled(context: Context): Boolean {
+    private fun systemVibrationEnabled(
+        context: Context
+    ): Boolean {
         val contentResolver: ContentResolver = context.contentResolver
         val tagSet: MutableList<Int> = mutableListOf(
             // 跟随手机系统振动(默认振动)
@@ -90,6 +99,28 @@ object VibrationHelper {
 //            vibrator.vibrate(vibrationEffect, vibrationAttributes)
 //        }
         vibrator.vibrate(vibrationEffect)
+    }
+
+
+    // 获取振动模式对应的字符串
+    fun getVibrationModeString(context: Context, vibrationMode: String): String {
+        return when(vibrationMode) {
+            VibrationMode.ON -> {
+                context.getString(cn.minimote.toolbox.R.string.vibration_mode_on)
+            }
+
+            VibrationMode.OFF -> {
+                context.getString(cn.minimote.toolbox.R.string.vibration_mode_off)
+            }
+
+            VibrationMode.AUTO -> {
+                context.getString(cn.minimote.toolbox.R.string.vibration_mode_auto)
+            }
+
+            else -> {
+                throw IllegalArgumentException("非法的振动模式：$vibrationMode")
+            }
+        }
     }
 
 }

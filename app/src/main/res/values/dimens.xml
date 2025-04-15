@@ -16,7 +16,9 @@
     <dimen name="layout_size_5_very_tiny">1dp</dimen>
     <dimen name="layout_size_4_tiny">2dp</dimen>
     <dimen name="layout_size_3_script">4dp</dimen>
+    <dimen name="layout_size_2.5_script">6dp</dimen>
     <dimen name="layout_size_2_footnote">8dp</dimen>
+    <dimen name="layout_size_1.5_footnote">12dp</dimen>
     <dimen name="layout_size_1_small">16dp</dimen>
     <dimen name="layout_size_0_normal">24dp</dimen>
     <dimen name="layout_size_1_large">32dp</dimen>

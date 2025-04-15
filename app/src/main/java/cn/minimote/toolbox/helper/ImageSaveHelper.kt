@@ -40,7 +40,7 @@ object ImageSaveHelper {
         var x = viewModel.screenWidth / 2
         var y = viewModel.screenHeight / 2
         imageView.setOnLongClickListener {
-            VibrationHelper.vibrateOnClick(context)
+            VibrationHelper.vibrateOnClick(context, viewModel)
             showPopupMenu(
                 imageView,
                 fileName,
@@ -67,7 +67,7 @@ object ImageSaveHelper {
 //        val gestureDetector =
 //            GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
 //                override fun onLongPress(e: MotionEvent) {
-//                    VibrationHelper.vibrateOnClick(context)
+//                    VibrationHelper.vibrateOnClick(context, viewModel)
 //                    showPopupMenu(
 //                        imageView,
 //                        fileName,
@@ -116,7 +116,7 @@ object ImageSaveHelper {
         // 设置菜单项点击事件
         val saveButton = popupView.findViewById<Button>(R.id.save_image)
         saveButton.setOnClickListener {
-            VibrationHelper.vibrateOnClick(context)
+            VibrationHelper.vibrateOnClick(context, viewModel)
             saveImage(
                 imageView = imageView,
                 fileName = fileName,

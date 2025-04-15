@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/ConstraintLayout.Toolbox.Dark">
+
+    <TextView
+        android:id="@+id/textView_check_update_frequency"
+        style="@style/TextView.Toolbox.Setting1.Dark"
+        android:text="@string/title_check_update_frequency"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView_next_check_time"
+        style="@style/TextView.Toolbox.Setting2.Dark"
+        android:text="@string/next_check_time"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textView_check_update_frequency" />
+
+    <SeekBar
+        android:id="@+id/seekBar"
+        style="@style/SeekBar.Toolbox.Dark"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textView_next_check_time" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

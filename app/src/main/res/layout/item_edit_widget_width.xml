@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/ConstraintLayout.Toolbox.Dark">
+
+    <TextView
+        android:id="@+id/textView_widgetWidth"
+        style="@style/TextView.Toolbox.EditOperateName.Dark"
+        android:gravity="start"
+        android:text="@string/widgetSize"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <TextView
+        android:id="@+id/textView_widgetSize_fraction"
+        style="@style/TextView.Toolbox.EditOperateName.Dark"
+        android:paddingStart="@dimen/layout_size_4_tiny"
+        android:paddingEnd="0dp"
+        android:text="@string/widgetSize_fraction"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/textView_widgetWidth"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <SeekBar
+        android:id="@+id/seekBar"
+        style="@style/SeekBar.Toolbox.Dark"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textView_widgetWidth" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -28,7 +28,7 @@ class SupportAuthorAdapter(
 ) : RecyclerView.Adapter<SupportAuthorAdapter.SupportAuthorViewHolder>() {
 
     private val supportAuthorList = viewModel.supportAuthorViewList
-    private val supportAuthorViewTypes = ToolboxViewModel.Constants.SupportAuthorViewTypes
+    private val supportAuthorViewTypes = ToolboxViewModel.Companion.ViewTypes.SupportAuthor
 
     inner class SupportAuthorViewHolder(
         itemView: View,
@@ -139,7 +139,7 @@ class SupportAuthorAdapter(
             holder.buttonGotoAlipay.visibility = View.GONE
         } else {
             holder.buttonGotoAlipay.setOnClickListener {
-                VibrationHelper.vibrateOnClick(context)
+                VibrationHelper.vibrateOnClick(context, viewModel)
                 gotoAlipay(context)
             }
         }
@@ -184,12 +184,12 @@ class SupportAuthorAdapter(
             holder.buttonOpenWechatScan.visibility = View.GONE
         } else {
             holder.buttonSaveWechatQR.setOnClickListener {
-                VibrationHelper.vibrateOnClick(context)
+                VibrationHelper.vibrateOnClick(context, viewModel)
                 saveWechatQR(context)
             }
 
             holder.buttonOpenWechatScan.setOnClickListener {
-                VibrationHelper.vibrateOnClick(context)
+                VibrationHelper.vibrateOnClick(context, viewModel)
                 openWechatScan(context)
             }
         }

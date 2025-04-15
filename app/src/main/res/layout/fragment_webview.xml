@@ -1,25 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    style="@style/ConstraintLayout.Toolbox.Clickable.Dark">
+    style="@style/ConstraintLayout.Toolbox.WebView.Dark">
 
-    <TextView
-        android:id="@+id/textView_supportAuthor"
-        style="@style/TextView.Toolbox.EditOperateName.Dark"
-        android:gravity="start"
-        android:text="@string/supportAuthor"
+    <WebView
+        android:id="@+id/webView"
+        style="@style/WebView.Toolbox.Dark"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/textView_enter"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/textView_enter"
-        style="@style/TextView.Toolbox.MyListDetail.Dark"
-        android:text="@string/right"
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="@style/ProgressBar.Toolbox.Dark"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView_supportAuthor"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

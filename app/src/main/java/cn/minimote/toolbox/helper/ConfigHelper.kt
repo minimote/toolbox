@@ -13,6 +13,7 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
+import java.util.TreeMap
 
 object ConfigHelper {
 
@@ -45,6 +46,15 @@ object ConfigHelper {
     }
 
 
+    // 清除用户配置文件
+    fun clearUserConfig(
+        viewModel: ToolboxViewModel,
+    ) {
+        viewModel.userConfig.clear()
+        viewModel.userConfigBackup.clear()
+    }
+
+
     // 更新配置的值
     fun updateConfigValue(
         key: String,
@@ -67,81 +77,90 @@ object ConfigHelper {
     // 加载配置文件
     fun loadConfig(
         context: Context,
-        configName: String,
-    ): MutableMap<String, Any> {
-        return when(configName) {
-            ConfigName.DEFAULT_CONFIG -> loadDefaultConfig(context)
-            ConfigName.USER_CONFIG -> loadUserConfig(context)
-            else -> mutableMapOf()
-        }
-    }
-
-
-    // 加载默认配置文件
-    private fun loadDefaultConfig(context: Context): MutableMap<String, Any> {
+        userConfigFlag: Boolean,
+    ): TreeMap<String, Any> {
         return try {
-            val inputStream = context.assets.open(ConfigName.DEFAULT_CONFIG)
+            val inputStream = if(userConfigFlag) {
+                FileInputStream(File(context.filesDir, ConfigName.USER_CONFIG))
+            } else {
+                context.assets.open(ConfigName.DEFAULT_CONFIG)
+            }
             val size = inputStream.available()
             val buffer = ByteArray(size)
             inputStream.read(buffer)
             inputStream.close()
             val json = String(buffer, ENCODING)
-            JSONObject(json).toMutableMap()
+            JSONObject(json).toTreeMap()
         } catch(e: Exception) {
             e.printStackTrace()
-            mutableMapOf()
-        }
-    }
-
-
-    // 加载用户配置文件
-    private fun loadUserConfig(
-        context: Context,
-    ): MutableMap<String, Any> {
-        val userConfigFile = File(context.filesDir, ConfigName.USER_CONFIG)
-//        if(!userConfigFile.exists()) {
-//            return mutableMapOf()
-//        }
-        return try {
-            val inputStream = FileInputStream(userConfigFile)
-            val size = inputStream.available()
-            val buffer = ByteArray(size)
-            inputStream.read(buffer)
-            inputStream.close()
-            val json = String(buffer, ENCODING)
-            JSONObject(json).toMutableMap()
-        } catch(e: Exception) {
-            e.printStackTrace()
-            mutableMapOf()
+            TreeMap<String, Any>()
         }
     }
 
 
     // 保存用户配置文件
     fun saveUserConfig(
-        context: Context,
-        config: Map<String, Any>,
+        viewModel: ToolboxViewModel,
     ) {
+        val context = viewModel.myContext
         val userConfigFile = File(context.filesDir, ConfigName.USER_CONFIG)
         try {
+            val config = viewModel.userConfig.toMap()
             val jsonString = JSONObject(config).toString()
             val outputStream = FileOutputStream(userConfigFile)
             outputStream.write(jsonString.toByteArray(ENCODING))
             outputStream.close()
+            backupUserConfig(viewModel)
         } catch(e: Exception) {
             e.printStackTrace()
         }
     }
 
 
+    // 更新
+    fun updateSettingWasModified(viewModel: ToolboxViewModel) {
+        val flag = viewModel.userConfig != viewModel.userConfigBackup
+//        Toast.makeText(
+//            viewModel.myContext,
+//            "user=${viewModel.userConfig.size}, back=${viewModel.userConfigBackup.size}",
+//            Toast.LENGTH_SHORT,
+//        ).show()
+        if(flag != viewModel.settingWasModified.value) {
+            viewModel.settingWasModified.value = flag
+        }
+    }
+
+
+    // 备份用户配置文件
+    private fun backupUserConfig(
+        viewModel: ToolboxViewModel,
+    ) {
+        viewModel.userConfigBackup = TreeMap(viewModel.userConfig)
+        if(viewModel.settingWasModified.value != false) {
+            viewModel.settingWasModified.value = false
+        }
+    }
+
+
+    // 恢复用户配置文件
+    fun restoreUserConfig(
+        viewModel: ToolboxViewModel,
+    ) {
+        viewModel.userConfig = TreeMap(viewModel.userConfigBackup)
+//        if(viewModel.settingWasModified.value != false) {
+//            viewModel.settingWasModified.value = false
+//        }
+    }
+
+
     // 将JSONObject转换为Map
-    private fun JSONObject.toMutableMap(): MutableMap<String, Any> {
-        val map = mutableMapOf<String, Any>()
+    private fun JSONObject.toTreeMap(): TreeMap<String, Any> {
+        val map = TreeMap<String, Any>()
         val keysItr = this.keys()
         while(keysItr.hasNext()) {
             val key = keysItr.next()
             val value = when(val value = this[key]) {
-                is JSONObject -> value.toMutableMap()
+                is JSONObject -> value.toTreeMap()
                 else -> value
             }
             map[key] = value

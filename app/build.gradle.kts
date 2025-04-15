@@ -19,7 +19,7 @@ android {
         targetSdk = 35
 
         // 版本号
-        val versionCodeList = listOf(1, 0, 1)
+        val versionCodeList = listOf(1, 1, 0)
         var versionCodeCombined = 0
         for(x in versionCodeList) {
             // 每位的取值范围是 0 ~ 99
@@ -33,7 +33,7 @@ android {
         // 使用当前时间动态设置版本名
         val formatter = DateTimeFormatter.ofPattern("yyMMdd.HHmmss")
         val dateTime = LocalDateTime.now().format(formatter)
-        versionName = versionCodeList.joinToString(".") + "+" + dateTime
+        versionName = versionCodeList.joinToString(".") + "-" + dateTime
 //        versionName = "1.0.1+$dateTime"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

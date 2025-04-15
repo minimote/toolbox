@@ -16,19 +16,18 @@ import cn.minimote.toolbox.R
 import cn.minimote.toolbox.fragment.AboutProjectFragment
 import cn.minimote.toolbox.fragment.ActivityListFragment
 import cn.minimote.toolbox.fragment.EditListFragment
+import cn.minimote.toolbox.fragment.SettingFragment
 import cn.minimote.toolbox.fragment.SupportAuthorFragment
+import cn.minimote.toolbox.fragment.WebViewFragment
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
+import cn.minimote.toolbox.viewModel.ToolboxViewModel.Companion.FragmentNames
 
 
 object FragmentHelper {
 
-    private val fragmentNames = ToolboxViewModel.Constants.FragmentNames
-    // 需要新建的 Fragment
-    private val newFragmentSet = setOf(
-        fragmentNames.SUPPORT_AUTHOR_FRAGMENT,
-        fragmentNames.ACTIVITY_LIST_FRAGMENT,
-        fragmentNames.EDIT_LIST_FRAGMENT,
-        fragmentNames.ABOUT_PROJECT_FRAGMENT,
+    // 不需要新建的 Fragment
+    private val nonCreatableFragments = setOf(
+        FragmentNames.WIDGET_LIST_FRAGMENT,
     )
 
     fun switchFragment(
@@ -39,23 +38,31 @@ object FragmentHelper {
         constraintLayoutOrigin: ConstraintLayout? = null,
         containerId: Int = R.id.constraintLayout_origin,
     ) {
-        if(fragmentName in newFragmentSet) {
+        if(fragmentName !in nonCreatableFragments) {
             val transaction = fragmentManager.beginTransaction()
             val fragment = when(fragmentName) {
-                fragmentNames.ACTIVITY_LIST_FRAGMENT -> {
+                FragmentNames.ACTIVITY_LIST_FRAGMENT -> {
                     ActivityListFragment()
                 }
 
-                fragmentNames.EDIT_LIST_FRAGMENT -> {
+                FragmentNames.EDIT_LIST_FRAGMENT -> {
                     EditListFragment()
                 }
 
-                fragmentNames.SUPPORT_AUTHOR_FRAGMENT -> {
+                FragmentNames.SUPPORT_AUTHOR_FRAGMENT -> {
                     SupportAuthorFragment()
                 }
 
-                fragmentNames.ABOUT_PROJECT_FRAGMENT -> {
+                FragmentNames.ABOUT_PROJECT_FRAGMENT -> {
                     AboutProjectFragment()
+                }
+
+                FragmentNames.SETTING_FRAGMENT -> {
+                    SettingFragment()
+                }
+
+                FragmentNames.WEB_VIEW_FRAGMENT -> {
+                    WebViewFragment()
                 }
 
                 else -> {
@@ -89,7 +96,7 @@ object FragmentHelper {
         val fragmentName = viewModel.getFragmentName()
 //        Log.e("returnFragment", fragmentName)
         when(fragmentName) {
-            fragmentNames.WIDGET_LIST_FRAGMENT -> {
+            FragmentNames.WIDGET_LIST_FRAGMENT -> {
                 // 退出编辑模式
                 if(viewModel.editMode.value == true) {
                     viewModel.editMode.value = false
@@ -102,7 +109,7 @@ object FragmentHelper {
                 }
             }
 
-            fragmentNames.ACTIVITY_LIST_FRAGMENT -> {
+            FragmentNames.ACTIVITY_LIST_FRAGMENT -> {
                 // 如果处于搜索模式，则仅退出搜索模式
                 if(viewModel.searchMode.value == true) {
                     viewModel.searchMode.value = false
@@ -110,7 +117,7 @@ object FragmentHelper {
                 }
             }
 
-            fragmentNames.EDIT_LIST_FRAGMENT -> {
+            FragmentNames.EDIT_LIST_FRAGMENT -> {
                 // 从编辑界面返回时剩余组件为空，则退出编辑模式
                 if(viewModel.storedActivityList.value?.size == 0) {
                     viewModel.editMode.value = false
@@ -141,7 +148,7 @@ object FragmentHelper {
             )
 //            Log.e("FragmentHelper", fragmentName)
             // 返回组件列表
-            viewModel.updateFragmentName(fragmentNames.WIDGET_LIST_FRAGMENT)
+            viewModel.updateFragmentName(FragmentNames.WIDGET_LIST_FRAGMENT)
         } else {
             activity.finish()
         }

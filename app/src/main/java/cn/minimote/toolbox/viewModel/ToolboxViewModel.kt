@@ -22,8 +22,8 @@ import androidx.lifecycle.viewModelScope
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.dataClass.InstalledActivity
 import cn.minimote.toolbox.dataClass.StoredActivity
+import cn.minimote.toolbox.helper.CheckUpdateHelper
 import cn.minimote.toolbox.helper.ConfigHelper
-import cn.minimote.toolbox.helper.ConfigHelper.ConfigName
 import cn.minimote.toolbox.helper.IconCacheHelper
 import cn.minimote.toolbox.helper.InstalledActivityHelper
 import cn.minimote.toolbox.helper.StoredActivityHelper
@@ -32,6 +32,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.text.Collator
 import java.util.Locale
+import java.util.TreeMap
 import javax.inject.Inject
 import kotlin.math.min
 
@@ -42,6 +43,31 @@ class ToolboxViewModel
     application: Application,
 //    private val iconCacheManager: IconCacheManager,
 ) : AndroidViewModel(application) {
+
+    // 获取上下文
+    val myContext: Context get() = getApplication<Application>().applicationContext
+
+
+    // 获取 PackageManager
+    private val myPackageManager: PackageManager = myContext.packageManager
+
+
+    // 获取应用名
+    val myAppName: String = myContext.applicationInfo.loadLabel(myPackageManager).toString()
+
+
+    // 获取包名
+    val myPackageName: String = myContext.packageName
+
+
+    // 获取版本号
+    val myVersionName: String = myPackageManager.getPackageInfo(
+        myContext.packageName, 0
+    ).versionName ?: getString(myContext, R.string.unknown)
+
+
+    // 获取作者名
+    val myAuthorName: String = getString(myContext, R.string.author_name)
 
     private val iconCacheHelper: IconCacheHelper = IconCacheHelper(myContext)
 
@@ -55,7 +81,7 @@ class ToolboxViewModel
     var screenWidth = 0
     var screenHeight = 0
     // 屏幕短边
-    var screenShortSide = 0
+    private var screenShortSide = 0
     var imageSize = 0
 
     // 最后一个推荐活动的名称(用于画分隔线)
@@ -82,16 +108,6 @@ class ToolboxViewModel
 
     private val _installActivityMap = mutableMapOf<String, InstalledActivity>()
 
-    // 配置文件
-    var defaultConfig = ConfigHelper.loadConfig(
-        context = myContext,
-        configName = ConfigName.DEFAULT_CONFIG,
-    )
-    var userConfig = ConfigHelper.loadConfig(
-        context = myContext,
-        configName = ConfigName.USER_CONFIG,
-    )
-
     // 修改组件
     var originWidget = MutableLiveData<StoredActivity>()
     var modifiedWidget = MutableLiveData<StoredActivity>()
@@ -102,46 +118,63 @@ class ToolboxViewModel
     // 中文排序器
     private val collator: Collator = Collator.getInstance(Locale.CHINA)
 
-    companion object Constants {
+    // WebView 网址
+    var webViewUrl = ""
 
-        // 编辑视图类型
-        object EditViewTypes {
-            const val EDIT_VIEW_TYPE_PACKAGE_NAME = 0
-            const val EDIT_VIEW_TYPE_ACTIVITY_NAME = 1
-            const val EDIT_VIEW_TYPE_NICKNAME = 2
-            const val EDIT_VIEW_TYPE_SHOW_NAME = 3
-            const val EDIT_VIEW_TYPE_SIZE = 4
-            const val EDIT_VIEW_TYPE_DELETE = 5
+    companion object {
+
+        // 视图类型
+        object ViewTypes {
+            // 编辑视图类型
+            object Edit {
+                const val PACKAGE_NAME = 0
+                const val ACTIVITY_NAME = 1
+                const val NICKNAME = 2
+                const val SHOW_NAME = 3
+                const val SIZE = 4
+                const val DELETE = 5
+            }
+
+            // 我的视图类型
+            object My {
+                const val APP_INFO = 0
+                const val CLEAR_CACHE = 1
+                const val CLEAR_DATA = 2
+                const val SUPPORT_AUTHOR = 3
+                const val ABOUT_PROJECT = 4
+                const val CHECK_UPDATE = 5
+                const val SETTING = 6
+                const val INSTRUCTION = 7
+                const val UPDATE_LOG = 8
+                const val PROBLEM_FEEDBACK = 9
+            }
+
+            // 支持作者视图类型
+            object SupportAuthor {
+                const val WELCOME = 0
+                const val NOTICE = 1
+                const val QR_ALIPAY = 2
+                const val OPERATE_ALIPAY = 3
+                const val QR_WECHAT = 4
+                const val OPERATE_WECHAT = 5
+            }
+
+            // 关于项目视图类型
+            object AboutProject {
+                const val NOTICE = 0
+                const val PROJECT_PATH_NAME = 1
+                const val PROJECT_PATH_GITEE = 2
+                const val PROJECT_PATH_GITHUB = 3
+            }
+
+            // 设置视图类型
+            object Setting {
+                const val TITLE_CHECK_UPDATE = 0
+                const val UPDATE_CHECK_FREQUENCY = 1
+                const val TITLE_VIBRATION = 2
+                const val VIBRATION_MODE = 3
+            }
         }
-
-        // 我的视图类型
-        object MyViewTypes {
-            const val APP_INFO = 0
-            const val CLEAR_CACHE = 1
-            const val CLEAR_DATA = 2
-            const val SUPPORT_AUTHOR = 3
-            const val ABOUT_PROJECT = 4
-        }
-
-        // 支持作者视图类型
-        object SupportAuthorViewTypes {
-            const val WELCOME = 0
-            const val NOTICE = 1
-            const val QR_ALIPAY = 2
-            const val OPERATE_ALIPAY = 3
-            const val QR_WECHAT = 4
-            const val OPERATE_WECHAT = 5
-        }
-
-
-        // 关于项目视图类型
-        object AboutProjectViewTypes {
-            const val NOTICE = 0
-            const val PROJECT_PATH_NAME = 1
-            const val PROJECT_PATH_GITEE = 2
-            const val PROJECT_PATH_GITHUB = 3
-        }
-
 
         // Fragment 名称
         object FragmentNames {
@@ -151,13 +184,9 @@ class ToolboxViewModel
             const val ACTIVITY_LIST_FRAGMENT = "ActivityListFragment"
             const val SUPPORT_AUTHOR_FRAGMENT = "SupportAuthorFragment"
             const val ABOUT_PROJECT_FRAGMENT = "AboutProjectFragment"
-        }
-
-        // Fragment 序号
-        object FragmentPositions {
-            const val SIZE = 2
-            const val WIDGET_LIST_FRAGMENT = 0
-            const val MY_LIST_FRAGMENT = 1
+            const val MY_LIST_FRAGMENT = "MyListFragment"
+            const val SETTING_FRAGMENT = "SettingFragment"
+            const val WEB_VIEW_FRAGMENT = "WebViewFragment"
         }
 
         // 设备类型
@@ -169,61 +198,149 @@ class ToolboxViewModel
 
         // 配置的键
         object ConfigKeys {
+            // 上次检查更新时间
+            const val LAST_CHECK_UPDATE_TIME = "last_check_update_time"
+            // 振动模式
             const val VIBRATION_MODE = "vibration_mode"
+            // 更新检查频率
+            const val CHECK_UPDATE_FREQUENCY = "check_update_frequency"
         }
 
         // 配置的值
         object ConfigValues {
-            const val VIBRATION_MODE_ON = "on"
-            const val VIBRATION_MODE_OFF = "off"
-            const val VIBRATION_MODE_AUTO = "auto"
+            // 振动模式：自动、启用、关闭
+            object VibrationMode {
+                const val AUTO = "auto"
+                const val ON = "on"
+                const val OFF = "off"
+            }
+
+            // 更新检查频率：每天、每周、每月、从不
+            object CheckUpdateFrequency {
+                const val DAILY = "daily"
+                const val WEEKLY = "weekly"
+                const val MONTHLY = "monthly"
+                const val NEVER = "never"
+            }
         }
+
     }
+
+    // 更新检查频率列表
+    val checkUpdateFrequencyList = listOf(
+        ConfigValues.CheckUpdateFrequency.DAILY,
+        ConfigValues.CheckUpdateFrequency.WEEKLY,
+        ConfigValues.CheckUpdateFrequency.MONTHLY,
+        ConfigValues.CheckUpdateFrequency.NEVER,
+    )
+
+    // 振动模式列表
+    val vibrationModeList = listOf(
+        ConfigValues.VibrationMode.ON,
+        ConfigValues.VibrationMode.AUTO,
+        ConfigValues.VibrationMode.OFF,
+    )
+
+    // viewPaper 的 Fragment 列表
+    val viewPaperFragmentList = listOf(
+        FragmentNames.WIDGET_LIST_FRAGMENT,
+        FragmentNames.MY_LIST_FRAGMENT,
+    )
+    // viewPaper 的 Fragment 名称列表
+    val viewPaperFragmentNameList = listOf(
+        myContext.getString(R.string.fragment_name_widget_list),
+        myContext.getString(R.string.fragment_name_my_list),
+    )
+
 
     // 编辑列表
 //    val editViewTypes = EditViewTypes
     val editList = listOf(
-        EditViewTypes.EDIT_VIEW_TYPE_PACKAGE_NAME, // 包名
-        EditViewTypes.EDIT_VIEW_TYPE_ACTIVITY_NAME, // 活动名
-        EditViewTypes.EDIT_VIEW_TYPE_NICKNAME, // 显示的名称
-        EditViewTypes.EDIT_VIEW_TYPE_SHOW_NAME, // 是否显示名称
-        EditViewTypes.EDIT_VIEW_TYPE_SIZE, // 组件大小
-        EditViewTypes.EDIT_VIEW_TYPE_DELETE, // 删除组件
+        ViewTypes.Edit.PACKAGE_NAME, // 包名
+        ViewTypes.Edit.ACTIVITY_NAME, // 活动名
+        ViewTypes.Edit.NICKNAME, // 显示的名称
+        ViewTypes.Edit.SHOW_NAME, // 是否显示名称
+        ViewTypes.Edit.SIZE, // 组件大小
+        ViewTypes.Edit.DELETE, // 删除组件
     )
 
     // 我的列表
 //    private val myViewTypes = MyViewTypes
     val myList = listOf(
-        MyViewTypes.APP_INFO, // 应用信息
-        MyViewTypes.CLEAR_CACHE, // 清理缓存
-        MyViewTypes.CLEAR_DATA, // 清除数据
-        MyViewTypes.SUPPORT_AUTHOR, // 支持作者
-        MyViewTypes.ABOUT_PROJECT, // 关于项目
+        ViewTypes.My.APP_INFO, // 应用信息
+        ViewTypes.My.CLEAR_CACHE, // 清理缓存
+        ViewTypes.My.CLEAR_DATA, // 清除数据
+        ViewTypes.My.SETTING, // 设置
+        ViewTypes.My.SUPPORT_AUTHOR, // 支持作者
+        ViewTypes.My.ABOUT_PROJECT, // 关于项目
+        ViewTypes.My.INSTRUCTION, // 使用说明
+        ViewTypes.My.UPDATE_LOG, // 更新日志,
+        ViewTypes.My.PROBLEM_FEEDBACK, // 问题反馈
+        ViewTypes.My.CHECK_UPDATE, // 检查更新
     )
 
     // 支持作者
 //    private val supportAuthorViewTypes = SupportAuthorViewTypes
     val supportAuthorViewList = listOf(
-        SupportAuthorViewTypes.WELCOME, // 欢迎
-        SupportAuthorViewTypes.NOTICE, // 说明
-        SupportAuthorViewTypes.QR_ALIPAY, // 支付宝收款码
-        SupportAuthorViewTypes.OPERATE_ALIPAY, // 支付宝相关操作
-        SupportAuthorViewTypes.QR_WECHAT, // 微信收款码
-        SupportAuthorViewTypes.OPERATE_WECHAT, // 微信相关操作
+        ViewTypes.SupportAuthor.WELCOME, // 欢迎
+        ViewTypes.SupportAuthor.NOTICE, // 说明
+        ViewTypes.SupportAuthor.QR_ALIPAY, // 支付宝收款码
+        ViewTypes.SupportAuthor.OPERATE_ALIPAY, // 支付宝相关操作
+        ViewTypes.SupportAuthor.QR_WECHAT, // 微信收款码
+        ViewTypes.SupportAuthor.OPERATE_WECHAT, // 微信相关操作
     )
-
 
     // 关于项目
     val aboutProjectViewList = listOf(
-        AboutProjectViewTypes.NOTICE, // 说明
-        AboutProjectViewTypes.PROJECT_PATH_NAME, // 项目地址
-        AboutProjectViewTypes.PROJECT_PATH_GITEE, // Gitee 地址
-        AboutProjectViewTypes.PROJECT_PATH_GITHUB, // Github 地址
+        ViewTypes.AboutProject.NOTICE, // 说明
+        ViewTypes.AboutProject.PROJECT_PATH_NAME, // 项目地址
+        ViewTypes.AboutProject.PROJECT_PATH_GITEE, // Gitee 地址
+        ViewTypes.AboutProject.PROJECT_PATH_GITHUB, // Github 地址
+    )
+
+    // 设置
+    val settingViewList = listOf(
+        ViewTypes.Setting.TITLE_CHECK_UPDATE, // 更新设置的标题
+        ViewTypes.Setting.UPDATE_CHECK_FREQUENCY, // 更新检查频率
+        ViewTypes.Setting.TITLE_VIBRATION, // 振动设置的标题
+        ViewTypes.Setting.VIBRATION_MODE, // 振动模式
     )
 
 
+    // 上次更新检查时间
+    val lastUpdateCheckTime: Long
+        get() = ConfigHelper.getConfigValue(
+            key = ConfigKeys.LAST_CHECK_UPDATE_TIME,
+            viewModel = this,
+        )?.toString()?.toLongOrNull() ?: 0L
+
+    // 检查更新间隔
+    val updateCheckGap: Long
+        get() = CheckUpdateHelper.getUpdateCheckGap(
+            ConfigHelper.getConfigValue(
+                key = ConfigKeys.CHECK_UPDATE_FREQUENCY,
+                viewModel = this,
+            ).toString()
+        )
+
+    // 下次更新检查时间
+    val nextUpdateCheckTime: Long
+        get() = lastUpdateCheckTime + updateCheckGap
+
+
+    // 配置文件
+    var defaultConfig: TreeMap<String, Any> =
+        ConfigHelper.loadConfig(context = myContext, userConfigFlag = false)
+    var userConfig: TreeMap<String, Any> =
+        ConfigHelper.loadConfig(context = myContext, userConfigFlag = true)
+    var userConfigBackup: TreeMap<String, Any> = TreeMap(userConfig)
+
+    // 设置已经被修改
+    val settingWasModified: MutableLiveData<Boolean> = MutableLiveData()
+
+
     //    private val fragmentNames = FragmentNames
-    val configKeys = ConfigKeys
+//    val configKeys = ConfigKeys
 
 
     // 默认就是组件列表
@@ -231,60 +348,46 @@ class ToolboxViewModel
     val fragmentName: LiveData<String> = _fragmentName
 
     // 保存路径
+//    val savePath = File(
+//        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+//        myContext.getString(R.string.app_name_en),
+//    )
     val savePath = File(
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
         myContext.getString(R.string.app_name_en),
-    )
+    ).apply {
+        if(!exists()) {
+            mkdirs()
+        }
+    }
 
     // 首页拖动场景使用
-    var widgetListOrderWasModified = MutableLiveData(false)
+    var widgetListOrderWasModified: MutableLiveData<Boolean> = MutableLiveData()
     // 首页排序使用
-    var widgetListWasSorted = MutableLiveData(false)
+    var widgetListWasSorted: MutableLiveData<Boolean> = MutableLiveData()
     // 编辑列表和活动列表共用
-    var widgetListSizeWasModified = MutableLiveData(false)
+    var widgetListSizeWasModified: MutableLiveData<Boolean> = MutableLiveData()
     // 编辑列表使用
-    var widgetWasModified = MutableLiveData(false)
-    var widgetNameWasModified = MutableLiveData(false)
-    private var widgetShowNameWasModified = MutableLiveData(false)
-    var widgetSizeWasModified = MutableLiveData(false)
+    var widgetWasModified: MutableLiveData<Boolean> = MutableLiveData()
+    var widgetNameWasModified: MutableLiveData<Boolean> = MutableLiveData()
+    private var widgetShowNameWasModified: MutableLiveData<Boolean> = MutableLiveData()
+    var widgetSizeWasModified: MutableLiveData<Boolean> = MutableLiveData()
 
 
-    var editMode = MutableLiveData(false)
-    var searchMode = MutableLiveData(false)
-
-
-    // 获取上下文
-    val myContext: Context get() = getApplication<Application>().applicationContext
-
-
-    // 获取 PackageManager
-    private val myPackageManager: PackageManager get() = myContext.packageManager
-
-
-    // 获取应用名
-    val myAppName: String get() = myContext.applicationInfo.loadLabel(myPackageManager).toString()
-
-
-    // 获取包名
-    val myPackageName: String get() = myContext.packageName
-
-
-    // 获取版本号
-    val myVersionName: String
-        get() = myPackageManager.getPackageInfo(
-            myContext.packageName, 0
-        ).versionName ?: getString(myContext, R.string.unknown)
-
-
-    // 获取作者名
-    val myAuthorName: String
-        get() = getString(myContext, R.string.author_name)
+    var editMode: MutableLiveData<Boolean> = MutableLiveData(false)
+    var searchMode: MutableLiveData<Boolean> = MutableLiveData()
 
 
     // 判断设备是否为手表
     fun isWatch(): Boolean {
         val uiMode = myContext.resources.configuration.uiMode
         return uiMode and Configuration.UI_MODE_TYPE_MASK == Configuration.UI_MODE_TYPE_WATCH
+    }
+
+    // 将 dp 转换为 px
+    fun dpToPx(dp: Float): Int {
+        val density = myContext.resources.displayMetrics.density
+        return (dp * density).toInt()
     }
 
 
@@ -373,24 +476,6 @@ class ToolboxViewModel
         if(widgetSizeWasModified.value != flag) {
             widgetSizeWasModified.value = flag
         }
-    }
-
-
-    // 获取配置的值
-    fun getConfigValue(key: String): Any? {
-        return ConfigHelper.getConfigValue(key, this)
-    }
-
-
-    // 更新配置的值
-    fun updateConfigValue(key: String, value: Any) {
-        ConfigHelper.updateConfigValue(key, value, this)
-    }
-
-
-    // 保存配置文件
-    fun saveUserConfig() {
-        ConfigHelper.saveUserConfig(myContext, userConfig)
     }
 
 
@@ -576,17 +661,17 @@ class ToolboxViewModel
             val appName = resolveInfo.activityInfo.loadLabel(myPackageManager).toString()
             val packageName = applicationInfo.packageName
             val activityName = resolveInfo.activityInfo.name
-            if(packageName == myPackageName) {
-                // 不能启动自己，防止出错
-//                Log.e(myPackageName, "获取包名：$packageName")
-                null
-            } else {
-                InstalledActivity(
-                    appName = appName,
-                    packageName = packageName,
-                    activityName = activityName,
-                )
-            }
+//            if(packageName == myPackageName) {
+//                // 不能启动自己，防止出错
+////                Log.e(myPackageName, "获取包名：$packageName")
+//                null
+//            } else {
+            InstalledActivity(
+                appName = appName,
+                packageName = packageName,
+                activityName = activityName,
+            )
+//            }
 
         }.sortedWith(compareBy(collator) { it.appName })
 
@@ -694,11 +779,11 @@ class ToolboxViewModel
     }
 
 
-    // 判断活动是否被存储
-    fun isStoredActivity(activityName: String): Boolean {
-//        Log.i("ActivityViewModel", "${activityName},${_activityNameToStorageActivityMap.size}")
-        return activityName in _storageActivityMap
-    }
+//    // 判断活动是否被存储
+//    fun isStoredActivity(activityName: String): Boolean {
+////        Log.i("ActivityViewModel", "${activityName},${_activityNameToStorageActivityMap.size}")
+//        return activityName in _storageActivityMap
+//    }
 
 
     // 判断活动是否被在修改大小的字典中
@@ -827,4 +912,5 @@ class ToolboxViewModel
 //            packageName, PackageManager.GET_ACTIVITIES
 //        ).activities?.filter { it.exported } ?: emptyList() // 过滤出被导出的Activity
 //    }
+
 }

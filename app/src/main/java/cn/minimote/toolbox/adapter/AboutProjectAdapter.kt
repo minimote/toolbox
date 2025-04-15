@@ -7,13 +7,13 @@ package cn.minimote.toolbox.adapter
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.helper.ClipboardHelper
@@ -28,7 +28,7 @@ class AboutProjectAdapter(
 ) : RecyclerView.Adapter<AboutProjectAdapter.SupportAuthorViewHolder>() {
 
     private val aboutProjectViewList = viewModel.aboutProjectViewList
-    private val aboutProjectViewTypes = ToolboxViewModel.Constants.AboutProjectViewTypes
+    private val aboutProjectViewTypes = ToolboxViewModel.Companion.ViewTypes.AboutProject
 
     inner class SupportAuthorViewHolder(
         itemView: View,
@@ -120,7 +120,7 @@ class AboutProjectAdapter(
     // 打开网址
     private fun openUrl(url: String) {
         try {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            val intent = Intent(Intent.ACTION_VIEW, url.toUri())
             context.startActivity(intent)
         } catch(e: Exception) {
             Toast.makeText(
@@ -136,12 +136,12 @@ class AboutProjectAdapter(
     private fun setTextViewUrl(textViewURL: TextView, url: String) {
         // 单击打开网址
         textViewURL.setOnClickListener {
-            VibrationHelper.vibrateOnClick(context)
+            VibrationHelper.vibrateOnClick(context, viewModel)
             openUrl(url)
         }
         // 长按复制到剪贴板
         textViewURL.setOnLongClickListener {
-            VibrationHelper.vibrateOnClick(context)
+            VibrationHelper.vibrateOnClick(context, viewModel)
             ClipboardHelper.copyToClipboard(
                 context = context,
                 text = textViewURL.text.toString(),

@@ -25,6 +25,7 @@ import cn.minimote.toolbox.R
 import cn.minimote.toolbox.adapter.WidgetListAdapter
 import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
+import cn.minimote.toolbox.viewModel.ToolboxViewModel.Companion.FragmentNames
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -49,7 +50,6 @@ class WidgetListFragment(
     // 主视图小组件的列数
     private var spanCount = 0
 
-    private val fragmentNames = ToolboxViewModel.Constants.FragmentNames
 
     // 观察者
 //    private lateinit var widgetListOrderWasModifiedObserver: Observer<Boolean>
@@ -180,7 +180,7 @@ class WidgetListFragment(
                 viewHolder: RecyclerView.ViewHolder,
                 target: RecyclerView.ViewHolder
             ): Boolean {
-                VibrationHelper.vibrateOnClick(context)
+                VibrationHelper.vibrateOnClick(context, viewModel)
                 // 移动后就立马进入编辑模式
                 if(viewModel.editMode.value != true) {
                     viewModel.editMode.value = true
@@ -237,7 +237,7 @@ class WidgetListFragment(
 //        }
 //        viewModel.storedActivityList.observe(viewLifecycleOwner, storedActivityListObserver)
         fragmentNameObserver = Observer { fragmentName ->
-            if(fragmentName == fragmentNames.WIDGET_LIST_FRAGMENT) {
+            if(fragmentName == FragmentNames.WIDGET_LIST_FRAGMENT) {
                 updateData()
             }
         }

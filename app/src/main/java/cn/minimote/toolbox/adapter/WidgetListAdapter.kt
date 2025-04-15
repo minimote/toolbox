@@ -25,6 +25,7 @@ import cn.minimote.toolbox.fragment.WidgetListFragment
 import cn.minimote.toolbox.helper.FragmentHelper
 import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
+import cn.minimote.toolbox.viewModel.ToolboxViewModel.Companion.FragmentNames
 
 
 class WidgetListAdapter(
@@ -38,8 +39,6 @@ class WidgetListAdapter(
     //    var activityList: MutableList<StoredActivity> =
 //        viewModel.storedActivityList.value ?: mutableListOf()
     var activityList: MutableList<StoredActivity> = loadActivityList()
-
-    private val fragmentNames = ToolboxViewModel.Constants.FragmentNames
 
 
 //    private var buttonSave: Button = viewModel.buttonSave
@@ -66,6 +65,7 @@ class WidgetListAdapter(
             else -> R.layout.item_widget_only_icon
         }
         val view = LayoutInflater.from(context).inflate(layoutId, parent, false)
+
         return WidgetViewHolder(view)
     }
 
@@ -88,14 +88,14 @@ class WidgetListAdapter(
 
         holder.itemView.setOnClickListener {
 //            toggleBackgroundColor(holder.itemView)
-            VibrationHelper.vibrateOnClick(context)
+            VibrationHelper.vibrateOnClick(context, viewModel)
             if(viewModel.editMode.value == true) {
 //                Log.i("WidgetListAdapter", "编辑小组件<${appInfo.appName}>")
                 viewModel.originWidget.value = appInfo
                 viewModel.modifiedWidget.value = appInfo.copy()
 
                 FragmentHelper.switchFragment(
-                    fragmentName = fragmentNames.EDIT_LIST_FRAGMENT,
+                    fragmentName = FragmentNames.EDIT_LIST_FRAGMENT,
                     fragmentManager = fragmentManager,
                     viewModel = viewModel,
                     viewPager = fragment.viewPager,
@@ -114,7 +114,7 @@ class WidgetListAdapter(
         }
 
         holder.itemView.setOnLongClickListener {
-            VibrationHelper.vibrateOnClick(context)
+            VibrationHelper.vibrateOnClick(context, viewModel)
             if(viewModel.editMode.value != true) {
                 viewModel.editMode.value = true
 //                Log.i("WidgetListAdapter", "进入编辑模式")

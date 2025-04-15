@@ -76,6 +76,8 @@ object DataCleanHelper {
         }
         // 重新加载数据
         viewModel.loadStorageActivities()
+        // 清除配置文件
+        ConfigHelper.clearUserConfig(viewModel = viewModel)
     }
 
 

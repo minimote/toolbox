@@ -128,14 +128,14 @@ class ActivityListAdapter(
             // 标题都不可点击
 //            holder.itemView.isClickable = false
             // 需要手动设置线条颜色，不然可能会受到无名称项的影响而变成空
-            setLineBackground(holder)
+//            setLineBackground(holder)
 //            Log.e("title", installedActivity.appName)
 
             when(installedActivity.appName) {
                 // 无名称则不显示
                 "" -> {
 //                    Log.e("title", "无内容")
-                    setLineBackground(holder, null)
+//                    setLineBackground(holder, null)
                 }
 
                 // 无结果提示为灰色正常字体
@@ -188,7 +188,7 @@ class ActivityListAdapter(
                     holder.switch.isChecked = !holder.switch.isChecked
 
                     // 触发设备振动
-                    VibrationHelper.vibrateOnClick(context)
+                    VibrationHelper.vibrateOnClick(context, viewModel)
 
                     // 设置暗淡效果的滤镜
                     setDimmingEffect(holder, !holder.switch.isChecked)

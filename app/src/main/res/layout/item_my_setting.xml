@@ -4,10 +4,10 @@
     style="@style/ConstraintLayout.Toolbox.Clickable.Dark">
 
     <TextView
-        android:id="@+id/textView_about_project"
+        android:id="@+id/textView_name"
         style="@style/TextView.Toolbox.EditOperateName.Dark"
         android:gravity="start"
-        android:text="@string/about_project"
+        android:text="@string/setting"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/textView_enter"
         app:layout_constraintStart_toStartOf="parent"
@@ -19,7 +19,7 @@
         android:text="@string/right"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView_about_project"
+        app:layout_constraintStart_toEndOf="@+id/textView_name"
         app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

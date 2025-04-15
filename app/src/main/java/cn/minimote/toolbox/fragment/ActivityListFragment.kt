@@ -141,7 +141,7 @@ class ActivityListFragment : Fragment() {
         // 手动请求输入法，避免第一次点击出现闪烁
         searchBox.onFocusChangeListener = View.OnFocusChangeListener { v, hasFocus ->
             if(hasFocus) {
-                VibrationHelper.vibrateOnClick(requireContext())
+                VibrationHelper.vibrateOnClick(requireContext(), viewModel)
                 val imm =
                     v.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.showSoftInput(v, InputMethodManager.SHOW_IMPLICIT)
@@ -156,7 +156,7 @@ class ActivityListFragment : Fragment() {
 
         // 点击输入框时触发振动
         searchBox.setOnClickListener {
-            VibrationHelper.vibrateOnClick(requireContext())
+            VibrationHelper.vibrateOnClick(requireContext(), viewModel)
         }
 
         // 添加 TextWatcher 监听文本变化
@@ -209,7 +209,7 @@ class ActivityListFragment : Fragment() {
 
         // 设置取消按钮点击事件
         buttonCancel.setOnClickListener {
-            VibrationHelper.vibrateOnClick(requireContext())
+            VibrationHelper.vibrateOnClick(requireContext(), viewModel)
             exitSearchMode()
         }
     }
