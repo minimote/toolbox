@@ -1,4 +1,3 @@
 [*.{xml}]
 trim_trailing_whitespace = true
 copyright = false
-     

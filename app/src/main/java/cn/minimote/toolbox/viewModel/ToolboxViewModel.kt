@@ -22,6 +22,7 @@ import androidx.lifecycle.viewModelScope
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.dataClass.InstalledActivity
 import cn.minimote.toolbox.dataClass.StoredActivity
+import cn.minimote.toolbox.dataClass.toStorageActivity
 import cn.minimote.toolbox.helper.CheckUpdateHelper
 import cn.minimote.toolbox.helper.ConfigHelper
 import cn.minimote.toolbox.helper.IconCacheHelper
@@ -653,7 +654,7 @@ class ToolboxViewModel
 //        Log.e("ToolboxViewModel", "获取活动列表：${resolveInfoList.size}")
 
 
-        var installedActivities = resolveInfoList.mapNotNull { resolveInfo ->
+        var installedActivities = resolveInfoList.map { resolveInfo ->
             val applicationInfo = resolveInfo.activityInfo.applicationInfo
             // 应用名
 //            val appName = packageManager.getApplicationLabel(applicationInfo).toString()
@@ -834,9 +835,7 @@ class ToolboxViewModel
 
         } else {
 //            Log.e("ViewModel", "新建活动：${installedActivity.appName}")
-            val storageActivity = installedActivityToStorageActivity(
-                installedActivity = installedActivity,
-            )
+            val storageActivity = installedActivity.toStorageActivity(widgetSize = maxWidgetSize)
             _modifiedSizeStorageActivityMap[installedActivity.activityName] = storageActivity
         }
     }
@@ -885,22 +884,6 @@ class ToolboxViewModel
         // Log.i("删除${activityName}", "1")
         _storedActivityList.value?.remove(appInfo)
         _storageActivityMap.remove(appInfo.activityName)
-    }
-
-
-    // 将安装类型的活动转换为存储类型
-    private fun installedActivityToStorageActivity(
-        installedActivity: InstalledActivity,
-        widgetSize: Int = maxWidgetSize,
-    ): StoredActivity {
-        val storageActivity = StoredActivity(
-            appName = installedActivity.appName,
-            packageName = installedActivity.packageName,
-            activityName = installedActivity.activityName,
-            width = widgetSize,
-            iconName = installedActivity.iconName,
-        )
-        return storageActivity
     }
 
 

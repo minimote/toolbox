@@ -481,10 +481,12 @@ class MainActivity : AppCompatActivity() {
 
 
         settingWasModifiedObserver = Observer { wasModified ->
-            if(wasModified) {
-                buttonAdd.visibility = View.VISIBLE
-            } else {
-                buttonAdd.visibility = View.GONE
+            if(viewModel.getFragmentName() == FragmentNames.SETTING_FRAGMENT) {
+                if(wasModified) {
+                    buttonAdd.visibility = View.VISIBLE
+                } else {
+                    buttonAdd.visibility = View.GONE
+                }
             }
         }
         viewModel.settingWasModified.observe(this, settingWasModifiedObserver)

@@ -19,7 +19,7 @@ android {
         targetSdk = 35
 
         // 版本号
-        val versionCodeList = listOf(1, 1, 0)
+        val versionCodeList = listOf(1, 1, 1)
         var versionCodeCombined = 0
         for(x in versionCodeList) {
             // 每位的取值范围是 0 ~ 99

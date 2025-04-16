@@ -13,3 +13,17 @@ data class InstalledActivity(
     val activityName: String,
     var iconName: String = activityName,
 )
+
+
+// 将安装类型的活动转换为存储类型
+fun InstalledActivity.toStorageActivity(
+    widgetSize: Int,
+): StoredActivity {
+    return StoredActivity(
+        appName = appName,
+        packageName = packageName,
+        activityName = activityName,
+        width = widgetSize,
+        iconName = iconName,
+    )
+}

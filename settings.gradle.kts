@@ -35,3 +35,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "工具箱"
 include(":app")
+

@@ -136,6 +136,7 @@ class WidgetListFragment(
         )
         recyclerView.adapter = adapter
 
+
         // 使用 GridLayoutManager
         val gridLayoutManager = GridLayoutManager(requireContext(), spanCount)
         gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
