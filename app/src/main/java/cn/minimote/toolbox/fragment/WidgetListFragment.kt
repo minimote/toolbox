@@ -23,9 +23,9 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.adapter.WidgetListAdapter
+import cn.minimote.toolbox.constant.FragmentNames
 import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
-import cn.minimote.toolbox.viewModel.ToolboxViewModel.Companion.FragmentNames
 import dagger.hilt.android.AndroidEntryPoint
 
 

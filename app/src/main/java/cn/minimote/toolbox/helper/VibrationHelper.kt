@@ -12,9 +12,9 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import android.provider.Settings
+import cn.minimote.toolbox.constant.Config.ConfigKeys
+import cn.minimote.toolbox.constant.Config.ConfigValues.VibrationMode
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
-import cn.minimote.toolbox.viewModel.ToolboxViewModel.Companion.ConfigKeys
-import cn.minimote.toolbox.viewModel.ToolboxViewModel.Companion.ConfigValues.VibrationMode
 
 
 object VibrationHelper {

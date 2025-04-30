@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2025 minimote(微尘). All rights reserved.
+ * 本项目遵循 MIT 许可协议，请务必保留此声明和署名。
+ */
+
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -19,7 +24,7 @@ android {
         targetSdk = 35
 
         // 版本号
-        val versionCodeList = listOf(1, 1, 1)
+        val versionCodeList = listOf(1, 2, 0)
         var versionCodeCombined = 0
         for(x in versionCodeList) {
             // 每位的取值范围是 0 ~ 99
@@ -180,6 +185,8 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation(libs.androidx.work.runtime.ktx)
 }
 kapt {
     correctErrorTypes = true

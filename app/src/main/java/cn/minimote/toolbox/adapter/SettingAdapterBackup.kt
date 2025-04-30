@@ -14,12 +14,14 @@ import android.widget.SeekBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.constant.Config.ConfigKeys
+import cn.minimote.toolbox.constant.Config.ConfigValues
+import cn.minimote.toolbox.constant.ViewLists
+import cn.minimote.toolbox.constant.ViewTypes
 import cn.minimote.toolbox.helper.CheckUpdateHelper
 import cn.minimote.toolbox.helper.ConfigHelper
 import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
-import cn.minimote.toolbox.viewModel.ToolboxViewModel.Companion.ConfigKeys
-import cn.minimote.toolbox.viewModel.ToolboxViewModel.Companion.ConfigValues
 import kotlin.math.abs
 
 
@@ -28,8 +30,8 @@ class SettingAdapterBackup(
     private val viewModel: ToolboxViewModel,
 ) : RecyclerView.Adapter<SettingAdapterBackup.AppViewHolder>() {
 
-    private val viewList = viewModel.settingViewList
-    private val viewTypes = ToolboxViewModel.Companion.ViewTypes.Setting
+    private val viewList = ViewLists.settingViewList
+    private val viewTypes = ViewTypes.Setting
 
     inner class AppViewHolder(itemView: View, val viewType: Int) :
         RecyclerView.ViewHolder(itemView) {

@@ -7,18 +7,15 @@ package cn.minimote.toolbox.helper
 
 
 import android.content.Context
+import cn.minimote.toolbox.constant.Config.ENCODING
 import cn.minimote.toolbox.dataClass.InstalledActivity
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
 import java.lang.reflect.Type
-import java.nio.charset.Charset
-import java.nio.charset.StandardCharsets
 
 
 object InstalledActivityHelper {
-
-    private val ENCODING: Charset = StandardCharsets.UTF_8
 
 
     // 根据设备类型获取文件名
@@ -32,11 +29,9 @@ object InstalledActivityHelper {
         fileName: String,
     ): String? {
         return try {
-            val inputStream = context.assets.open(fileName)
-            val size = inputStream.available()
-            val buffer = ByteArray(size)
-            inputStream.read(buffer)
-            inputStream.close()
+            val buffer = context.assets.open(fileName).use { inputStream ->
+                inputStream.readBytes()
+            }
             String(buffer, ENCODING)
         } catch(e: Exception) {
             e.printStackTrace()

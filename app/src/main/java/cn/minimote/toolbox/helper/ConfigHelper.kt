@@ -1,29 +1,21 @@
-///*
-// * Copyright (c) 2025 minimote(微尘). All rights reserved.
-// * 本项目遵循 MIT 许可协议，请务必保留此声明和署名。
-// */
+/*
+ * Copyright (c) 2025 minimote(微尘). All rights reserved.
+ * 本项目遵循 MIT 许可协议，请务必保留此声明和署名。
+ */
 
 package cn.minimote.toolbox.helper
 
 import android.content.Context
+import cn.minimote.toolbox.constant.Config.ConfigFileName
+import cn.minimote.toolbox.constant.Config.ENCODING
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
 import org.json.JSONObject
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.nio.charset.Charset
-import java.nio.charset.StandardCharsets
 import java.util.TreeMap
 
 object ConfigHelper {
-
-    private val ENCODING: Charset = StandardCharsets.UTF_8
-
-    object ConfigName {
-        const val DEFAULT_CONFIG = "default_config.jsonc"
-        const val USER_CONFIG = "user_config.jsonc"
-    }
-
 
     // 获取配置的值
     fun getConfigValue(
@@ -74,6 +66,36 @@ object ConfigHelper {
     }
 
 
+    // 加载全部配置文件
+    fun loadAllConfig(
+        viewModel: ToolboxViewModel,
+    ) {
+        viewModel.defaultConfig = loadConfig(viewModel.myContext, false)
+        viewModel.userConfig = loadConfig(viewModel.myContext, true)
+        checkConfigFile(viewModel)
+        viewModel.userConfigBackup = TreeMap(viewModel.userConfig)
+    }
+
+
+    // 检查配置文件
+    fun checkConfigFile(
+        viewModel: ToolboxViewModel,
+    ) {
+        val defaultConfig = viewModel.defaultConfig
+        val userConfig = viewModel.userConfig
+
+        val correctUserConfig = userConfig.filterTo(TreeMap<String, Any>()) { (key, value) ->
+            val defaultValue = defaultConfig[key]
+            defaultValue != null && value != defaultValue
+        }
+
+        if(userConfig.size != correctUserConfig.size) {
+            viewModel.userConfig = correctUserConfig
+            saveUserConfig(viewModel)
+        }
+    }
+
+
     // 加载配置文件
     fun loadConfig(
         context: Context,
@@ -81,15 +103,14 @@ object ConfigHelper {
     ): TreeMap<String, Any> {
         return try {
             val inputStream = if(userConfigFlag) {
-                FileInputStream(File(context.filesDir, ConfigName.USER_CONFIG))
+                FileInputStream(File(context.filesDir, ConfigFileName.USER_CONFIG))
             } else {
-                context.assets.open(ConfigName.DEFAULT_CONFIG)
+                context.assets.open(ConfigFileName.DEFAULT_CONFIG)
             }
-            val size = inputStream.available()
-            val buffer = ByteArray(size)
-            inputStream.read(buffer)
-            inputStream.close()
-            val json = String(buffer, ENCODING)
+            val json = inputStream.use { input ->
+                val bytes = input.readBytes()
+                String(bytes, ENCODING)
+            }
             JSONObject(json).toTreeMap()
         } catch(e: Exception) {
             e.printStackTrace()
@@ -102,18 +123,22 @@ object ConfigHelper {
     fun saveUserConfig(
         viewModel: ToolboxViewModel,
     ) {
+//        viewModel.viewModelScope.launch(Dispatchers.IO) {
         val context = viewModel.myContext
-        val userConfigFile = File(context.filesDir, ConfigName.USER_CONFIG)
+        val userConfigFile = File(context.filesDir, ConfigFileName.USER_CONFIG)
         try {
             val config = viewModel.userConfig.toMap()
             val jsonString = JSONObject(config).toString()
-            val outputStream = FileOutputStream(userConfigFile)
-            outputStream.write(jsonString.toByteArray(ENCODING))
-            outputStream.close()
+
+            FileOutputStream(userConfigFile).use { outputStream ->
+                outputStream.write(jsonString.toByteArray(ENCODING))
+            }
+
             backupUserConfig(viewModel)
         } catch(e: Exception) {
             e.printStackTrace()
         }
+//        }
     }
 
 

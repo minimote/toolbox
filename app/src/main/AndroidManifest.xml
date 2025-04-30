@@ -15,6 +15,17 @@
     <!--  安装应用的权限  -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
+    <!-- 允许应用设置精确闹钟，用于定时任务 -->
+    <!--    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />-->
+
+    <!--  允许应用运行前台服务  -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!--  专门用于数据同步的前台服务权限(Android 13+)  -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <!--  允许应用显示通知，需用户授权(Android 13+)  -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+
     <!--    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />-->
     <!--    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->
     <!--    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />-->
@@ -56,6 +67,25 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver
+            android:name=".helper.TimeWidget"
+            android:label="@string/widgetName_time_and_date"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/time_widget_info" />
+        </receiver>
+
+        <service
+            android:name=".helper.TimeService"
+            android:foregroundServiceType="dataSync"
+            android:enabled="true"
+            android:exported="false" />
+
     </application>
 
 

@@ -14,11 +14,14 @@ import android.view.LayoutInflater
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat.getString
 import androidx.core.net.toUri
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.constant.Config.ConfigKeys
+import cn.minimote.toolbox.constant.Config.ConfigValues.CheckUpdateFrequency
+import cn.minimote.toolbox.constant.Config.ConfigValues.NetworkAccessModeValues
+import cn.minimote.toolbox.constant.NetworkTypes
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
-import cn.minimote.toolbox.viewModel.ToolboxViewModel.Companion.ConfigKeys
-import cn.minimote.toolbox.viewModel.ToolboxViewModel.Companion.ConfigValues.CheckUpdateFrequency
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -56,7 +59,7 @@ object CheckUpdateHelper {
 //                ),
 //                Toast.LENGTH_SHORT
 //            ).show()
-            checkUpdate(
+            checkNetworkAccessModeAndCheckUpdate(
                 context = context,
                 viewModel = viewModel,
                 silence = true,
@@ -133,13 +136,96 @@ object CheckUpdateHelper {
     }
 
 
+    // 检查网络访问模式
+    fun checkNetworkAccessModeAndCheckUpdate(
+        context: Context,
+        viewModel: ToolboxViewModel,
+        silence: Boolean = false, // 静默检查
+    ) {
+        // 获取网络类型
+        val networkType = NetworkHelper.getNetworkType(viewModel.myContext)
+        // 网络未连接
+        if(networkType == NetworkTypes.DISCONNECTED) {
+            if(!silence) {
+                Toast.makeText(
+                    viewModel.myContext,
+                    getString(viewModel.myContext, R.string.toast_no_network),
+                    Toast.LENGTH_SHORT,
+                ).show()
+            }
+            return
+        }
+
+        val networkTypeString = NetworkHelper.getNetworkTypeString(
+            context = viewModel.myContext,
+            networkType = networkType,
+        )
+
+        when(NetworkHelper.getNetworkAccessMode(networkType, viewModel)) {
+            NetworkAccessModeValues.ALERT -> {
+                val builder = AlertDialog.Builder(context)
+                builder.setMessage(
+                    context.getString(
+                        R.string.dialog_message_network_check_update,
+                        networkTypeString,
+                    )
+                )
+                builder.setPositiveButton(context.getString(R.string.confirm)) { dialog, _ ->
+                    VibrationHelper.vibrateOnClick(context, viewModel)
+                    checkUpdate(
+                        context = context,
+                        viewModel = viewModel,
+                        silence = silence,
+                    )
+                    dialog.dismiss()
+                }
+                builder.setNegativeButton(context.getString(R.string.cancel)) { dialog, _ ->
+                    VibrationHelper.vibrateOnClick(context, viewModel)
+                    dialog.dismiss()
+                }
+                builder.show()
+
+                return
+            }
+
+            NetworkAccessModeValues.DENY -> {
+                if(!silence) {
+                    Toast.makeText(
+                        viewModel.myContext,
+                        viewModel.myContext.getString(
+                            R.string.toast_network_access_denied,
+                            networkTypeString,
+                        ),
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                }
+                return
+            }
+
+            NetworkAccessModeValues.ALLOW -> {}
+        }
+        checkUpdate(
+            context = context,
+            viewModel = viewModel,
+            silence = silence,
+        )
+    }
+
+
     // 检查更新
     fun checkUpdate(
         context: Context,
         viewModel: ToolboxViewModel,
-        checkingUpdateToast: Toast? = null,
         silence: Boolean = false, // 静默检查
     ) {
+        val checkingUpdateToast = Toast.makeText(
+            context, context.getString(R.string.checking_update),
+            Toast.LENGTH_LONG,
+        )
+        if(!silence) {
+            checkingUpdateToast.show()
+        }
+
         updateCheckTime(viewModel)
         CoroutineScope(Dispatchers.IO).launch {
             try {

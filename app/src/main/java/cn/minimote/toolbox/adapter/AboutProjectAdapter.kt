@@ -16,6 +16,8 @@ import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.constant.ViewLists
+import cn.minimote.toolbox.constant.ViewTypes
 import cn.minimote.toolbox.helper.ClipboardHelper
 import cn.minimote.toolbox.helper.ImageSaveHelper
 import cn.minimote.toolbox.helper.VibrationHelper
@@ -27,8 +29,8 @@ class AboutProjectAdapter(
     val viewModel: ToolboxViewModel,
 ) : RecyclerView.Adapter<AboutProjectAdapter.SupportAuthorViewHolder>() {
 
-    private val aboutProjectViewList = viewModel.aboutProjectViewList
-    private val aboutProjectViewTypes = ToolboxViewModel.Companion.ViewTypes.AboutProject
+    private val viewList = ViewLists.aboutProjectViewList
+    private val viewTypes = ViewTypes.AboutProject
 
     inner class SupportAuthorViewHolder(
         itemView: View,
@@ -41,12 +43,12 @@ class AboutProjectAdapter(
 
         init {
             when(viewType) {
-                aboutProjectViewTypes.PROJECT_PATH_GITEE -> {
+                viewTypes.PROJECT_PATH_GITEE -> {
                     imageViewQRGitee = itemView.findViewById(R.id.imageView_qr_gitee)
                     textViewURL = itemView.findViewById(R.id.textView_url)
                 }
 
-                aboutProjectViewTypes.PROJECT_PATH_GITHUB -> {
+                viewTypes.PROJECT_PATH_GITHUB -> {
                     imageViewQRGitHub = itemView.findViewById(R.id.imageView_qr_github)
                     textViewURL = itemView.findViewById(R.id.textView_url)
                 }
@@ -55,21 +57,21 @@ class AboutProjectAdapter(
     }
 
 
-    override fun getItemCount(): Int = aboutProjectViewList.size
+    override fun getItemCount(): Int = viewList.size
 
 
     override fun getItemViewType(position: Int): Int {
         // 根据位置返回不同的视图类型
-        return aboutProjectViewList[position]
+        return viewList[position]
     }
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SupportAuthorViewHolder {
         val layoutId = when(viewType) {
-            aboutProjectViewTypes.NOTICE -> R.layout.item_about_project_notice
-            aboutProjectViewTypes.PROJECT_PATH_NAME -> R.layout.item_about_project_project_path_name
-            aboutProjectViewTypes.PROJECT_PATH_GITEE -> R.layout.item_about_project_project_path_gitee
-            aboutProjectViewTypes.PROJECT_PATH_GITHUB -> R.layout.item_about_project_project_path_github
+            viewTypes.NOTICE -> R.layout.item_about_project_notice
+            viewTypes.PROJECT_PATH_NAME -> R.layout.item_about_project_project_path_name
+            viewTypes.PROJECT_PATH_GITEE -> R.layout.item_about_project_project_path_gitee
+            viewTypes.PROJECT_PATH_GITHUB -> R.layout.item_about_project_project_path_github
             else -> -1
         }
         val view = LayoutInflater.from(context).inflate(layoutId, parent, false)
@@ -82,7 +84,7 @@ class AboutProjectAdapter(
         val imageSize = viewModel.imageSize
 
         when(holder.itemViewType) {
-            aboutProjectViewTypes.PROJECT_PATH_GITEE -> {
+            viewTypes.PROJECT_PATH_GITEE -> {
                 holder.imageViewQRGitee.layoutParams.width = imageSize
                 holder.imageViewQRGitee.layoutParams.height = imageSize
                 ImageSaveHelper.setPopupMenu(
@@ -97,7 +99,7 @@ class AboutProjectAdapter(
                 )
             }
 
-            aboutProjectViewTypes.PROJECT_PATH_GITHUB -> {
+            viewTypes.PROJECT_PATH_GITHUB -> {
                 holder.imageViewQRGitHub.layoutParams.width = imageSize
                 holder.imageViewQRGitHub.layoutParams.height = imageSize
                 ImageSaveHelper.setPopupMenu(

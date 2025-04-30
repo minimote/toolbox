@@ -2,7 +2,15 @@
   // 上次更新时间
   "last_check_update_time": 0,
   // 更新检查频率：daily, weekly, monthly, never
-  "check_update_frequency": "weekly",
+  "check_update_frequency": "daily",
   // 振动模式：auto, on, off
-  "vibration_mode": "auto"
+  "vibration_mode": "auto",
+  // 网络访问模式-数据：allow, deny, alert
+  "network_access_mode_mobile": "alert",
+  // 网络访问模式-蓝牙：allow, deny, alert
+  "network_access_mode_bluetooth": "alert",
+  // 网络访问模式-WIFI：allow, deny, alert
+  "network_access_mode_wifi": "alert",
+  // 网络访问模式-其他：allow, deny, alert
+  "network_access_mode_other": "alert"
 }

@@ -16,6 +16,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.constant.FragmentNames
+import cn.minimote.toolbox.constant.ViewLists
+import cn.minimote.toolbox.constant.ViewTypes
 import cn.minimote.toolbox.fragment.MyListFragment
 import cn.minimote.toolbox.helper.CheckUpdateHelper
 import cn.minimote.toolbox.helper.ClipboardHelper
@@ -33,9 +36,8 @@ class MyListAdapter(
     private val fragmentManager: FragmentManager,
 ) : RecyclerView.Adapter<MyListAdapter.MyViewHolder>() {
 
-    private val myList = viewModel.myList
-    private val myViewTypes = ToolboxViewModel.Companion.ViewTypes.My
-    private val fragmentNames = ToolboxViewModel.Companion.FragmentNames
+    private val viewList = ViewLists.myList
+    private val viewTypes = ViewTypes.My
 
     inner class MyViewHolder(
         itemView: View,
@@ -59,7 +61,7 @@ class MyListAdapter(
         init {
             when(viewType) {
                 // 应用信息
-                myViewTypes.APP_INFO -> {
+                viewTypes.APP_INFO -> {
                     imageViewAppIcon = itemView.findViewById(R.id.imageView_appIcon)
                     textViewAppName = itemView.findViewById(R.id.textView_appName)
                     textViewPackageName = itemView.findViewById(R.id.textView_packageName)
@@ -68,38 +70,38 @@ class MyListAdapter(
                 }
 
                 // 清除缓存
-                myViewTypes.CLEAR_CACHE -> {
+                viewTypes.CLEAR_CACHE -> {
                     textViewClearCache = itemView.findViewById(R.id.textView_clearData)
                     textViewCacheSize = itemView.findViewById(R.id.textView_dataSize)
                 }
 
                 // 清除数据
-                myViewTypes.CLEAR_DATA -> {
+                viewTypes.CLEAR_DATA -> {
                     textViewClearData = itemView.findViewById(R.id.textView_clearData)
                     textViewDataSize = itemView.findViewById(R.id.textView_dataSize)
                 }
 
-                myViewTypes.SETTING -> {
+                viewTypes.SETTING -> {
                     textViewName = itemView.findViewById(R.id.textView_name)
                 }
 
-                myViewTypes.SUPPORT_AUTHOR -> {
+                viewTypes.SUPPORT_AUTHOR -> {
                     textViewName = itemView.findViewById(R.id.textView_name)
                 }
 
-                myViewTypes.ABOUT_PROJECT -> {
+                viewTypes.ABOUT_PROJECT -> {
                     textViewName = itemView.findViewById(R.id.textView_name)
                 }
 
-                myViewTypes.INSTRUCTION -> {
+                viewTypes.INSTRUCTION -> {
                     textViewName = itemView.findViewById(R.id.textView_name)
                 }
 
-                myViewTypes.UPDATE_LOG -> {
+                viewTypes.UPDATE_LOG -> {
                     textViewName = itemView.findViewById(R.id.textView_name)
                 }
 
-                myViewTypes.PROBLEM_FEEDBACK -> {
+                viewTypes.PROBLEM_FEEDBACK -> {
                     textViewName = itemView.findViewById(R.id.textView_name)
                 }
             }
@@ -107,27 +109,27 @@ class MyListAdapter(
     }
 
 
-    override fun getItemCount(): Int = myList.size
+    override fun getItemCount(): Int = viewList.size
 
 
     override fun getItemViewType(position: Int): Int {
         // 根据位置返回不同的视图类型
-        return myList[position]
+        return viewList[position]
     }
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val layoutId = when(viewType) {
-            myViewTypes.APP_INFO -> R.layout.item_my_app_info
-            myViewTypes.CLEAR_CACHE -> R.layout.item_my_clear_data
-            myViewTypes.CLEAR_DATA -> R.layout.item_my_clear_data
-            myViewTypes.SUPPORT_AUTHOR -> R.layout.item_my_setting
-            myViewTypes.ABOUT_PROJECT -> R.layout.item_my_setting
-            myViewTypes.CHECK_UPDATE -> R.layout.item_my_check_update
-            myViewTypes.SETTING -> R.layout.item_my_setting
-            myViewTypes.INSTRUCTION -> R.layout.item_my_setting
-            myViewTypes.UPDATE_LOG -> R.layout.item_my_setting
-            myViewTypes.PROBLEM_FEEDBACK -> R.layout.item_my_setting
+            viewTypes.APP_INFO -> R.layout.item_my_app_info
+            viewTypes.CLEAR_CACHE -> R.layout.item_my_clear_data
+            viewTypes.CLEAR_DATA -> R.layout.item_my_clear_data
+            viewTypes.SUPPORT_AUTHOR -> R.layout.item_my_setting
+            viewTypes.ABOUT_PROJECT -> R.layout.item_my_setting
+            viewTypes.CHECK_UPDATE -> R.layout.item_my_check_update
+            viewTypes.SETTING -> R.layout.item_my_setting
+            viewTypes.INSTRUCTION -> R.layout.item_my_setting
+            viewTypes.UPDATE_LOG -> R.layout.item_my_setting
+            viewTypes.PROBLEM_FEEDBACK -> R.layout.item_my_setting
             else -> -1
         }
         val view = LayoutInflater.from(context).inflate(layoutId, parent, false)
@@ -138,35 +140,35 @@ class MyListAdapter(
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
 
         when(holder.itemViewType) {
-            myViewTypes.APP_INFO -> {
+            viewTypes.APP_INFO -> {
                 setupAppInfo(holder)
             }
 
-            myViewTypes.CLEAR_CACHE -> {
+            viewTypes.CLEAR_CACHE -> {
                 setupClearCache(holder)
             }
 
-            myViewTypes.CLEAR_DATA -> {
+            viewTypes.CLEAR_DATA -> {
                 setupClearData(holder)
             }
 
-            myViewTypes.SUPPORT_AUTHOR -> {
+            viewTypes.SUPPORT_AUTHOR -> {
                 setupSupportAuthor(holder)
             }
 
-            myViewTypes.ABOUT_PROJECT -> {
+            viewTypes.ABOUT_PROJECT -> {
                 setupAboutProject(holder)
             }
 
-            myViewTypes.CHECK_UPDATE -> {
+            viewTypes.CHECK_UPDATE -> {
                 setupCheckUpdate(holder)
             }
 
-            myViewTypes.SETTING -> {
+            viewTypes.SETTING -> {
                 setupSetting(holder)
             }
 
-            myViewTypes.INSTRUCTION -> {
+            viewTypes.INSTRUCTION -> {
                 setupWebView(
                     holder = holder,
                     textViewText = context.getString(R.string.instruction),
@@ -174,7 +176,7 @@ class MyListAdapter(
                 )
             }
 
-            myViewTypes.UPDATE_LOG -> {
+            viewTypes.UPDATE_LOG -> {
                 setupWebView(
                     holder = holder,
                     textViewText = context.getString(R.string.update_log),
@@ -182,7 +184,7 @@ class MyListAdapter(
                 )
             }
 
-            myViewTypes.PROBLEM_FEEDBACK -> {
+            viewTypes.PROBLEM_FEEDBACK -> {
                 setupWebView(
                     holder = holder,
                     textViewText = context.getString(R.string.problem_feedback),
@@ -330,7 +332,7 @@ class MyListAdapter(
         holder.itemView.setOnClickListener {
             VibrationHelper.vibrateOnClick(context, viewModel)
             FragmentHelper.switchFragment(
-                fragmentName = fragmentNames.SUPPORT_AUTHOR_FRAGMENT,
+                fragmentName = FragmentNames.SUPPORT_AUTHOR_FRAGMENT,
                 fragmentManager = fragmentManager,
                 viewModel = viewModel,
                 viewPager = fragment.viewPager,
@@ -346,7 +348,7 @@ class MyListAdapter(
         holder.itemView.setOnClickListener {
             VibrationHelper.vibrateOnClick(context, viewModel)
             FragmentHelper.switchFragment(
-                fragmentName = fragmentNames.ABOUT_PROJECT_FRAGMENT,
+                fragmentName = FragmentNames.ABOUT_PROJECT_FRAGMENT,
                 fragmentManager = fragmentManager,
                 viewModel = viewModel,
                 viewPager = fragment.viewPager,
@@ -360,15 +362,10 @@ class MyListAdapter(
     private fun setupCheckUpdate(holder: MyViewHolder) {
         holder.itemView.setOnClickListener {
             VibrationHelper.vibrateOnClick(context, viewModel)
-            val checkingUpdateToast = Toast.makeText(
-                context, context.getString(R.string.checking_update),
-                Toast.LENGTH_LONG,
-            )
-            checkingUpdateToast.show()
-            CheckUpdateHelper.checkUpdate(
+
+            CheckUpdateHelper.checkNetworkAccessModeAndCheckUpdate(
                 context = context,
                 viewModel = viewModel,
-                checkingUpdateToast = checkingUpdateToast,
             )
         }
     }
@@ -380,7 +377,7 @@ class MyListAdapter(
         holder.itemView.setOnClickListener {
             VibrationHelper.vibrateOnClick(context, viewModel)
             FragmentHelper.switchFragment(
-                fragmentName = fragmentNames.SETTING_FRAGMENT,
+                fragmentName = FragmentNames.SETTING_FRAGMENT,
                 fragmentManager = fragmentManager,
                 viewModel = viewModel,
                 viewPager = fragment.viewPager,
@@ -401,9 +398,10 @@ class MyListAdapter(
             VibrationHelper.vibrateOnClick(context, viewModel)
             viewModel.webViewUrl = url
             FragmentHelper.switchFragment(
-                fragmentName = fragmentNames.WEB_VIEW_FRAGMENT,
+                fragmentName = FragmentNames.WEB_VIEW_FRAGMENT,
                 fragmentManager = fragmentManager,
                 viewModel = viewModel,
+                context = context,
                 viewPager = fragment.viewPager,
                 constraintLayoutOrigin = fragment.constraintLayoutOrigin,
             )

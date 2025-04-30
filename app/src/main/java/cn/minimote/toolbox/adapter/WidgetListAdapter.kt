@@ -20,12 +20,12 @@ import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.constant.FragmentNames
 import cn.minimote.toolbox.dataClass.StoredActivity
 import cn.minimote.toolbox.fragment.WidgetListFragment
 import cn.minimote.toolbox.helper.FragmentHelper
 import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
-import cn.minimote.toolbox.viewModel.ToolboxViewModel.Companion.FragmentNames
 
 
 class WidgetListAdapter(

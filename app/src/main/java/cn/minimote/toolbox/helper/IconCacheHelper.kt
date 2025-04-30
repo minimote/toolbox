@@ -23,6 +23,8 @@ import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.scale
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.constant.Icon
+import cn.minimote.toolbox.constant.Icon.IconName
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -37,7 +39,7 @@ class IconCacheHelper(
     // 定义一个方法来获取缓存路径
     private fun getCachePath(context: Context): File {
         val cacheDir = context.cacheDir
-        val appIconDir = File(cacheDir, "app_icon")
+        val appIconDir = File(cacheDir, Icon.ICON_CACHE_PATH)
         if(!appIconDir.exists()) {
             appIconDir.mkdirs()
         }
@@ -67,10 +69,9 @@ class IconCacheHelper(
         val file = File(getCachePath(context), "$iconName.png")
         val bitmap = drawableToBitmap(drawable)
         try {
-            val outputStream = FileOutputStream(file)
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-            outputStream.flush()
-            outputStream.close()
+            FileOutputStream(file).use { outputStream ->
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+            }
         } catch(e: IOException) {
             e.printStackTrace()
         }
@@ -98,9 +99,9 @@ class IconCacheHelper(
     private fun getIconFromDrawable(iconName: String): Drawable? {
         // 假设有一个映射表来关联 packageName 和 drawable 资源 ID
         val iconMap: Map<String, Int> = mapOf(
-            "developer_option" to R.drawable.ic_developer_option,
-            "recent_task" to R.drawable.ic_recent_task,
-            "accessibility_option" to R.drawable.ic_accessibility_option,
+            IconName.DEVELOPER_OPTION to R.drawable.ic_developer_option,
+            IconName.RECENT_TASK to R.drawable.ic_recent_task,
+            IconName.ACCESSIBILITY_OPTION to R.drawable.ic_accessibility_option,
         )
 
 //        var resourceId = R.drawable.ic_default
@@ -119,10 +120,10 @@ class IconCacheHelper(
         try {
             val componentName = ComponentName(packageName, activityName)
             return packageManager.getActivityIcon(componentName)
-        } catch(e: Exception) {
+        } catch(_: Exception) {
             return try {
                 packageManager.getApplicationIcon(packageName)
-            } catch(e: Exception) {
+            } catch(_: Exception) {
                 getDefaultIcon()
             }
         }
@@ -222,49 +223,51 @@ class IconCacheHelper(
     }
 
 
-//    // 将 Drawable 转换为圆角矩形 Drawable，外部透明
-//    private fun Drawable.toRoundedCornerDrawable(
-//        cornerRadiusResId: Int = R.dimen.layout_size_1_small,
-//        backgroundColorResId: Int = android.R.color.transparent,
-//        targetSizeResId: Int = R.dimen.layout_size_1_large,
-//    ): Drawable {
-//        val cornerRadius = context.resources.getDimensionPixelSize(cornerRadiusResId).toFloat()
-//        val targetSizeDp = context.resources.getDimensionPixelSize(targetSizeResId)
-//
-//        // 将 dp 转换为 px
-//        val targetSizePx = (targetSizeDp * context.resources.displayMetrics.density).toInt()
-//
-//        // 创建一个与目标大小相同的 Bitmap
-//        val bitmap = createBitmap(targetSizePx, targetSizePx)
-//        val canvas = Canvas(bitmap)
-//
-//        // 获取背景颜色资源
-//        val backgroundColor = context.resources.getColor(backgroundColorResId, context.theme)
-//
-//        // 设置背景颜色
-//        val backgroundPaint = android.graphics.Paint()
-//        backgroundPaint.color = backgroundColor
-//        canvas.drawRect(0f, 0f, targetSizePx.toFloat(), targetSizePx.toFloat(), backgroundPaint)
-//
-//        // 缩放 Drawable 到目标大小
-//        val scaledDrawable = resizeDrawable(this, targetSizePx, targetSizePx)
-//
-//        // 使用 BitmapShader 将 Drawable 转换为 Shader
-//        val shader = BitmapShader(
-//            drawableToBitmap(scaledDrawable),
-//            Shader.TileMode.CLAMP,
-//            Shader.TileMode.CLAMP
-//        )
-//        val paint = android.graphics.Paint()
-//        paint.shader = shader
-//
-//        // 设置圆角
-//        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_OVER)
-//        val rect = RectF(0f, 0f, targetSizePx.toFloat(), targetSizePx.toFloat())
-//        canvas.drawRoundRect(rect, cornerRadius, cornerRadius, paint)
-//
-//        return bitmap.toDrawable(context.resources)
-//    }
+    /*
+    // 将 Drawable 转换为圆角矩形 Drawable，外部透明
+    private fun Drawable.toRoundedCornerDrawable(
+    cornerRadiusResId: Int = R.dimen.layout_size_1_small,
+    backgroundColorResId: Int = android.R.color.transparent,
+    targetSizeResId: Int = R.dimen.layout_size_1_large,
+    ): Drawable {
+    val cornerRadius = context.resources.getDimensionPixelSize(cornerRadiusResId).toFloat()
+    val targetSizeDp = context.resources.getDimensionPixelSize(targetSizeResId)
+
+    // 将 dp 转换为 px
+    val targetSizePx = (targetSizeDp * context.resources.displayMetrics.density).toInt()
+
+    // 创建一个与目标大小相同的 Bitmap
+    val bitmap = createBitmap(targetSizePx, targetSizePx)
+    val canvas = Canvas(bitmap)
+
+    // 获取背景颜色资源
+    val backgroundColor = context.resources.getColor(backgroundColorResId, context.theme)
+
+    // 设置背景颜色
+    val backgroundPaint = android.graphics.Paint()
+    backgroundPaint.color = backgroundColor
+    canvas.drawRect(0f, 0f, targetSizePx.toFloat(), targetSizePx.toFloat(), backgroundPaint)
+
+    // 缩放 Drawable 到目标大小
+    val scaledDrawable = resizeDrawable(this, targetSizePx, targetSizePx)
+
+    // 使用 BitmapShader 将 Drawable 转换为 Shader
+    val shader = BitmapShader(
+    drawableToBitmap(scaledDrawable),
+    Shader.TileMode.CLAMP,
+    Shader.TileMode.CLAMP
+    )
+    val paint = android.graphics.Paint()
+    paint.shader = shader
+
+    // 设置圆角
+    paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_OVER)
+    val rect = RectF(0f, 0f, targetSizePx.toFloat(), targetSizePx.toFloat())
+    canvas.drawRoundRect(rect, cornerRadius, cornerRadius, paint)
+
+    return bitmap.toDrawable(context.resources)
+    }
+    */
 
 
     // 辅助方法：缩放 Drawable 到指定大小

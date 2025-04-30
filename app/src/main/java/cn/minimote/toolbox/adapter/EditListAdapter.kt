@@ -19,6 +19,8 @@ import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.constant.ViewLists
+import cn.minimote.toolbox.constant.ViewTypes
 import cn.minimote.toolbox.helper.ClipboardHelper
 import cn.minimote.toolbox.helper.SeekBarHelper
 import cn.minimote.toolbox.helper.VibrationHelper
@@ -33,7 +35,7 @@ class EditListAdapter(
     private val lifecycleOwner: androidx.lifecycle.LifecycleOwner,
 ) : RecyclerView.Adapter<EditListAdapter.EditViewHolder>() {
 
-    private val editList = viewModel.editList
+    private val editList = ViewLists.editList
     private var originWidget = viewModel.originWidget
     private var modifiedWidget = viewModel.modifiedWidget
 
@@ -43,7 +45,7 @@ class EditListAdapter(
     private lateinit var widgetNameWasModifiedObserver: Observer<Boolean>
     private lateinit var widgetSizeWasModifiedObserver: Observer<Boolean>
 
-    private val editViewTypes = ToolboxViewModel.Companion.ViewTypes.Edit
+    private val viewTypes = ViewTypes.Edit
 
 
     inner class EditViewHolder(
@@ -71,28 +73,28 @@ class EditListAdapter(
         init {
             when(viewType) {
                 // 包名
-                editViewTypes.PACKAGE_NAME -> {
+                viewTypes.PACKAGE_NAME -> {
                     textViewPackageName = itemView.findViewById(R.id.textView_nickName)
                 }
 
                 // 活动名
-                editViewTypes.ACTIVITY_NAME -> {
+                viewTypes.ACTIVITY_NAME -> {
                     textViewActivityName = itemView.findViewById(R.id.textView_activityName)
                 }
 
                 // 显示名称修改
-                editViewTypes.NICKNAME -> {
+                viewTypes.NICKNAME -> {
                     editTextNickname = itemView.findViewById(R.id.textView_nickName)
                     buttonResetNickname = itemView.findViewById(R.id.button_reset_nickName)
                 }
 
                 // 是否显示名称
-                editViewTypes.SHOW_NAME -> {
+                viewTypes.SHOW_NAME -> {
                     switchShowName = itemView.findViewById(R.id.switch_whether_show_widgetName)
                 }
 
                 // 组件大小修改
-                editViewTypes.SIZE -> {
+                viewTypes.SIZE -> {
 //                    buttonResetWidgetSize = itemView.findViewById(R.id.button_reset_widgetSize)
                     textViewWidgetSizeFraction =
                         itemView.findViewById(R.id.textView_widgetSize_fraction)
@@ -104,7 +106,7 @@ class EditListAdapter(
                 }
 
                 // 删除组件
-                editViewTypes.DELETE -> {
+                viewTypes.DELETE -> {
                     buttonDeleteWidget = itemView.findViewById(R.id.button_deleteWidget)
                 }
             }
@@ -123,12 +125,12 @@ class EditListAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EditViewHolder {
         val layoutId = when(viewType) {
-            editViewTypes.PACKAGE_NAME -> R.layout.item_edit_package_name
-            editViewTypes.ACTIVITY_NAME -> R.layout.item_edit_activity_name
-            editViewTypes.NICKNAME -> R.layout.item_edit_nickname
-            editViewTypes.SHOW_NAME -> R.layout.item_edit_whether_show_name
-            editViewTypes.SIZE -> R.layout.item_edit_widget_width
-            editViewTypes.DELETE -> R.layout.item_edit_delete_widget
+            viewTypes.PACKAGE_NAME -> R.layout.item_edit_package_name
+            viewTypes.ACTIVITY_NAME -> R.layout.item_edit_activity_name
+            viewTypes.NICKNAME -> R.layout.item_edit_nickname
+            viewTypes.SHOW_NAME -> R.layout.item_edit_whether_show_name
+            viewTypes.SIZE -> R.layout.item_edit_widget_width
+            viewTypes.DELETE -> R.layout.item_edit_delete_widget
             else -> -1
         }
         val view = LayoutInflater.from(context).inflate(layoutId, parent, false)
@@ -139,28 +141,28 @@ class EditListAdapter(
     override fun onBindViewHolder(holder: EditViewHolder, position: Int) {
 
         when(holder.itemViewType) {
-            editViewTypes.PACKAGE_NAME -> {
+            viewTypes.PACKAGE_NAME -> {
                 setupPackageName(holder)
             }
 
 
-            editViewTypes.ACTIVITY_NAME -> {
+            viewTypes.ACTIVITY_NAME -> {
                 setupActivityName(holder)
             }
 
-            editViewTypes.NICKNAME -> {
+            viewTypes.NICKNAME -> {
                 setupWidgetName(holder)
             }
 
-            editViewTypes.SHOW_NAME -> {
+            viewTypes.SHOW_NAME -> {
                 setupShowName(holder)
             }
 
-            editViewTypes.SIZE -> {
+            viewTypes.SIZE -> {
                 setupWidgetSize(holder)
             }
 
-            editViewTypes.DELETE -> {
+            viewTypes.DELETE -> {
                 setupDeleteWidget(holder)
             }
         }

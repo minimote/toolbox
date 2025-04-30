@@ -10,10 +10,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import cn.minimote.toolbox.constant.FragmentNames
+import cn.minimote.toolbox.constant.ViewPaper
 import cn.minimote.toolbox.fragment.MyListFragment
 import cn.minimote.toolbox.fragment.WidgetListFragment
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
-import cn.minimote.toolbox.viewModel.ToolboxViewModel.Companion.FragmentNames
 
 
 class ToolboxFragmentStateAdapter(
@@ -24,7 +25,7 @@ class ToolboxFragmentStateAdapter(
 ) :
     FragmentStateAdapter(fragmentActivity) {
 
-    private val fragmentList = viewModel.viewPaperFragmentList
+    private val fragmentList = ViewPaper.FragmentList
 
 //    val viewModel: ToolboxViewModel =
 //        ViewModelProvider(fragmentActivity)[ToolboxViewModel::class.java]

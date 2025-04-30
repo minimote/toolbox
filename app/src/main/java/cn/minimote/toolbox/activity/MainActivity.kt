@@ -22,13 +22,14 @@ import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.adapter.ToolboxFragmentStateAdapter
+import cn.minimote.toolbox.constant.FragmentNames
+import cn.minimote.toolbox.constant.ViewPaper
 import cn.minimote.toolbox.helper.CheckUpdateHelper
 import cn.minimote.toolbox.helper.ConfigHelper
 import cn.minimote.toolbox.helper.FragmentHelper
 import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.pageTransformer.ViewPager2Transformer
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
-import cn.minimote.toolbox.viewModel.ToolboxViewModel.Companion.FragmentNames
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
@@ -106,6 +107,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.layout_main)
 //        layoutMain = findViewById(R.id.layout_main)
 //        printBackStackEntries()
+
+//        NetworkHelper.showNetworkType(this)
+        // 加载配置文件
+        ConfigHelper.loadAllConfig(viewModel)
 
         constraintLayoutOrigin = findViewById(R.id.constraintLayout_origin)
 
@@ -281,7 +286,10 @@ class MainActivity : AppCompatActivity() {
         // 关联 ViewPager2 和 TabLayout
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             // 设置每个 Tab 的标题或图标
-            tab.text = viewModel.viewPaperFragmentNameList[position]
+            tab.text = FragmentHelper.getFragmentNameString(
+                context = this,
+                fragmentName = ViewPaper.FragmentList[position],
+            )
             // 设置点击事件
             tab.view.setOnClickListener {
                 VibrationHelper.vibrateOnClick(this@MainActivity, viewModel)

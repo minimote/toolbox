@@ -17,6 +17,8 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.constant.ViewLists
+import cn.minimote.toolbox.constant.ViewTypes
 import cn.minimote.toolbox.helper.ImageSaveHelper
 import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
@@ -27,8 +29,8 @@ class SupportAuthorAdapter(
     val viewModel: ToolboxViewModel,
 ) : RecyclerView.Adapter<SupportAuthorAdapter.SupportAuthorViewHolder>() {
 
-    private val supportAuthorList = viewModel.supportAuthorViewList
-    private val supportAuthorViewTypes = ToolboxViewModel.Companion.ViewTypes.SupportAuthor
+    private val viewList = ViewLists.supportAuthorViewList
+    private val viewTypes = ViewTypes.SupportAuthor
 
     inner class SupportAuthorViewHolder(
         itemView: View,
@@ -46,19 +48,19 @@ class SupportAuthorAdapter(
 
         init {
             when(viewType) {
-                supportAuthorViewTypes.QR_ALIPAY -> {
+                viewTypes.QR_ALIPAY -> {
                     imageViewQRAlipay = itemView.findViewById(R.id.imageView_qr_alipay)
                 }
 
-                supportAuthorViewTypes.OPERATE_ALIPAY -> {
+                viewTypes.OPERATE_ALIPAY -> {
                     buttonGotoAlipay = itemView.findViewById(R.id.button_goto_alipay)
                 }
 
-                supportAuthorViewTypes.QR_WECHAT -> {
+                viewTypes.QR_WECHAT -> {
                     imageViewQRWechat = itemView.findViewById(R.id.imageView_qr_wechat)
                 }
 
-                supportAuthorViewTypes.OPERATE_WECHAT -> {
+                viewTypes.OPERATE_WECHAT -> {
                     buttonSaveWechatQR = itemView.findViewById(R.id.button_save_qr)
                     buttonOpenWechatScan = itemView.findViewById(R.id.button_open_wechat_scan)
                 }
@@ -68,23 +70,23 @@ class SupportAuthorAdapter(
     }
 
 
-    override fun getItemCount(): Int = supportAuthorList.size
+    override fun getItemCount(): Int = viewList.size
 
 
     override fun getItemViewType(position: Int): Int {
         // 根据位置返回不同的视图类型
-        return supportAuthorList[position]
+        return viewList[position]
     }
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SupportAuthorViewHolder {
         val layoutId = when(viewType) {
-            supportAuthorViewTypes.WELCOME -> R.layout.item_support_author_welcome
-            supportAuthorViewTypes.NOTICE -> R.layout.item_support_author_notice
-            supportAuthorViewTypes.QR_ALIPAY -> R.layout.item_support_author_qr_alipay
-            supportAuthorViewTypes.OPERATE_ALIPAY -> R.layout.item_support_author_operate_alipay
-            supportAuthorViewTypes.QR_WECHAT -> R.layout.item_support_author_qr_wechat
-            supportAuthorViewTypes.OPERATE_WECHAT -> R.layout.item_support_author_operate_wechat
+            viewTypes.WELCOME -> R.layout.item_support_author_welcome
+            viewTypes.NOTICE -> R.layout.item_support_author_notice
+            viewTypes.QR_ALIPAY -> R.layout.item_support_author_qr_alipay
+            viewTypes.OPERATE_ALIPAY -> R.layout.item_support_author_operate_alipay
+            viewTypes.QR_WECHAT -> R.layout.item_support_author_qr_wechat
+            viewTypes.OPERATE_WECHAT -> R.layout.item_support_author_operate_wechat
             else -> -1
         }
         val view = LayoutInflater.from(context).inflate(layoutId, parent, false)
@@ -97,7 +99,7 @@ class SupportAuthorAdapter(
         val imageSize = viewModel.imageSize
 
         when(holder.itemViewType) {
-            supportAuthorViewTypes.QR_ALIPAY -> {
+            viewTypes.QR_ALIPAY -> {
                 holder.imageViewQRAlipay.layoutParams.width = imageSize
                 holder.imageViewQRAlipay.layoutParams.height = imageSize
                 ImageSaveHelper.setPopupMenu(
@@ -108,11 +110,11 @@ class SupportAuthorAdapter(
                 )
             }
 
-            supportAuthorViewTypes.OPERATE_ALIPAY -> {
+            viewTypes.OPERATE_ALIPAY -> {
                 setupAlipay(holder)
             }
 
-            supportAuthorViewTypes.QR_WECHAT -> {
+            viewTypes.QR_WECHAT -> {
                 holder.imageViewQRWechat.layoutParams.width = imageSize
                 holder.imageViewQRWechat.layoutParams.height = imageSize
                 ImageSaveHelper.setPopupMenu(
@@ -123,7 +125,7 @@ class SupportAuthorAdapter(
                 )
             }
 
-            supportAuthorViewTypes.OPERATE_WECHAT -> {
+            viewTypes.OPERATE_WECHAT -> {
                 setupWechat(holder)
             }
 

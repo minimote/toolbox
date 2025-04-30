@@ -7,9 +7,9 @@ package cn.minimote.toolbox.helper
 
 
 import android.content.Context
+import cn.minimote.toolbox.constant.StoredActivity.STORED_FILE_NAME
 import cn.minimote.toolbox.dataClass.StoredActivity
 import com.google.gson.Gson
-import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
 import java.io.File
 import java.lang.reflect.Type
@@ -17,46 +17,64 @@ import java.lang.reflect.Type
 
 object StoredActivityHelper {
 
-    private const val FILE_NAME = "app_info_storage.json"
+    var FILE_NAME = STORED_FILE_NAME
 
+    private val gson = Gson()
+
+    // 获取存储文件对象
+    private fun getStorageFile(context: Context): File {
+        return File(context.filesDir, FILE_NAME)
+    }
+
+
+    // 保存活动列表
     fun saveStoredActivityList(
         context: Context,
         storedActivityList: MutableList<StoredActivity>
     ) {
-        val gson = Gson()
-        val json = gson.toJson(storedActivityList)
-        val file = File(context.filesDir, FILE_NAME)
-//        Log.i("ActivityStorageHelper", "保存文件: ${file.absolutePath}")
-        file.writeText(json)
+        synchronized(this) {
+            val json = gson.toJson(storedActivityList)
+            val file = getStorageFile(context)
+//            Log.i("ActivityStorageHelper", "保存文件: ${file.absolutePath}")
+            file.writeText(json)
+        }
     }
 
+
+    // 加载活动列表
     fun loadStoredActivityList(context: Context): MutableList<StoredActivity> {
-        val file = File(context.filesDir, FILE_NAME)
+        val file = getStorageFile(context)
 //        Log.i("ActivityStorageHelper", "读取文件: ${file.absolutePath}")
+
         if(!file.exists()) {
             return mutableListOf()
         }
-        try {
-            val json = file.readText()
-            val gson = Gson()
-            val type: Type = object : TypeToken<MutableList<StoredActivity>>() {}.type
-            return gson.fromJson(json, type) ?: mutableListOf()
-        } catch(e: JsonSyntaxException) {
-            // Log.e("ActivityStorageHelper", "读取文件出错:${e}")
-            e.printStackTrace()
-            deleteFile(context)
-        } catch(e: Exception) {
-            // Log.e("ActivityStorageHelper", "读取文件出错:${e}")
-            e.printStackTrace()
-            deleteFile(context)
+
+        return synchronized(this) {
+            try {
+                val json = file.readText()
+                if(json.isBlank()) {
+                    // 文件存在但内容为空，视为无效文件
+//                    Log.e("ActivityStorageHelper", "文件内容为空")
+                    deleteFile(context)
+                    return mutableListOf()
+                }
+
+                val type: Type = object : TypeToken<MutableList<StoredActivity>>() {}.type
+                gson.fromJson<MutableList<StoredActivity>>(json, type) ?: mutableListOf()
+            } catch(e: Exception) {
+//                Log.e("ActivityStorageHelper", "读取文件出错: ${e.message}", e)
+                e.printStackTrace()
+                deleteFile(context)
+                mutableListOf()
+            }
         }
-        return mutableListOf()
     }
 
     // 删除有问题的文件
     private fun deleteFile(context: Context) {
         // Log.e("ActivityStorageHelper", "删除文件")
-        val file = File(context.filesDir, FILE_NAME)
+        val file = getStorageFile(context)
         if(file.exists()) {
             file.delete()
         }

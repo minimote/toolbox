@@ -7,8 +7,8 @@ package cn.minimote.toolbox.helper
 
 import android.content.Context
 import android.widget.SeekBar
+import cn.minimote.toolbox.constant.Config.ConfigKeys
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
-import cn.minimote.toolbox.viewModel.ToolboxViewModel.Companion.ConfigKeys
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.abs
 
