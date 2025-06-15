@@ -6,6 +6,7 @@
 
     <TextView
         style="@style/TextView.Toolbox.Dark"
+        android:id="@+id/textView_content"
         android:gravity="start"
         android:paddingVertical="@dimen/layout_size_2_footnote"
         android:paddingHorizontal="@dimen/layout_size_3_script"

@@ -95,8 +95,14 @@
     <!-- View：水平线 -->
     <style name="View.Toolbox.Dark" parent="Theme.Toolbox.Dark">
         <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">@dimen/layout_size_4_tiny</item>
+        <item name="android:layout_height">@dimen/layout_size_5_very_tiny</item>
         <item name="android:background">@color/deep_gray</item>
+    </style>
+
+
+    <!-- ImageView -->
+    <style name="ImageView.Toolbox.Dark" parent="Theme.Toolbox.Dark">
+        <item name="android:background">@android:color/transparent</item>
     </style>
 
 
@@ -168,6 +174,8 @@
         <!--        <item name="android:layout_marginBottom">@dimen/layout_size_2_footnote</item>-->
         <!--        <item name="android:textSize">@dimen/text_size_1_large</item>-->
         <item name="android:background">@android:color/transparent</item>
+        <!-- 行距倍数 -->
+        <item name="android:lineSpacingMultiplier">1.25</item>
     </style>
 
 
@@ -190,10 +198,25 @@
     <style name="TextView.Toolbox.URL.Dark" parent="TextView.Toolbox.Dark">
         <item name="android:textColor">@color/light_blue</item>
         <item name="android:layout_width">match_parent</item>
-        <item name="android:padding">@dimen/layout_size_2_footnote</item>
+        <item name="android:padding">@dimen/layout_size_3_script</item>
         <!--        <item name="android:textIsSelectable">true</item>-->
         <!--        <item name="android:clickable">true</item>-->
         <item name="android:background">@drawable/background_ripple</item>
+        <!--        <item name="android:gravity">start</item>-->
+    </style>
+
+
+    <!-- TextView：开放源代码许可-标题 -->
+    <style name="TextView.Toolbox.LicenseTitle.Dark" parent="TextView.Toolbox.Dark">
+        <item name="android:padding">@dimen/layout_size_3_script</item>
+        <item name="android:gravity">start</item>
+    </style>
+
+
+    <!-- TextView：开放源代码许可-网址 -->
+    <style name="TextView.Toolbox.LicenseURL.Dark" parent="TextView.Toolbox.LicenseTitle.Dark">
+        <item name="android:textColor">@color/mid_gray</item>
+        <item name="android:textSize">@dimen/text_size_1_small</item>
     </style>
 
 
@@ -217,6 +240,18 @@
     <style name="TextView.Toolbox.EditOperateName.Dark" parent="Theme.Toolbox.Dark">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginHorizontal">@dimen/layout_size_3_script</item>
+        <item name="android:layout_marginVertical">@dimen/layout_size_2_footnote</item>
+        <!--        <item name="android:textSize">@dimen/text_size_1_large</item>-->
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+
+    <!-- TextView：我的页面标题名称 -->
+    <style name="TextView.Toolbox.MyList.Name.Dark" parent="Theme.Toolbox.Dark">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">start</item>
         <item name="android:layout_marginHorizontal">@dimen/layout_size_3_script</item>
         <item name="android:layout_marginVertical">@dimen/layout_size_2_footnote</item>
         <!--        <item name="android:textSize">@dimen/text_size_1_large</item>-->
@@ -455,7 +490,7 @@
         <!--        <item name="android:progressDrawable">@drawable/seekbar_progress</item>-->
         <item name="android:progressDrawable">@color/mid_gray</item>
         <item name="android:paddingVertical">@dimen/layout_size_2_footnote</item>
-        <item name="android:maxHeight">@dimen/layout_size_4_tiny</item>
+        <item name="android:maxHeight">@dimen/layout_size_5_very_tiny</item>
     </style>
 
 
@@ -490,6 +525,13 @@
         <item name="android:layout_marginTop">@dimen/layout_size_2.5_script</item>
         <item name="android:layout_width">@dimen/layout_size_2_footnote</item>
         <item name="android:layout_height">@dimen/layout_size_2_footnote</item>
+    </style>
+
+
+    <!--  SmartRefreshLayout  -->
+    <style name="SmartRefreshLayout.Toolbox.Dark" parent="Theme.Toolbox.Dark">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
     </style>
 
 

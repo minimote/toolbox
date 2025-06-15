@@ -4,31 +4,31 @@
     style="@style/ConstraintLayout.Toolbox.Dark">
 
     <TextView
+        android:id="@+id/textView_title"
         style="@style/TextView.Toolbox.Dark"
-        android:id="@+id/name"
-        android:text="@string/gitee"
         android:layout_marginTop="@dimen/layout_size_2_footnote"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:padding="@dimen/layout_size_3_script"
+        android:text="@string/gitee"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/textView_url"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
+        android:id="@+id/textView_content"
         style="@style/TextView.Toolbox.URL.Dark"
-        android:id="@+id/textView_url"
         android:text="@string/projectPath_gitee"
-        app:layout_constraintTop_toBottomOf="@id/name"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/textView_title" />
 
     <ImageView
-        android:id="@+id/imageView_qr_gitee"
+        android:id="@+id/imageView_qr_code"
         style="@style/ImageView.Toolbox.QR.Dark"
         android:contentDescription="@string/qr_gitee"
         android:src="@drawable/qr_gitee"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView_url" />
+        app:layout_constraintTop_toBottomOf="@+id/textView_content" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

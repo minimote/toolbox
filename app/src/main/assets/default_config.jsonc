@@ -12,5 +12,7 @@
   // 网络访问模式-WIFI：allow, deny, alert
   "network_access_mode_wifi": "alert",
   // 网络访问模式-其他：allow, deny, alert
-  "network_access_mode_other": "alert"
+  "network_access_mode_other": "alert",
+  // downloadId
+  "download_id": -1
 }

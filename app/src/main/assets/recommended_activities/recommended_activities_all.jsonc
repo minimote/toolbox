@@ -1,14 +1,14 @@
 [
-    {
-        "appName": "开发者选项",
-        "packageName": "com.android.settings",
-        "activityName": "com.android.settings.Settings$DevelopmentSettingsDashboardActivity",
-        "iconName": "developer_option"
-    },
-    {
-        "appName": "无障碍选项",
-        "packageName": "com.android.settings",
-        "activityName": "com.android.settings.Settings$AccessibilitySettingsActivity",
-        "iconName": "accessibility_option"
-    }
+  {
+    "appName": "开发者选项",
+    "packageName": "com.android.settings",
+    "activityName": "com.android.settings.Settings$DevelopmentSettingsDashboardActivity",
+    "iconKey": "developer_option"
+  },
+  {
+    "appName": "无障碍选项",
+    "packageName": "com.android.settings",
+    "activityName": "com.android.settings.Settings$AccessibilitySettingsActivity",
+    "iconKey": "accessibility_option"
+  }
 ]

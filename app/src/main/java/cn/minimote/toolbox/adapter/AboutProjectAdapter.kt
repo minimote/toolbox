@@ -37,20 +37,30 @@ class AboutProjectAdapter(
         viewType: Int,
     ) : RecyclerView.ViewHolder(itemView) {
 
-        lateinit var imageViewQRGitee: ImageView
-        lateinit var imageViewQRGitHub: ImageView
-        lateinit var textViewURL: TextView
+        lateinit var imageViewQRCode: ImageView
+        lateinit var textViewTitle: TextView
+        lateinit var textViewContent: TextView
 
         init {
             when(viewType) {
                 viewTypes.PROJECT_PATH_GITEE -> {
-                    imageViewQRGitee = itemView.findViewById(R.id.imageView_qr_gitee)
-                    textViewURL = itemView.findViewById(R.id.textView_url)
+                    imageViewQRCode = itemView.findViewById(R.id.imageView_qr_code)
+                    textViewTitle = itemView.findViewById(R.id.textView_title)
+                    textViewContent = itemView.findViewById(R.id.textView_content)
                 }
 
                 viewTypes.PROJECT_PATH_GITHUB -> {
-                    imageViewQRGitHub = itemView.findViewById(R.id.imageView_qr_github)
-                    textViewURL = itemView.findViewById(R.id.textView_url)
+                    imageViewQRCode = itemView.findViewById(R.id.imageView_qr_code)
+                    textViewTitle = itemView.findViewById(R.id.textView_title)
+                    textViewContent = itemView.findViewById(R.id.textView_content)
+                }
+
+                viewTypes.LICENSE_TITLE -> {
+                    textViewTitle = itemView.findViewById(R.id.textView_title)
+                }
+
+                viewTypes.LICENSE -> {
+                    textViewContent = itemView.findViewById(R.id.textView_content)
                 }
             }
         }
@@ -69,9 +79,11 @@ class AboutProjectAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SupportAuthorViewHolder {
         val layoutId = when(viewType) {
             viewTypes.NOTICE -> R.layout.item_about_project_notice
-            viewTypes.PROJECT_PATH_NAME -> R.layout.item_about_project_project_path_name
-            viewTypes.PROJECT_PATH_GITEE -> R.layout.item_about_project_project_path_gitee
-            viewTypes.PROJECT_PATH_GITHUB -> R.layout.item_about_project_project_path_github
+            viewTypes.PROJECT_PATH_NAME -> R.layout.item_about_project_title
+            viewTypes.PROJECT_PATH_GITEE -> R.layout.item_about_project_project_path
+            viewTypes.PROJECT_PATH_GITHUB -> R.layout.item_about_project_project_path
+            viewTypes.LICENSE_TITLE -> R.layout.item_about_project_title
+            viewTypes.LICENSE -> R.layout.item_about_project_notice
             else -> -1
         }
         val view = LayoutInflater.from(context).inflate(layoutId, parent, false)
@@ -85,33 +97,55 @@ class AboutProjectAdapter(
 
         when(holder.itemViewType) {
             viewTypes.PROJECT_PATH_GITEE -> {
-                holder.imageViewQRGitee.layoutParams.width = imageSize
-                holder.imageViewQRGitee.layoutParams.height = imageSize
+                holder.textViewTitle.text = context.getString(R.string.gitee)
+
+                holder.textViewContent.text = context.getString(R.string.projectPath_gitee)
+                setTextViewUrl(
+                    holder.textViewContent,
+                    holder.textViewContent.text.toString(),
+                )
+
+                holder.imageViewQRCode.setImageResource(R.drawable.qr_gitee)
+                holder.imageViewQRCode.layoutParams.width = imageSize
+                holder.imageViewQRCode.layoutParams.height = imageSize
                 ImageSaveHelper.setPopupMenu(
-                    holder.imageViewQRGitee,
+                    holder.imageViewQRCode,
                     context.getString(R.string.qr_gitee_file_name),
                     viewModel,
                     context,
                 )
-                setTextViewUrl(
-                    holder.textViewURL,
-                    context.getString(R.string.projectPath_gitee),
-                )
             }
 
             viewTypes.PROJECT_PATH_GITHUB -> {
-                holder.imageViewQRGitHub.layoutParams.width = imageSize
-                holder.imageViewQRGitHub.layoutParams.height = imageSize
+                holder.textViewTitle.text = context.getString(R.string.github)
+
+                holder.textViewContent.text = context.getString(R.string.projectPath_github)
+                setTextViewUrl(
+                    holder.textViewContent,
+                    holder.textViewContent.text.toString(),
+                )
+
+                holder.imageViewQRCode.setImageResource(R.drawable.qr_github)
+                holder.imageViewQRCode.layoutParams.width = imageSize
+                holder.imageViewQRCode.layoutParams.height = imageSize
                 ImageSaveHelper.setPopupMenu(
-                    holder.imageViewQRGitHub,
+                    holder.imageViewQRCode,
                     context.getString(R.string.qr_github_file_name),
                     viewModel,
                     context,
                 )
-                setTextViewUrl(
-                    holder.textViewURL,
-                    context.getString(R.string.projectPath_github),
-                )
+            }
+
+            viewTypes.LICENSE_TITLE -> {
+                holder.textViewTitle.text = context.getString(R.string.license_title)
+            }
+
+            viewTypes.LICENSE -> {
+                holder.textViewContent.text =
+                    context.assets.open("license.txt").use { inputStream ->
+                        inputStream.readBytes().decodeToString()
+                    }
+
             }
 
         }

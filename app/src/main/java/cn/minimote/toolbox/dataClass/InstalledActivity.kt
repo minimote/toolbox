@@ -6,12 +6,12 @@
 package cn.minimote.toolbox.dataClass
 
 
-// 用于存储的数据类
 data class InstalledActivity(
     val appName: String,
     val packageName: String,
     val activityName: String,
-    var iconName: String = activityName,
+    var iconKey: String = activityName,
+    val id: String = activityName,
 ) {
     // 将安装类型的活动转换为存储类型
     fun toStorageActivity(
@@ -22,9 +22,31 @@ data class InstalledActivity(
             packageName = packageName,
             activityName = activityName,
             width = widgetSize,
-            iconName = iconName,
+            iconKey = iconKey,
+            id = id,
         )
     }
+
+//    fun List<InstalledActivity>.distinctWithOptionalActivity(): List<InstalledActivity> {
+//        val seen = mutableSetOf<Pair<String, String>>()
+//        val result = mutableListOf<InstalledActivity>()
+//
+//        for(item in this) {
+//            if(item.activityName != null) {
+//                val key = item.packageName to item.activityName
+//                if(!seen.contains(key)) {
+//                    seen.add(key)
+//                    result.add(item)
+//                }
+//            } else {
+//                // activityName == null 时直接保留
+//                result.add(item)
+//            }
+//        }
+//
+//        return result
+//    }
+
 }
 
 

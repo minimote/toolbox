@@ -149,7 +149,7 @@
     <string name="network_type_wifi">WIFI网络</string>
     <string name="network_type_mobile">数据网络</string>
     <string name="network_type_bluetooth">蓝牙网络</string>
-    <string name="network_type_other">其他类型的网络</string>
+    <string name="network_type_other">其他网络</string>
     <string name="network_type_disconnected">无网络连接</string>
     <string name="toast_no_network">网络未连接</string>
     <string name="dialog_message_network">当前使用的是%s，确定要继续吗？</string>
@@ -160,4 +160,13 @@
     <string name="network_access_mode_alert">每次提醒</string>
     <string name="network_access_mode_deny">不允许</string>
     <string name="network_access_mode_allow">允许</string>
+    <string name="please_grant_install_permission">请授予安装权限</string>
+    <string name="restore_default">恢复默认</string>
+    <string name="fragment_name_tool_list">全部</string>
+    <string name="scan_and_pay">扫码与支付</string>
+    <string name="package_not_installed">%1$s 未安装</string>
+    <string name="system_tools">系统工具</string>
+    <string name="group_indicator">分组指示器</string>
+    <string name="enter_arrow">进入箭头</string>
+    <string name="license_title">开放源代码许可</string>
 </resources>

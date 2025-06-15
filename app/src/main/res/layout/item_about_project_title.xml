@@ -6,7 +6,8 @@
 
     <TextView
         style="@style/TextView.Toolbox.Dark"
-        android:paddingVertical="@dimen/layout_size_2_footnote"
+        android:id="@+id/textView_title"
+        android:paddingTop="@dimen/layout_size_1_small"
         android:text="@string/projectPath_name"
         android:textSize="@dimen/text_size_2_Large"
         android:textStyle="bold"

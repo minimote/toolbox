@@ -1,10 +1,11 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:background="@color/transparent"
     android:layout_gravity="center">
 
     <View
         style="@style/TabLayout.Dot.Toolbox.Dark"
-        android:background="@drawable/background_tab_layout_dot" />
+        android:background="@drawable/background_tab_layout_dot_selected" />
 
 </FrameLayout>

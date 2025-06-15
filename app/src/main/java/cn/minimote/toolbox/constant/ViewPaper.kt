@@ -8,7 +8,10 @@ package cn.minimote.toolbox.constant
 object ViewPaper {
     // viewPaper 的 Fragment 列表
     val FragmentList = listOf(
+        FragmentNames.TOOL_LIST_FRAGMENT,
         FragmentNames.WIDGET_LIST_FRAGMENT,
         FragmentNames.MY_LIST_FRAGMENT,
     )
+
+    const val START_VIEW_POS = 1
 }

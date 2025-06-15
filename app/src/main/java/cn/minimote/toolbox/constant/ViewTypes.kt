@@ -47,6 +47,8 @@ object ViewTypes {
         const val PROJECT_PATH_NAME = 1
         const val PROJECT_PATH_GITEE = 2
         const val PROJECT_PATH_GITHUB = 3
+        const val LICENSE_TITLE = 4
+        const val LICENSE = 5
     }
 
     // 设置视图类型
@@ -60,5 +62,7 @@ object ViewTypes {
         const val NETWORK_ACCESS_MODE_WIFI = 6
         const val NETWORK_ACCESS_MODE_BLUETOOTH = 7
         const val NETWORK_ACCESS_MODE_OTHER = 8
+        const val RESTORE_DEFAULT = 9
     }
+
 }

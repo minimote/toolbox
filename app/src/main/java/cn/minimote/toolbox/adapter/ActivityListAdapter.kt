@@ -79,7 +79,7 @@ class ActivityListAdapter(
             val appName = activity.appName
             val query = viewModel.searchQuery.value.orEmpty()
             // 手表不高亮显示
-            if(viewModel.isWatch() || query.isEmpty()) {
+            if(viewModel.isWatch || query.isEmpty()) {
                 textViewAppName.text = appName
                 return
             }
@@ -160,9 +160,11 @@ class ActivityListAdapter(
         // 高亮显示搜索结果
         holder.bind(installedActivity)
 
-        holder.appIcon.setImageDrawable(viewModel.getIcon(installedActivity))
+        holder.appIcon.setImageDrawable(
+            viewModel.iconCacheHelper.getIcon(installedActivity)
+        )
         // 手表活动名仅显示最后一个点后面的部分
-        holder.activityName.text = if(viewModel.isWatch()) {
+        holder.activityName.text = if(viewModel.isWatch) {
             installedActivity.activityName.substringAfterLast('.')
         } else {
             installedActivity.activityName

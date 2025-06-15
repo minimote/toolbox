@@ -366,6 +366,7 @@ class MyListAdapter(
             CheckUpdateHelper.checkNetworkAccessModeAndCheckUpdate(
                 context = context,
                 viewModel = viewModel,
+                silence = false,
             )
         }
     }

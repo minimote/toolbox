@@ -35,6 +35,8 @@ object Config {
             const val WIFI = "network_access_mode_wifi"
             const val OTHER = "network_access_mode_other"
         }
+        // downloadId
+        const val DOWNLOAD_ID = "download_id"
     }
 
 

@@ -4,36 +4,20 @@
     android:id="@+id/fragment_widget_list"
     style="@style/ConstraintLayout.Toolbox.RecyclerView.Dark">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView_widget_list"
-        style="@style/RecyclerView.Toolbox.Dark"
+    <com.scwang.smart.refresh.layout.SmartRefreshLayout
+        android:id="@+id/refreshLayout"
+        style="@style/SmartRefreshLayout.Toolbox.Dark"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <!--    <ProgressBar-->
-    <!--        android:id="@+id/progressBar"-->
-    <!--        style="@style/ProgressBar.Toolbox.Dark"-->
-    <!--        android:visibility="gone"-->
-    <!--        app:layout_constraintBottom_toTopOf="@+id/guideline1"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintStart_toStartOf="parent" />-->
-
-    <!--    <androidx.constraintlayout.widget.Guideline-->
-    <!--        android:id="@+id/guideline1"-->
-    <!--        android:layout_width="wrap_content"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:orientation="horizontal"-->
-    <!--        app:layout_constraintGuide_percent="0.5" />-->
-
-    <!--    <TextView-->
-    <!--        android:id="@+id/textView_loading"-->
-    <!--        style="@style/TextView.Toolbox.LoadingText.Dark"-->
-    <!--        android:text="@string/loading_text"-->
-    <!--        android:visibility="gone"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:layout_constraintTop_toBottomOf="@id/guideline1" />-->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView_widget_list"
+            style="@style/RecyclerView.Toolbox.Dark"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </com.scwang.smart.refresh.layout.SmartRefreshLayout>
 
     <ImageView
         android:id="@+id/edit_background"
@@ -55,5 +39,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <!--    </com.scwang.smart.refresh.layout.SmartRefreshLayout>-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

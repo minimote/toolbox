@@ -17,4 +17,5 @@
         <!-- <item name="android:windowSplashScreenBrandingImage">@drawable/ic_toolbox</item> -->
         <!-- <item name="android:windowSplashScreenAnimatedIcon">@drawable/anim_ai_loading</item> -->
     </style>
+
 </resources>

@@ -280,8 +280,12 @@ object FragmentHelper {
                 context.getString(R.string.fragment_name_my_list)
             }
 
+            FragmentNames.TOOL_LIST_FRAGMENT -> {
+                context.getString(R.string.fragment_name_tool_list)
+            }
+
             else -> {
-                ""
+                context.getString(R.string.unknown)
             }
         }
     }

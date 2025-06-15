@@ -38,14 +38,21 @@ object ConfigHelper {
     }
 
 
-    // 清除用户配置文件
-    fun clearUserConfig(
+    // 清除用户和备份的配置文件
+    fun clearUserAndBackupConfig(
         viewModel: ToolboxViewModel,
     ) {
         viewModel.userConfig.clear()
         viewModel.userConfigBackup.clear()
     }
 
+
+    // 仅清除用户配置
+    fun clearUserConfig(
+        viewModel: ToolboxViewModel,
+    ) {
+        viewModel.userConfig.clear()
+    }
 
     // 更新配置的值
     fun updateConfigValue(
@@ -63,6 +70,24 @@ object ConfigHelper {
                 userConfig[key] = value
             }
         }
+    }
+
+
+    // 用户配置存在该项
+    fun hasUserConfigKey(
+        key: String,
+        viewModel: ToolboxViewModel,
+    ): Boolean {
+        return viewModel.userConfig.containsKey(key)
+    }
+
+
+    // 删除配置的值
+    fun deleteConfigValue(
+        key: String,
+        viewModel: ToolboxViewModel,
+    ) {
+        viewModel.userConfig.remove(key)
     }
 
 

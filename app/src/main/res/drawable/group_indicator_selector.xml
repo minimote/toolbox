@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_selected="true"
+        android:drawable="@drawable/arrow_up" /> <!-- 展开时图标 -->
+    <item
+        android:drawable="@drawable/arrow_down" /> <!-- 折叠时图标 -->
+</selector>

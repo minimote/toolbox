@@ -6,32 +6,22 @@
 package cn.minimote.toolbox
 
 import android.app.Application
+import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import dagger.hilt.android.HiltAndroidApp
 
 
 @HiltAndroidApp
-class ToolboxApplication : Application() {
-    override fun onCreate() {
-        super.onCreate()
-//        createNotificationChannel()
-    }
+class ToolboxApplication : Application(){
+    companion object {
+        init {
+            // SmartRefreshLayout 全局默认配置（优先级最低，会被其他设置覆盖）
+            SmartRefreshLayout.setDefaultRefreshInitializer { context, layout ->
+                // 开始设置全局的基本参数（可以被下面的 DefaultRefreshHeaderCreator 覆盖）
+                layout.setReboundDuration(500);//回弹动画时长（毫秒）
+                layout.setEnableLoadMore(true) //是否启用上拉加载功能
+                layout.setEnablePureScrollMode(true) //是否启用纯滚动模式
+            }
 
-//    private fun createNotificationChannel() {
-//        val channelId = "time_channel"
-//        val channelName = "时间更新"
-//        val channel = NotificationChannel(
-//            channelId,
-//            channelName,
-//            NotificationManager.IMPORTANCE_LOW
-//        ).apply {
-//            description = "用于时间小组件后台更新的通知渠道"
-//            lockscreenVisibility = Notification.VISIBILITY_SECRET // 可选：控制锁屏显示
-//        }
-//
-//        val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-//        // 先检查渠道是否存在
-//        if(manager.getNotificationChannel(channelId) == null) {
-//            manager.createNotificationChannel(channel)
-//        }
-//    }
+        }
+    }
 }

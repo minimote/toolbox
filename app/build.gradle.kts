@@ -16,15 +16,20 @@ plugins {
 
 android {
     namespace = "cn.minimote.toolbox"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "cn.minimote.toolbox"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
 
+        var testSuffix = ""
+
+        // 测试的后缀
+        testSuffix = "-alpha"
         // 版本号
-        val versionCodeList = listOf(1, 2, 0)
+        val versionCodeList = listOf(2, 0, 0)
+
         var versionCodeCombined = 0
         for(x in versionCodeList) {
             // 每位的取值范围是 0 ~ 99
@@ -38,8 +43,9 @@ android {
         // 使用当前时间动态设置版本名
         val formatter = DateTimeFormatter.ofPattern("yyMMdd.HHmmss")
         val dateTime = LocalDateTime.now().format(formatter)
-        versionName = versionCodeList.joinToString(".") + "-" + dateTime
-//        versionName = "1.0.1+$dateTime"
+        versionName = versionCodeList.joinToString(".") + "-" + dateTime + testSuffix
+//        versionName = "1.0.1-$dateTime"
+
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -48,6 +54,7 @@ android {
         getByName("release") {
             isMinifyEnabled = true
             isShrinkResources = true
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -187,6 +194,10 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     implementation(libs.androidx.work.runtime.ktx)
+
+    // 越界回弹
+    implementation("io.github.scwang90:refresh-layout-kernel:3.0.0-alpha")
+
 }
 kapt {
     correctErrorTypes = true

@@ -403,7 +403,7 @@ class EditListAdapter(
                 val isDelete = button.text == context.getString(R.string.delete_widget)
                 viewModel.deleteOrRestoreWidget(
                     isDelete = isDelete,
-                    modifiedWidget.value!!.activityName,
+                    modifiedWidget.value!!.id,
                 )
                 setupButtonDeleteOrRestoreWidget(button, !isDelete)
             }

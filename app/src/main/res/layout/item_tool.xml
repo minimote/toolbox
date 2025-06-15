@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/ConstraintLayout.Toolbox.Clickable.Dark"
+    android:background="@drawable/background_round_transparent"
+    >
+
+    <ImageView
+        android:id="@+id/imageView_app_icon"
+        style="@style/ImageView.Toolbox.AppIcon.Dark"
+        android:contentDescription="@string/app_icon"
+        android:src="@drawable/ic_toolbox"
+        android:layout_marginStart="@dimen/layout_size_2_footnote"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="40dp" />
+
+    <TextView
+        android:id="@+id/textView_app_name"
+        style="@style/TextView.Toolbox.AppName.Dark"
+        android:layout_marginVertical="@dimen/layout_size_3_script"
+        android:text="@string/app_name"
+        app:layout_constraintBottom_toTopOf="@id/textView_description"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/guideline1"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView_description"
+        style="@style/TextView.Toolbox.ActivityName.Dark"
+        android:text="@string/supportAuthor_notice"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline1"
+        app:layout_constraintTop_toBottomOf="@+id/textView_app_name" />
+
+    <!--    <androidx.constraintlayout.widget.Guideline-->
+    <!--        android:id="@+id/guideline3"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:orientation="vertical"-->
+    <!--        app:layout_constraintGuide_end="42dp" />-->
+
+    <!--    <com.google.android.material.switchmaterial.SwitchMaterial-->
+    <!--        android:id="@+id/switch_whether_show_in_home"-->
+    <!--        style="@style/Switch.Toolbox.Dark"-->
+    <!--        android:contentDescription="@string/switch_description_whether_show_in_home"-->
+    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="@+id/guideline3"-->
+    <!--        app:layout_constraintTop_toTopOf="parent" />-->
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,56 +4,70 @@
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/ConstraintLayout.Toolbox.RecyclerView.Dark">
 
-    <!--    <com.heytap.wearable.support.recycler.widget.RecyclerView-->
+    <com.scwang.smart.refresh.layout.SmartRefreshLayout
+        android:id="@+id/refreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView_activity_list"
         style="@style/RecyclerView.Toolbox.Dark"
         android:layout_marginTop="50dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         tools:itemCount="15" />
 
-    <EditText
-        android:id="@+id/editText_searchBox"
-        style="@style/EditText.Toolbox.Dark"
-        android:layout_width="0dp"
-        android:autofillHints=""
-        android:hint="@string/hint_search_activities"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toStartOf="@id/button_cancel"
+    </com.scwang.smart.refresh.layout.SmartRefreshLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/button_cancel"
-        style="@style/Button.Toolbox.Dark"
-        android:layout_width="@dimen/layout_size_2_Large"
-        android:layout_height="50dp"
-        android:text="@string/cancel"
-        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/editText_searchBox"
-        app:layout_constraintTop_toTopOf="parent" />
+        style="@style/ConstraintLayout.Toolbox.Dark">
+
+        <EditText
+            android:id="@+id/editText_searchBox"
+            style="@style/EditText.Toolbox.Dark"
+            android:layout_width="0dp"
+            android:autofillHints=""
+            android:hint="@string/hint_search_activities"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toStartOf="@id/button_cancel"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/button_cancel"
+            style="@style/Button.Toolbox.Dark"
+            android:layout_width="@dimen/layout_size_2_Large"
+            android:layout_height="50dp"
+            android:text="@string/cancel"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/editText_searchBox"
+            app:layout_constraintTop_toTopOf="parent" />
 
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="@style/ProgressBar.Toolbox.Dark"
-        android:layout_marginTop="@dimen/layout_size_3_script"
-        app:layout_constraintBottom_toTopOf="@+id/textView_loading"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText_searchBox" />
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="@style/ProgressBar.Toolbox.Dark"
+            android:layout_marginTop="@dimen/layout_size_3_script"
+            app:layout_constraintBottom_toTopOf="@+id/textView_loading"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/editText_searchBox" />
 
-    <TextView
-        android:id="@+id/textView_loading"
-        style="@style/TextView.Toolbox.LoadingText.Dark"
-        android:text="@string/loading_text"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/progressBar" />
+        <TextView
+            android:id="@+id/textView_loading"
+            style="@style/TextView.Toolbox.LoadingText.Dark"
+            android:text="@string/loading_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/progressBar" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

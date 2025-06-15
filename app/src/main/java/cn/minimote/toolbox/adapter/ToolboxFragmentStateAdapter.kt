@@ -13,6 +13,7 @@ import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.constant.FragmentNames
 import cn.minimote.toolbox.constant.ViewPaper
 import cn.minimote.toolbox.fragment.MyListFragment
+import cn.minimote.toolbox.fragment.ToolListFragment
 import cn.minimote.toolbox.fragment.WidgetListFragment
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
 
@@ -22,8 +23,7 @@ class ToolboxFragmentStateAdapter(
     val viewPager: ViewPager2,
     val constraintLayoutOrigin: ConstraintLayout,
     val viewModel: ToolboxViewModel,
-) :
-    FragmentStateAdapter(fragmentActivity) {
+) : FragmentStateAdapter(fragmentActivity) {
 
     private val fragmentList = ViewPaper.FragmentList
 
@@ -34,6 +34,13 @@ class ToolboxFragmentStateAdapter(
 
     override fun createFragment(position: Int): Fragment {
         return when(fragmentList[position]) {
+            FragmentNames.TOOL_LIST_FRAGMENT -> {
+                ToolListFragment(
+                    constraintLayoutOrigin = constraintLayoutOrigin,
+                    viewPager = viewPager
+                )
+            }
+
             FragmentNames.WIDGET_LIST_FRAGMENT -> {
                 WidgetListFragment(
                     viewPager = viewPager,
@@ -49,7 +56,7 @@ class ToolboxFragmentStateAdapter(
             }
 
             else -> {
-                throw IllegalArgumentException("非法的 fragment 位置: $position")
+                throw IllegalArgumentException("非法的 fragment: $fragmentList[position]")
             }
         }
     }

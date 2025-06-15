@@ -24,7 +24,10 @@ import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.scale
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.constant.Icon
-import cn.minimote.toolbox.constant.Icon.IconName
+import cn.minimote.toolbox.constant.Icon.IconKey
+import cn.minimote.toolbox.dataClass.InstalledActivity
+import cn.minimote.toolbox.dataClass.StoredActivity
+import cn.minimote.toolbox.dataClass.ToolActivity
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -59,14 +62,14 @@ class IconCacheHelper(
 
 
     // 放置图标到内存
-    private fun putIconToCache(iconName: String, drawable: Drawable) {
-        iconCache.put(iconName, drawable)
+    private fun putIconToCache(iconKey: String, drawable: Drawable) {
+        iconCache.put(iconKey, drawable)
     }
 
 
     // 保存图标到磁盘
-    private fun saveIconToFile(iconName: String, drawable: Drawable) {
-        val file = File(getCachePath(context), "$iconName.png")
+    private fun saveIconToFile(iconKey: String, drawable: Drawable) {
+        val file = File(getCachePath(context), "$iconKey.png")
         val bitmap = drawableToBitmap(drawable)
         try {
             FileOutputStream(file).use { outputStream ->
@@ -79,14 +82,14 @@ class IconCacheHelper(
 
 
     // 从内存中获取图标
-    private fun loadIconFromCache(iconName: String): Drawable? {
-        return iconCache.get(iconName)
+    private fun loadIconFromCache(iconKey: String): Drawable? {
+        return iconCache.get(iconKey)
     }
 
 
     // 从磁盘获取图标
-    private fun loadIconFromFile(iconName: String): Drawable? {
-        val file = File(getCachePath(context), "$iconName.png")
+    private fun loadIconFromFile(iconKey: String): Drawable? {
+        val file = File(getCachePath(context), "$iconKey.png")
         return if(file.exists()) {
             Drawable.createFromPath(file.absolutePath)
         } else {
@@ -96,17 +99,17 @@ class IconCacheHelper(
 
 
     // 从 drawable 获取图标
-    private fun getIconFromDrawable(iconName: String): Drawable? {
+    private fun getIconFromDrawable(iconKey: String): Drawable? {
         // 假设有一个映射表来关联 packageName 和 drawable 资源 ID
         val iconMap: Map<String, Int> = mapOf(
-            IconName.DEVELOPER_OPTION to R.drawable.ic_developer_option,
-            IconName.RECENT_TASK to R.drawable.ic_recent_task,
-            IconName.ACCESSIBILITY_OPTION to R.drawable.ic_accessibility_option,
+            IconKey.DEVELOPER_OPTION to R.drawable.ic_developer_option,
+            IconKey.RECENT_TASK to R.drawable.ic_recent_task,
+            IconKey.ACCESSIBILITY_OPTION to R.drawable.ic_accessibility_option,
         )
 
 //        var resourceId = R.drawable.ic_default
-//        if(iconMap.containsKey(iconName)) {
-        val resourceId = iconMap[iconName]
+//        if(iconMap.containsKey(iconKey)) {
+        val resourceId = iconMap[iconKey]
 //        }
         return resourceId?.let { ContextCompat.getDrawable(context, it) }
     }
@@ -115,17 +118,26 @@ class IconCacheHelper(
     // 从 packageManager 中获取图标
     private fun getIconFromPackageManager(
         packageName: String,
-        activityName: String,
+        activityName: String?,
     ): Drawable? {
-        try {
+        if(activityName != null) {
             val componentName = ComponentName(packageName, activityName)
-            return packageManager.getActivityIcon(componentName)
-        } catch(_: Exception) {
             return try {
-                packageManager.getApplicationIcon(packageName)
+                packageManager.getActivityIcon(componentName)
             } catch(_: Exception) {
-                getDefaultIcon()
+                // 忽略异常并尝试获取应用图标
+                try {
+                    packageManager.getApplicationIcon(packageName)
+                } catch(_: Exception) {
+                    getDefaultIcon()
+                }
             }
+        }
+
+        return try {
+            packageManager.getApplicationIcon(packageName)
+        } catch(_: Exception) {
+            getDefaultIcon()
         }
     }
 
@@ -135,29 +147,59 @@ class IconCacheHelper(
         return ContextCompat.getDrawable(context, R.drawable.ic_default)
     }
 
-
     // 获取图标
     fun getIcon(
-        iconName: String,
-        packageName: String,
-        activityName: String,
+        storedActivity: StoredActivity,
     ): Drawable? {
+        return loadIconFromAllSources(
+            iconKey = storedActivity.iconKey,
+            packageName = storedActivity.packageName,
+            activityName = storedActivity.activityName
+        )
+    }
+    fun getIcon(
+        installedActivity: InstalledActivity,
+    ): Drawable? {
+        return loadIconFromAllSources(
+            iconKey = installedActivity.iconKey,
+            packageName = installedActivity.packageName,
+            activityName = installedActivity.activityName
+        )
+    }
+    fun getIcon(
+        tool: ToolActivity,
+    ): Drawable? {
+        return loadIconFromAllSources(
+            iconKey = tool.iconKey,
+            packageName = tool.packageName,
+            activityName = tool.activityName,
+        )
+    }
+
+
+    // 从所有渠道获取图标
+    private fun loadIconFromAllSources(
+        iconKey: String,
+        packageName: String,
+        activityName: String?,
+    ): Drawable? {
+//        Log.e("加载图标", "iconKey: $iconKey, packageName: $packageName, activityName: $activityName")
 //        try {
 //            val componentName = ComponentName(packageName, activityName)
 //            return packageManager.getActivityIcon(componentName)
 //        } catch(e: Exception) {
 //            // 处理异常
-//            return getIconFromDrawable(iconName)
+//            return getIconFromDrawable(iconKey)
 //        }
 
         // 从内存中获取图标
-        var appIcon = loadIconFromCache(iconName)
+        var appIcon = loadIconFromCache(iconKey)
         if(appIcon == null) {
             // 从磁盘中获取图标
-            appIcon = loadIconFromFile(iconName)
+            appIcon = loadIconFromFile(iconKey)
             if(appIcon == null) {
                 // 从 drawable 中获取图标
-                appIcon = getIconFromDrawable(iconName)
+                appIcon = getIconFromDrawable(iconKey)
                 if(appIcon == null) {
                     appIcon = getIconFromPackageManager(
                         packageName = packageName,
@@ -165,8 +207,8 @@ class IconCacheHelper(
                     )
                 }
                 if(appIcon != null) {
-                    putIconToCache(iconName, appIcon)
-                    saveIconToFile(iconName, appIcon)
+                    putIconToCache(iconKey, appIcon)
+                    saveIconToFile(iconKey, appIcon)
                 }
 //                Log.d("IconCacheManager", "从系统中获取了图标：$packageName")
             } else {

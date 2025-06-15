@@ -9,27 +9,10 @@
         tools:ignore="QueryAllPackagesPermission" />
     <!--  振动权限  -->
     <uses-permission android:name="android.permission.VIBRATE" />
-    <!--    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />-->
     <!--  联网权限  -->
     <uses-permission android:name="android.permission.INTERNET" />
     <!--  安装应用的权限  -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
-
-    <!-- 允许应用设置精确闹钟，用于定时任务 -->
-    <!--    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />-->
-
-    <!--  允许应用运行前台服务  -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <!--  专门用于数据同步的前台服务权限(Android 13+)  -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
-    <!--  允许应用显示通知，需用户授权(Android 13+)  -->
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-
-
-    <!--    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />-->
-    <!--    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->
-    <!--    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />-->
-    <!--    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />-->
 
 
     <application
@@ -44,7 +27,7 @@
         android:roundIcon="@drawable/ic_toolbox"
         android:supportsRtl="true"
         android:theme="@style/Theme.Toolbox.Dark"
-        tools:targetApi="tiramisu">
+        tools:targetApi="33">
         <!--        <activity-->
         <!--            android:name=".SplashActivity"-->
         <!--            android:exported="true"-->
@@ -60,7 +43,7 @@
             android:configChanges="colorMode|density|fontScale|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
             android:exported="true"
             android:launchMode="singleTask"
-            android:noHistory="true">
+            android:noHistory="false">
             <!-- android:excludeFromRecents="true" -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -68,23 +51,6 @@
             </intent-filter>
         </activity>
 
-        <receiver
-            android:name=".helper.TimeWidget"
-            android:label="@string/widgetName_time_and_date"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/time_widget_info" />
-        </receiver>
-
-        <service
-            android:name=".helper.TimeService"
-            android:foregroundServiceType="dataSync"
-            android:enabled="true"
-            android:exported="false" />
 
     </application>
 

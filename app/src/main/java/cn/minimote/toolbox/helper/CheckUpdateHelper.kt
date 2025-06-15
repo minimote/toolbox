@@ -17,6 +17,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat.getString
 import androidx.core.net.toUri
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.constant.CheckUpdate
+import cn.minimote.toolbox.constant.CheckUpdate.Frequency
 import cn.minimote.toolbox.constant.Config.ConfigKeys
 import cn.minimote.toolbox.constant.Config.ConfigValues.CheckUpdateFrequency
 import cn.minimote.toolbox.constant.Config.ConfigValues.NetworkAccessModeValues
@@ -40,18 +42,28 @@ import java.util.Locale
 
 object CheckUpdateHelper {
 
-    private const val TIMEOUT = 5000
-
     // 自动检查更新
     fun autoCheckUpdate(
         context: Context,
         viewModel: ToolboxViewModel,
     ) {
         // 不自动检查更新
-        if(viewModel.updateCheckGap == -1L) {
+        if(viewModel.updateCheckGap == Frequency.NEVER) {
             return
         }
-        if(System.currentTimeMillis() >= viewModel.nextUpdateCheckTime) {
+        // 如果存在下载ID，说明之前的APK没有安装
+        val downloadId = ConfigHelper.getConfigValue(
+            key = ConfigKeys.DOWNLOAD_ID,
+            viewModel = viewModel,
+        ).toString().toLongOrNull()
+        if(downloadId != null && downloadId >= 0) {
+            installApk(
+                context = context,
+                viewModel = viewModel,
+                downloadId = downloadId,
+            )
+        } else
+            if(System.currentTimeMillis() >= viewModel.nextUpdateCheckTime) {
 //            Toast.makeText(
 //                context,
 //                getFormatTimeString(System.currentTimeMillis()) + "\n" + getFormatTimeString(
@@ -59,12 +71,12 @@ object CheckUpdateHelper {
 //                ),
 //                Toast.LENGTH_SHORT
 //            ).show()
-            checkNetworkAccessModeAndCheckUpdate(
-                context = context,
-                viewModel = viewModel,
-                silence = true,
-            )
-        }
+                checkNetworkAccessModeAndCheckUpdate(
+                    context = context,
+                    viewModel = viewModel,
+                    silence = true,
+                )
+            }
     }
 
 
@@ -120,14 +132,14 @@ object CheckUpdateHelper {
 
 
     // 获取更新间隔
-    fun getUpdateCheckGap(
+    fun getUpdateCheckGapLong(
         frequency: String,
     ): Long {
         return when(frequency) {
-            CheckUpdateFrequency.DAILY -> 1 * 24 * 60 * 60 * 1000L
-            CheckUpdateFrequency.WEEKLY -> 7 * 24 * 60 * 60 * 1000L
-            CheckUpdateFrequency.MONTHLY -> 30 * 24 * 60 * 60 * 1000L
-            CheckUpdateFrequency.NEVER -> -1L
+            CheckUpdateFrequency.DAILY -> Frequency.DAILY
+            CheckUpdateFrequency.WEEKLY -> Frequency.WEEKLY
+            CheckUpdateFrequency.MONTHLY -> Frequency.MONTHLY
+            CheckUpdateFrequency.NEVER -> Frequency.NEVER
 
             else -> {
                 throw IllegalArgumentException("非法的频率：$frequency")
@@ -136,11 +148,11 @@ object CheckUpdateHelper {
     }
 
 
-    // 检查网络访问模式
+    // 检查网络访问模式再检查更新
     fun checkNetworkAccessModeAndCheckUpdate(
         context: Context,
         viewModel: ToolboxViewModel,
-        silence: Boolean = false, // 静默检查
+        silence: Boolean, // 是否静默检查
     ) {
         // 获取网络类型
         val networkType = NetworkHelper.getNetworkType(viewModel.myContext)
@@ -172,10 +184,11 @@ object CheckUpdateHelper {
                 )
                 builder.setPositiveButton(context.getString(R.string.confirm)) { dialog, _ ->
                     VibrationHelper.vibrateOnClick(context, viewModel)
+                    // 经过确认弹窗，执行非静默检查更新
                     checkUpdate(
                         context = context,
                         viewModel = viewModel,
-                        silence = silence,
+                        silence = false,
                     )
                     dialog.dismiss()
                 }
@@ -184,8 +197,6 @@ object CheckUpdateHelper {
                     dialog.dismiss()
                 }
                 builder.show()
-
-                return
             }
 
             NetworkAccessModeValues.DENY -> {
@@ -199,16 +210,16 @@ object CheckUpdateHelper {
                         Toast.LENGTH_SHORT,
                     ).show()
                 }
-                return
             }
 
-            NetworkAccessModeValues.ALLOW -> {}
+            NetworkAccessModeValues.ALLOW -> {
+                checkUpdate(
+                    context = context,
+                    viewModel = viewModel,
+                    silence = silence,
+                )
+            }
         }
-        checkUpdate(
-            context = context,
-            viewModel = viewModel,
-            silence = silence,
-        )
     }
 
 
@@ -216,7 +227,7 @@ object CheckUpdateHelper {
     fun checkUpdate(
         context: Context,
         viewModel: ToolboxViewModel,
-        silence: Boolean = false, // 静默检查
+        silence: Boolean, // 是否静默检查
     ) {
         val checkingUpdateToast = Toast.makeText(
             context, context.getString(R.string.checking_update),
@@ -229,15 +240,19 @@ object CheckUpdateHelper {
         updateCheckTime(viewModel)
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val giteeApiUrl = "https://gitee.com/api/v5/repos/{owner}/{repo}/releases/latest"
+                val giteeApiUrl = CheckUpdate.GITEE_API_URL
                 val url = URL(
                     giteeApiUrl.replace(
-                        "{owner}", context.getString(R.string.author_name_en)
-                    ).replace("{repo}", context.getString(R.string.app_name_en))
+                        CheckUpdate.GITEE_API_OWNER,
+                        context.getString(R.string.author_name_en),
+                    ).replace(
+                        CheckUpdate.GITEE_API_REPO,
+                        context.getString(R.string.app_name_en),
+                    )
                 )
                 val connection = url.openConnection() as HttpURLConnection
-                connection.requestMethod = "GET"
-                connection.connectTimeout = TIMEOUT
+                connection.requestMethod = CheckUpdate.GITEE_API_REQUEST_METHOD
+                connection.connectTimeout = CheckUpdate.TIMEOUT
 
                 if(connection.responseCode != HttpURLConnection.HTTP_OK) {
                     if(!silence) {
@@ -255,13 +270,13 @@ object CheckUpdateHelper {
                 val inputStream = connection.inputStream
                 val json = inputStream.bufferedReader().use { it.readText() }
                 val jsonObject = JSONObject(json)
-                val releaseNotes = jsonObject.getString("body")
+                val releaseNotes = jsonObject.getString(CheckUpdate.GITEE_API_RELEASE_NOTES_KEY)
 
                 val remoteVersion = getRemoteVersion(jsonObject)
                 val localVersion = getLocalVersion(viewModel)
+                val downloadUrl = getDownloadUrl(jsonObject)
 
-                if(hasNewVersion(remoteVersion, localVersion)) {
-                    val downloadUrl = getDownloadUrl(jsonObject)
+                if(hasNewVersion(remoteVersion, localVersion) and downloadUrl.isNotBlank()) {
                     withContext(Dispatchers.Main) {
                         showUpdateDialog(
                             context = context,
@@ -303,14 +318,15 @@ object CheckUpdateHelper {
     private fun getRemoteVersion(
         jsonObject: JSONObject,
     ): String {
-        val assets = jsonObject.getJSONArray("assets")
+        val assets = jsonObject.getJSONArray(CheckUpdate.GITEE_API_ASSETS_KEY)
         for(i in 0 until assets.length()) {
             val asset = assets.getJSONObject(i)
-            val fileName = asset.getString("name")
-            if(fileName.endsWith(".apk")) {
+            var fileName = asset.getString(CheckUpdate.GITEE_API_FILENAME_KEY)
+            if(fileName.endsWith(CheckUpdate.FILENAME_SUFFIX)) {
+                fileName = fileName.removeSuffix(CheckUpdate.FILENAME_SUFFIX)
                 // toolbox_1.1.0-250415.110640
                 try {
-                    return fileName.removeSuffix(".apk").split("_")[1]
+                    return fileName.split("_")[1]
                 } catch(e: Exception) {
                     e.printStackTrace()
                 }
@@ -324,7 +340,7 @@ object CheckUpdateHelper {
     private fun getLocalVersion(
         viewModel: ToolboxViewModel,
     ): String {
-        return viewModel.myVersionName.removeSuffix("-debug")
+        return viewModel.myVersionName.removeSuffix(CheckUpdate.LOCAL_VERSION_SUFFIX)
     }
 
 
@@ -333,10 +349,15 @@ object CheckUpdateHelper {
         versionString: String,
     ): List<Int> {
         // 1.1.0-250415.110640-debug
-        val newVersionString = versionString.replace("[\\s_-]".toRegex(), ".")
+        val newVersionString = versionString.replace(
+            CheckUpdate.VERSION_NAME_SEPARATOR_REGEX,
+            CheckUpdate.VERSION_NAME_SPLIT_CHAR,
+        )
 
 //        Log.e("获取版本号的整数列表", "versionString: $newVersionString")
-        val versionIntList = newVersionString.split(".").map {
+        val versionIntList = newVersionString.split(
+            CheckUpdate.VERSION_NAME_SPLIT_CHAR
+        ).map {
             it.toIntOrNull() ?: -1
         }
         return versionIntList
@@ -348,6 +369,7 @@ object CheckUpdateHelper {
         remoteVersion: String,
         localVersion: String,
     ): Boolean {
+//        return true
         val remoteVersionList = getVersionIntList(remoteVersion)
         val localVersionList = getVersionIntList(localVersion)
 
@@ -356,8 +378,7 @@ object CheckUpdateHelper {
         for((remoteCode, localCode) in remoteVersionList.zip(localVersionList)) {
             if(remoteCode > localCode) {
                 return true
-            }
-            if(remoteCode < localCode) {
+            } else if(remoteCode < localCode) {
                 return false
             }
         }
@@ -369,11 +390,13 @@ object CheckUpdateHelper {
     private fun getDownloadUrl(
         jsonObject: JSONObject,
     ): String {
-        val assets = jsonObject.getJSONArray("assets")
+        val assets = jsonObject.getJSONArray(CheckUpdate.GITEE_API_ASSETS_KEY)
         for(i in 0 until assets.length()) {
             val asset = assets.getJSONObject(i)
-            if(asset.getString("name").endsWith(".apk")) {
-                return asset.getString("browser_download_url")
+            if(asset.getString(CheckUpdate.GITEE_API_FILENAME_KEY)
+                    .endsWith(CheckUpdate.FILENAME_SUFFIX)
+            ) {
+                return asset.getString(CheckUpdate.GITEE_API_DOWNLOAD_URL_KEY)
             }
         }
         return ""
@@ -470,6 +493,7 @@ object CheckUpdateHelper {
         monitorDownloadStatus(
             context = context,
             downloadId = downloadId,
+            viewModel = viewModel,
             downloadingToast = downloadingToast,
         )
     }
@@ -479,7 +503,8 @@ object CheckUpdateHelper {
     private fun monitorDownloadStatus(
         context: Context,
         downloadId: Long,
-        delayTime: Long = 1000L,
+        viewModel: ToolboxViewModel,
+        gapTime: Long = CheckUpdate.MONITOR_DOWNLOAD_STATUS_GAP_RIME,
         downloadingToast: Toast? = null,
     ) {
         CoroutineScope(Dispatchers.IO).launch {
@@ -513,7 +538,8 @@ object CheckUpdateHelper {
                             // 调用安装逻辑
                             installApk(
                                 context = context,
-                                downloadId = downloadId
+                                downloadId = downloadId,
+                                viewModel = viewModel,
                             )
                             cursor.close()
                             break // 停止轮询
@@ -542,7 +568,7 @@ object CheckUpdateHelper {
                 }
                 cursor?.close()
                 // 延迟一段时间再继续轮询
-                delay(delayTime)
+                delay(gapTime)
             }
         }
     }
@@ -550,31 +576,53 @@ object CheckUpdateHelper {
 
     // 调用系统安装器
     private fun installApk(
-        context: Context?,
+        context: Context,
         downloadId: Long,
+        viewModel: ToolboxViewModel,
     ) {
 //        Toast.makeText(
 //            context, "准备安装", Toast.LENGTH_SHORT
 //        ).show()
-        context?.let { ctx ->
-            val downloadManager = ctx.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-            val uri = downloadManager.getUriForDownloadedFile(downloadId)
-            if(uri != null) {
-                if(!ctx.packageManager.canRequestPackageInstalls()) {
-                    CoroutineScope(Dispatchers.Main).launch {
-                        Toast.makeText(ctx, "请授予安装权限", Toast.LENGTH_SHORT).show()
-                    }
-                    val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES)
-                    intent.data = "package:${ctx.packageName}".toUri()
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
 
-                    ctx.startActivity(intent)
+        val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        val uri = downloadManager.getUriForDownloadedFile(downloadId)
+
+        if(uri != null) {
+            // 申请“允许安装未知来源的应用”权限
+            if(!context.packageManager.canRequestPackageInstalls()) {
+                //  保存下载ID，便于启动时直接调用安装程序
+                ConfigHelper.updateConfigValue(
+                    key = ConfigKeys.DOWNLOAD_ID,
+                    value = downloadId,
+                    viewModel = viewModel,
+                )
+                ConfigHelper.saveUserConfig(viewModel = viewModel)
+
+                CoroutineScope(Dispatchers.Main).launch {
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.please_grant_install_permission),
+                        Toast.LENGTH_SHORT,
+                    ).show()
                 }
-                if(ctx.packageManager.canRequestPackageInstalls()) {
-                    startInstallIntent(ctx, uri)
-                }
+                val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES)
+                intent.data = "package:${context.packageName}".toUri()
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+
+
+                context.startActivity(intent)
+            } else {
+                // 删除下载ID，避免下次启动时重复调用安装程序
+                ConfigHelper.deleteConfigValue(
+                    key = ConfigKeys.DOWNLOAD_ID,
+                    viewModel = viewModel,
+                )
+                ConfigHelper.saveUserConfig(viewModel = viewModel)
+
+                startInstallIntent(context, uri)
             }
         }
+
     }
 
 //    // 将应用带到前台
@@ -585,6 +633,7 @@ object CheckUpdateHelper {
 //    }
 
 
+    // 安装 APK
     private fun startInstallIntent(ctx: Context, uri: Uri) {
         val installIntent = Intent(Intent.ACTION_VIEW)
         installIntent.setDataAndType(uri, "application/vnd.android.package-archive")

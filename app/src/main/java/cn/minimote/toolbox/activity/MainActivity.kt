@@ -60,22 +60,12 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var constraintLayoutOrigin: ConstraintLayout
 
-//    private late init var layoutMain: ConstraintLayout
-//    private late init var gestureDetector: GestureDetector
-
     // 用于更新时间
     private val handler = Handler(Looper.getMainLooper())
-    // 创建一个 HandlerThread
-//    private val backgroundThread = HandlerThread("BackgroundThread").apply {
-//        start()
-//    }
-    // 创建一个与 HandlerThread 关联的 Handler
-//    private val backgroundHandler = Handler(backgroundThread.looper)
 
     private val runnable = object : Runnable {
         override fun run() {
             // 1 秒更新一次
-//            backgroundHandler.postDelayed(this, 1000)
             handler.postDelayed(this, 1000)
             // 编辑模式下显示的是排序，所以不更新时间
             if(viewModel.editMode.value == true && viewModel.getFragmentName() == FragmentNames.WIDGET_LIST_FRAGMENT) {
@@ -105,10 +95,7 @@ class MainActivity : AppCompatActivity() {
 //        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         enableEdgeToEdge()
         setContentView(R.layout.layout_main)
-//        layoutMain = findViewById(R.id.layout_main)
-//        printBackStackEntries()
 
-//        NetworkHelper.showNetworkType(this)
         // 加载配置文件
         ConfigHelper.loadAllConfig(viewModel)
 
@@ -128,10 +115,6 @@ class MainActivity : AppCompatActivity() {
 
         // 设置 ViewPager
         setupViewPager()
-
-        // 显示首页小组件
-//        showWidgetList()
-
 
         // 检查更新
         CheckUpdateHelper.autoCheckUpdate(
@@ -178,7 +161,7 @@ class MainActivity : AppCompatActivity() {
 
     // 设置按钮
     private fun setupButtons() {
-        if(viewModel.isWatch()) {
+        if(viewModel.isWatch) {
             // 将手表顶部的顶部按钮间距设为 30dp
             val guideline = findViewById<Guideline>(R.id.guideline4)
             guideline.setGuidelineBegin(viewModel.dpToPx(30f))
@@ -272,6 +255,8 @@ class MainActivity : AppCompatActivity() {
 
     // 设置 ViewPager
     private fun setupViewPager() {
+        val startViewPos = ViewPaper.START_VIEW_POS
+
         viewPager = findViewById(R.id.viewPager_origin)
         tabLayout = findViewById(R.id.tabLayout)
 
@@ -290,39 +275,40 @@ class MainActivity : AppCompatActivity() {
                 context = this,
                 fragmentName = ViewPaper.FragmentList[position],
             )
+
             // 设置点击事件
             tab.view.setOnClickListener {
                 VibrationHelper.vibrateOnClick(this@MainActivity, viewModel)
             }
-            if(viewModel.isWatch()) {
-                tab.customView = if(position == 0) {
-                    layoutInflater.inflate(R.layout.tablayout_dot_selected, tabLayout, false)
+            if(viewModel.isWatch) {
+                tab.customView = if(position == startViewPos) {
+                    layoutInflater.inflate(R.layout.tab_layout_dot_selected_watch, tabLayout, false)
                 } else {
-                    layoutInflater.inflate(R.layout.tablayout_dot, tabLayout, false)
+                    layoutInflater.inflate(R.layout.tab_layout_dot_watch, tabLayout, false)
                 }
             }
         }.attach()
 
         // 设置手表
-        if(viewModel.isWatch()) {
+        if(viewModel.isWatch) {
             // 手表使用小圆点，并且居中
             tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
                 override fun onTabSelected(tab: TabLayout.Tab) {
                     // 设置选中状态的布局
                     tab.customView =
-                        layoutInflater.inflate(R.layout.tablayout_dot_selected, tabLayout, false)
+                        layoutInflater.inflate(R.layout.tab_layout_dot_selected_watch, tabLayout, false)
                 }
 
                 override fun onTabUnselected(tab: TabLayout.Tab) {
                     // 设置未选中状态的布局
                     tab.customView =
-                        layoutInflater.inflate(R.layout.tablayout_dot, tabLayout, false)
+                        layoutInflater.inflate(R.layout.tab_layout_dot_watch, tabLayout, false)
                 }
 
                 override fun onTabReselected(tab: TabLayout.Tab) {
-                    // 重新选中时可以设置特定的布局
+                    // 重新选中时的布局
                     tab.customView =
-                        layoutInflater.inflate(R.layout.tablayout_dot_selected, tabLayout, false)
+                        layoutInflater.inflate(R.layout.tab_layout_dot_selected_watch, tabLayout, false)
                 }
             })
 
@@ -335,6 +321,8 @@ class MainActivity : AppCompatActivity() {
             viewPager.setPageTransformer(ViewPager2Transformer())
         }
 
+        // 设置 ViewPager 默认显示第二个页面
+        viewPager.setCurrentItem(startViewPos, false)
     }
 
 

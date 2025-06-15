@@ -7,15 +7,12 @@ package cn.minimote.toolbox.adapter
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -23,6 +20,7 @@ import cn.minimote.toolbox.R
 import cn.minimote.toolbox.constant.FragmentNames
 import cn.minimote.toolbox.dataClass.StoredActivity
 import cn.minimote.toolbox.fragment.WidgetListFragment
+import cn.minimote.toolbox.helper.ActivityLaunchHelper
 import cn.minimote.toolbox.helper.FragmentHelper
 import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
@@ -76,7 +74,9 @@ class WidgetListAdapter(
         if(appInfo.showName) {
             holder.widgetName?.text = appInfo.nickName
         }
-        holder.appIcon.setImageDrawable(viewModel.getIcon(appInfo))
+        holder.appIcon.setImageDrawable(
+            viewModel.iconCacheHelper.getIcon(appInfo)
+        )
 
 //        holder.itemView.layoutParams.width =
 //            viewModel.screenWidth / viewModel.spanCount * appInfo.width
@@ -134,67 +134,79 @@ class WidgetListAdapter(
 
     // 启动新活动并结束当前活动
     private fun startActivityAndFinishCurrent(appInfo: StoredActivity) {
-        val intentList = listOf(
-            // 使用包名和活动名启动
-            getIntentPackageNameAndActivityName(appInfo),
-            // 使用 parseUri 启动
-            getIntentParseUri(appInfo),
-            // 使用 putExtra 启动
-            getIntentPutExtra(appInfo),
-        )
-        for(intent in intentList) {
-            try {
-                context.startActivity(intent)
-                (context as? Activity)?.finishAffinity()
-                return
-            } catch(e: Exception) {
-                // 如果启动失败，继续尝试下一个 Intent
-            }
+        val flag = ActivityLaunchHelper.launch(context, appInfo)
+        if(flag) {
+            (context as? Activity)?.finishAffinity()
+        } else {
+//            // 启动失败，显示错误信息
+//            Toast.makeText(
+//                context,
+//                context.getString(R.string.start_fail, appInfo.activityName),
+//                Toast.LENGTH_SHORT,
+//            ).show()
         }
-        // 启动失败，显示错误信息
-        Toast.makeText(
-            context,
-            context.getString(R.string.start_fail, appInfo.activityName),
-            Toast.LENGTH_SHORT,
-        ).show()
+
+//        val intentList = listOf(
+//            // 使用包名和活动名启动
+//            getIntentPackageNameAndActivityName(appInfo),
+//            // 使用 parseUri 启动
+//            getIntentParseUri(appInfo),
+//            // 使用 putExtra 启动
+//            getIntentPutExtra(appInfo),
+//        )
+//        for(intent in intentList) {
+//            try {
+//                context.startActivity(intent)
+//                (context as? Activity)?.finishAffinity()
+//                return
+//            } catch(_: Exception) {
+//                // 如果启动失败，继续尝试下一个 Intent
+//            }
+//        }
+//        // 启动失败，显示错误信息
+//        Toast.makeText(
+//            context,
+//            context.getString(R.string.start_fail, appInfo.activityName),
+//            Toast.LENGTH_SHORT,
+//        ).show()
     }
 
 
-    private fun getIntentPackageNameAndActivityName(appInfo: StoredActivity): Intent {
-        return Intent().apply {
-            component = ComponentName(appInfo.packageName, appInfo.activityName)
-            flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-        }
-    }
-
-
-    private fun getIntentParseUri(appInfo: StoredActivity): Intent? {
-        return Intent.parseUri(appInfo.activityName, Intent.URI_INTENT_SCHEME)
-    }
-
-
-    private fun getIntentPutExtra(appInfo: StoredActivity): Intent? {
-        val activityName = appInfo.activityName
-        val parts = activityName.split(context.getString(R.string.split_char))
-        if(parts.size != 3) {
-            if(parts.size == 1) {
-                return context.packageManager.getLaunchIntentForPackage(appInfo.packageName)
-                    ?.apply {
-                        putExtra(activityName, true)
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    }
-            }
-            return null
-        }
-        val action = parts[0]
-        val extraKey = parts[1]
-        val extraValue = parts[2]
-
-        return Intent(action).apply {
-            putExtra(extraKey, extraValue)
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        }
-    }
+//    private fun getIntentPackageNameAndActivityName(appInfo: StoredActivity): Intent {
+//        return Intent().apply {
+//            component = ComponentName(appInfo.packageName, appInfo.activityName)
+//            flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+//        }
+//    }
+//
+//
+//    private fun getIntentParseUri(appInfo: StoredActivity): Intent? {
+//        return Intent.parseUri(appInfo.activityName, Intent.URI_INTENT_SCHEME)
+//    }
+//
+//
+//    private fun getIntentPutExtra(appInfo: StoredActivity): Intent? {
+//        val activityName = appInfo.activityName
+//        val parts = activityName.split(context.getString(R.string.split_char))
+//        if(parts.size != 3) {
+//            if(parts.size == 1) {
+//                return context.packageManager.getLaunchIntentForPackage(appInfo.packageName)
+//                    ?.apply {
+//                        putExtra(activityName, true)
+//                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+//                    }
+//            }
+//            return null
+//        }
+//        val action = parts[0]
+//        val extraKey = parts[1]
+//        val extraValue = parts[2]
+//
+//        return Intent(action).apply {
+//            putExtra(extraKey, extraValue)
+//            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+//        }
+//    }
 
 
     override fun getItemCount(): Int = activityList.size

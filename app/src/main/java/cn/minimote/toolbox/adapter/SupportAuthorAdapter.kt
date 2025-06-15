@@ -137,7 +137,7 @@ class SupportAuthorAdapter(
     // 设置支付宝跳转
     private fun setupAlipay(holder: SupportAuthorViewHolder) {
         // 手表隐藏跳转按钮
-        if(viewModel.isWatch()) {
+        if(viewModel.isWatch) {
             holder.buttonGotoAlipay.visibility = View.GONE
         } else {
             holder.buttonGotoAlipay.setOnClickListener {
@@ -181,7 +181,7 @@ class SupportAuthorAdapter(
     // 设置微信
     private fun setupWechat(holder: SupportAuthorViewHolder) {
         // 手表隐藏跳转按钮
-        if(viewModel.isWatch()) {
+        if(viewModel.isWatch) {
             holder.buttonSaveWechatQR.visibility = View.GONE
             holder.buttonOpenWechatScan.visibility = View.GONE
         } else {

@@ -65,7 +65,10 @@ class SettingAdapter(
             val checkUpdateFrequencyList = SeekBarValueList.checkUpdateFrequencyList
 
             private val lastUpdateCheckTime = viewModel.lastUpdateCheckTime
-            private val updateCheckGap: Long get() = CheckUpdateHelper.getUpdateCheckGap(frequency)
+            private val updateCheckGap: Long
+                get() = CheckUpdateHelper.getUpdateCheckGapLong(
+                    frequency
+                )
             private val nextUpdateCheckTime: Long get() = lastUpdateCheckTime + updateCheckGap
 
             // 设置检查更新频率的文字显示
@@ -120,7 +123,6 @@ class SettingAdapter(
                 )
             }
         }
-
 
         // 网络访问模式
         class NetworkAccessModeViewHolder(
@@ -221,6 +223,14 @@ class SettingAdapter(
                 )
             }
         }
+
+        // 恢复默认
+        class RestoreDefaultViewHolder(
+            itemView: View,
+            val viewModel: ToolboxViewModel,
+        ) : ViewHolder(itemView) {
+
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -277,6 +287,12 @@ class SettingAdapter(
                 val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.item_setting_vibration_mode, parent, false)
                 ViewHolder.NetworkAccessModeViewHolder(view, viewModel)
+            }
+
+            viewTypes.RESTORE_DEFAULT -> {
+                val view = LayoutInflater.from(parent.context)
+                    .inflate(R.layout.item_setting_restore_default, parent, false)
+                ViewHolder.RestoreDefaultViewHolder(view, viewModel)
             }
 
             else -> {
@@ -414,6 +430,14 @@ class SettingAdapter(
                         }
                     }
                 )
+            }
+
+            is ViewHolder.RestoreDefaultViewHolder -> {
+                holder.itemView.setOnClickListener {
+                    VibrationHelper.vibrateOnClick(context, viewModel)
+                    ConfigHelper.clearUserConfig(viewModel)
+                    ConfigHelper.updateSettingWasModified(viewModel)
+                }
             }
         }
     }

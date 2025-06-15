@@ -16,4 +16,5 @@ object FragmentNames {
     const val MY_LIST_FRAGMENT = "MyListFragment"
     const val SETTING_FRAGMENT = "SettingFragment"
     const val WEB_VIEW_FRAGMENT = "WebViewFragment"
+    const val TOOL_LIST_FRAGMENT =  "ToolListFragment"
 }
