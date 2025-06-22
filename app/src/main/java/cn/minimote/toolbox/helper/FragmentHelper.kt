@@ -49,6 +49,7 @@ object FragmentHelper {
             val fragment = when(fragmentName) {
                 FragmentNames.ACTIVITY_LIST_FRAGMENT -> {
                     ActivityListFragment()
+
                 }
 
                 FragmentNames.EDIT_LIST_FRAGMENT -> {

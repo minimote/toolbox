@@ -269,7 +269,7 @@ class MyListAdapter(
         builder.setMessage(context.getString(R.string.clear_cache_confirmation))
         builder.setPositiveButton(context.getString(R.string.confirm)) { dialog, _ ->
             VibrationHelper.vibrateOnClick(context, viewModel)
-            DataCleanHelper.clearCache(context)
+            DataCleanHelper.clearCache(viewModel)
             updateCacheSize(holder)
             Toast.makeText(
                 context,
@@ -286,7 +286,7 @@ class MyListAdapter(
     }
     // 更新缓存大小
     private fun updateCacheSize(holder: MyViewHolder) {
-        holder.textViewCacheSize.text = DataCleanHelper.getCacheSize(context)
+        holder.textViewCacheSize.text = DataCleanHelper.getCacheSize(viewModel)
     }
 
 
@@ -322,7 +322,7 @@ class MyListAdapter(
     }
     // 更新数据大小
     private fun updateDataSize(holder: MyViewHolder) {
-        holder.textViewDataSize.text = DataCleanHelper.getDataSize(context)
+        holder.textViewDataSize.text = DataCleanHelper.getDataSize(viewModel)
     }
 
 

@@ -19,10 +19,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.constant.Config
 import cn.minimote.toolbox.constant.Config.ConfigKeys
 import cn.minimote.toolbox.constant.FragmentNames
+import cn.minimote.toolbox.constant.UI
 import cn.minimote.toolbox.dataClass.InstalledActivity
 import cn.minimote.toolbox.dataClass.StoredActivity
+import cn.minimote.toolbox.dataClass.ToolActivity
 import cn.minimote.toolbox.helper.CheckUpdateHelper
 import cn.minimote.toolbox.helper.ConfigHelper
 import cn.minimote.toolbox.helper.IconCacheHelper
@@ -32,7 +35,6 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.text.Collator
 import java.util.Locale
-import java.util.TreeMap
 import javax.inject.Inject
 import kotlin.math.min
 
@@ -40,12 +42,12 @@ import kotlin.math.min
 @HiltViewModel
 class ToolboxViewModel
 @Inject constructor(
-    application: Application,
+    private val application: Application,
 //    private val iconCacheManager: IconCacheManager,
 ) : AndroidViewModel(application) {
 
     // 获取上下文
-    val myContext: Context get() = getApplication<Application>().applicationContext
+    val myContext: Context get() = application.applicationContext
 
 
     // 获取 PackageManager
@@ -78,10 +80,32 @@ class ToolboxViewModel
         }
 
 
-    val iconCacheHelper: IconCacheHelper = IconCacheHelper(myContext)
+    // 保存路径
+    val savePath: File = File(
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+        myContext.getString(R.string.app_name_en),
+    ).apply {
+        if(!exists()) {
+            mkdirs()
+        }
+    }
+    // 数据路径
+    val dataPath: File = myContext.filesDir.apply {
+        if(!exists()) {
+            mkdirs()
+        }
+    }
+    // 缓存路径
+    val cachePath: File = myContext.cacheDir.apply {
+        if(!exists()) {
+            mkdirs()
+        }
+    }
 
-    // 主视图小组件的列数(1-6的最小公倍数)
-//    val spanCount = 60
+
+    val iconCacheHelper: IconCacheHelper = IconCacheHelper(this)
+
+    // 主视图小组件的列数
     val spanCount = 12
     // 最小最大组件大小
     val minWidgetSize = 1
@@ -95,7 +119,7 @@ class ToolboxViewModel
 
     // 最后一个推荐活动的名称(用于画分隔线)
 //    var lastRecommendedActivityName = ""
-    var recommendedActivitySize = 0
+//    var recommendedActivitySize = 0
 
     // 活动列表大小
     var installedAppListSize = 0
@@ -153,9 +177,9 @@ class ToolboxViewModel
 
 
     // 配置文件
-    var defaultConfig: TreeMap<String, Any> = TreeMap()
-    var userConfig: TreeMap<String, Any> = TreeMap()
-    var userConfigBackup: TreeMap<String, Any> = TreeMap()
+    var defaultConfig: Map<String, Any> = Config.defaultConfig
+    var userConfig: MutableMap<String, Any> = mutableMapOf()
+    var userConfigBackup: MutableMap<String, Any> = mutableMapOf()
 
     // 设置已经被修改
     val settingWasModified: MutableLiveData<Boolean> = MutableLiveData()
@@ -168,20 +192,6 @@ class ToolboxViewModel
     // 默认就是组件列表
     private var _fragmentName = MutableLiveData(FragmentNames.WIDGET_LIST_FRAGMENT)
     val fragmentName: LiveData<String> = _fragmentName
-
-    // 保存路径
-//    val savePath = File(
-//        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-//        myContext.getString(R.string.app_name_en),
-//    )
-    val savePath = File(
-        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-        myContext.getString(R.string.app_name_en),
-    ).apply {
-        if(!exists()) {
-            mkdirs()
-        }
-    }
 
     // 首页拖动场景使用
     var widgetListOrderWasModified: MutableLiveData<Boolean> = MutableLiveData()
@@ -224,7 +234,7 @@ class ToolboxViewModel
         screenHeight = displayMetrics.heightPixels
         // 屏幕短边
         screenShortSide = min(screenWidth, screenHeight)
-        imageSize = (0.8 * screenShortSide).toInt()
+        imageSize = (UI.FULL_SCREEN_IMAGE_RATE * screenShortSide).toInt()
     }
 
 
@@ -241,7 +251,7 @@ class ToolboxViewModel
 
 
     // 小组件列表大小是否发生改变(实际还要看键值对是否改变)
-    private fun widgetListSizeWasModified() {
+    fun widgetListSizeWasModified() {
         val flag =
             _storageActivityMap.size != _modifiedSizeStorageActivityMap.size || _storageActivityMap.entries.zip(
                 _modifiedSizeStorageActivityMap.entries
@@ -270,7 +280,7 @@ class ToolboxViewModel
 
     // 小组件名称是否发生改变
     private fun widgetNameWasModified() {
-        val flag = modifiedWidget.value?.nickName != originWidget.value?.appName
+        val flag = modifiedWidget.value?.nickName != originWidget.value?.name
         if(widgetNameWasModified.value != flag) {
             widgetNameWasModified.value = flag
         }
@@ -302,7 +312,7 @@ class ToolboxViewModel
 //            return
 //        }
 
-        val storageActivityList = StoredActivityHelper.loadStoredActivityList(myContext)
+        val storageActivityList = StoredActivityHelper.loadStoredActivityList(this)
         _storedActivityList.value = storageActivityList
 
 //        Log.i("ActivityViewModel", "加载活动1：${_storedActivityList.value?.size}")
@@ -356,14 +366,19 @@ class ToolboxViewModel
     fun saveWidgetList() {
 //        Log.i("saveStorageActivities", "保存活动列表到存储中")
 
+        updateStorageActivityListSize()
         if(getFragmentName() == FragmentNames.WIDGET_LIST_FRAGMENT) {
             updateStorageActivityListOrder()
-            StoredActivityHelper.saveStoredActivityList(myContext, _storedActivityList.value!!)
+//            StoredActivityHelper.saveStoredActivityList(
+//                this, _storedActivityList.value!!
+//            )
+            StoredActivityHelper.saveStoredActivityList(
+                this, _storageActivityMap.values.toMutableList()
+            )
         } else {
             updateWidget()
-            updateStorageActivityListSize()
             StoredActivityHelper.saveStoredActivityList(
-                myContext, _storageActivityMap.values.toMutableList()
+                this, _storageActivityMap.values.toMutableList()
             )
         }
 
@@ -483,13 +498,13 @@ class ToolboxViewModel
 //                null
 //            } else {
             InstalledActivity(
-                appName = appName,
+                name = appName,
                 packageName = packageName,
                 activityName = activityName,
             )
 //            }
 
-        }.sortedWith(compareBy(collator) { it.appName })
+        }.sortedWith(compareBy(collator) { it.name })
 
 //        installedActivities = (recommendedActivities + installedActivities).distinct()
 
@@ -632,10 +647,16 @@ class ToolboxViewModel
 
         } else {
 //            Log.e("ViewModel", "新建活动：${installedActivity.appName}")
-            val storageActivity = installedActivity.toStorageActivity(widgetSize = maxWidgetSize)
-            _modifiedSizeStorageActivityMap[id] = storageActivity
+            val storedActivity = installedActivity.toStoredActivity(width = maxWidgetSize)
+            _modifiedSizeStorageActivityMap[id] = storedActivity
         }
     }
+    // 将工具活动添加到修改的字典
+    fun addToModifiedMap(toolActivity: ToolActivity) {
+        val storedActivity = toolActivity.toStoredActivity(width = maxWidgetSize)
+        _modifiedSizeStorageActivityMap[storedActivity.id] = storedActivity
+    }
+
     // 组件编辑页的恢复按钮
     private fun addToModifiedMap(id: String) {
         // Log.e(
@@ -659,6 +680,11 @@ class ToolboxViewModel
     private fun removeFromModifiedMap(installedActivity: InstalledActivity) {
 //        Log.e("ViewModel", "移除：${installedActivity.appName}")
         _modifiedSizeStorageActivityMap.remove(installedActivity.id)
+    }
+    // 将工具从修改的字典中移除
+    fun removeFromModifiedMap(toolActivity: ToolActivity) {
+//        Log.e("ViewModel", "移除：${installedActivity.appName}")
+        _modifiedSizeStorageActivityMap.remove(toolActivity.id)
     }
     // 组件编辑页的删除按钮
     private fun removeFromModifiedMap(id: String) {

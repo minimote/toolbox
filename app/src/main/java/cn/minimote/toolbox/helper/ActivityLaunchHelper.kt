@@ -29,7 +29,27 @@ object ActivityLaunchHelper {
             return false
         }
 
-        val intent = when(toolActivity.launchType) {
+        val intent = getIntent(context = context, toolActivity = toolActivity)
+
+        if(intent != null && isIntentAvailable(context, intent)) {
+            startActivity(context, intent, null)
+            return true
+        } else {
+            // 启动失败，显示错误信息
+            Toast.makeText(
+                context,
+                context.getString(R.string.start_fail, toolActivity.name),
+                Toast.LENGTH_SHORT,
+            ).show()
+            return false
+        }
+    }
+
+
+    // 获取 Intent
+    fun getIntent(context: Context, toolActivity: ToolActivity): Intent? {
+
+        return when(toolActivity.launchType) {
             LaunchTypes.PACKAGE_AND_ACTIVITY -> createPackageIntent(
                 context = context, toolActivity = toolActivity,
             )
@@ -46,20 +66,8 @@ object ActivityLaunchHelper {
 
             else -> null
         }
-
-        if(intent != null && isIntentAvailable(context, intent)) {
-            startActivity(context, intent, null)
-            return true
-        } else {
-            // 启动失败，显示错误信息
-            Toast.makeText(
-                context,
-                context.getString(R.string.start_fail, toolActivity.appName),
-                Toast.LENGTH_SHORT,
-            ).show()
-            return false
-        }
     }
+
 
     private fun createPackageIntent(
         context: Context,

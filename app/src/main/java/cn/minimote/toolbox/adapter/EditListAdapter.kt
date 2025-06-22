@@ -234,8 +234,8 @@ class EditListAdapter(
         // 重置按钮的点击事件
         holder.buttonResetNickname.setOnClickListener {
             VibrationHelper.vibrateOnClick(context, viewModel)
-            holder.editTextNickname.setText(originWidget.value?.appName)
-            modifiedWidget.value?.nickName = originWidget.value?.appName.toString()
+            holder.editTextNickname.setText(originWidget.value?.name)
+            modifiedWidget.value?.nickName = originWidget.value?.name.toString()
             //            viewModel.updateWidgetWasChanged()
             viewModel.widgetWasModified()
         }

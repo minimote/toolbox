@@ -10,7 +10,7 @@
         android:background="@color/transparent"
         android:childDivider="@color/transparent"
         android:divider="@color/transparent"
-        android:dividerHeight="1dp"
+        android:dividerHeight="@dimen/layout_size_3_script"
         android:groupIndicator="@null"
         android:listSelector="@color/transparent" />
 

@@ -5,11 +5,9 @@
 
 package cn.minimote.toolbox.constant
 
-object LaunchTypes {
-
-    const val SCHEME = "scheme"
-    const val PACKAGE_AND_ACTIVITY = "package_and_activity"
-    const val PACKAGE = "package"
-    const val ACTION = "action"
-
+object MenuTypes {
+    // 创建快捷方式
+    const val CREATE_SHORTCUT = 0
+    // 添加到主页
+    const val ADD_TO_HOME = 1
 }

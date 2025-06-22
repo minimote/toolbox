@@ -24,6 +24,7 @@ import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.adapter.WidgetListAdapter
 import cn.minimote.toolbox.constant.FragmentNames
+import cn.minimote.toolbox.constant.UI
 import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -43,12 +44,16 @@ class WidgetListFragment(
     private lateinit var context: Context
     private lateinit var imageViewEditBackground: ImageView
     private lateinit var textViewNoWidget: TextView
+    private lateinit var constraintLayoutClick: ConstraintLayout
+
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: WidgetListAdapter
     private lateinit var itemTouchHelper: ItemTouchHelper
 
     // 主视图小组件的列数
-    private var spanCount = 0
+    private val spanCount: Int by lazy {
+        viewModel.spanCount
+    }
 
 
     // 观察者
@@ -91,12 +96,13 @@ class WidgetListFragment(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
 //        Log.d("WidgetListFragment", "onCreateView")
-        spanCount = viewModel.spanCount
 
         val view = inflater.inflate(R.layout.fragment_widget_list, container, false)
+
 //        this::class.simpleName?.let { viewModel.updateFragmentName(it) }
 //        Log.i(TAG, "onCreateView")
-        textViewNoWidget = view.findViewById(R.id.textView_no_widget)
+        // 设置无组件提示
+        setNoWidgetShow(view)
 
         // 设置编辑模式的背景
         setEditModeBackground(view)
@@ -114,12 +120,32 @@ class WidgetListFragment(
     }
 
 
+    // 设置无组件提示
+    private fun setNoWidgetShow(view: View) {
+        textViewNoWidget = view.findViewById(R.id.textView_no_widget)
+        if(viewModel.isWatch) {
+            val paddingSize = resources.getDimensionPixelSize(R.dimen.layout_size_2_footnote)
+            textViewNoWidget.setPadding(paddingSize, paddingSize, paddingSize, paddingSize)
+        }
+        constraintLayoutClick = view.findViewById(R.id.constraintLayout_click)
+        constraintLayoutClick.setOnClickListener {
+            // 手表没有切换振动，所以需要点击振动
+            if(viewModel.isWatch) {
+                VibrationHelper.vibrateOnClick(context, viewModel)
+            }
+            // 手机已经有切换振动了，所以这里不需要再振动
+            viewPager.setCurrentItem(0, true) // 切换到第一页（左边页面）
+        }
+    }
+
+
     // 设置编辑模式的背景
     private fun setEditModeBackground(view: View) {
         val imageViewSize = viewModel.imageSize
         imageViewEditBackground = view.findViewById(R.id.edit_background)
         imageViewEditBackground.layoutParams.width = imageViewSize
         imageViewEditBackground.layoutParams.height = imageViewSize
+        imageViewEditBackground.alpha = UI.ALPHA_3
     }
 
 
@@ -278,7 +304,9 @@ class WidgetListFragment(
         isEditModeObserver = Observer { isEditMode ->
             if(isEditMode) {
                 // 进入编辑模式
+                imageViewEditBackground.setImageResource(R.drawable.ic_setting)
                 imageViewEditBackground.visibility = View.VISIBLE
+                constraintLayoutClick.isClickable = false
 
             } else {
                 // 退出编辑模式
@@ -311,8 +339,13 @@ class WidgetListFragment(
     private fun showNoWidget() {
         if(viewModel.storedActivityList.value?.isEmpty() == true) {
             textViewNoWidget.visibility = View.VISIBLE
+            imageViewEditBackground.visibility = View.VISIBLE
+            imageViewEditBackground.setImageResource(R.drawable.blank)
+//            imageViewEditBackground.alpha = UI.CONTENT_ALPHA_OPAQUE
+            constraintLayoutClick.isClickable = true
         } else {
             textViewNoWidget.visibility = View.GONE
+            imageViewEditBackground.visibility = View.GONE
         }
     }
 

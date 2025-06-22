@@ -5,7 +5,6 @@
 
 package cn.minimote.toolbox.fragment
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,11 +15,9 @@ import android.widget.ExpandableListView.OnGroupExpandListener
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.adapter.ToolListAdapter
-import cn.minimote.toolbox.constant.FragmentNames
 import cn.minimote.toolbox.constant.ToolList
 import cn.minimote.toolbox.dataClass.ExpandableGroup
 import cn.minimote.toolbox.helper.VibrationHelper
@@ -37,19 +34,6 @@ class ToolListFragment(
     private val viewModel: ToolboxViewModel by activityViewModels()
     private lateinit var expandableListView: ExpandableListView
     private lateinit var adapter: ToolListAdapter
-
-    private lateinit var fragmentNameObserver: Observer<String>
-
-
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//    }
-
-
-//    override fun onDestroy() {
-//        super.onDestroy()
-//
-//    }
 
 
     override fun onCreateView(
@@ -69,6 +53,9 @@ class ToolListFragment(
                 ToolList.default
             },
             viewModel = viewModel,
+            fragment = this,
+            fragmentManager = requireActivity().supportFragmentManager,
+            viewPager = viewPager,
         )
         expandableListView.setAdapter(adapter)
 
@@ -95,70 +82,7 @@ class ToolListFragment(
             }
         })
 
-//        expandableListView.setOnChildClickListener(object : OnChildClickListener {
-//            override fun onChildClick(
-//                parent: ExpandableListView?,
-//                v: View?,
-//                groupPosition: Int,
-//                childPosition: Int,
-//                id: Long
-//            ): Boolean {
-//                VibrationHelper.vibrateOnClick(requireContext(), viewModel)
-//                Toast.makeText(requireContext(), "点击了子项", Toast.LENGTH_SHORT).show()
-//                return true
-//            }
-//        })
-
-        // 设置观察者
-        setObservers()
-
         return fragmentView
     }
 
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        // 移除观察者
-        removeObservers()
-    }
-
-
-//    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-//        super.onViewCreated(view, savedInstanceState)
-//        // 刷新数据
-////        refreshData()
-//    }
-
-    override fun onResume() {
-        super.onResume()
-        // 刷新数据
-        refreshData()
-    }
-
-//    override fun onDestroyView() {
-//        super.onDestroyView()
-//        removeObserver()
-//    }
-
-    // 设置观察者
-    private fun setObservers() {
-        fragmentNameObserver = Observer { fragmentName ->
-            if(fragmentName == FragmentNames.TOOL_LIST_FRAGMENT) {
-                // 切换回来的时候刷新数据，主要是从活动列表返回的时候
-                refreshData()
-            }
-        }
-        viewModel.fragmentName.observe(viewLifecycleOwner, fragmentNameObserver)
-    }
-
-    // 移除观察者
-    private fun removeObservers() {
-        viewModel.fragmentName.removeObserver(fragmentNameObserver)
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    fun refreshData() {
-        // 通知适配器数据已更改
-        adapter.notifyDataSetChanged()
-    }
 }

@@ -120,6 +120,7 @@ class MainActivity : AppCompatActivity() {
         CheckUpdateHelper.autoCheckUpdate(
             context = this, viewModel = viewModel,
         )
+
     }
 
 
@@ -185,12 +186,12 @@ class MainActivity : AppCompatActivity() {
         buttonAdd.setOnClickListener {
             VibrationHelper.vibrateOnClick(this, viewModel)
             when(viewModel.getFragmentName()) {
-                FragmentNames.WIDGET_LIST_FRAGMENT -> {
-                    if(viewModel.editMode.value != true) {
-                        changeToActivityListFragment()
-                        return@setOnClickListener
-                    }
-                }
+//                FragmentNames.WIDGET_LIST_FRAGMENT -> {
+//                    if(viewModel.editMode.value != true) {
+//                        changeToActivityListFragment()
+//                        return@setOnClickListener
+//                    }
+//                }
 
                 FragmentNames.SETTING_FRAGMENT -> {
                     ConfigHelper.saveUserConfig(viewModel)
@@ -211,18 +212,6 @@ class MainActivity : AppCompatActivity() {
 
         // 设置时间
         setupTimeButton()
-    }
-
-
-    // 切换到 AppListFragment
-    private fun changeToActivityListFragment() {
-        FragmentHelper.switchFragment(
-            fragmentName = FragmentNames.ACTIVITY_LIST_FRAGMENT,
-            fragmentManager = supportFragmentManager,
-            viewModel = viewModel,
-            viewPager = viewPager,
-            constraintLayoutOrigin = constraintLayoutOrigin,
-        )
     }
 
 
@@ -268,6 +257,9 @@ class MainActivity : AppCompatActivity() {
         )
         viewPager.adapter = adapter
 
+        // 设置 ViewPager 默认显示第二个页面
+        viewPager.setCurrentItem(startViewPos, false)
+
         // 关联 ViewPager2 和 TabLayout
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             // 设置每个 Tab 的标题或图标
@@ -278,8 +270,19 @@ class MainActivity : AppCompatActivity() {
 
             // 设置点击事件
             tab.view.setOnClickListener {
-                VibrationHelper.vibrateOnClick(this@MainActivity, viewModel)
+                val currentPosition = tabLayout.selectedTabPosition
+                if(viewModel.isWatch) {
+                    // 手表没有页面切换振动，所以点击都会振动
+                    VibrationHelper.vibrateOnClick(this@MainActivity, viewModel)
+                } else {
+                    // 手机有页面切换振动，所以点击时只有点击当前页面才振动
+                    if (currentPosition == position) {
+                        // 点击当前页面 tab 的振动
+                        VibrationHelper.vibrateOnClick(this@MainActivity, viewModel)
+                    }
+                }
             }
+
             if(viewModel.isWatch) {
                 tab.customView = if(position == startViewPos) {
                     layoutInflater.inflate(R.layout.tab_layout_dot_selected_watch, tabLayout, false)
@@ -319,10 +322,15 @@ class MainActivity : AppCompatActivity() {
         } else {
             // 设置页面切换动画
             viewPager.setPageTransformer(ViewPager2Transformer())
+            tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+                override fun onTabSelected(tab: TabLayout.Tab) {
+                    // 页面切换的振动
+                    VibrationHelper.vibrateOnClick(this@MainActivity, viewModel)
+                }
+                override fun onTabUnselected(tab: TabLayout.Tab) {}
+                override fun onTabReselected(tab: TabLayout.Tab) {}
+            })
         }
-
-        // 设置 ViewPager 默认显示第二个页面
-        viewPager.setCurrentItem(startViewPos, false)
     }
 
 
@@ -407,8 +415,8 @@ class MainActivity : AppCompatActivity() {
                 buttonTime.isClickable = true
             } else {
                 viewModel.widgetListOrderWasModified.value = false
-                buttonAdd.text = getString(R.string.add_button)
-                buttonAdd.visibility = View.VISIBLE
+//                buttonAdd.text = getString(R.string.add_button)
+//                buttonAdd.visibility = View.VISIBLE
                 buttonExit.text = getString(R.string.exit_button)
                 updateTime()
                 buttonTime.isClickable = false
@@ -434,7 +442,7 @@ class MainActivity : AppCompatActivity() {
                         }
                     } else {
                         buttonAdd.text = getString(R.string.add_button)
-                        buttonAdd.visibility = View.VISIBLE
+                        buttonAdd.visibility = View.GONE
                     }
                 }
 
@@ -470,6 +478,12 @@ class MainActivity : AppCompatActivity() {
                 buttonExit.text = getString(R.string.exit_button)
             } else {
                 buttonExit.text = getString(R.string.return_button)
+            }
+
+            if(fragmentName == FragmentNames.WIDGET_LIST_FRAGMENT) {
+                tabLayout.visibility = View.VISIBLE
+            } else {
+                tabLayout.visibility = View.GONE
             }
 
         }

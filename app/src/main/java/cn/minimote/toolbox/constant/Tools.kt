@@ -9,15 +9,18 @@ import cn.minimote.toolbox.constant.Icon.IconKey
 import cn.minimote.toolbox.dataClass.ToolActivity
 
 object Tools {
+
     // 扫码与支付
     object ScanAndPay {
         // 微信
         object WeChat {
             private const val PACKAGE_NAME = "com.tencent.mm"
+            private const val URL_NAME = "wechat/"
 
             val scanQrCode by lazy {
                 ToolActivity(
-                    appName = "微信-扫一扫",
+                    id = URL_NAME + "scan",
+                    name = "微信-扫一扫",
                     packageName = PACKAGE_NAME,
                     launchType = LaunchTypes.PACKAGE,
                     iconKey = PACKAGE_NAME,
@@ -29,7 +32,8 @@ object Tools {
 
             val payCode by lazy {
                 ToolActivity(
-                    appName = "微信-付款码",
+                    id = URL_NAME + "pay_code",
+                    name = "微信-付款码",
                     packageName = PACKAGE_NAME,
                     launchType = LaunchTypes.ACTION,
                     iconKey = PACKAGE_NAME,
@@ -40,9 +44,10 @@ object Tools {
                 )
             }
 
-            val businessCard by lazy {
+            val myCard by lazy {
                 ToolActivity(
-                    appName = "微信-名片码",
+                    id = URL_NAME + "my_card",
+                    name = "微信-名片码",
                     packageName = PACKAGE_NAME,
                     launchType = LaunchTypes.ACTION,
                     iconKey = PACKAGE_NAME,
@@ -57,10 +62,12 @@ object Tools {
         // 支付宝
         object Alipay {
             private const val PACKAGE_NAME = "com.eg.android.AlipayGphone"
+            private const val URL_NAME = "alipay/"
 
             val scanQrCode by lazy {
                 ToolActivity(
-                    appName = "支付宝-扫一扫",
+                    id = URL_NAME + "scan",
+                    name = "支付宝-扫一扫",
                     packageName = PACKAGE_NAME,
                     launchType = LaunchTypes.SCHEME,
                     iconKey = PACKAGE_NAME,
@@ -70,7 +77,8 @@ object Tools {
 
             val payCode by lazy {
                 ToolActivity(
-                    appName = "支付宝-付款码",
+                    id = URL_NAME + "pay_code",
+                    name = "支付宝-付款码",
                     packageName = PACKAGE_NAME,
                     launchType = LaunchTypes.SCHEME,
                     iconKey = PACKAGE_NAME,
@@ -80,7 +88,8 @@ object Tools {
 
             val collectCode by lazy {
                 ToolActivity(
-                    appName = "支付宝-收款码",
+                    id = URL_NAME + "collect_code",
+                    name = "支付宝-收款码",
                     packageName = PACKAGE_NAME,
                     launchType = LaunchTypes.SCHEME,
                     iconKey = PACKAGE_NAME,
@@ -90,7 +99,8 @@ object Tools {
 
             val rideCode by lazy {
                 ToolActivity(
-                    appName = "支付宝-乘车码",
+                    id = URL_NAME + "ride_code",
+                    name = "支付宝-乘车码",
                     packageName = PACKAGE_NAME,
                     launchType = LaunchTypes.SCHEME,
                     iconKey = PACKAGE_NAME,
@@ -101,7 +111,8 @@ object Tools {
             // 手表付款码
             val watchPayCode by lazy {
                 ToolActivity(
-                    appName = "支付宝-付款码",
+                    id = URL_NAME + "watch_pay_code",
+                    name = "支付宝-付款码",
                     packageName = PACKAGE_NAME,
                     launchType = LaunchTypes.SCHEME,
                     iconKey = PACKAGE_NAME,
@@ -113,10 +124,12 @@ object Tools {
         // 云闪付
         object YunShanFu {
             private const val PACKAGE_NAME = "com.unionpay"
+            private const val URL_NAME = "yunshanfu/"
 
             val scanQrCode by lazy {
                 ToolActivity(
-                    appName = "云闪付-扫一扫",
+                    id = URL_NAME + "scan",
+                    name = "云闪付-扫一扫",
                     packageName = PACKAGE_NAME,
                     launchType = LaunchTypes.SCHEME,
                     iconKey = PACKAGE_NAME,
@@ -126,7 +139,8 @@ object Tools {
 
             val payCode by lazy {
                 ToolActivity(
-                    appName = "云闪付-付款码",
+                    id = URL_NAME + "pay_code",
+                    name = "云闪付-付款码",
                     packageName = PACKAGE_NAME,
                     launchType = LaunchTypes.SCHEME,
                     iconKey = PACKAGE_NAME,
@@ -138,12 +152,15 @@ object Tools {
 
     // 系统工具
     object SystemTools {
+        private const val URL_NAME = "system/"
+
         object Settings {
             private const val PACKAGE_NAME = "com.android.settings"
 
             val developerOption by lazy {
                 ToolActivity(
-                    appName = "开发者选项",
+                    id = URL_NAME + "developer_option",
+                    name = "开发者选项",
                     packageName = PACKAGE_NAME,
                     activityName = "com.android.settings.Settings\$DevelopmentSettingsDashboardActivity",
                     launchType = LaunchTypes.PACKAGE_AND_ACTIVITY,
@@ -153,7 +170,8 @@ object Tools {
 
             val accessibilityOption by lazy {
                 ToolActivity(
-                    appName = "无障碍选项",
+                    id = URL_NAME + "accessibility_option",
+                    name = "无障碍选项",
                     packageName = PACKAGE_NAME,
                     activityName = "com.android.settings.Settings\$AccessibilitySettingsActivity",
                     launchType = LaunchTypes.PACKAGE_AND_ACTIVITY,
@@ -164,7 +182,8 @@ object Tools {
 
         val recentTask by lazy {
             ToolActivity(
-                appName = "最近任务",
+                id = URL_NAME + "recent_task",
+                name = "最近任务",
                 packageName = "com.heytap.wearable.launcher",
                 activityName = "com.android.quickstep.RecentsActivity",
                 iconKey = IconKey.RECENT_TASK,

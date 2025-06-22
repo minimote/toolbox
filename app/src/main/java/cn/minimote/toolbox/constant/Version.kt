@@ -5,11 +5,9 @@
 
 package cn.minimote.toolbox.constant
 
-object LaunchTypes {
-
-    const val SCHEME = "scheme"
-    const val PACKAGE_AND_ACTIVITY = "package_and_activity"
-    const val PACKAGE = "package"
-    const val ACTION = "action"
-
+object Version {
+    // StoredActivity 版本号
+    const val STORED_ACTIVITY = 1
+//    // Config 配置文件版本号
+//    const val CONFIG = 1
 }

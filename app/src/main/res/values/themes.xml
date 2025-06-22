@@ -2,8 +2,8 @@
 
     <!-- 默认主题 -->
     <style name="Theme.Toolbox.Dark" parent="Theme.Material3.Dark.NoActionBar">
-        <item name="android:background">@color/black</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="android:background">@color/transparent</item>
+        <item name="android:textColor">@color/text_white</item>
         <item name="android:textSize">@dimen/text_size_0_normal</item>
         <item name="android:gravity">center</item>
         <!-- 右滑返回 -->
@@ -16,12 +16,13 @@
         <item name="android:colorPrimaryDark">@color/primary</item>
         <item name="colorAccent">@color/yellow</item>
         <item name="android:colorAccent">@color/yellow</item>
-        <item name="popupMenuStyle">@style/PopupMenu.Toolbox.Dark</item>
+<!--        <item name="popupMenuStyle">@style/PopupMenu.Toolbox.Dark</item>-->
     </style>
 
 
     <!-- Button -->
     <style name="Button.Toolbox.Dark" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">@color/text_white</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_margin">0dp</item>
@@ -31,42 +32,32 @@
         <item name="android:inset">0dp</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
-        <item name="android:textColor">@color/white</item>
-        <item name="background">@color/yellow</item>
+        <!--        <item name="android:background">@drawable/background_ripple</item>-->
         <item name="cornerRadius">0dp</item>
     </style>
-
-
     <!-- Button：圆角 -->
     <style name="Button.Toolbox.Round.Dark" parent="Button.Toolbox.Dark">
         <item name="cornerRadius">@dimen/layout_size_1_small</item> <!-- 圆角半径 -->
     </style>
-
-
     <!-- Button：顶部的按钮 -->
     <style name="Button.Toolbox.Top.Dark" parent="Button.Toolbox.Dark">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">0dp</item>
     </style>
-
-
     <!-- Button：支付宝 -->
     <style name="Button.Toolbox.Alipay.Dark" parent="Button.Toolbox.Round.Dark">
         <!--        <item name="android:layout_width">match_parent</item>-->
-        <item name="backgroundTint">@color/alipay_blue</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:backgroundTint">@color/alipay_blue</item>
         <item name="android:padding">@dimen/layout_size_1_small</item>
         <!--        <item name="android:paddingHorizontal">@dimen/layout_size_2_footnote</item>-->
         <!--        <item name="android:paddingRight">@dimen/layout_size_2_footnote</item>-->
         <!--        <item name="android:layout_marginHorizontal">@dimen/layout_size_1_small</item>-->
     </style>
-
-
     <!-- Button：微信 -->
     <style name="Button.Toolbox.Wechat.Dark" parent="Button.Toolbox.Alipay.Dark">
-        <item name="backgroundTint">@color/wechat_green</item>
+        <item name="android:backgroundTint">@color/wechat_green</item>
     </style>
-
-
     <!-- Button: 删除组件 -->
     <style name="Button.Toolbox.DeleteWidget.Dark" parent="Button.Toolbox.Dark">
         <item name="android:layout_width">0dp</item>
@@ -75,20 +66,25 @@
         <item name="android:textColor">@color/red</item>
         <item name="android:padding">@dimen/layout_size_3_script</item>
     </style>
-
-
     <!--    &lt;!&ndash; Button: 恢复组件 &ndash;&gt;-->
     <!--    <style name="Button.Toolbox.RestoreWidget.Dark" parent="Button.Toolbox.DeleteWidget.Dark">-->
     <!--        <item name="android:textColor">@color/green</item>-->
     <!--    </style>-->
-
-
     <!-- Button: 重置按钮 -->
     <style name="Button.Toolbox.Reset.Dark" parent="Button.Toolbox.Dark">
         <item name="android:text">@string/reset</item>
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">@dimen/text_size_1_small</item>
+    </style>
+
+
+    <!-- ImageButton -->
+    <style name="ImageButton.Toolbox.Dark" parent="Widget.AppCompat.ImageButton">
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:background">@drawable/background_ripple</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
     </style>
 
 
@@ -104,33 +100,25 @@
     <style name="ImageView.Toolbox.Dark" parent="Theme.Toolbox.Dark">
         <item name="android:background">@android:color/transparent</item>
     </style>
-
-
     <!-- ImageView：软件图标 -->
-    <style name="ImageView.Toolbox.AppIcon.MyList.Dark" parent="Theme.Toolbox.Dark">
+    <style name="ImageView.Toolbox.AppIcon.MyList.Dark" parent="ImageView.Toolbox.Dark">
         <item name="android:layout_width">@dimen/layout_size_2_Large</item>
         <item name="android:layout_height">@dimen/layout_size_2_Large</item>
         <!--        <item name="android:layout_marginStart">@dimen/layout_size_2_footnote</item>-->
         <!--        <item name="android:layout_marginEnd">@dimen/layout_size_2_footnote</item>-->
         <!--        <item name="android:layout_marginTop">@dimen/layout_size_2_footnote</item>-->
         <!--        <item name="android:layout_marginBottom">@dimen/layout_size_2_footnote</item>-->
-        <item name="android:background">@android:color/transparent</item>
     </style>
-
-
     <!-- ImageView：软件图标 -->
-    <style name="ImageView.Toolbox.AppIcon.Dark" parent="Theme.Toolbox.Dark">
+    <style name="ImageView.Toolbox.AppIcon.Dark" parent="ImageView.Toolbox.Dark">
         <item name="android:layout_width">@dimen/layout_size_1_large</item>
         <item name="android:layout_height">@dimen/layout_size_1_large</item>
         <!--        <item name="android:layout_marginStart">@dimen/layout_size_2_footnote</item>-->
         <!--        <item name="android:layout_marginEnd">@dimen/layout_size_2_footnote</item>-->
         <item name="android:layout_marginVertical">@dimen/layout_size_2_footnote</item>
-        <item name="android:background">@android:color/transparent</item>
     </style>
-
-
     <!-- ImageView：小组件图标 -->
-    <style name="ImageView.Toolbox.WidgetIcon.Dark" parent="Theme.Toolbox.Dark">
+    <style name="ImageView.Toolbox.WidgetIcon.Dark" parent="ImageView.Toolbox.Dark">
         <item name="android:layout_width">@dimen/layout_size_1_large</item>
         <item name="android:layout_height">@dimen/layout_size_1_large</item>
         <item name="android:layout_margin">@dimen/layout_size_2_footnote</item>
@@ -138,12 +126,9 @@
         <!--        <item name="android:layout_marginEnd">@dimen/layout_size_2_footnote</item>-->
         <!--        <item name="android:layout_marginTop">@dimen/layout_size_2_footnote</item>-->
         <!--        <item name="android:layout_marginBottom">@dimen/layout_size_2_footnote</item>-->
-        <item name="android:background">@android:color/transparent</item>
     </style>
-
-
     <!-- ImageView：收款码 -->
-    <style name="ImageView.Toolbox.QR.Dark" parent="Theme.Toolbox.Dark">
+    <style name="ImageView.Toolbox.QR.Dark" parent="ImageView.Toolbox.Dark">
         <item name="android:layout_width">@dimen/layout_size_3_LARGE</item>
         <item name="android:layout_height">@dimen/layout_size_3_LARGE</item>
         <!--        <item name="android:layout_margin">@dimen/layout_size_2_footnote</item>-->
@@ -151,21 +136,18 @@
         <!--        <item name="android:layout_marginEnd">@dimen/layout_size_2_footnote</item>-->
         <!--        <item name="android:layout_marginTop">@dimen/layout_size_2_footnote</item>-->
         <!--        <item name="android:layout_marginBottom">@dimen/layout_size_2_footnote</item>-->
-        <item name="android:background">@android:color/transparent</item>
     </style>
-
-
     <!-- ImageView：编辑模式背景 -->
-    <style name="ImageView.Toolbox.EditBackground.Dark" parent="Theme.Toolbox.Dark">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:background">@android:color/transparent</item>
-        <item name="android:alpha">0.256</item>
+    <style name="ImageView.Toolbox.EditBackground.Dark" parent="ImageView.Toolbox.Dark">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+<!--        <item name="android:background">@drawable/background_ripple</item>-->
     </style>
 
 
     <!-- TextView -->
     <style name="TextView.Toolbox.Dark" parent="Theme.Toolbox.Dark">
+        <item name="android:textColor">@color/text_white</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <!--        <item name="android:layout_marginStart">@dimen/layout_size_3_script</item>-->
@@ -176,24 +158,19 @@
         <item name="android:background">@android:color/transparent</item>
         <!-- 行距倍数 -->
         <item name="android:lineSpacingMultiplier">1.25</item>
+        <item name="android:text">@string/app_name</item>
     </style>
-
-
     <!-- TextView：一级设置项 -->
     <style name="TextView.Toolbox.Setting1.Dark" parent="TextView.Toolbox.Dark">
         <item name="android:layout_width">match_parent</item>
         <item name="android:gravity">start</item>
         <item name="android:paddingVertical">@dimen/layout_size_4_tiny</item>
     </style>
-
-
     <!-- TextView：二级设置项 -->
     <style name="TextView.Toolbox.Setting2.Dark" parent="TextView.Toolbox.Setting1.Dark">
         <item name="android:textColor">@color/mid_gray</item>
         <item name="android:textSize">@dimen/layout_size_1_small</item>
     </style>
-
-
     <!-- TextView：网址 -->
     <style name="TextView.Toolbox.URL.Dark" parent="TextView.Toolbox.Dark">
         <item name="android:textColor">@color/light_blue</item>
@@ -204,22 +181,16 @@
         <item name="android:background">@drawable/background_ripple</item>
         <!--        <item name="android:gravity">start</item>-->
     </style>
-
-
     <!-- TextView：开放源代码许可-标题 -->
     <style name="TextView.Toolbox.LicenseTitle.Dark" parent="TextView.Toolbox.Dark">
         <item name="android:padding">@dimen/layout_size_3_script</item>
         <item name="android:gravity">start</item>
     </style>
-
-
     <!-- TextView：开放源代码许可-网址 -->
     <style name="TextView.Toolbox.LicenseURL.Dark" parent="TextView.Toolbox.LicenseTitle.Dark">
         <item name="android:textColor">@color/mid_gray</item>
         <item name="android:textSize">@dimen/text_size_1_small</item>
     </style>
-
-
     <!-- TextView：支付宝 -->
     <style name="TextView.Toolbox.Alipay.Dark" parent="TextView.Toolbox.Dark">
         <item name="android:layout_marginTop">@dimen/layout_size_2_footnote</item>
@@ -228,16 +199,12 @@
         <item name="android:textSize">@dimen/text_size_2_Large</item>
         <item name="android:background">@android:color/transparent</item>
     </style>
-
-
     <!-- TextView：微信 -->
     <style name="TextView.Toolbox.Wechat.Dark" parent="TextView.Toolbox.Alipay.Dark">
         <item name="android:textColor">@color/wechat_green</item>
     </style>
-
-
     <!-- TextView：修改操作的名称 -->
-    <style name="TextView.Toolbox.EditOperateName.Dark" parent="Theme.Toolbox.Dark">
+    <style name="TextView.Toolbox.EditOperateName.Dark" parent="TextView.Toolbox.Dark">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginHorizontal">@dimen/layout_size_3_script</item>
@@ -245,10 +212,8 @@
         <!--        <item name="android:textSize">@dimen/text_size_1_large</item>-->
         <item name="android:background">@android:color/transparent</item>
     </style>
-
-
     <!-- TextView：我的页面标题名称 -->
-    <style name="TextView.Toolbox.MyList.Name.Dark" parent="Theme.Toolbox.Dark">
+    <style name="TextView.Toolbox.MyList.Name.Dark" parent="TextView.Toolbox.Dark">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:gravity">start</item>
@@ -257,10 +222,8 @@
         <!--        <item name="android:textSize">@dimen/text_size_1_large</item>-->
         <item name="android:background">@android:color/transparent</item>
     </style>
-
-
     <!-- TextView：小组件名称 -->
-    <style name="TextView.Toolbox.WidgetName.Dark" parent="Theme.Toolbox.Dark">
+    <style name="TextView.Toolbox.WidgetName.Dark" parent="TextView.Toolbox.Dark">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:gravity">start</item>
@@ -272,10 +235,8 @@
         <item name="android:textSize">@dimen/text_size_1_large</item>
         <item name="android:background">@android:color/transparent</item>
     </style>
-
-
     <!-- TextView：软件名称 -->
-    <style name="TextView.Toolbox.AppName.Dark" parent="Theme.Toolbox.Dark">
+    <style name="TextView.Toolbox.AppName.Dark" parent="TextView.Toolbox.Dark">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:gravity">start</item>
@@ -287,10 +248,8 @@
         <!--        <item name="android:textSize">@dimen/text_size_1_large</item>-->
         <item name="android:background">@android:color/transparent</item>
     </style>
-
-
     <!-- TextView：编辑页面活动名称 -->
-    <style name="TextView.Toolbox.EditActivityName.Dark" parent="Theme.Toolbox.Dark">
+    <style name="TextView.Toolbox.EditActivityName.Dark" parent="TextView.Toolbox.Dark">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:gravity">start</item>
@@ -301,10 +260,8 @@
         <item name="android:textColor">@color/light_gray</item>
         <item name="android:background">@android:color/transparent</item>
     </style>
-
-
     <!-- TextView：活动列表活动名称 -->
-    <style name="TextView.Toolbox.ActivityName.Dark" parent="Theme.Toolbox.Dark">
+    <style name="TextView.Toolbox.ActivityName.Dark" parent="TextView.Toolbox.Dark">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:gravity">start</item>
@@ -315,10 +272,8 @@
         <item name="android:textColor">@color/light_gray</item>
         <item name="android:background">@android:color/transparent</item>
     </style>
-
-
     <!-- TextView：我的列表-右边的细节显示 -->
-    <style name="TextView.Toolbox.MyListDetail.Dark" parent="Theme.Toolbox.Dark">
+    <style name="TextView.Toolbox.MyListDetail.Dark" parent="TextView.Toolbox.Dark">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:gravity">end</item>
@@ -330,10 +285,8 @@
         <item name="android:textColor">@color/light_gray</item>
         <item name="android:background">@android:color/transparent</item>
     </style>
-
-
     <!-- TextView：版本号和作者 -->
-    <style name="TextView.Toolbox.VersionName.Dark" parent="Theme.Toolbox.Dark">
+    <style name="TextView.Toolbox.VersionName.Dark" parent="TextView.Toolbox.Dark">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <!--        <item name="android:gravity">start</item>-->
@@ -346,23 +299,25 @@
         <item name="android:textColor">@color/light_gray</item>
         <item name="android:background">@android:color/transparent</item>
     </style>
-
-
     <!-- TextView：进度条提示文本 -->
-    <style name="TextView.Toolbox.LoadingText.Dark" parent="Theme.Toolbox.Dark">
+    <style name="TextView.Toolbox.LoadingText.Dark" parent="TextView.Toolbox.Dark">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginTop">@dimen/layout_size_1_small</item>
         <item name="android:background">@android:color/transparent</item>
     </style>
-
-
     <!-- TextView：软件名首字母 -->
-    <style name="TextView.Toolbox.FirstChar.Dark" parent="Theme.Toolbox.Dark">
+    <style name="TextView.Toolbox.FirstChar.Dark" parent="TextView.Toolbox.Dark">
         <item name="android:layout_width">@dimen/layout_size_1_large</item>
         <item name="android:layout_height">@dimen/layout_size_1_large</item>
         <item name="android:background">@drawable/background_first_char</item>
         <item name="android:layout_marginEnd">@dimen/layout_size_1_large</item>
+    </style>
+    <!-- TextView：底部菜单项 -->
+    <style name="TextView.Toolbox.BottomSheetItem.Dark" parent="TextView.Toolbox.Dark">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:padding">@dimen/layout_size_1_small</item>
+        <!--        <item name="android:background">@color/transparent</item>-->
     </style>
 
 
@@ -377,41 +332,59 @@
         <item name="android:scrollbars">vertical</item>
         <!--        <item name="android:overScrollMode">always</item>-->
     </style>
+    <!-- RecyclerView: 底部菜单 -->
+    <style name="RecyclerView.Toolbox.BottomSheet.Dark" parent="RecyclerView.Toolbox.Dark">
+        <item name="android:background">@color/deep_gray</item>
+    </style>
 
 
     <!-- ConstraintLayout -->
     <style name="ConstraintLayout.Toolbox.Dark" parent="Theme.Toolbox.Dark">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <!--        <item name="android:paddingHorizontal">@dimen/layout_size_3_script</item>-->
+        <item name="android:paddingHorizontal">@dimen/layout_size_4_tiny</item>
         <item name="layout_constrainedHeight">true</item>
+        <!--        <item name="android:background">@color/transparent</item>-->
     </style>
-
-
     <!-- 放置 WebView 的 ConstraintLayout -->
-    <style name="ConstraintLayout.Toolbox.WebView.Dark" parent="Theme.Toolbox.Dark">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:paddingHorizontal">@dimen/layout_size_3_script</item>
+    <style name="ConstraintLayout.Toolbox.WebView.Dark" parent="ConstraintLayout.Toolbox.Dark">
+        <!--        <item name="android:layout_width">match_parent</item>-->
+        <!--        <item name="android:layout_height">match_parent</item>-->
+        <!--        <item name="android:paddingHorizontal">@dimen/layout_size_3_script</item>-->
     </style>
-
-
     <!-- 放置 RecyclerView 的 ConstraintLayout -->
-    <style name="ConstraintLayout.Toolbox.RecyclerView.Dark" parent="Theme.Toolbox.Dark">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:paddingHorizontal">@dimen/layout_size_3_script</item>
-        <item name="layout_constrainedHeight">true</item>
+    <style name="ConstraintLayout.Toolbox.RecyclerView.Dark" parent="ConstraintLayout.Toolbox.Dark">
+        <!--        <item name="android:layout_width">match_parent</item>-->
+        <!--        <item name="android:layout_height">wrap_content</item>-->
+        <!--        <item name="android:paddingHorizontal">@dimen/layout_size_3_script</item>-->
+<!--        <item name="layout_constrainedHeight">true</item>-->
     </style>
-
-
+    <!-- 放置 RecyclerView 的 ConstraintLayout：底部菜单 -->
+    <style name="ConstraintLayout.Toolbox.RecyclerView.BottomSheet.Dark" parent="ConstraintLayout.Toolbox.RecyclerView.Dark">
+<!--        <item name="android:layout_width">match_parent</item>-->
+<!--        <item name="android:layout_height">wrap_content</item>-->
+        <item name="android:paddingHorizontal">0dp</item>
+<!--        <item name="layout_constrainedHeight">true</item>-->
+        <item name="android:background">@color/deep_gray</item>
+    </style>
     <!-- 可点击的的 ConstraintLayout -->
-    <style name="ConstraintLayout.Toolbox.Clickable.Dark" parent="Theme.Toolbox.Dark">
+    <style name="ConstraintLayout.Toolbox.Clickable.Dark" parent="ConstraintLayout.Toolbox.Dark">
         <item name="android:clickable">true</item>
         <!--        <item name="android:focusable">true</item>-->
+<!--        <item name="android:layout_width">match_parent</item>-->
+<!--        <item name="android:layout_height">wrap_content</item>-->
+        <item name="android:background">@drawable/background_ripple</item>
+    </style>
+    <!-- 小组件样式(可点击) -->
+    <style name="ConstraintLayout.Toolbox.Widget.Dark" parent="ConstraintLayout.Toolbox.Dark">
+        <item name="android:clickable">true</item>
+        <!--        <item name="android:focusable">true</item>-->
+        <!--        <item name="android:padding">@dimen/layout_size_4_tiny</item>-->
+        <item name="android:layout_marginVertical">@dimen/layout_size_4_tiny</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:background">@drawable/background_ripple</item>
+        <!--        <item name="android:background">@drawable/background_widget_edge</item>-->
+        <item name="android:background">@drawable/background_widget_full</item>
     </style>
 
 
@@ -422,19 +395,6 @@
         <item name="android:layout_height">match_parent</item>
         <item name="android:paddingHorizontal">@dimen/layout_size_3_script</item>
         <item name="layout_constrainedHeight">true</item>
-    </style>
-
-
-    <!-- 小组件样式(可点击) -->
-    <style name="ConstraintLayout.Toolbox.Widget.Dark" parent="RecyclerView.Toolbox.Dark">
-        <item name="android:clickable">true</item>
-        <!--        <item name="android:focusable">true</item>-->
-        <!--        <item name="android:padding">@dimen/layout_size_4_tiny</item>-->
-        <item name="android:layout_margin">@dimen/layout_size_4_tiny</item>
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <!--        <item name="android:background">@drawable/background_widget_edge</item>-->
-        <item name="android:background">@drawable/background_widget_full</item>
     </style>
 
 
@@ -474,9 +434,11 @@
         <!--        <item name="android:paddingBottom">@dimen/layout_size_3_script</item>-->
         <!--    <item name="android:hintTextColor">@color/hint_text_color</item>-->
         <item name="android:background">@drawable/background_edittext</item>
-        <!--        <item name="android:backgroundTint">#FFFFFF</item> &lt;!&ndash; 设置背景颜色 &ndash;&gt;-->
+        <!--        <item name="android:backgroundTint">@color</item>-->
     </style>
 
+
+    <!-- PopupMenu -->
     <style name="PopupMenu.Toolbox.Dark" parent="Widget.Material3.PopupMenu.Overflow">
         <!--        <item name="android:textColor">@color/your_text_color</item>-->
         <!--        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Medium</item>-->
@@ -506,7 +468,6 @@
     <style name="TabLayoutTextAppearance.Toolbox.Dark" parent="TextAppearance.Design.Tab">
         <item name="android:textSize">@dimen/text_size_0_normal</item>
     </style>
-
     <style name="TabLayout.Toolbox.Dark" parent="Widget.Material3.TabLayout">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -517,10 +478,9 @@
         <!--        <item name="tabPaddingEnd">4dp</item>-->
         <item name="tabTextColor">@color/mid_gray</item>
         <item name="tabTextAppearance">@style/TabLayoutTextAppearance.Toolbox.Dark</item>
-        <item name="tabSelectedTextColor">@color/white</item>
+        <item name="tabSelectedTextColor">@color/text_white</item>
         <!--        <item name="tabSelectedTextAppearance">@style/TabLayoutTextAppearance.Toolbox.Dark</item>-->
     </style>
-
     <style name="TabLayout.Dot.Toolbox.Dark" parent="Theme.Toolbox.Dark">
         <item name="android:layout_marginTop">@dimen/layout_size_2.5_script</item>
         <item name="android:layout_width">@dimen/layout_size_2_footnote</item>
@@ -532,6 +492,30 @@
     <style name="SmartRefreshLayout.Toolbox.Dark" parent="Theme.Toolbox.Dark">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
+    </style>
+
+
+    <!-- 自定义BottomSheetDialog主题 -->
+    <style name="TranslucentBottomSheetDialog" parent="Theme.MaterialComponents.BottomSheetDialog">    <!-- 添加命名空间声明 -->
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+
+        <!-- 1. 允许窗口透明 -->
+        <!--        <item name="android:windowIsTranslucent">true</item>-->
+        <!-- 2. 窗口背景设为透明（避免默认黑色背景） -->
+        <!--        <item name="android:windowBackground">@color/alipay_blue</item>-->
+        <!-- 3. 调整周围变暗程度（0=全透明，1=全黑，按需调整） -->
+        <!--        <item name="app:windowDimAmount">0.3</item>-->
+
+        <!-- 4. 配置BottomSheet本身的样式（核心：设置背景透明） -->
+        <item name="bottomSheetStyle">@style/TranslucentBottomSheet</item>
+    </style>
+    <!-- BottomSheet的具体样式 -->
+    <style name="TranslucentBottomSheet" parent="Widget.MaterialComponents.BottomSheet">
+        <!-- 设为透明背景（关键！） -->
+        <!--        <item name="android:backgroundTint">@color/alipay_blue</item>-->
+        <item name="android:backgroundTint">@color/deep_gray_trans</item>
+        <!-- 可选：设置圆角（如底部圆角，顶部与窗口融合） -->
+        <item name="shapeAppearance">@style/ShapeAppearance.MaterialComponents.LargeComponent</item>
     </style>
 
 

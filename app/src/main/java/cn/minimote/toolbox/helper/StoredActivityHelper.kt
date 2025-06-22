@@ -6,9 +6,13 @@
 package cn.minimote.toolbox.helper
 
 
-import android.content.Context
+import android.widget.Toast
+import cn.minimote.toolbox.R
 import cn.minimote.toolbox.constant.StoredActivity.STORED_FILE_NAME
+import cn.minimote.toolbox.constant.Version
 import cn.minimote.toolbox.dataClass.StoredActivity
+import cn.minimote.toolbox.dataClass.StoredActivityContainer
+import cn.minimote.toolbox.viewModel.ToolboxViewModel
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
@@ -17,33 +21,36 @@ import java.lang.reflect.Type
 
 object StoredActivityHelper {
 
-    var FILE_NAME = STORED_FILE_NAME
-
     private val gson = Gson()
 
     // 获取存储文件对象
-    private fun getStorageFile(context: Context): File {
-        return File(context.filesDir, FILE_NAME)
+    private fun getStorageFile(viewModel: ToolboxViewModel): File {
+        return File(viewModel.dataPath, STORED_FILE_NAME)
     }
 
 
     // 保存活动列表
     fun saveStoredActivityList(
-        context: Context,
+        viewModel: ToolboxViewModel,
         storedActivityList: MutableList<StoredActivity>
     ) {
         synchronized(this) {
-            val json = gson.toJson(storedActivityList)
-            val file = getStorageFile(context)
+            val storedActivityContainer =
+                StoredActivityContainer(
+                    version = Version.STORED_ACTIVITY,
+                    data = storedActivityList,
+                )
+            val json = gson.toJson(storedActivityContainer)
+            val file = getStorageFile(viewModel)
 //            Log.i("ActivityStorageHelper", "保存文件: ${file.absolutePath}")
             file.writeText(json)
         }
     }
 
 
-    // 加载活动列表
-    fun loadStoredActivityList(context: Context): MutableList<StoredActivity> {
-        val file = getStorageFile(context)
+    // 加载存储列表
+    fun loadStoredActivityList(viewModel: ToolboxViewModel): MutableList<StoredActivity> {
+        val file = getStorageFile(viewModel)
 //        Log.i("ActivityStorageHelper", "读取文件: ${file.absolutePath}")
 
         if(!file.exists()) {
@@ -56,25 +63,38 @@ object StoredActivityHelper {
                 if(json.isBlank()) {
                     // 文件存在但内容为空，视为无效文件
 //                    Log.e("ActivityStorageHelper", "文件内容为空")
-                    deleteFile(context)
+                    deleteFile(viewModel)
                     return mutableListOf()
                 }
 
-                val type: Type = object : TypeToken<MutableList<StoredActivity>>() {}.type
-                gson.fromJson<MutableList<StoredActivity>>(json, type) ?: mutableListOf()
+                val type: Type = object : TypeToken<StoredActivityContainer>() {}.type
+                val storedActivityContainer: StoredActivityContainer = gson.fromJson(json, type)
+
+                // 如果列表为空或者版本不一致，则删除文件
+                if(storedActivityContainer.data.isEmpty() || storedActivityContainer.version != Version.STORED_ACTIVITY) {
+                    deleteFile(viewModel)
+                    return mutableListOf()
+                }
+                storedActivityContainer.data
             } catch(e: Exception) {
 //                Log.e("ActivityStorageHelper", "读取文件出错: ${e.message}", e)
                 e.printStackTrace()
-                deleteFile(context)
+                deleteFile(viewModel)
                 mutableListOf()
             }
         }
     }
 
+
     // 删除有问题的文件
-    private fun deleteFile(context: Context) {
+    private fun deleteFile(viewModel: ToolboxViewModel) {
+        val context = viewModel.myContext
         // Log.e("ActivityStorageHelper", "删除文件")
-        val file = getStorageFile(context)
+        Toast.makeText(
+            context, context.getString(R.string.data_error_and_delete_file),
+            Toast.LENGTH_LONG,
+        ).show()
+        val file = getStorageFile(viewModel)
         if(file.exists()) {
             file.delete()
         }

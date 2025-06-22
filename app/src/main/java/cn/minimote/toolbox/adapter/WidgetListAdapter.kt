@@ -75,7 +75,7 @@ class WidgetListAdapter(
             holder.widgetName?.text = appInfo.nickName
         }
         holder.appIcon.setImageDrawable(
-            viewModel.iconCacheHelper.getIcon(appInfo)
+            viewModel.iconCacheHelper.getIconCircularDrawable(appInfo)
         )
 
 //        holder.itemView.layoutParams.width =

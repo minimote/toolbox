@@ -44,7 +44,7 @@
     <string name="widgetSize_maxSize">%1d</string>
     <string name="widget_icon">小组件图标</string>
     <string name="toast_no_widget_return_home">当前没有组件，返回主页</string>
-    <string name="textView_no_widget">↑\n点击 + 号添加组件</string>
+    <string name="textView_no_widget">点击添加工具</string>
     <string name="hint_search_activities">搜索 %1d 项</string>
     <string name="cancel">取消</string>
     <string name="no_result">无结果</string>
@@ -141,7 +141,7 @@
     <string name="problem_feedback_url">https://gitee.com/minimote/toolbox/issues</string>
     <string name="toast_shortcut_not_supported">设备不支持创建快捷方式</string>
     <string name="toast_shortcut_create_success">创建成功</string>
-    <string name="fragment_name_widget_list">首页</string>
+    <string name="fragment_name_widget_list">主页</string>
     <string name="fragment_name_my_list">我的</string>
     <string name="time_example">00:00:00</string>
     <string name="date_example">00月00日  周零</string>
@@ -169,4 +169,13 @@
     <string name="group_indicator">分组指示器</string>
     <string name="enter_arrow">进入箭头</string>
     <string name="license_title">开放源代码许可</string>
+    <string name="data_error_and_delete_file">数据出现异常，已经删除</string>
+    <string name="add_local_app">添加本机软件</string>
+    <string name="create_shortcut">创建桌面快捷方式</string>
+    <string name="add_to_home">添加到主页</string>
+    <string name="already_on_home">已经在主页了</string>
+    <string name="add_success">添加成功</string>
+    <string name="clear_button">清除按钮</string>
+    <string name="remove_from_home">从主页移除</string>
+    <string name="already_remove_from_home">已从主页移除</string>
 </resources>

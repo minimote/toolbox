@@ -17,6 +17,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -26,6 +27,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.adapter.ActivityListAdapter
+import cn.minimote.toolbox.constant.UI
 import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -45,10 +47,11 @@ class ActivityListFragment : Fragment() {
     private lateinit var progressBar: ProgressBar
     private lateinit var loadingTextView: TextView
     lateinit var searchBox: EditText
+    lateinit var imageButtonClear: ImageButton
     lateinit var buttonCancel: Button
 
-    private val alpha = 0.3f
-    private val originalAlpha = 1.0f
+    private val alpha = UI.ALPHA_3
+    private val originalAlpha = UI.ALPHA_10
 
     private val job = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main + job)
@@ -132,7 +135,10 @@ class ActivityListFragment : Fragment() {
     private fun setupSearchBoxAndCancelButton(view: View) {
         searchBox = view.findViewById(R.id.editText_searchBox)
         searchBox.visibility = View.VISIBLE
+        imageButtonClear = view.findViewById(R.id.imageButton_clear)
+        imageButtonClear.visibility = View.GONE
         buttonCancel = view.findViewById(R.id.button_cancel)
+        buttonCancel.visibility = View.GONE
 
         searchBox.hint = getString(
             R.string.hint_search_activities, viewModel.installedAppListSize,
@@ -163,7 +169,6 @@ class ActivityListFragment : Fragment() {
         searchBox.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
 
-
                 // 获取输入的文本
                 val query = s.toString().trim()
 
@@ -174,7 +179,7 @@ class ActivityListFragment : Fragment() {
                 if(viewModel.searchMode.value == true and query.isNotEmpty()) {
                     val filteredList = viewModel.installedActivityList.value?.filter { activity ->
 //                        if(viewModel.searchMode.value == true and query.isNotEmpty()) {
-                        activity.appName.contains(
+                        activity.name.contains(
                             query, ignoreCase = true
                         ) && activity.packageName.isNotEmpty()
 //                        } else {
@@ -190,9 +195,11 @@ class ActivityListFragment : Fragment() {
                 // 检查文本框内容是否为空
                 if(query.isEmpty()) {
                     recyclerView.alpha = alpha
+                    imageButtonClear.visibility = View.GONE
                 } else {
                     // 恢复 RecyclerView 的不透明度
                     recyclerView.alpha = originalAlpha
+                    imageButtonClear.visibility = View.VISIBLE
                 }
             }
 
@@ -211,6 +218,12 @@ class ActivityListFragment : Fragment() {
         buttonCancel.setOnClickListener {
             VibrationHelper.vibrateOnClick(requireContext(), viewModel)
             exitSearchMode()
+        }
+
+        // 设置清空按钮点击事件
+        imageButtonClear.setOnClickListener {
+            VibrationHelper.vibrateOnClick(requireContext(), viewModel)
+            searchBox.setText("")
         }
     }
 

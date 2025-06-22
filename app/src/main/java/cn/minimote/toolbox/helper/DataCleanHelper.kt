@@ -5,7 +5,6 @@
 
 package cn.minimote.toolbox.helper
 
-import android.content.Context
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
 import java.io.File
 import java.util.Locale
@@ -14,17 +13,14 @@ import java.util.Locale
 object DataCleanHelper {
 
     // 获取缓存路径列表
-    private fun getCachePathList(context: Context): List<File?> {
+    private fun getCachePathList(viewModel: ToolboxViewModel): List<File?> {
         return listOf(
-            context.cacheDir,
-            context.codeCacheDir,
-            context.externalCacheDir,
-            context.noBackupFilesDir
+            viewModel.cachePath
         )
     }
     // 获取缓存大小
-    fun getCacheSize(context: Context): String {
-        val pathList = getCachePathList(context)
+    fun getCacheSize(viewModel: ToolboxViewModel): String {
+        val pathList = getCachePathList(viewModel)
         var size = 0L
         for(path in pathList) {
             if(path != null) {
@@ -35,8 +31,8 @@ object DataCleanHelper {
         return formatSize(size)
     }
     // 清除缓存
-    fun clearCache(context: Context) {
-        val pathList = getCachePathList(context)
+    fun clearCache(viewModel: ToolboxViewModel) {
+        val pathList = getCachePathList(viewModel)
         for(path in pathList) {
             if(path != null) {
                 deleteDirectory(path)
@@ -46,15 +42,15 @@ object DataCleanHelper {
 
 
     // 获取数据路径列表
-    private fun getDataPathList(context: Context): List<File?> {
+    private fun getDataPathList(viewModel: ToolboxViewModel): List<File?> {
         return listOf(
-            context.filesDir,
-            context.getExternalFilesDir(null)
+            viewModel.dataPath,
+            viewModel.savePath,
         )
     }
     // 获取数据大小
-    fun getDataSize(context: Context): String {
-        val pathList = getDataPathList(context)
+    fun getDataSize(viewModel: ToolboxViewModel): String {
+        val pathList = getDataPathList(viewModel)
         var size = 0L
         for(path in pathList) {
             if(path != null) {
@@ -68,7 +64,7 @@ object DataCleanHelper {
     fun clearData(
         viewModel: ToolboxViewModel,
     ) {
-        val pathList = getDataPathList(viewModel.myContext).plus(viewModel.savePath)
+        val pathList = getDataPathList(viewModel)
         for(path in pathList) {
             if(path != null) {
                 deleteDirectory(path)

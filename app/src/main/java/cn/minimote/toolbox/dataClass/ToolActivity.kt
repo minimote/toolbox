@@ -7,13 +7,12 @@ package cn.minimote.toolbox.dataClass
 
 import android.content.Intent
 import cn.minimote.toolbox.constant.LaunchTypes.PACKAGE_AND_ACTIVITY
-import java.util.UUID
 
 
 // 工具类
 open class ToolActivity(
     // 唯一标识符
-    val id: String = UUID.randomUUID().toString(),
+    val id: String,
 
     // 启动相关
     val launchType: String = PACKAGE_AND_ACTIVITY,
@@ -23,7 +22,7 @@ open class ToolActivity(
     val intentExtras: Map<String, Any>? = null,
     val intentUri: String? = null,
 
-    val appName: String,
+    val name: String,
 //    var nickName: String = appName, // 昵称
     val packageName: String,
     val activityName: String? = null,
@@ -45,4 +44,26 @@ open class ToolActivity(
 //    // 启动次数
 //    var launchCount: Int = 0,
 ) {
+
+    // 转换为存储类型
+    fun toStoredActivity(
+        width: Int,
+    ): StoredActivity {
+        return StoredActivity(
+            id = id,
+            name = name,
+            packageName = packageName,
+            activityName = activityName,
+            iconKey = iconKey,
+            description = description,
+            launchType = launchType,
+            intentAction = intentAction,
+            intentCategory = intentCategory,
+            intentFlag = intentFlag,
+            intentExtras = intentExtras,
+            intentUri = intentUri,
+            width = width,
+        )
+    }
+
 }

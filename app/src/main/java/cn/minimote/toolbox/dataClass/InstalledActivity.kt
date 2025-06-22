@@ -7,21 +7,21 @@ package cn.minimote.toolbox.dataClass
 
 
 data class InstalledActivity(
-    val appName: String,
+    val name: String,
     val packageName: String,
     val activityName: String,
     var iconKey: String = activityName,
     val id: String = activityName,
 ) {
     // 将安装类型的活动转换为存储类型
-    fun toStorageActivity(
-        widgetSize: Int,
+    fun toStoredActivity(
+        width: Int,
     ): StoredActivity {
         return StoredActivity(
-            appName = appName,
+            name = name,
             packageName = packageName,
             activityName = activityName,
-            width = widgetSize,
+            width = width,
             iconKey = iconKey,
             id = id,
         )

@@ -13,6 +13,12 @@ object ToolList {
     // 默认设备：手机平板
     val default by lazy {
         listOf(
+            // 添加本机软件
+            ExpandableGroup(
+                titleId = R.string.add_local_app,
+                viewTypeList = listOf()
+            ),
+
             // 扫码与支付
             ExpandableGroup(
                 titleId = R.string.scan_and_pay,
@@ -20,7 +26,7 @@ object ToolList {
                     // 微信
                     Tools.ScanAndPay.WeChat.scanQrCode, // 扫一扫
                     Tools.ScanAndPay.WeChat.payCode, // 付款码
-                    Tools.ScanAndPay.WeChat.businessCard, // 名片码
+                    Tools.ScanAndPay.WeChat.myCard, // 名片码
                     // 支付宝
                     Tools.ScanAndPay.Alipay.scanQrCode, // 扫一扫
                     Tools.ScanAndPay.Alipay.payCode, // 付款码
@@ -31,6 +37,7 @@ object ToolList {
                     Tools.ScanAndPay.YunShanFu.payCode, // 付款码
                 )
             ),
+
             // 系统工具
             ExpandableGroup(
                 titleId = R.string.system_tools,
@@ -52,6 +59,7 @@ object ToolList {
                     Tools.ScanAndPay.Alipay.watchPayCode, // 付款码
                 )
             ),
+
             // 系统工具
             ExpandableGroup(
                 titleId = R.string.system_tools,

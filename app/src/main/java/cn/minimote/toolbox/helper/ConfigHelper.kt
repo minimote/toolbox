@@ -5,7 +5,7 @@
 
 package cn.minimote.toolbox.helper
 
-import android.content.Context
+import cn.minimote.toolbox.constant.Config
 import cn.minimote.toolbox.constant.Config.ConfigFileName
 import cn.minimote.toolbox.constant.Config.ENCODING
 import cn.minimote.toolbox.viewModel.ToolboxViewModel
@@ -95,10 +95,10 @@ object ConfigHelper {
     fun loadAllConfig(
         viewModel: ToolboxViewModel,
     ) {
-        viewModel.defaultConfig = loadConfig(viewModel.myContext, false)
-        viewModel.userConfig = loadConfig(viewModel.myContext, true)
+        viewModel.defaultConfig = Config.defaultConfig
+        viewModel.userConfig = loadUserConfig(viewModel)
         checkConfigFile(viewModel)
-        viewModel.userConfigBackup = TreeMap(viewModel.userConfig)
+        viewModel.userConfigBackup = viewModel.userConfig.toMutableMap()
     }
 
 
@@ -109,7 +109,7 @@ object ConfigHelper {
         val defaultConfig = viewModel.defaultConfig
         val userConfig = viewModel.userConfig
 
-        val correctUserConfig = userConfig.filterTo(TreeMap<String, Any>()) { (key, value) ->
+        val correctUserConfig = userConfig.filterTo(mutableMapOf<String, Any>()) { (key, value) ->
             val defaultValue = defaultConfig[key]
             defaultValue != null && value != defaultValue
         }
@@ -121,25 +121,27 @@ object ConfigHelper {
     }
 
 
+    // 获取用户配置路径
+    private fun getUserConfigPath(viewModel: ToolboxViewModel): File {
+        return File(viewModel.dataPath, ConfigFileName.USER_CONFIG)
+    }
+
+
     // 加载配置文件
-    fun loadConfig(
-        context: Context,
-        userConfigFlag: Boolean,
-    ): TreeMap<String, Any> {
+    private fun loadUserConfig(
+        viewModel: ToolboxViewModel,
+    ): MutableMap<String, Any> {
         return try {
-            val inputStream = if(userConfigFlag) {
-                FileInputStream(File(context.filesDir, ConfigFileName.USER_CONFIG))
-            } else {
-                context.assets.open(ConfigFileName.DEFAULT_CONFIG)
-            }
+            val inputStream = FileInputStream(getUserConfigPath(viewModel))
+
             val json = inputStream.use { input ->
                 val bytes = input.readBytes()
                 String(bytes, ENCODING)
             }
-            JSONObject(json).toTreeMap()
+            JSONObject(json).toMutableMap()
         } catch(e: Exception) {
             e.printStackTrace()
-            TreeMap<String, Any>()
+            mutableMapOf<String, Any>()
         }
     }
 
@@ -150,7 +152,7 @@ object ConfigHelper {
     ) {
 //        viewModel.viewModelScope.launch(Dispatchers.IO) {
         val context = viewModel.myContext
-        val userConfigFile = File(context.filesDir, ConfigFileName.USER_CONFIG)
+        val userConfigFile = getUserConfigPath(viewModel)
         try {
             val config = viewModel.userConfig.toMap()
             val jsonString = JSONObject(config).toString()
@@ -203,14 +205,14 @@ object ConfigHelper {
     }
 
 
-    // 将JSONObject转换为Map
-    private fun JSONObject.toTreeMap(): TreeMap<String, Any> {
-        val map = TreeMap<String, Any>()
+    // 将 JSONObject 转换为 MutableMap
+    private fun JSONObject.toMutableMap(): MutableMap<String, Any> {
+        val map = mutableMapOf<String, Any>()
         val keysItr = this.keys()
         while(keysItr.hasNext()) {
             val key = keysItr.next()
             val value = when(val value = this[key]) {
-                is JSONObject -> value.toTreeMap()
+                is JSONObject -> value.toMutableMap()
                 else -> value
             }
             map[key] = value

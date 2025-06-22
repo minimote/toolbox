@@ -7,13 +7,12 @@ package cn.minimote.toolbox.dataClass
 
 import android.content.Intent
 import cn.minimote.toolbox.constant.LaunchTypes.PACKAGE_AND_ACTIVITY
-import java.util.UUID
 
 
 // 用于存储的数据类(继承自工具类，因为比工具类属性多)
 class StoredActivity(
     // 唯一标识符
-    id: String = UUID.randomUUID().toString(),
+    id: String,
 
     // 启动相关
     launchType: String = PACKAGE_AND_ACTIVITY,
@@ -23,8 +22,8 @@ class StoredActivity(
     intentExtras: Map<String, Any>? = null,
     intentUri: String? = null,
 
-    appName: String,
-    var nickName: String = appName, // 昵称
+    name: String,
+    var nickName: String = name, // 昵称
     packageName: String,
     activityName: String? = null,
 
@@ -52,7 +51,7 @@ class StoredActivity(
     intentFlag,
     intentExtras,
     intentUri,
-    appName,
+    name,
     packageName,
     activityName,
     iconKey,
@@ -73,29 +72,29 @@ class StoredActivity(
     }
 
     fun copy(): StoredActivity {
-    return StoredActivity(
-        id = this.id,
-        launchType = this.launchType,
-        intentAction = this.intentAction,
-        intentCategory = this.intentCategory,
-        intentFlag = this.intentFlag,
-        intentExtras = this.intentExtras?.toMap(), // 复制为新 Map 避免引用共享
-        intentUri = this.intentUri,
-        appName = this.appName,
-        nickName = this.nickName,
-        packageName = this.packageName,
-        activityName = this.activityName,
-        iconKey = this.iconKey,
-        width = this.width,
-        height = this.height,
-        showName = this.showName,
-        showIcon = this.showIcon,
-        description = this.description,
-        createTime = this.createTime,
-        modifyTime = this.modifyTime,
-        lastLaunchTime = this.lastLaunchTime,
-        launchCount = this.launchCount
-    )
-}
+        return StoredActivity(
+            id = this.id,
+            launchType = this.launchType,
+            intentAction = this.intentAction,
+            intentCategory = this.intentCategory,
+            intentFlag = this.intentFlag,
+            intentExtras = this.intentExtras?.toMap(), // 复制为新 Map 避免引用共享
+            intentUri = this.intentUri,
+            name = this.name,
+            nickName = this.nickName,
+            packageName = this.packageName,
+            activityName = this.activityName,
+            iconKey = this.iconKey,
+            width = this.width,
+            height = this.height,
+            showName = this.showName,
+            showIcon = this.showIcon,
+            description = this.description,
+            createTime = this.createTime,
+            modifyTime = this.modifyTime,
+            lastLaunchTime = this.lastLaunchTime,
+            launchCount = this.launchCount
+        )
+    }
 
 }

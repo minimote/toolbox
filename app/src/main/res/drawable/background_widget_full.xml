@@ -1,16 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ripple xmlns:android="http://schemas.android.com/apk/res/android"
-    android:color="?attr/colorControlHighlight">
-    <item android:id="@android:id/mask">
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 外部背景颜色 -->
+    <item>
         <shape>
-            <solid android:color="@android:color/white" />
-            <corners android:radius="@dimen/layout_size_1_small" />
+            <solid android:color="#01FFFFFF" />
         </shape>
     </item>
-    <item android:id="@android:id/background">
-        <shape>
-            <solid android:color="@color/deep_gray" />
-            <corners android:radius="@dimen/layout_size_1_small" />
-        </shape>
+
+    <!-- Ripple 区域 -->
+    <item>
+        <ripple
+            android:color="?attr/colorControlHighlight">
+            <item android:id="@android:id/mask">
+                <shape>
+                    <solid android:color="@android:color/white" />
+                    <corners android:radius="@dimen/layout_size_1_small" />
+                </shape>
+            </item>
+            <item android:id="@android:id/background">
+                <shape>
+                    <solid android:color="@color/deep_gray" />
+                    <corners android:radius="@dimen/layout_size_1_small" />
+                </shape>
+            </item>
+        </ripple>
     </item>
-</ripple>
+</layer-list>

@@ -5,11 +5,10 @@
 
 package cn.minimote.toolbox.adapter
 
-// import com.heytap.wearable.support.recycler.widget.RecyclerView
+
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Typeface
-import android.graphics.drawable.Drawable
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
@@ -21,6 +20,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.constant.UI
 import cn.minimote.toolbox.dataClass.InstalledActivity
 import cn.minimote.toolbox.fragment.ActivityListFragment
 import cn.minimote.toolbox.helper.VibrationHelper
@@ -76,7 +76,7 @@ class ActivityListAdapter(
 
 
         fun bind(activity: InstalledActivity) {
-            val appName = activity.appName
+            val appName = activity.name
             val query = viewModel.searchQuery.value.orEmpty()
             // 手表不高亮显示
             if(viewModel.isWatch || query.isEmpty()) {
@@ -124,14 +124,14 @@ class ActivityListAdapter(
         val installedActivity = installedAppList[position]
 
         if(holder.viewType == VIEW_TYPE_TITLE) {
-            holder.textViewAppName.text = installedActivity.appName
+            holder.textViewAppName.text = installedActivity.name
             // 标题都不可点击
 //            holder.itemView.isClickable = false
             // 需要手动设置线条颜色，不然可能会受到无名称项的影响而变成空
 //            setLineBackground(holder)
 //            Log.e("title", installedActivity.appName)
 
-            when(installedActivity.appName) {
+            when(installedActivity.name) {
                 // 无名称则不显示
                 "" -> {
 //                    Log.e("title", "无内容")
@@ -161,7 +161,7 @@ class ActivityListAdapter(
         holder.bind(installedActivity)
 
         holder.appIcon.setImageDrawable(
-            viewModel.iconCacheHelper.getIcon(installedActivity)
+            viewModel.iconCacheHelper.getIconCircularDrawable(installedActivity)
         )
         // 手表活动名仅显示最后一个点后面的部分
         holder.activityName.text = if(viewModel.isWatch) {
@@ -207,41 +207,28 @@ class ActivityListAdapter(
     }
 
 
-    // 设置暗淡效果的方法
+    // 设置透明度
     private fun setDimmingEffect(holder: AppViewHolder, shouldDim: Boolean) {
-        // 调整亮度为原来的比例
-        val colorScale = 0.6f
+        // 调整亮度为原来的比例(透明度)
+        val alpha = UI.ALPHA_7
+        val originAlpha = UI.ALPHA_10
+
         if(shouldDim) {
-            // 添加黑色滤镜
-            val colorMatrix = android.graphics.ColorMatrix().apply {
-                setScale(colorScale, colorScale, colorScale, 1f)
-            }
-            val paint = android.graphics.Paint().apply {
-                colorFilter = android.graphics.ColorMatrixColorFilter(colorMatrix)
-            }
-
-            // 应用滤镜到整个视图
-            holder.rootView.setLayerType(View.LAYER_TYPE_HARDWARE, paint)
-            // 可选：添加半透明黑色背景
-//            holder.rootView.background = ContextCompat.getDrawable(context, R.drawable.dim_overlay)
-
-
+            holder.rootView.alpha = alpha
         } else {
-            // 移除滤镜
-            holder.rootView.setLayerType(View.LAYER_TYPE_NONE, null)
-//            holder.rootView.background = null
+            holder.rootView.alpha = originAlpha
         }
     }
 
 
-    // 设置线的背景
-    private fun setLineBackground(
-        holder: AppViewHolder,
-        color: Drawable? = ContextCompat.getDrawable(context, R.color.mid_gray)
-    ) {
-        holder.viewLeft.background = color
-        holder.viewRight.background = color
-    }
+//    // 设置线的背景
+//    private fun setLineBackground(
+//        holder: AppViewHolder,
+//        color: Drawable? = ContextCompat.getDrawable(context, R.color.mid_gray)
+//    ) {
+//        holder.viewLeft.background = color
+//        holder.viewRight.background = color
+//    }
 
 
     override fun getItemCount(): Int = installedAppList.size
@@ -271,7 +258,7 @@ class ActivityListAdapter(
     private fun getNoResultList(): List<InstalledActivity> {
         return mutableListOf(
             InstalledActivity(
-                appName = context.getString(R.string.no_result),
+                name = context.getString(R.string.no_result),
                 packageName = "",
                 activityName = "",
             )

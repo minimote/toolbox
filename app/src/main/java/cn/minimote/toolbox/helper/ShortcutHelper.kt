@@ -20,18 +20,21 @@ object ShortcutHelper {
     fun createShortcut(
         context: Context,
         shortcutIntent: Intent,
+        shortLabel: String,
+        longLabel: String,
+        icon: Icon = Icon.createWithResource(context, R.drawable.ic_default),
     ) {
-        shortcutIntent.action = Intent.ACTION_MAIN
+//        shortcutIntent.action = Intent.ACTION_MAIN
 //        shortcutIntent.putExtra("shortcut", true)
 
         // 检查设置信息，判断能否创建重复的快捷方式
-        TODO()
+//        TODO()
         // 生成唯一 ID
         val uniqueId = UUID.randomUUID().toString()
         val shortcutInfo = ShortcutInfo.Builder(context, uniqueId)
-            .setShortLabel("short_label")
-            .setLongLabel("long_label")
-            .setIcon(Icon.createWithResource(context, R.drawable.ic_default))
+            .setShortLabel(shortLabel)
+            .setLongLabel(longLabel)
+            .setIcon(icon)
             .setIntent(shortcutIntent)
             .build()
 

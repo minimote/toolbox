@@ -5,11 +5,12 @@
 
 package cn.minimote.toolbox.constant
 
-object LaunchTypes {
+object MenuList {
+    val tool by lazy {
+        listOf(
+            MenuTypes.ADD_TO_HOME,
+            MenuTypes.CREATE_SHORTCUT,
+        )
 
-    const val SCHEME = "scheme"
-    const val PACKAGE_AND_ACTIVITY = "package_and_activity"
-    const val PACKAGE = "package"
-    const val ACTION = "action"
-
+    }
 }

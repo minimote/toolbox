@@ -20,28 +20,30 @@ import android.graphics.drawable.Drawable
 import android.util.LruCache
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.createBitmap
+import androidx.core.graphics.drawable.IconCompat
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.scale
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.constant.Icon
 import cn.minimote.toolbox.constant.Icon.IconKey
 import cn.minimote.toolbox.dataClass.InstalledActivity
-import cn.minimote.toolbox.dataClass.StoredActivity
 import cn.minimote.toolbox.dataClass.ToolActivity
+import cn.minimote.toolbox.viewModel.ToolboxViewModel
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
 
 class IconCacheHelper(
-    private val context: Context,
+    private val viewModel: ToolboxViewModel,
 ) {
 
+    private val context: Context = viewModel.myContext
     private val packageManager: PackageManager = context.packageManager
 
     // 定义一个方法来获取缓存路径
-    private fun getCachePath(context: Context): File {
-        val cacheDir = context.cacheDir
+    private fun getCachePath(): File {
+        val cacheDir = viewModel.cachePath
         val appIconDir = File(cacheDir, Icon.ICON_CACHE_PATH)
         if(!appIconDir.exists()) {
             appIconDir.mkdirs()
@@ -69,8 +71,8 @@ class IconCacheHelper(
 
     // 保存图标到磁盘
     private fun saveIconToFile(iconKey: String, drawable: Drawable) {
-        val file = File(getCachePath(context), "$iconKey.png")
-        val bitmap = drawableToBitmap(drawable)
+        val file = File(getCachePath(), "$iconKey.png")
+        val bitmap = drawable.toBitmap()
         try {
             FileOutputStream(file).use { outputStream ->
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
@@ -89,7 +91,7 @@ class IconCacheHelper(
 
     // 从磁盘获取图标
     private fun loadIconFromFile(iconKey: String): Drawable? {
-        val file = File(getCachePath(context), "$iconKey.png")
+        val file = File(getCachePath(), "$iconKey.png")
         return if(file.exists()) {
             Drawable.createFromPath(file.absolutePath)
         } else {
@@ -147,42 +149,57 @@ class IconCacheHelper(
         return ContextCompat.getDrawable(context, R.drawable.ic_default)
     }
 
-    // 获取图标
-    fun getIcon(
-        storedActivity: StoredActivity,
-    ): Drawable? {
-        return loadIconFromAllSources(
-            iconKey = storedActivity.iconKey,
-            packageName = storedActivity.packageName,
-            activityName = storedActivity.activityName
-        )
-    }
-    fun getIcon(
-        installedActivity: InstalledActivity,
-    ): Drawable? {
-        return loadIconFromAllSources(
-            iconKey = installedActivity.iconKey,
-            packageName = installedActivity.packageName,
-            activityName = installedActivity.activityName
-        )
-    }
-    fun getIcon(
+
+    // 获取 Drawable 图标
+    fun getIconDrawable(
         tool: ToolActivity,
-    ): Drawable? {
-        return loadIconFromAllSources(
+    ): Drawable {
+        return loadDrawableFromAllSources(
             iconKey = tool.iconKey,
             packageName = tool.packageName,
             activityName = tool.activityName,
         )
     }
 
+    fun getIconDrawable(
+        installedActivity: InstalledActivity,
+    ): Drawable {
+        return loadDrawableFromAllSources(
+            iconKey = installedActivity.iconKey,
+            packageName = installedActivity.packageName,
+            activityName = installedActivity.activityName,
+        )
+    }
 
-    // 从所有渠道获取图标
-    private fun loadIconFromAllSources(
+
+    // 获取圆形 Drawable 图标
+    fun getIconCircularDrawable(
+        tool: ToolActivity,
+    ): Drawable {
+        return getIconDrawable(tool).toCircularDrawable()
+    }
+
+    fun getIconCircularDrawable(
+        installedActivity: InstalledActivity,
+    ): Drawable {
+        return getIconDrawable(installedActivity).toCircularDrawable()
+    }
+
+
+    // 获取 Icon 图标
+    fun getIconIcon(
+        tool: ToolActivity,
+    ): android.graphics.drawable.Icon {
+        return getIconDrawable(tool).toIcon(context)
+    }
+
+
+    // 从所有渠道获取 Drawable 图标
+    private fun loadDrawableFromAllSources(
         iconKey: String,
         packageName: String,
         activityName: String?,
-    ): Drawable? {
+    ): Drawable {
 //        Log.e("加载图标", "iconKey: $iconKey, packageName: $packageName, activityName: $activityName")
 //        try {
 //            val componentName = ComponentName(packageName, activityName)
@@ -217,7 +234,7 @@ class IconCacheHelper(
         } else {
 //            Log.d("IconCacheManager", "从内存中获取了图标：$packageName")
         }
-        return appIcon?.toCircularDrawable()
+        return appIcon!!
 //        return appIcon.toRoundedCornerDrawable()
     }
 
@@ -245,11 +262,11 @@ class IconCacheHelper(
         canvas.drawRect(0f, 0f, targetSizePx.toFloat(), targetSizePx.toFloat(), backgroundPaint)
 
         // 缩放 Drawable 到目标大小
-        val scaledDrawable = resizeDrawable(this, targetSizePx, targetSizePx)
+        val scaledDrawable = this.resize(targetSizePx, targetSizePx)
 
         // 使用 BitmapShader 将 Drawable 转换为 Shader
         val shader = BitmapShader(
-            drawableToBitmap(scaledDrawable),
+            scaledDrawable.toBitmap(),
             Shader.TileMode.CLAMP,
             Shader.TileMode.CLAMP
         )
@@ -313,19 +330,26 @@ class IconCacheHelper(
 
 
     // 辅助方法：缩放 Drawable 到指定大小
-    private fun resizeDrawable(drawable: Drawable, width: Int, height: Int): Drawable {
+    private fun Drawable.resize(width: Int, height: Int): Drawable {
         val resizedBitmap =
-            drawableToBitmap(drawable).scale(width, height)
+            this.toBitmap().scale(width, height)
         return resizedBitmap.toDrawable(context.resources)
     }
 
 
     // 将 Drawable 转换为 Bitmap
-    private fun drawableToBitmap(drawable: Drawable): Bitmap {
-        val bitmap = createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight)
+    private fun Drawable.toBitmap(): Bitmap {
+        val bitmap = createBitmap(this.intrinsicWidth, this.intrinsicHeight)
         val canvas = Canvas(bitmap)
-        drawable.setBounds(0, 0, canvas.width, canvas.height)
-        drawable.draw(canvas)
+        this.setBounds(0, 0, canvas.width, canvas.height)
+        this.draw(canvas)
         return bitmap
     }
+
+
+    fun Drawable.toIcon(context: Context): android.graphics.drawable.Icon {
+        val bitmap = this.toBitmap()
+        return IconCompat.createWithBitmap(bitmap).toIcon(context)
+    }
+
 }

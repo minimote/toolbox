@@ -1,0 +1,21 @@
+/*
+ * Copyright (c) 2025 minimote(微尘). All rights reserved.
+ * 本项目遵循 MIT 许可协议，请务必保留此声明和署名。
+ */
+
+package cn.minimote.toolbox.constant
+
+object UI {
+
+    const val ALPHA_0 = 0f
+    const val ALPHA_1 = 0.1f
+    const val ALPHA_3 = 0.3f
+    const val ALPHA_5 = 0.5f
+    const val ALPHA_7 = 0.7f
+    const val ALPHA_9 = 0.9f
+    const val ALPHA_10 = 1f
+
+
+    // 全屏图片比例
+    const val FULL_SCREEN_IMAGE_RATE = 0.7f
+}

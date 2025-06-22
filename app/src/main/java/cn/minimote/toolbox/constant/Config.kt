@@ -22,12 +22,17 @@ object Config {
 
     // 配置的键
     object ConfigKeys {
+//        // 版本号
+//        const val VERSION = "version"
+
         // 上次检查更新时间
         const val LAST_CHECK_UPDATE_TIME = "last_check_update_time"
-        // 振动模式
-        const val VIBRATION_MODE = "vibration_mode"
         // 更新检查频率
         const val CHECK_UPDATE_FREQUENCY = "check_update_frequency"
+
+        // 振动模式
+        const val VIBRATION_MODE = "vibration_mode"
+
         // 网络访问模式
         object NetworkAccessModeKeys {
             const val MOBILE = "network_access_mode_mobile"
@@ -35,6 +40,7 @@ object Config {
             const val WIFI = "network_access_mode_wifi"
             const val OTHER = "network_access_mode_other"
         }
+
         // downloadId
         const val DOWNLOAD_ID = "download_id"
     }
@@ -63,5 +69,34 @@ object Config {
             const val DENY = "deny"    // 拒绝
             const val ALERT = "alert"  // 提示
         }
+    }
+
+
+    // 默认配置
+    val defaultConfig by lazy {
+        sortedMapOf(
+//            // 版本
+//            ConfigKeys.VERSION to Version.CONFIG,
+
+            // 上次更新时间
+            ConfigKeys.LAST_CHECK_UPDATE_TIME to 0,
+            // 更新检查频率：daily, weekly, monthly, never
+            ConfigKeys.CHECK_UPDATE_FREQUENCY to ConfigValues.CheckUpdateFrequency.DAILY,
+
+            // 振动模式：auto, on, off
+            ConfigKeys.VIBRATION_MODE to ConfigValues.VibrationMode.AUTO,
+
+            // 网络访问模式-数据：allow, deny, alert
+            ConfigKeys.NetworkAccessModeKeys.MOBILE to ConfigValues.NetworkAccessModeValues.ALERT,
+            // 网络访问模式-蓝牙：allow, deny, alert
+            ConfigKeys.NetworkAccessModeKeys.BLUETOOTH to ConfigValues.NetworkAccessModeValues.ALERT,
+            // 网络访问模式-WIFI：allow, deny, alert
+            ConfigKeys.NetworkAccessModeKeys.WIFI to ConfigValues.NetworkAccessModeValues.ALERT,
+            // 网络访问模式-其他：allow, deny, alert
+            ConfigKeys.NetworkAccessModeKeys.OTHER to ConfigValues.NetworkAccessModeValues.ALERT,
+
+//            // downloadId
+            ConfigKeys.DOWNLOAD_ID to -1,
+        )
     }
 }

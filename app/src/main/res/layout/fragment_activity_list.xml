@@ -6,26 +6,28 @@
 
     <com.scwang.smart.refresh.layout.SmartRefreshLayout
         android:id="@+id/refreshLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView_activity_list"
-        style="@style/RecyclerView.Toolbox.Dark"
-        android:layout_marginTop="50dp"
+        style="@style/SmartRefreshLayout.Toolbox.Dark"
+        android:layout_marginTop="55dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:itemCount="15" />
+        app:layout_constraintTop_toTopOf="parent">
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView_activity_list"
+            style="@style/RecyclerView.Toolbox.Dark"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:itemCount="15" />
     </com.scwang.smart.refresh.layout.SmartRefreshLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        style="@style/ConstraintLayout.Toolbox.Dark"
         app:layout_constraintEnd_toEndOf="parent"
-        style="@style/ConstraintLayout.Toolbox.Dark">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <EditText
             android:id="@+id/editText_searchBox"
@@ -33,21 +35,38 @@
             android:layout_width="0dp"
             android:autofillHints=""
             android:hint="@string/hint_search_activities"
+            android:paddingStart="@dimen/layout_size_1.5_footnote"
+            android:paddingEnd="@dimen/layout_size_1_large"
             android:visibility="invisible"
             app:layout_constraintEnd_toStartOf="@id/button_cancel"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <ImageButton
+            android:id="@+id/imageButton_clear"
+            style="@style/ImageButton.Toolbox.Dark"
+            android:layout_width="@dimen/layout_size_1_small"
+            android:layout_height="@dimen/layout_size_1_small"
+            android:layout_marginTop="@dimen/layout_size_3_script"
+            android:layout_marginEnd="@dimen/layout_size_2_footnote"
+            android:contentDescription="@string/clear_button"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/editText_searchBox"
+            app:layout_constraintEnd_toStartOf="@id/button_cancel"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/fork" />
+
         <Button
             android:id="@+id/button_cancel"
             style="@style/Button.Toolbox.Dark"
             android:layout_width="@dimen/layout_size_2_Large"
-            android:layout_height="50dp"
+            android:layout_height="0dp"
             android:text="@string/cancel"
             android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/editText_searchBox"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/editText_searchBox"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@id/editText_searchBox" />
 
 
         <ProgressBar
@@ -66,6 +85,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/progressBar" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
