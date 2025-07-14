@@ -5,7 +5,7 @@
 
     <TextView
         android:id="@+id/textView_clearData"
-        style="@style/TextView.Toolbox.EditOperateName.Dark"
+        style="@style/TextView.Toolbox.MyList.Name.Dark"
         android:gravity="start"
         android:text="@string/clear_cache"
         app:layout_constraintBottom_toBottomOf="parent"

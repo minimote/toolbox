@@ -15,14 +15,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.adapter.AboutProjectAdapter
-import cn.minimote.toolbox.viewModel.ToolboxViewModel
+import cn.minimote.toolbox.viewModel.MyViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 
 @AndroidEntryPoint
 class AboutProjectFragment : Fragment() {
 
-    private val viewModel: ToolboxViewModel by activityViewModels()
+    private val viewModel: MyViewModel by activityViewModels()
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: AboutProjectAdapter
 

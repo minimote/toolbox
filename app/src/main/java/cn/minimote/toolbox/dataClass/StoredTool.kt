@@ -10,12 +10,12 @@ import cn.minimote.toolbox.constant.LaunchTypes.PACKAGE_AND_ACTIVITY
 
 
 // 用于存储的数据类(继承自工具类，因为比工具类属性多)
-class StoredActivity(
+class StoredTool(
     // 唯一标识符
     id: String,
 
     // 启动相关
-    launchType: String = PACKAGE_AND_ACTIVITY,
+    intentType: String = PACKAGE_AND_ACTIVITY,
     intentAction: String = Intent.ACTION_VIEW,
     intentCategory: String = Intent.CATEGORY_DEFAULT,
     intentFlag: Int = Intent.FLAG_ACTIVITY_NEW_TASK,
@@ -23,7 +23,7 @@ class StoredActivity(
     intentUri: String? = null,
 
     name: String,
-    var nickName: String = name, // 昵称
+    nickName: String = name, // 昵称
     packageName: String,
     activityName: String? = null,
 
@@ -36,52 +36,53 @@ class StoredActivity(
     description: String = "", // 描述
 
     // 创建时间
-    val createTime: Long = System.currentTimeMillis(),
+    val createdTime: Long = System.currentTimeMillis(),
     // 最后一次修改时间
-    var modifyTime: Long = System.currentTimeMillis(),
-    // 最后一次启动时间
-    var lastLaunchTime: Long = -1,
-    // 启动次数
-    var launchCount: Int = 0,
-) : ToolActivity(
-    id,
-    launchType,
-    intentAction,
-    intentCategory,
-    intentFlag,
-    intentExtras,
-    intentUri,
-    name,
-    packageName,
-    activityName,
-    iconKey,
-    description,
+    var lastModifiedTime: Long = -1,
+    // 最后一次使用时间
+    var lastUsedTime: Long = -1,
+    // 使用次数
+    var useCount: Int = 0,
+) : Tool(
+    id = id,
+    intentType = intentType,
+    intentAction = intentAction,
+    intentCategory = intentCategory,
+    intentFlag = intentFlag,
+    intentExtras = intentExtras,
+    intentUri = intentUri,
+    name = name,
+    nickname = nickName,
+    packageName = packageName,
+    activityName = activityName,
+    iconKey = iconKey,
+    description = description,
 ) {
     // 用一个新的 StoredActivity 的属性覆盖原有的属性
-    fun update(storedActivity: StoredActivity) {
-        this.nickName = storedActivity.nickName
-        this.iconKey = storedActivity.iconKey
-        this.width = storedActivity.width
-        this.height = storedActivity.height
-        this.showName = storedActivity.showName
-        this.showIcon = storedActivity.showIcon
-        this.description = storedActivity.description
-        this.modifyTime = storedActivity.modifyTime
-        this.lastLaunchTime = storedActivity.lastLaunchTime
-        this.launchCount = storedActivity.launchCount
+    fun update(storedTool: StoredTool) {
+        this.nickname = storedTool.nickname
+        this.iconKey = storedTool.iconKey
+        this.width = storedTool.width
+        this.height = storedTool.height
+        this.showName = storedTool.showName
+        this.showIcon = storedTool.showIcon
+        this.description = storedTool.description
+        this.lastModifiedTime = storedTool.lastModifiedTime
+        this.lastUsedTime = storedTool.lastUsedTime
+        this.useCount = storedTool.useCount
     }
 
-    fun copy(): StoredActivity {
-        return StoredActivity(
+    fun copy(): StoredTool {
+        return StoredTool(
             id = this.id,
-            launchType = this.launchType,
+            intentType = this.intentType,
             intentAction = this.intentAction,
             intentCategory = this.intentCategory,
             intentFlag = this.intentFlag,
             intentExtras = this.intentExtras?.toMap(), // 复制为新 Map 避免引用共享
             intentUri = this.intentUri,
             name = this.name,
-            nickName = this.nickName,
+            nickName = this.nickname,
             packageName = this.packageName,
             activityName = this.activityName,
             iconKey = this.iconKey,
@@ -90,10 +91,10 @@ class StoredActivity(
             showName = this.showName,
             showIcon = this.showIcon,
             description = this.description,
-            createTime = this.createTime,
-            modifyTime = this.modifyTime,
-            lastLaunchTime = this.lastLaunchTime,
-            launchCount = this.launchCount
+            createdTime = this.createdTime,
+            lastModifiedTime = this.lastModifiedTime,
+            lastUsedTime = this.lastUsedTime,
+            useCount = this.useCount
         )
     }
 

@@ -6,7 +6,7 @@
 package cn.minimote.toolbox.constant
 
 // 视图类型
-object ViewTypes {
+object ViewType {
     // 编辑视图类型
     object Edit {
         const val PACKAGE_NAME = 0

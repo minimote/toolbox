@@ -8,7 +8,7 @@ package cn.minimote.toolbox.helper
 import cn.minimote.toolbox.constant.Config
 import cn.minimote.toolbox.constant.Config.ConfigFileName
 import cn.minimote.toolbox.constant.Config.ENCODING
-import cn.minimote.toolbox.viewModel.ToolboxViewModel
+import cn.minimote.toolbox.viewModel.MyViewModel
 import org.json.JSONObject
 import java.io.File
 import java.io.FileInputStream
@@ -20,7 +20,7 @@ object ConfigHelper {
     // 获取配置的值
     fun getConfigValue(
         key: String,
-        viewModel: ToolboxViewModel,
+        viewModel: MyViewModel,
 //        defaultConfig: MutableMap<String, Any>,
 //        userConfig: MutableMap<String, Any>,
     ): Any? {
@@ -40,7 +40,7 @@ object ConfigHelper {
 
     // 清除用户和备份的配置文件
     fun clearUserAndBackupConfig(
-        viewModel: ToolboxViewModel,
+        viewModel: MyViewModel,
     ) {
         viewModel.userConfig.clear()
         viewModel.userConfigBackup.clear()
@@ -49,7 +49,7 @@ object ConfigHelper {
 
     // 仅清除用户配置
     fun clearUserConfig(
-        viewModel: ToolboxViewModel,
+        viewModel: MyViewModel,
     ) {
         viewModel.userConfig.clear()
     }
@@ -58,7 +58,7 @@ object ConfigHelper {
     fun updateConfigValue(
         key: String,
         value: Any,
-        viewModel: ToolboxViewModel,
+        viewModel: MyViewModel,
     ) {
         val defaultConfig = viewModel.defaultConfig
         val userConfig = viewModel.userConfig
@@ -73,19 +73,19 @@ object ConfigHelper {
     }
 
 
-    // 用户配置存在该项
-    fun hasUserConfigKey(
-        key: String,
-        viewModel: ToolboxViewModel,
-    ): Boolean {
-        return viewModel.userConfig.containsKey(key)
-    }
+//    // 用户配置存在该项
+//    fun hasUserConfigKey(
+//        key: String,
+//        viewModel: ToolboxViewModel,
+//    ): Boolean {
+//        return viewModel.userConfig.containsKey(key)
+//    }
 
 
     // 删除配置的值
     fun deleteConfigValue(
         key: String,
-        viewModel: ToolboxViewModel,
+        viewModel: MyViewModel,
     ) {
         viewModel.userConfig.remove(key)
     }
@@ -93,7 +93,7 @@ object ConfigHelper {
 
     // 加载全部配置文件
     fun loadAllConfig(
-        viewModel: ToolboxViewModel,
+        viewModel: MyViewModel,
     ) {
         viewModel.defaultConfig = Config.defaultConfig
         viewModel.userConfig = loadUserConfig(viewModel)
@@ -104,12 +104,12 @@ object ConfigHelper {
 
     // 检查配置文件
     fun checkConfigFile(
-        viewModel: ToolboxViewModel,
+        viewModel: MyViewModel,
     ) {
         val defaultConfig = viewModel.defaultConfig
         val userConfig = viewModel.userConfig
 
-        val correctUserConfig = userConfig.filterTo(mutableMapOf<String, Any>()) { (key, value) ->
+        val correctUserConfig = userConfig.filterTo(mutableMapOf()) { (key, value) ->
             val defaultValue = defaultConfig[key]
             defaultValue != null && value != defaultValue
         }
@@ -122,14 +122,14 @@ object ConfigHelper {
 
 
     // 获取用户配置路径
-    private fun getUserConfigPath(viewModel: ToolboxViewModel): File {
+    private fun getUserConfigPath(viewModel: MyViewModel): File {
         return File(viewModel.dataPath, ConfigFileName.USER_CONFIG)
     }
 
 
     // 加载配置文件
     private fun loadUserConfig(
-        viewModel: ToolboxViewModel,
+        viewModel: MyViewModel,
     ): MutableMap<String, Any> {
         return try {
             val inputStream = FileInputStream(getUserConfigPath(viewModel))
@@ -141,17 +141,17 @@ object ConfigHelper {
             JSONObject(json).toMutableMap()
         } catch(e: Exception) {
             e.printStackTrace()
-            mutableMapOf<String, Any>()
+            mutableMapOf()
         }
     }
 
 
     // 保存用户配置文件
     fun saveUserConfig(
-        viewModel: ToolboxViewModel,
+        viewModel: MyViewModel,
     ) {
 //        viewModel.viewModelScope.launch(Dispatchers.IO) {
-        val context = viewModel.myContext
+//        val context = viewModel.myContext
         val userConfigFile = getUserConfigPath(viewModel)
         try {
             val config = viewModel.userConfig.toMap()
@@ -170,33 +170,33 @@ object ConfigHelper {
 
 
     // 更新
-    fun updateSettingWasModified(viewModel: ToolboxViewModel) {
+    fun updateSettingWasModified(viewModel: MyViewModel) {
         val flag = viewModel.userConfig != viewModel.userConfigBackup
 //        Toast.makeText(
 //            viewModel.myContext,
 //            "user=${viewModel.userConfig.size}, back=${viewModel.userConfigBackup.size}",
 //            Toast.LENGTH_SHORT,
 //        ).show()
-        if(flag != viewModel.settingWasModified.value) {
-            viewModel.settingWasModified.value = flag
+        if(flag != viewModel.configChanged.value) {
+            viewModel.configChanged.value = flag
         }
     }
 
 
     // 备份用户配置文件
     private fun backupUserConfig(
-        viewModel: ToolboxViewModel,
+        viewModel: MyViewModel,
     ) {
         viewModel.userConfigBackup = TreeMap(viewModel.userConfig)
-        if(viewModel.settingWasModified.value != false) {
-            viewModel.settingWasModified.value = false
+        if(viewModel.configChanged.value != false) {
+            viewModel.configChanged.value = false
         }
     }
 
 
     // 恢复用户配置文件
     fun restoreUserConfig(
-        viewModel: ToolboxViewModel,
+        viewModel: MyViewModel,
     ) {
         viewModel.userConfig = TreeMap(viewModel.userConfigBackup)
 //        if(viewModel.settingWasModified.value != false) {

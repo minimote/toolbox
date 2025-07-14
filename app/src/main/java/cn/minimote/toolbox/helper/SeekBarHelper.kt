@@ -5,10 +5,9 @@
 
 package cn.minimote.toolbox.helper
 
-import android.content.Context
 import android.widget.SeekBar
 import cn.minimote.toolbox.constant.Config.ConfigKeys
-import cn.minimote.toolbox.viewModel.ToolboxViewModel
+import cn.minimote.toolbox.viewModel.MyViewModel
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.abs
 
@@ -26,8 +25,7 @@ object SeekBarHelper {
         valueList: List<String>,
         initPosition: Int,
         lastPosition: AtomicInteger,
-        context: Context,
-        viewModel: ToolboxViewModel,
+        viewModel: MyViewModel,
         callback: SeekBarSetupCallback,
     ) {
         callback.setupTextView()
@@ -52,7 +50,7 @@ object SeekBarHelper {
                         val selectedValue = valueList[seekBar.progress]
                         callback.updateConfigValue(ConfigKeys.CHECK_UPDATE_FREQUENCY, selectedValue)
                         callback.setupTextView()
-                        VibrationHelper.vibrateOnClick(context, viewModel)
+                        VibrationHelper.vibrateOnClick(viewModel)
                     }
                 }
             }

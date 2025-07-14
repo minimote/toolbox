@@ -16,43 +16,42 @@ import android.widget.TextView
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
-import cn.minimote.toolbox.constant.FragmentNames
-import cn.minimote.toolbox.dataClass.StoredActivity
+import cn.minimote.toolbox.constant.MenuList
+import cn.minimote.toolbox.constant.MenuType
+import cn.minimote.toolbox.dataClass.StoredTool
 import cn.minimote.toolbox.fragment.WidgetListFragment
 import cn.minimote.toolbox.helper.ActivityLaunchHelper
-import cn.minimote.toolbox.helper.FragmentHelper
+import cn.minimote.toolbox.helper.BottomSheetDialogHelper
 import cn.minimote.toolbox.helper.VibrationHelper
-import cn.minimote.toolbox.viewModel.ToolboxViewModel
+import cn.minimote.toolbox.viewModel.MyViewModel
 
 
 class WidgetListAdapter(
     private val context: Context,
-    private val viewModel: ToolboxViewModel,
+    private val viewModel: MyViewModel,
     private val fragment: WidgetListFragment,
     private val fragmentManager: FragmentManager,
+    private val viewPager: ViewPager2,
 ) : RecyclerView.Adapter<WidgetListAdapter.WidgetViewHolder>() {
 
     private lateinit var itemTouchHelper: ItemTouchHelper
     //    var activityList: MutableList<StoredActivity> =
 //        viewModel.storedActivityList.value ?: mutableListOf()
-    var activityList: MutableList<StoredActivity> = loadActivityList()
+    var toolList: MutableList<StoredTool> = loadToolList()
 
 
-//    private var buttonSave: Button = viewModel.buttonSave
-//    private var isEditMode: MutableLiveData<Boolean> = viewModel.isEditMode
-//    private val editBackground: ImageView = viewModel.editBackground
-
-
-    class WidgetViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class WidgetViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val appIcon: ImageView = itemView.findViewById(R.id.imageView_app_icon)
         val widgetName: TextView? = itemView.findViewById(R.id.textView_app_name)
+        val viewBackground: View = itemView.findViewById(R.id.view_background)
     }
 
 
     // 显示名称的视图类型为 1
     override fun getItemViewType(position: Int): Int {
-        return if(activityList[position].showName) 1 else 0
+        return if(toolList[position].showName) 1 else 0
     }
 
 
@@ -69,158 +68,111 @@ class WidgetListAdapter(
 
 
     override fun onBindViewHolder(holder: WidgetViewHolder, position: Int) {
-        val appInfo = activityList[position]
 
-        if(appInfo.showName) {
-            holder.widgetName?.text = appInfo.nickName
+        val toolActivity = toolList[position]
+
+        if(toolActivity.showName) {
+            holder.widgetName?.text = toolActivity.nickname
         }
         holder.appIcon.setImageDrawable(
-            viewModel.iconCacheHelper.getIconCircularDrawable(appInfo)
+            viewModel.iconCacheHelper.getIconCircularDrawable(toolActivity)
         )
 
-//        holder.itemView.layoutParams.width =
-//            viewModel.screenWidth / viewModel.spanCount * appInfo.width
-//        holder.itemView.layoutParams.height = holder.itemView.layoutParams.width
-//        if(appInfo.packageName == "com.android.settings") {
-//            holder.appIcon.layoutParams.height *= 2
-////            holder.appIcon.requestLayout()
-//        }
+        // 根据 selectedIds 设置背景状态
+        val isSelected = viewModel.isSelected(toolActivity.id)
+        holder.viewBackground.visibility = if(
+            viewModel.multiselectMode.value == true && isSelected
+        ) {
+            View.VISIBLE
+        } else {
+            View.INVISIBLE
+        }
+
 
         holder.itemView.setOnClickListener {
-//            toggleBackgroundColor(holder.itemView)
-            VibrationHelper.vibrateOnClick(context, viewModel)
-            if(viewModel.editMode.value == true) {
-//                Log.i("WidgetListAdapter", "编辑小组件<${appInfo.appName}>")
-                viewModel.originWidget.value = appInfo
-                viewModel.modifiedWidget.value = appInfo.copy()
-
-                FragmentHelper.switchFragment(
-                    fragmentName = FragmentNames.EDIT_LIST_FRAGMENT,
-                    fragmentManager = fragmentManager,
-                    viewModel = viewModel,
-                    viewPager = fragment.viewPager,
-                    constraintLayoutOrigin = fragment.constraintLayoutOrigin,
-                )
-//                val fragment = EditListFragment()
-//                FragmentManagerHelper.replaceFragment(
-//                    fragmentManager = fragmentManager,
-//                    fragment = fragment,
-//                    viewModel = viewModel,
-//                )
-            } else {
+            if(viewModel.multiselectMode.value == true) {
+                VibrationHelper.vibrateOnClick(viewModel)
+                if(viewModel.isSelected(toolActivity.id)) {
+                    viewModel.deselectItem(toolActivity.id)
+                    holder.viewBackground.visibility = View.INVISIBLE
+                } else {
+                    viewModel.selectedItem(toolActivity.id)
+                    holder.viewBackground.visibility = View.VISIBLE
+                }
+            } else if(viewModel.sortMode.value != true) {
+                VibrationHelper.vibrateOnClick(viewModel)
                 // 启动新活动并结束当前活动
-                startActivityAndFinishCurrent(appInfo)
+                startActivityAndFinishCurrent(toolActivity)
             }
         }
 
+        // 禁用振动反馈
+        holder.itemView.isHapticFeedbackEnabled = false
         holder.itemView.setOnLongClickListener {
-            VibrationHelper.vibrateOnClick(context, viewModel)
-            if(viewModel.editMode.value != true) {
-                viewModel.editMode.value = true
-//                Log.i("WidgetListAdapter", "进入编辑模式")
-                fragment.showEnterEditModeToast()
-            } else {
-//                Toast.makeText(
-//                    context,
-//                    context.getString(R.string.already_enter_edit_mode),
-//                    Toast.LENGTH_SHORT,
-//                ).show()
-                itemTouchHelper.startDrag(holder)
+            if(viewModel.multiselectMode.value != true && viewModel.sortMode.value != true) {
+                VibrationHelper.vibrateOnLongPress(viewModel)
+                BottomSheetDialogHelper.setAndShowBottomSheetDialog(
+                    context = context,
+                    viewModel = viewModel,
+                    tool = toolActivity,
+                    menuList = MenuList.widget,
+                    viewPager = viewPager,
+                    fragmentManager = fragmentManager,
+                    constraintLayoutOrigin = fragment.constraintLayoutOrigin,
+                    onMenuItemClick = { menuItemId ->
+                        when(menuItemId) {
+                            MenuType.MULTI_SELECT -> {
+                                holder.viewBackground.visibility = View.VISIBLE
+                                viewModel.clearSelectedIds()
+                                viewModel.selectedItem(toolActivity.id)
+                                viewModel.multiselectMode.value = true
+                            }
+
+                            MenuType.ADD_TO_HOME_OR_REMOVE_FROM_HOME -> {
+                            }
+
+                            MenuType.SORT -> {
+//                                viewModel.sortMode.value = true
+                                fragment.buttonSortMode.performClick()
+                            }
+
+                            else -> {}
+                        }
+                    }
+                )
             }
+
             true // 返回 true 以表示事件已处理，不再继续传递
         }
     }
 
 
     // 启动新活动并结束当前活动
-    private fun startActivityAndFinishCurrent(appInfo: StoredActivity) {
-        val flag = ActivityLaunchHelper.launch(context, appInfo)
+    private fun startActivityAndFinishCurrent(appInfo: StoredTool) {
+        val flag = ActivityLaunchHelper.launch(
+            context = context,
+            viewModel = viewModel,
+            tool = appInfo,
+        )
         if(flag) {
             (context as? Activity)?.finishAffinity()
-        } else {
-//            // 启动失败，显示错误信息
-//            Toast.makeText(
-//                context,
-//                context.getString(R.string.start_fail, appInfo.activityName),
-//                Toast.LENGTH_SHORT,
-//            ).show()
         }
-
-//        val intentList = listOf(
-//            // 使用包名和活动名启动
-//            getIntentPackageNameAndActivityName(appInfo),
-//            // 使用 parseUri 启动
-//            getIntentParseUri(appInfo),
-//            // 使用 putExtra 启动
-//            getIntentPutExtra(appInfo),
-//        )
-//        for(intent in intentList) {
-//            try {
-//                context.startActivity(intent)
-//                (context as? Activity)?.finishAffinity()
-//                return
-//            } catch(_: Exception) {
-//                // 如果启动失败，继续尝试下一个 Intent
-//            }
-//        }
-//        // 启动失败，显示错误信息
-//        Toast.makeText(
-//            context,
-//            context.getString(R.string.start_fail, appInfo.activityName),
-//            Toast.LENGTH_SHORT,
-//        ).show()
     }
 
 
-//    private fun getIntentPackageNameAndActivityName(appInfo: StoredActivity): Intent {
-//        return Intent().apply {
-//            component = ComponentName(appInfo.packageName, appInfo.activityName)
-//            flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-//        }
-//    }
-//
-//
-//    private fun getIntentParseUri(appInfo: StoredActivity): Intent? {
-//        return Intent.parseUri(appInfo.activityName, Intent.URI_INTENT_SCHEME)
-//    }
-//
-//
-//    private fun getIntentPutExtra(appInfo: StoredActivity): Intent? {
-//        val activityName = appInfo.activityName
-//        val parts = activityName.split(context.getString(R.string.split_char))
-//        if(parts.size != 3) {
-//            if(parts.size == 1) {
-//                return context.packageManager.getLaunchIntentForPackage(appInfo.packageName)
-//                    ?.apply {
-//                        putExtra(activityName, true)
-//                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-//                    }
-//            }
-//            return null
-//        }
-//        val action = parts[0]
-//        val extraKey = parts[1]
-//        val extraValue = parts[2]
-//
-//        return Intent(action).apply {
-//            putExtra(extraKey, extraValue)
-//            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-//        }
-//    }
-
-
-    override fun getItemCount(): Int = activityList.size
+    override fun getItemCount(): Int = toolList.size
 
 
     @SuppressLint("NotifyDataSetChanged")
-    fun submitList(newActivityList: MutableList<StoredActivity> = loadActivityList()) {
-        activityList = newActivityList
+    fun submitList(newActivityList: MutableList<StoredTool> = loadToolList()) {
+//        LogHelper.e("WidgetListAdapter", "submitList:${newActivityList.size}")
+        toolList = newActivityList
         notifyDataSetChanged()
     }
 
 
-    private fun loadActivityList(): MutableList<StoredActivity> {
-        return viewModel.storedActivityList.value ?: mutableListOf()
+    private fun loadToolList(): MutableList<StoredTool> {
+        return viewModel.storedToolList.value ?: mutableListOf()
     }
 
 

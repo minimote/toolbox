@@ -13,61 +13,50 @@
         <shape>
             <gradient
                 android:angle="0"
-                android:centerColor="@color/transparent"
                 android:endColor="@color/transparent"
-                android:startColor="@color/deep_gray"
+                android:centerColor="@color/transparent"
+                android:startColor="@color/mid_gray_trans"
                 android:type="linear" />
-            <corners
-                android:bottomLeftRadius="@dimen/layout_size_1_small"
-                android:topLeftRadius="@dimen/layout_size_1_small" />
+            <corners android:radius="@dimen/layout_size_1_small" />
             <size android:width="@dimen/layout_size_1_large" />
         </shape>
     </item>
-
     <!-- 右侧渐变层 -->
     <item android:gravity="end">
         <shape>
             <gradient
                 android:angle="180"
-                android:centerColor="@color/transparent"
                 android:endColor="@color/transparent"
-                android:startColor="@color/deep_gray"
+                android:centerColor="@color/transparent"
+                android:startColor="@color/mid_gray_trans"
                 android:type="linear" />
-            <corners
-                android:bottomRightRadius="@dimen/layout_size_1_small"
-                android:topRightRadius="@dimen/layout_size_1_small" />
+            <corners android:radius="@dimen/layout_size_1_small" />
             <size android:width="@dimen/layout_size_1_large" />
         </shape>
     </item>
-
     <!-- 上侧渐变层 -->
     <item android:gravity="top">
         <shape>
             <gradient
                 android:angle="270"
-                android:centerColor="@color/transparent"
                 android:endColor="@color/transparent"
-                android:startColor="@color/deep_gray"
+                android:centerColor="@color/transparent"
+                android:startColor="@color/mid_gray_trans"
                 android:type="linear" />
-            <corners
-                android:topLeftRadius="@dimen/layout_size_1_small"
-                android:topRightRadius="@dimen/layout_size_1_small" />
+            <corners android:radius="@dimen/layout_size_1_small" />
             <size android:height="@dimen/layout_size_1_large" />
         </shape>
     </item>
-
     <!-- 下侧渐变层 -->
     <item android:gravity="bottom">
         <shape>
             <gradient
                 android:angle="90"
-                android:centerColor="@color/transparent"
                 android:endColor="@color/transparent"
-                android:startColor="@color/deep_gray"
+                android:centerColor="@color/transparent"
+                android:startColor="@color/mid_gray_trans"
                 android:type="linear" />
-            <corners
-                android:bottomLeftRadius="@dimen/layout_size_1_small"
-                android:bottomRightRadius="@dimen/layout_size_1_small" />
+            <corners android:radius="@dimen/layout_size_1_small" />
             <size android:height="@dimen/layout_size_1_large" />
         </shape>
     </item>

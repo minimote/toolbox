@@ -9,5 +9,5 @@ package cn.minimote.toolbox.dataClass
 // 存储活动数据容器，包含数据版本和实际的数据列表
 data class StoredActivityContainer(
     var version: Int,
-    var data: MutableList<StoredActivity>,
+    var data: MutableList<StoredTool>,
 )

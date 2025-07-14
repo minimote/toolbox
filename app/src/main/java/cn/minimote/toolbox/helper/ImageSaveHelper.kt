@@ -5,140 +5,132 @@
 
 package cn.minimote.toolbox.helper
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.media.MediaScannerConnection
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageView
-import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.core.graphics.drawable.toBitmap
+import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
-import cn.minimote.toolbox.viewModel.ToolboxViewModel
+import cn.minimote.toolbox.constant.MenuList
+import cn.minimote.toolbox.constant.MenuType
+import cn.minimote.toolbox.viewModel.MyViewModel
 import java.io.File
 import java.io.FileOutputStream
 
 
 object ImageSaveHelper {
 
-    @SuppressLint("ClickableViewAccessibility")
+
     fun setPopupMenu(
         imageView: ImageView,
         fileName: String,
-        viewModel: ToolboxViewModel,
+        viewModel: MyViewModel,
         context: Context,
         quality: Int = 100,
         imagePath: File = viewModel.savePath,
+        viewPager: ViewPager2? = null,
     ) {
 
-        var x = viewModel.screenWidth / 2
-        var y = viewModel.screenHeight / 2
+        // 禁用振动反馈
+        imageView.isHapticFeedbackEnabled = false
         imageView.setOnLongClickListener {
-            VibrationHelper.vibrateOnClick(context, viewModel)
-            showPopupMenu(
-                imageView,
-                fileName,
-                viewModel,
-                context,
-                quality,
-                imagePath,
-                x,
-                y,
-            )
-            true
-        }
-
-        imageView.setOnTouchListener { _, event ->
-            if(event.action == MotionEvent.ACTION_DOWN) {
-                x = event.rawX.toInt()
-                y = event.rawY.toInt()
-//                view.performLongClick()
-            }
-            false
-        }
-//
-
-//        val gestureDetector =
-//            GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
-//                override fun onLongPress(e: MotionEvent) {
-//                    VibrationHelper.vibrateOnClick(context, viewModel)
-//                    showPopupMenu(
-//                        imageView,
-//                        fileName,
-//                        viewModel,
-//                        context,
-//                        quality,
-//                        imagePath,
-//                        e.rawX.toInt(),
-//                        e.rawY.toInt()
-//                    )
-//                }
-//
-////                override fun onSingleTapUp(e: MotionEvent): Boolean {
-////                    // 处理单击事件
-////                    return true
-////                }
-//            })
-
-//        imageView.setOnTouchListener { view, event ->
-//            gestureDetector.onTouchEvent(event)
-//        }
-
-    }
-
-
-    private fun showPopupMenu(
-        imageView: ImageView,
-        fileName: String,
-        viewModel: ToolboxViewModel,
-        context: Context,
-        quality: Int = 100,
-        imagePath: File = viewModel.savePath,
-        x: Int,
-        y: Int,
-    ) {
-        // 创建 PopupWindow
-        val popupView =
-            LayoutInflater.from(context).inflate(R.layout.popup_menu_layout_save_image, null)
-        val popupWindow = PopupWindow(
-            popupView,
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            true
-        )
-
-        // 设置菜单项点击事件
-        val saveButton = popupView.findViewById<Button>(R.id.save_image)
-        saveButton.setOnClickListener {
-            VibrationHelper.vibrateOnClick(context, viewModel)
-            saveImage(
+            VibrationHelper.vibrateOnLongPress(viewModel)
+            showMenu(
                 imageView = imageView,
                 fileName = fileName,
                 viewModel = viewModel,
                 context = context,
                 quality = quality,
                 imagePath = imagePath,
+                viewPager = viewPager,
             )
-            popupWindow.dismiss()
+            true
         }
-
-        // 显示 PopupWindow
-        popupWindow.showAtLocation(imageView, Gravity.NO_GRAVITY, x, y)
-
     }
+
+
+    // 显示弹窗
+    private fun showMenu(
+        imageView: ImageView,
+        fileName: String,
+        viewModel: MyViewModel,
+        context: Context,
+        quality: Int = 100,
+        imagePath: File = viewModel.savePath,
+        viewPager: ViewPager2? = null,
+    ) {
+        BottomSheetDialogHelper.setAndShowBottomSheetDialog(
+            context = context,
+            viewModel = viewModel,
+            menuList = MenuList.saveImage,
+            viewPager = viewPager,
+            onMenuItemClick = { menuItemId ->
+                when(menuItemId) {
+                    MenuType.SAVE_IMAGE -> {
+                        saveImage(
+                            imageView = imageView,
+                            fileName = fileName,
+                            viewModel = viewModel,
+                            context = context,
+                            quality = quality,
+                            imagePath = imagePath,
+                        )
+                    }
+                }
+            }
+        )
+    }
+
+
+//    private fun showPopupMenu(
+//        imageView: ImageView,
+//        fileName: String,
+//        viewModel: MyViewModel,
+//        context: Context,
+//        quality: Int = 100,
+//        imagePath: File = viewModel.savePath,
+//        x: Int,
+//        y: Int,
+//    ) {
+//        // 创建 PopupWindow
+//        val popupView =
+//            LayoutInflater.from(context).inflate(R.layout.popup_menu_layout_save_image, null)
+//        val popupWindow = PopupWindow(
+//            popupView,
+//            ViewGroup.LayoutParams.WRAP_CONTENT,
+//            ViewGroup.LayoutParams.WRAP_CONTENT,
+//            true
+//        )
+//
+//        // 设置菜单项点击事件
+//        val textViewSave = popupView.findViewById<TextView>(R.id.save_image)
+//        textViewSave.setOnClickListener {
+//            VibrationHelper.vibrateOnClick(viewModel)
+//            saveImage(
+//                imageView = imageView,
+//                fileName = fileName,
+//                viewModel = viewModel,
+//                context = context,
+//                quality = quality,
+//                imagePath = imagePath,
+//            )
+//            popupWindow.dismiss()
+//        }
+//
+//        // 显示 PopupWindow
+//        popupWindow.showAtLocation(imageView, Gravity.NO_GRAVITY, x, y)
+//
+//    }
 
 
     fun saveImage(
         drawable: Drawable? = null,
         imageView: ImageView? = null,
         fileName: String,
-        viewModel: ToolboxViewModel,
+        viewModel: MyViewModel,
         context: Context,
         quality: Int = 100,
         imagePath: File = viewModel.savePath,

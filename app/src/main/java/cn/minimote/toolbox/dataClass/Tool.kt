@@ -10,12 +10,12 @@ import cn.minimote.toolbox.constant.LaunchTypes.PACKAGE_AND_ACTIVITY
 
 
 // 工具类
-open class ToolActivity(
+open class Tool(
     // 唯一标识符
     val id: String,
 
     // 启动相关
-    val launchType: String = PACKAGE_AND_ACTIVITY,
+    val intentType: String = PACKAGE_AND_ACTIVITY,
     val intentAction: String = Intent.ACTION_VIEW,
     val intentCategory: String = Intent.CATEGORY_DEFAULT,
     val intentFlag: Int = Intent.FLAG_ACTIVITY_NEW_TASK,
@@ -23,7 +23,7 @@ open class ToolActivity(
     val intentUri: String? = null,
 
     val name: String,
-//    var nickName: String = appName, // 昵称
+    var nickname: String = name, // 昵称
     val packageName: String,
     val activityName: String? = null,
 
@@ -46,17 +46,17 @@ open class ToolActivity(
 ) {
 
     // 转换为存储类型
-    fun toStoredActivity(
+    fun toStoredTool(
         width: Int,
-    ): StoredActivity {
-        return StoredActivity(
+    ): StoredTool {
+        return StoredTool(
             id = id,
             name = name,
             packageName = packageName,
             activityName = activityName,
             iconKey = iconKey,
             description = description,
-            launchType = launchType,
+            intentType = intentType,
             intentAction = intentAction,
             intentCategory = intentCategory,
             intentFlag = intentFlag,

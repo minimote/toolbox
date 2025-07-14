@@ -26,10 +26,10 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
-import cn.minimote.toolbox.adapter.ActivityListAdapter
+import cn.minimote.toolbox.adapter.InstalledAppListAdapter
 import cn.minimote.toolbox.constant.UI
 import cn.minimote.toolbox.helper.VibrationHelper
-import cn.minimote.toolbox.viewModel.ToolboxViewModel
+import cn.minimote.toolbox.viewModel.MyViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -38,12 +38,12 @@ import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
-class ActivityListFragment : Fragment() {
+class InstalledAppListFragment : Fragment() {
 
-    private val viewModel: ToolboxViewModel by activityViewModels()
+    private val viewModel: MyViewModel by activityViewModels()
 
     lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: ActivityListAdapter
+    private lateinit var adapter: InstalledAppListAdapter
     private lateinit var progressBar: ProgressBar
     private lateinit var loadingTextView: TextView
     lateinit var searchBox: EditText
@@ -62,7 +62,7 @@ class ActivityListFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.widgetListSizeWasModified.value = false
+        viewModel.toolListSizeChanged.value = false
 //        Log.e("ActivityListFragment", "onCreate")
 //        viewModel = ViewModelProvider(this)[ToolboxViewModel::class.java]
 //        Log.e("", "${getHash(viewModel)},${getHash(vi)}")
@@ -100,16 +100,16 @@ class ActivityListFragment : Fragment() {
 
         // 在后台线程获取应用列表
         uiScope.launch {
-            viewModel.getInstalledActivitiesCoroutine()
+            viewModel.getInstalledAppCoroutine()
 
             // 初始化 RecyclerView
             recyclerView = view.findViewById(R.id.recyclerView_activity_list)
             recyclerView.layoutManager = LinearLayoutManager(context)
 
             // 设置 Adapter
-            adapter = ActivityListAdapter(
+            adapter = InstalledAppListAdapter(
                 context = requireContext(),
-                fragment = this@ActivityListFragment,
+                fragment = this@InstalledAppListFragment,
                 viewModel = viewModel,
             )
             recyclerView.adapter = adapter
@@ -137,7 +137,7 @@ class ActivityListFragment : Fragment() {
         searchBox.visibility = View.VISIBLE
         imageButtonClear = view.findViewById(R.id.imageButton_clear)
         imageButtonClear.visibility = View.GONE
-        buttonCancel = view.findViewById(R.id.button_cancel)
+        buttonCancel = view.findViewById(R.id.button_negative)
         buttonCancel.visibility = View.GONE
 
         searchBox.hint = getString(
@@ -147,7 +147,7 @@ class ActivityListFragment : Fragment() {
         // 手动请求输入法，避免第一次点击出现闪烁
         searchBox.onFocusChangeListener = View.OnFocusChangeListener { v, hasFocus ->
             if(hasFocus) {
-                VibrationHelper.vibrateOnClick(requireContext(), viewModel)
+                VibrationHelper.vibrateOnClick(viewModel)
                 val imm =
                     v.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.showSoftInput(v, InputMethodManager.SHOW_IMPLICIT)
@@ -162,7 +162,7 @@ class ActivityListFragment : Fragment() {
 
         // 点击输入框时触发振动
         searchBox.setOnClickListener {
-            VibrationHelper.vibrateOnClick(requireContext(), viewModel)
+            VibrationHelper.vibrateOnClick(viewModel)
         }
 
         // 添加 TextWatcher 监听文本变化
@@ -177,7 +177,7 @@ class ActivityListFragment : Fragment() {
 
                 // 过滤数据
                 if(viewModel.searchMode.value == true and query.isNotEmpty()) {
-                    val filteredList = viewModel.installedActivityList.value?.filter { activity ->
+                    val filteredList = viewModel.installedAppList.value?.filter { activity ->
 //                        if(viewModel.searchMode.value == true and query.isNotEmpty()) {
                         activity.name.contains(
                             query, ignoreCase = true
@@ -216,13 +216,13 @@ class ActivityListFragment : Fragment() {
 
         // 设置取消按钮点击事件
         buttonCancel.setOnClickListener {
-            VibrationHelper.vibrateOnClick(requireContext(), viewModel)
+            VibrationHelper.vibrateOnClick(viewModel)
             exitSearchMode()
         }
 
         // 设置清空按钮点击事件
         imageButtonClear.setOnClickListener {
-            VibrationHelper.vibrateOnClick(requireContext(), viewModel)
+            VibrationHelper.vibrateOnClick(viewModel)
             searchBox.setText("")
         }
     }

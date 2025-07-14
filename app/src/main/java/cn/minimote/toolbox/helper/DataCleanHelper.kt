@@ -5,7 +5,7 @@
 
 package cn.minimote.toolbox.helper
 
-import cn.minimote.toolbox.viewModel.ToolboxViewModel
+import cn.minimote.toolbox.viewModel.MyViewModel
 import java.io.File
 import java.util.Locale
 
@@ -13,13 +13,13 @@ import java.util.Locale
 object DataCleanHelper {
 
     // 获取缓存路径列表
-    private fun getCachePathList(viewModel: ToolboxViewModel): List<File?> {
+    private fun getCachePathList(viewModel: MyViewModel): List<File?> {
         return listOf(
             viewModel.cachePath
         )
     }
     // 获取缓存大小
-    fun getCacheSize(viewModel: ToolboxViewModel): String {
+    fun getCacheSize(viewModel: MyViewModel): String {
         val pathList = getCachePathList(viewModel)
         var size = 0L
         for(path in pathList) {
@@ -31,7 +31,7 @@ object DataCleanHelper {
         return formatSize(size)
     }
     // 清除缓存
-    fun clearCache(viewModel: ToolboxViewModel) {
+    fun clearCache(viewModel: MyViewModel) {
         val pathList = getCachePathList(viewModel)
         for(path in pathList) {
             if(path != null) {
@@ -42,14 +42,14 @@ object DataCleanHelper {
 
 
     // 获取数据路径列表
-    private fun getDataPathList(viewModel: ToolboxViewModel): List<File?> {
+    private fun getDataPathList(viewModel: MyViewModel): List<File?> {
         return listOf(
             viewModel.dataPath,
             viewModel.savePath,
         )
     }
     // 获取数据大小
-    fun getDataSize(viewModel: ToolboxViewModel): String {
+    fun getDataSize(viewModel: MyViewModel): String {
         val pathList = getDataPathList(viewModel)
         var size = 0L
         for(path in pathList) {
@@ -62,7 +62,7 @@ object DataCleanHelper {
     }
     // 清除数据
     fun clearData(
-        viewModel: ToolboxViewModel,
+        viewModel: MyViewModel,
     ) {
         val pathList = getDataPathList(viewModel)
         for(path in pathList) {

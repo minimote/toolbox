@@ -10,32 +10,28 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.BaseExpandableListAdapter
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.graphics.drawable.toDrawable
 import androidx.fragment.app.FragmentManager
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
-import cn.minimote.toolbox.constant.FragmentNames
-import cn.minimote.toolbox.constant.UI
+import cn.minimote.toolbox.constant.FragmentName
+import cn.minimote.toolbox.constant.MenuList
 import cn.minimote.toolbox.dataClass.ExpandableGroup
-import cn.minimote.toolbox.dataClass.ToolActivity
+import cn.minimote.toolbox.dataClass.Tool
 import cn.minimote.toolbox.fragment.ToolListFragment
 import cn.minimote.toolbox.helper.ActivityLaunchHelper
+import cn.minimote.toolbox.helper.BottomSheetDialogHelper
 import cn.minimote.toolbox.helper.FragmentHelper
 import cn.minimote.toolbox.helper.VibrationHelper
-import cn.minimote.toolbox.viewModel.ToolboxViewModel
-import com.google.android.material.bottomsheet.BottomSheetDialog
+import cn.minimote.toolbox.viewModel.MyViewModel
 
 
 class ToolListAdapter(
     private val context: Context,
     private var groupList: List<ExpandableGroup>,
-    private val viewModel: ToolboxViewModel,
+    private val viewModel: MyViewModel,
     private val fragment: ToolListFragment,
     private val fragmentManager: FragmentManager,
     val viewPager: ViewPager2,
@@ -71,9 +67,9 @@ class ToolListAdapter(
 
                 // 点击后跳转到软件列表
                 convertView.setOnClickListener {
-                    VibrationHelper.vibrateOnClick(context, viewModel)
+                    VibrationHelper.vibrateOnClick(viewModel)
                     FragmentHelper.switchFragment(
-                        fragmentName = FragmentNames.ACTIVITY_LIST_FRAGMENT,
+                        fragmentName = FragmentName.INSTALLED_APP_LIST_FRAGMENT,
                         fragmentManager = fragmentManager,
                         viewModel = viewModel,
                         viewPager = fragment.viewPager,
@@ -112,7 +108,7 @@ class ToolListAdapter(
             viewHolder = convertView.tag as ViewHolder
         }
 
-        val child = getChild(groupPosition, childPosition) as ToolActivity
+        val child = getChild(groupPosition, childPosition) as Tool
         viewHolder.imageViewAppIcon?.setImageDrawable(
             viewModel.iconCacheHelper.getIconCircularDrawable(
                 child
@@ -129,49 +125,29 @@ class ToolListAdapter(
 
         // 单击打开工具
         convertView.setOnClickListener {
-            VibrationHelper.vibrateOnClick(viewModel.myContext, viewModel)
-            ActivityLaunchHelper.launch(viewModel.myContext, child)
+            VibrationHelper.vibrateOnClick(viewModel)
+            ActivityLaunchHelper.launch(
+                context = viewModel.myContext,
+                viewModel = viewModel,
+                tool = child,
+            )
         }
 
+        // 禁用振动反馈
+        convertView.isHapticFeedbackEnabled = false
         // 长按显示菜单
         convertView.setOnLongClickListener { view ->
-            VibrationHelper.vibrateOnClick(viewModel.myContext, viewModel)
+            VibrationHelper.vibrateOnLongPress(viewModel)
 
-            val bottomSheetDialog = BottomSheetDialog(context, R.style.TranslucentBottomSheet)
-
-            val view = LayoutInflater.from(context).inflate(R.layout.bottom_sheet_menu, null)
-
-            val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView_bottomSheet)
-            recyclerView.adapter = BottomSheetAdapter(
+            BottomSheetDialogHelper.setAndShowBottomSheetDialog(
                 context = context,
                 viewModel = viewModel,
-                toolActivity = child,
-                bottomSheetDialog = bottomSheetDialog,
+                tool = child,
+                menuList = MenuList.tool,
+                viewPager = viewPager,
+                fragmentManager = fragmentManager,
+                constraintLayoutOrigin = fragment.constraintLayoutOrigin,
             )
-            recyclerView.layoutManager = LinearLayoutManager(context)
-
-            bottomSheetDialog.setContentView(view)
-            // 允许点击外部关闭
-            bottomSheetDialog.setCanceledOnTouchOutside(true)
-
-            // 打开的时候禁用 ViewPaper 的滑动
-            bottomSheetDialog.setOnShowListener {
-                viewPager.isUserInputEnabled = false
-            }
-
-            // 关闭的时候恢复 ViewPager 的滑动
-            bottomSheetDialog.setOnDismissListener {
-                viewPager.isUserInputEnabled = true
-            }
-
-            bottomSheetDialog.show()
-
-            // 半透明遮罩
-            bottomSheetDialog.window?.apply {
-                setBackgroundDrawable(R.color.black.toDrawable()) // 黑色背景
-                setDimAmount(UI.ALPHA_7) // 透明度
-                addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND) // 启用遮罩层
-            }
 
             true
         }

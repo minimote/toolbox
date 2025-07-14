@@ -15,28 +15,33 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.adapter.EditListAdapter
-import cn.minimote.toolbox.viewModel.ToolboxViewModel
+import cn.minimote.toolbox.viewModel.MyViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 
 @AndroidEntryPoint
 class EditListFragment : Fragment() {
 
-    private val viewModel: ToolboxViewModel by activityViewModels()
+    private val viewModel: MyViewModel by activityViewModels()
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: EditListAdapter
 
 
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//    }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel.toolChanged.value = false
+        viewModel.toolListSizeChanged.value = false
+    }
 
 
     override fun onDestroy() {
         super.onDestroy()
 
-        viewModel.originWidget.value = null
-        viewModel.modifiedWidget.value = null
+        viewModel.originTool.value = null
+        viewModel.editedTool.value = null
+
+        viewModel.toolChanged.value = false
+        viewModel.toolListSizeChanged.value = false
     }
 
 
@@ -53,7 +58,7 @@ class EditListFragment : Fragment() {
         recyclerView = view.findViewById(R.id.recyclerView_edit_list)
         recyclerView.layoutManager = LinearLayoutManager(context)
         adapter = EditListAdapter(
-            context = requireContext(),
+            context = requireActivity(),
             viewModel = viewModel,
             lifecycleOwner = viewLifecycleOwner,
         )

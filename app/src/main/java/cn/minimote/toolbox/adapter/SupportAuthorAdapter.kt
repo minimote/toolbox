@@ -17,20 +17,20 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
-import cn.minimote.toolbox.constant.ViewLists
-import cn.minimote.toolbox.constant.ViewTypes
+import cn.minimote.toolbox.constant.ViewList
+import cn.minimote.toolbox.constant.ViewType
 import cn.minimote.toolbox.helper.ImageSaveHelper
 import cn.minimote.toolbox.helper.VibrationHelper
-import cn.minimote.toolbox.viewModel.ToolboxViewModel
+import cn.minimote.toolbox.viewModel.MyViewModel
 
 
 class SupportAuthorAdapter(
     private val context: Context,
-    val viewModel: ToolboxViewModel,
+    val viewModel: MyViewModel,
 ) : RecyclerView.Adapter<SupportAuthorAdapter.SupportAuthorViewHolder>() {
 
-    private val viewList = ViewLists.supportAuthorViewList
-    private val viewTypes = ViewTypes.SupportAuthor
+    private val viewList = ViewList.supportAuthorViewList
+    private val viewTypes = ViewType.SupportAuthor
 
     inner class SupportAuthorViewHolder(
         itemView: View,
@@ -141,7 +141,7 @@ class SupportAuthorAdapter(
             holder.buttonGotoAlipay.visibility = View.GONE
         } else {
             holder.buttonGotoAlipay.setOnClickListener {
-                VibrationHelper.vibrateOnClick(context, viewModel)
+                VibrationHelper.vibrateOnClick(viewModel)
                 gotoAlipay(context)
             }
         }
@@ -186,12 +186,12 @@ class SupportAuthorAdapter(
             holder.buttonOpenWechatScan.visibility = View.GONE
         } else {
             holder.buttonSaveWechatQR.setOnClickListener {
-                VibrationHelper.vibrateOnClick(context, viewModel)
+                VibrationHelper.vibrateOnClick(viewModel)
                 saveWechatQR(context)
             }
 
             holder.buttonOpenWechatScan.setOnClickListener {
-                VibrationHelper.vibrateOnClick(context, viewModel)
+                VibrationHelper.vibrateOnClick(viewModel)
                 openWechatScan(context)
             }
         }

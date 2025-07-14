@@ -7,6 +7,8 @@
     <com.scwang.smart.refresh.layout.SmartRefreshLayout
         android:id="@+id/refreshLayout"
         style="@style/SmartRefreshLayout.Toolbox.Dark"
+        app:layout_constraintBottom_toTopOf="@id/constraintLayout_bottomButton"
+        android:layout_height="0px"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -19,43 +21,86 @@
             app:layout_constraintTop_toTopOf="parent" />
     </com.scwang.smart.refresh.layout.SmartRefreshLayout>
 
+
+    <!-- 背景图片和文字 -->
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraintLayout_click"
+        android:id="@+id/constraintLayout_background"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/background_ripple"
         android:clickable="true"
         android:focusable="true"
-        android:background="@drawable/background_ripple"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-    <ImageView
-        android:id="@+id/edit_background"
-        style="@style/ImageView.Toolbox.EditBackground.Dark"
-        android:importantForAccessibility="no"
-        android:src="@drawable/ic_setting"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@id/textView_no_widget"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <TextView
-        android:id="@+id/textView_no_widget"
-        style="@style/TextView.Toolbox.Dark"
-        android:layout_width="match_parent"
-        android:paddingTop="@dimen/layout_size_2.5_Large"
-        android:paddingBottom="@dimen/layout_size_1_large"
-        android:paddingHorizontal="@dimen/layout_size_2_footnote"
-        android:text="@string/textView_no_widget"
-        android:textSize="@dimen/text_size_3_LARGE"
-        android:visibility="invisible"
+        <ImageView
+            android:id="@+id/imageView_background"
+            style="@style/ImageView.Toolbox.EditBackground.Dark"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_setting"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toTopOf="@id/textView_no_widget"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textView_no_widget"
+            style="@style/TextView.Toolbox.Dark"
+            android:layout_width="match_parent"
+            android:paddingHorizontal="@dimen/layout_size_2_footnote"
+            android:paddingTop="@dimen/layout_size_2.5_Large"
+            android:paddingBottom="@dimen/layout_size_1_large"
+            android:text="@string/textView_no_widget"
+            android:textSize="@dimen/text_size_3_LARGE"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/imageView_background" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout_bottomButton"
+        style="@style/ConstraintLayout.Toolbox.Dark"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/edit_background" />
+        app:layout_constraintStart_toStartOf="parent">
 
+        <!-- 全选 -->
+        <Button
+            android:id="@+id/button_select_all"
+            style="@style/Button.Toolbox.SelectAll.Dark"
+            android:visibility="gone"
+            android:text="@string/select_all"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/button_reverse_select"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+        <!-- 反选 -->
+        <Button
+            android:id="@+id/button_reverse_select"
+            style="@style/Button.Toolbox.SelectAll.Dark"
+            android:visibility="gone"
+            android:text="@string/reverse_select"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/button_select_all"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- 排序方式 -->
+        <Button
+            android:id="@+id/button_sort_mode"
+            style="@style/Button.Toolbox.SelectAll.Dark"
+            android:visibility="gone"
+            android:text="@string/sort_mode"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

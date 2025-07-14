@@ -10,10 +10,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat.getString
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -23,10 +25,13 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.adapter.WidgetListAdapter
-import cn.minimote.toolbox.constant.FragmentNames
+import cn.minimote.toolbox.constant.FragmentName
+import cn.minimote.toolbox.constant.MenuList
+import cn.minimote.toolbox.constant.MenuType
 import cn.minimote.toolbox.constant.UI
+import cn.minimote.toolbox.helper.BottomSheetDialogHelper
 import cn.minimote.toolbox.helper.VibrationHelper
-import cn.minimote.toolbox.viewModel.ToolboxViewModel
+import cn.minimote.toolbox.viewModel.MyViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -37,34 +42,36 @@ class WidgetListFragment(
     val constraintLayoutOrigin: ConstraintLayout,
 ) : Fragment() {
 
-    private val viewModel: ToolboxViewModel by activityViewModels()
+    private val viewModel: MyViewModel by activityViewModels()
 //    val viewModel: ToolboxViewModel = ViewModelProvider(this)[ToolboxViewModel::class.java]
 //    private val viewModel: ToolboxViewModel by viewModels()
 
     private lateinit var context: Context
-    private lateinit var imageViewEditBackground: ImageView
+    private lateinit var imageViewBackground: ImageView
     private lateinit var textViewNoWidget: TextView
-    private lateinit var constraintLayoutClick: ConstraintLayout
+    private lateinit var constraintLayoutBackground: ConstraintLayout
+//    private lateinit var constraintLayoutMultiselect: ConstraintLayout
+
+    private lateinit var buttonSelectAll: Button
+    private lateinit var buttonReverseSelect: Button
+    lateinit var buttonSortMode: Button
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: WidgetListAdapter
     private lateinit var itemTouchHelper: ItemTouchHelper
 
     // 主视图小组件的列数
-    private val spanCount: Int by lazy {
-        viewModel.spanCount
+    private val maxWidgetSize: Int by lazy {
+        viewModel.maxWidgetSize
     }
 
-
     // 观察者
-//    private lateinit var widgetListOrderWasModifiedObserver: Observer<Boolean>
-//    private lateinit var storedActivityListObserver: Observer<Boolean>
     private lateinit var fragmentNameObserver: Observer<String>
-    private lateinit var widgetListWasSortedObserver: Observer<Boolean>
     private lateinit var widgetListSizeWasModifiedObserver: Observer<Boolean>
     private lateinit var widgetWasModifiedObserver: Observer<Boolean>
 
-    private lateinit var isEditModeObserver: Observer<Boolean>
+    private lateinit var multiSelectModeObserver: Observer<Boolean>
+    private lateinit var sortModeObserver: Observer<Boolean>
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,7 +79,6 @@ class WidgetListFragment(
 //        Log.d("WidgetListFragment", "ViewModel initialized: ${System.identityHashCode(viewModel)}")
 
 //        Log.i("WidgetListFragment", "onCreate")
-        context = requireContext()
 ////        viewModel = ViewModelProvider(this)[WidgetListViewModel::class.java]
 //        Log.i("WidgetListFragment", "viewModel:${System.identityHashCode(viewModel)}")
     }
@@ -96,6 +102,7 @@ class WidgetListFragment(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
 //        Log.d("WidgetListFragment", "onCreateView")
+        context = requireContext()
 
         val view = inflater.inflate(R.layout.fragment_widget_list, container, false)
 
@@ -106,6 +113,9 @@ class WidgetListFragment(
 
         // 设置编辑模式的背景
         setEditModeBackground(view)
+
+        // 设置底部的按钮
+        setBottomButton(view)
 
         // 设置 RecyclerView
         setRecyclerView(view)
@@ -127,11 +137,11 @@ class WidgetListFragment(
             val paddingSize = resources.getDimensionPixelSize(R.dimen.layout_size_2_footnote)
             textViewNoWidget.setPadding(paddingSize, paddingSize, paddingSize, paddingSize)
         }
-        constraintLayoutClick = view.findViewById(R.id.constraintLayout_click)
-        constraintLayoutClick.setOnClickListener {
+        constraintLayoutBackground = view.findViewById(R.id.constraintLayout_background)
+        constraintLayoutBackground.setOnClickListener {
             // 手表没有切换振动，所以需要点击振动
             if(viewModel.isWatch) {
-                VibrationHelper.vibrateOnClick(context, viewModel)
+                VibrationHelper.vibrateOnClick(viewModel)
             }
             // 手机已经有切换振动了，所以这里不需要再振动
             viewPager.setCurrentItem(0, true) // 切换到第一页（左边页面）
@@ -142,10 +152,53 @@ class WidgetListFragment(
     // 设置编辑模式的背景
     private fun setEditModeBackground(view: View) {
         val imageViewSize = viewModel.imageSize
-        imageViewEditBackground = view.findViewById(R.id.edit_background)
-        imageViewEditBackground.layoutParams.width = imageViewSize
-        imageViewEditBackground.layoutParams.height = imageViewSize
-        imageViewEditBackground.alpha = UI.ALPHA_3
+        imageViewBackground = view.findViewById(R.id.imageView_background)
+        imageViewBackground.visibility = View.INVISIBLE
+        imageViewBackground.layoutParams.width = imageViewSize
+        imageViewBackground.layoutParams.height = imageViewSize
+        imageViewBackground.alpha = UI.ALPHA_3
+    }
+
+
+    // 设置底部的按钮
+    private fun setBottomButton(view: View) {
+        // 全选
+        buttonSelectAll = view.findViewById(R.id.button_select_all)
+        buttonSelectAll.setOnClickListener {
+            VibrationHelper.vibrateOnClick(viewModel)
+            viewModel.selectAllItems()
+            updateData()
+        }
+        // 反选
+        buttonReverseSelect = view.findViewById(R.id.button_reverse_select)
+        buttonReverseSelect.setOnClickListener {
+            VibrationHelper.vibrateOnClick(viewModel)
+            viewModel.invertSelection()
+            updateData()
+        }
+
+        // 排序方式
+        buttonSortMode = view.findViewById(R.id.button_sort_mode)
+        buttonSortMode.setOnClickListener {
+            VibrationHelper.vibrateOnClick(viewModel)
+            BottomSheetDialogHelper.setAndShowBottomSheetDialog(
+                context = context,
+                viewModel = viewModel,
+                menuList = MenuList.sort,
+                viewPager = viewPager,
+                fragmentManager = requireActivity().supportFragmentManager,
+                constraintLayoutOrigin = constraintLayoutOrigin,
+                onMenuItemClick = { menuItemId ->
+                    when(menuItemId) {
+                        else -> {
+                            if(menuItemId in MenuType.SortOrderSet) {
+                                viewModel.sortMode.value = true
+                                adapter.submitList()
+                            }
+                        }
+                    }
+                })
+        }
     }
 
 
@@ -155,51 +208,37 @@ class WidgetListFragment(
         recyclerView = view.findViewById(R.id.recyclerView_widget_list)
 
         adapter = WidgetListAdapter(
-            context = requireActivity(),
+            context = context,
             viewModel = viewModel,
             fragment = this,
             fragmentManager = requireActivity().supportFragmentManager,
+            viewPager = viewPager,
         )
         recyclerView.adapter = adapter
 
 
         // 使用 GridLayoutManager
-        val gridLayoutManager = GridLayoutManager(requireContext(), spanCount)
+        val gridLayoutManager = GridLayoutManager(requireContext(), maxWidgetSize)
         gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
-                return adapter.activityList[position].width
+//                return if (adapter.toolList.isNotEmpty() && position < adapter.toolList.size) {
+//                    adapter.toolList[position].width
+//                } else {
+//                    maxWidgetSize
+//                }
+                return adapter.toolList[position].width
             }
         }
         recyclerView.layoutManager = gridLayoutManager
 
-
-//        // 使用 StaggeredGridLayoutManager
-//        val staggeredGridLayoutManager =
-//            StaggeredGridLayoutManager(spanCount, StaggeredGridLayoutManager.VERTICAL)
-//
-//        recyclerView.layoutManager = staggeredGridLayoutManager
-
-
-//        // 使用 FlexboxLayoutManager
-//        val flexboxLayoutManager = FlexboxLayoutManager(context)
-//        flexboxLayoutManager.flexWrap = FlexWrap.WRAP
-//        flexboxLayoutManager.flexDirection = FlexDirection.ROW
-//        flexboxLayoutManager.alignItems = AlignItems.CENTER
-//        flexboxLayoutManager.justifyContent = JustifyContent.FLEX_START
-//        recyclerView.layoutManager = flexboxLayoutManager
-
-
-//        // 添加分割线
-//        recyclerView.addItemDecoration(
-//            DividerItemDecoration(requireContext())
-//        )
     }
 
 
     // 设置 ItemTouchHelper
     private fun setItemTouchHelper() {
         itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
-            ItemTouchHelper.UP or ItemTouchHelper.DOWN or ItemTouchHelper.START or ItemTouchHelper.END,
+            ItemTouchHelper.UP or ItemTouchHelper.DOWN
+                    or ItemTouchHelper.START or ItemTouchHelper.END,
             0
         ) {
             override fun onMove(
@@ -207,88 +246,61 @@ class WidgetListFragment(
                 viewHolder: RecyclerView.ViewHolder,
                 target: RecyclerView.ViewHolder
             ): Boolean {
-                VibrationHelper.vibrateOnClick(context, viewModel)
-                // 移动后就立马进入编辑模式
-                if(viewModel.editMode.value != true) {
-                    viewModel.editMode.value = true
-                    showEnterEditModeToast()
-                }
+                VibrationHelper.vibrateOnClick(viewModel)
 
                 val fromPosition = viewHolder.adapterPosition
                 val toPosition = target.adapterPosition
-                val fromItem = adapter.activityList[fromPosition]
+                val fromItem = adapter.toolList[fromPosition]
 
-                adapter.activityList.removeAt(fromPosition)
-                adapter.activityList.add(toPosition, fromItem)
+                adapter.toolList.removeAt(fromPosition)
+                adapter.toolList.add(toPosition, fromItem)
                 adapter.notifyItemMoved(fromPosition, toPosition)
-                viewModel.modifyStoredActivityListOrder()
+                viewModel.updateStoredToolListOrder()
 
                 return true
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                // 不需要实现滑动删除
+            }
+
+            override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+                if(actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
+                    VibrationHelper.vibrateOnLongPress(viewModel) // 添加振动反馈
+                }
+                super.onSelectedChanged(viewHolder, actionState)
             }
         })
         adapter.setItemTouchHelper(itemTouchHelper)
-        itemTouchHelper.attachToRecyclerView(recyclerView)
     }
 
 
-    // 进入编辑模式的 Toast
-    fun showEnterEditModeToast() {
-        Toast.makeText(
-            context,
-            context.getString(R.string.enter_edit_mode),
-            Toast.LENGTH_SHORT,
-        ).show()
+    // 禁用 ItemTouchHelper
+    fun disableItemTouchHelper() {
+        itemTouchHelper.attachToRecyclerView(null)
+    }
+
+    // 启用 ItemTouchHelper
+    fun enableItemTouchHelper() {
+        itemTouchHelper.attachToRecyclerView(recyclerView)
     }
 
 
     // 设置观察者
     private fun setObservers() {
-        // 顺序改变就刷新列表会导致拖动异常
-//        widgetListOrderWasModifiedObserver = Observer { widgetListOrderWasModified ->
-////            Log.e("顺序观察者", "$widgetListOrderWasModified")
-//            if(widgetListOrderWasModified) {
-////                updateData()
-//            }
-//        }
-//        viewModel.widgetListOrderWasModified.observe(
-//            viewLifecycleOwner,
-//            widgetListOrderWasModifiedObserver
-//        )
-
-//        storedActivityListObserver = Observer {
-//            updateData()
-//        }
-//        viewModel.storedActivityList.observe(viewLifecycleOwner, storedActivityListObserver)
         fragmentNameObserver = Observer { fragmentName ->
-            if(fragmentName == FragmentNames.WIDGET_LIST_FRAGMENT) {
+            if(fragmentName == FragmentName.WIDGET_LIST_FRAGMENT) {
                 updateData()
             }
         }
         viewModel.fragmentName.observe(viewLifecycleOwner, fragmentNameObserver)
 
-        widgetListWasSortedObserver = Observer { widgetListWasSorted ->
-            if(widgetListWasSorted) {
-                updateData()
-                viewModel.widgetListWasSorted.value = false
-            }
-        }
-        viewModel.widgetListWasSorted.observe(viewLifecycleOwner, widgetListWasSortedObserver)
-
 
         widgetListSizeWasModifiedObserver = Observer { widgetListSizeWasModified ->
-//            Log.e("大小观察者", "$widgetListSizeWasModified")
-//            Toast.makeText(
-//                context, "大小观察者:$widgetListSizeWasModified", Toast.LENGTH_SHORT
-//            ).show()
-            if(widgetListSizeWasModified) {
+            if(widgetListSizeWasModified || viewModel.storedToolList.value?.size != viewModel.storedToolMap.size) {
                 updateData()
             }
         }
-        viewModel.widgetListSizeWasModified.observe(
+        viewModel.toolListSizeChanged.observe(
             viewLifecycleOwner, widgetListSizeWasModifiedObserver
         )
 
@@ -298,55 +310,111 @@ class WidgetListFragment(
                 updateData()
             }
         }
-        viewModel.widgetWasModified.observe(viewLifecycleOwner, widgetWasModifiedObserver)
+        viewModel.toolChanged.observe(viewLifecycleOwner, widgetWasModifiedObserver)
 
 
-        isEditModeObserver = Observer { isEditMode ->
-            if(isEditMode) {
-                // 进入编辑模式
-                imageViewEditBackground.setImageResource(R.drawable.ic_setting)
-                imageViewEditBackground.visibility = View.VISIBLE
-                constraintLayoutClick.isClickable = false
+        multiSelectModeObserver = Observer { multiSelectMode ->
+            if(multiSelectMode) {
+                // 进入多选模式
+                imageViewBackground.setImageResource(R.drawable.multiselect)
+                imageViewBackground.visibility = View.VISIBLE
+                constraintLayoutBackground.isClickable = false
 
+                buttonSelectAll.visibility = View.VISIBLE
+                buttonReverseSelect.visibility = View.VISIBLE
+
+                Toast.makeText(
+                    context,
+                    getString(context, R.string.enter_multiselect_mode),
+                    Toast.LENGTH_SHORT,
+                ).show()
             } else {
-                // 退出编辑模式
-                imageViewEditBackground.visibility = View.GONE
-                // 只有返回按钮和返回手势才会触发退出编辑模式的 Toast
-                // 所以退出编辑模式的 Toast 设置在 MainActivity 中
+                // 退出多选模式
+                imageViewBackground.visibility = View.INVISIBLE
 
-                // 返回时可能没有保存，恢复原始数据
-                viewModel.restoreOriginStoredActivityList()
-                updateData()
+                buttonSelectAll.visibility = View.GONE
+                buttonReverseSelect.visibility = View.GONE
+
+                // 只有返回按钮和返回手势才会触发退出多选模式的 Toast
+                // 所以退出多选模式的 Toast 设置在 MainActivity 中
+
+                // 退出多选模式后，刷新列表
+                adapter.submitList()
             }
         }
-        viewModel.editMode.observe(viewLifecycleOwner, isEditModeObserver)
+        viewModel.multiselectMode.observe(viewLifecycleOwner, multiSelectModeObserver)
+
+        sortModeObserver = Observer { sortMode ->
+            if(sortMode) {
+                // 进入排序模式
+                imageViewBackground.setImageResource(R.drawable.sort)
+                imageViewBackground.visibility = View.VISIBLE
+                constraintLayoutBackground.isClickable = false
+
+                buttonSortMode.visibility = View.VISIBLE
+
+                if(viewModel.freeSort) {
+                    enableItemTouchHelper()
+                }
+            } else {
+                // 退出排序模式
+                imageViewBackground.visibility = View.INVISIBLE
+
+                buttonSortMode.visibility = View.GONE
+                // 只有返回按钮和返回手势才会触发退出多选模式的 Toast
+                // 所以退出多选模式的 Toast 设置在 MainActivity 中
+                // 返回时可能没有保存，恢复原始数据
+                viewModel.restoreStoredToolList()
+                updateData()
+
+                if(viewModel.freeSort) {
+                    viewModel.freeSort = false
+                    disableItemTouchHelper()
+                }
+            }
+        }
+        viewModel.sortMode.observe(viewLifecycleOwner, sortModeObserver)
     }
 
 
     // 更新数据
     private fun updateData() {
         adapter.submitList()
-//        Toast.makeText(
-//            context,
-//            "更新数据：${viewModel.storedActivityList.value?.size}",
-//            Toast.LENGTH_SHORT,
-//        ).show()
         showNoWidget()
     }
 
 
     // 显示无组件提示
-    private fun showNoWidget() {
-        if(viewModel.storedActivityList.value?.isEmpty() == true) {
-            textViewNoWidget.visibility = View.VISIBLE
-            imageViewEditBackground.visibility = View.VISIBLE
-            imageViewEditBackground.setImageResource(R.drawable.blank)
-//            imageViewEditBackground.alpha = UI.CONTENT_ALPHA_OPAQUE
-            constraintLayoutClick.isClickable = true
-        } else {
-            textViewNoWidget.visibility = View.GONE
-            imageViewEditBackground.visibility = View.GONE
+    fun showNoWidget() {
+//        LogHelper.e("WidgetListFragment", "showNoWidget:editMode=${viewModel.editMode.value},listSize=${viewModel.storedActivityList.value?.size},mapSize=${viewModel.storageActivityMap.size}")
+
+        if(viewModel.multiselectMode.value == true) {
+            if(viewModel.storedToolList.value?.isEmpty() == true) {
+                viewModel.multiselectMode.value = false
+                Toast.makeText(
+                    context,
+                    getString(context, R.string.toast_no_widget_exit_multiselect_mode),
+                    Toast.LENGTH_SHORT,
+                ).show()
+            } else {
+                return
+            }
         }
+        if(viewModel.sortMode.value == true) {
+            return
+        }
+        if(viewModel.storedToolList.value?.isEmpty() == true) {
+            textViewNoWidget.visibility = View.VISIBLE
+            imageViewBackground.visibility = View.VISIBLE
+            imageViewBackground.setImageResource(R.drawable.blank)
+            constraintLayoutBackground.isClickable = true
+//            LogHelper.e("WidgetListFragment", "showNoWidget: 显示无组件提示")
+        } else {
+            textViewNoWidget.visibility = View.INVISIBLE
+            imageViewBackground.visibility = View.INVISIBLE
+            constraintLayoutBackground.isClickable = false
+        }
+
     }
 
 
@@ -365,11 +433,10 @@ class WidgetListFragment(
     // 移除观察者
     private fun removeObservers() {
         viewModel.fragmentName.removeObserver(fragmentNameObserver)
-//        viewModel.widgetListOrderWasModified.removeObserver(widgetListOrderWasModifiedObserver)
-        viewModel.widgetListWasSorted.removeObserver(widgetListWasSortedObserver)
-        viewModel.widgetListSizeWasModified.removeObserver(widgetListSizeWasModifiedObserver)
-        viewModel.widgetWasModified.removeObserver(widgetWasModifiedObserver)
-        viewModel.editMode.removeObserver(isEditModeObserver)
+        viewModel.toolListSizeChanged.removeObserver(widgetListSizeWasModifiedObserver)
+        viewModel.toolChanged.removeObserver(widgetWasModifiedObserver)
+        viewModel.multiselectMode.removeObserver(multiSelectModeObserver)
+        viewModel.sortMode.removeObserver(sortModeObserver)
     }
 
 

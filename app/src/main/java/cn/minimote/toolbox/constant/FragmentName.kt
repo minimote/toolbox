@@ -6,11 +6,11 @@
 package cn.minimote.toolbox.constant
 
 // Fragment 名称
-object FragmentNames {
+object FragmentName {
     const val NO_FRAGMENT = "NoFragment"
     const val WIDGET_LIST_FRAGMENT = "WidgetListFragment"
     const val EDIT_LIST_FRAGMENT = "EditListFragment"
-    const val ACTIVITY_LIST_FRAGMENT = "ActivityListFragment"
+    const val INSTALLED_APP_LIST_FRAGMENT = "InstalledAppListFragment"
     const val SUPPORT_AUTHOR_FRAGMENT = "SupportAuthorFragment"
     const val ABOUT_PROJECT_FRAGMENT = "AboutProjectFragment"
     const val MY_LIST_FRAGMENT = "MyListFragment"

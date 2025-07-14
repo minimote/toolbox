@@ -16,21 +16,21 @@ import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
-import cn.minimote.toolbox.constant.ViewLists
-import cn.minimote.toolbox.constant.ViewTypes
+import cn.minimote.toolbox.constant.ViewList
+import cn.minimote.toolbox.constant.ViewType
 import cn.minimote.toolbox.helper.ClipboardHelper
 import cn.minimote.toolbox.helper.ImageSaveHelper
 import cn.minimote.toolbox.helper.VibrationHelper
-import cn.minimote.toolbox.viewModel.ToolboxViewModel
+import cn.minimote.toolbox.viewModel.MyViewModel
 
 
 class AboutProjectAdapter(
     private val context: Context,
-    val viewModel: ToolboxViewModel,
+    val viewModel: MyViewModel,
 ) : RecyclerView.Adapter<AboutProjectAdapter.SupportAuthorViewHolder>() {
 
-    private val viewList = ViewLists.aboutProjectViewList
-    private val viewTypes = ViewTypes.AboutProject
+    private val viewList = ViewList.aboutProjectViewList
+    private val viewTypes = ViewType.AboutProject
 
     inner class SupportAuthorViewHolder(
         itemView: View,
@@ -172,12 +172,14 @@ class AboutProjectAdapter(
     private fun setTextViewUrl(textViewURL: TextView, url: String) {
         // 单击打开网址
         textViewURL.setOnClickListener {
-            VibrationHelper.vibrateOnClick(context, viewModel)
+            VibrationHelper.vibrateOnClick(viewModel)
             openUrl(url)
         }
+        // 禁用振动反馈
+        textViewURL.isHapticFeedbackEnabled = false
         // 长按复制到剪贴板
         textViewURL.setOnLongClickListener {
-            VibrationHelper.vibrateOnClick(context, viewModel)
+            VibrationHelper.vibrateOnLongPress(viewModel)
             ClipboardHelper.copyToClipboard(
                 context = context,
                 text = textViewURL.text.toString(),

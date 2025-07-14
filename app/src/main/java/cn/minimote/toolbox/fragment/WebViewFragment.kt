@@ -19,13 +19,13 @@ import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import cn.minimote.toolbox.R
-import cn.minimote.toolbox.viewModel.ToolboxViewModel
+import cn.minimote.toolbox.viewModel.MyViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class WebViewFragment : Fragment() {
 
-    private val viewModel: ToolboxViewModel by activityViewModels()
+    private val viewModel: MyViewModel by activityViewModels()
     private lateinit var webView: WebView
     private lateinit var progressBar: ProgressBar
 

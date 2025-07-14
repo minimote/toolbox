@@ -10,19 +10,19 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import cn.minimote.toolbox.constant.FragmentNames
+import cn.minimote.toolbox.constant.FragmentName
 import cn.minimote.toolbox.constant.ViewPaper
 import cn.minimote.toolbox.fragment.MyListFragment
 import cn.minimote.toolbox.fragment.ToolListFragment
 import cn.minimote.toolbox.fragment.WidgetListFragment
-import cn.minimote.toolbox.viewModel.ToolboxViewModel
+import cn.minimote.toolbox.viewModel.MyViewModel
 
 
 class ToolboxFragmentStateAdapter(
     fragmentActivity: FragmentActivity,
     val viewPager: ViewPager2,
     val constraintLayoutOrigin: ConstraintLayout,
-    val viewModel: ToolboxViewModel,
+    val viewModel: MyViewModel,
 ) : FragmentStateAdapter(fragmentActivity) {
 
     private val fragmentList = ViewPaper.FragmentList
@@ -34,21 +34,21 @@ class ToolboxFragmentStateAdapter(
 
     override fun createFragment(position: Int): Fragment {
         return when(fragmentList[position]) {
-            FragmentNames.TOOL_LIST_FRAGMENT -> {
+            FragmentName.TOOL_LIST_FRAGMENT -> {
                 ToolListFragment(
                     constraintLayoutOrigin = constraintLayoutOrigin,
                     viewPager = viewPager
                 )
             }
 
-            FragmentNames.WIDGET_LIST_FRAGMENT -> {
+            FragmentName.WIDGET_LIST_FRAGMENT -> {
                 WidgetListFragment(
                     viewPager = viewPager,
                     constraintLayoutOrigin = constraintLayoutOrigin,
                 )
             }
 
-            FragmentNames.MY_LIST_FRAGMENT -> {
+            FragmentName.MY_LIST_FRAGMENT -> {
                 MyListFragment(
                     viewPager = viewPager,
                     constraintLayoutOrigin = constraintLayoutOrigin,

@@ -1,5 +1,5 @@
 [versions]
-agp = "8.10.1"
+agp = "8.11.1"
 coordinatorlayout = "1.2.0"
 coreSplashscreen = "1.0.0"
 customview = "1.1.0"

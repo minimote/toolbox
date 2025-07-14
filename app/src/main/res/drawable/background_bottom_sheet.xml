@@ -3,8 +3,12 @@
     <!-- 外部背景颜色 -->
     <item>
         <shape>
-            <solid android:color="@color/transparent" />
-            <corners android:radius="@dimen/layout_size_1_small" />
+            <solid android:color="@color/black" />
+            <corners
+                android:bottomLeftRadius="0px"
+                android:bottomRightRadius="0px"
+                android:topLeftRadius="@dimen/layout_size_1_small"
+                android:topRightRadius="@dimen/layout_size_1_small" />
         </shape>
     </item>
 
@@ -17,9 +21,7 @@
                 android:endColor="@color/transparent"
                 android:startColor="@color/deep_gray"
                 android:type="linear" />
-            <corners
-                android:bottomLeftRadius="@dimen/layout_size_1_small"
-                android:topLeftRadius="@dimen/layout_size_1_small" />
+            <corners android:topLeftRadius="@dimen/layout_size_1_small" />
             <size android:width="@dimen/layout_size_1_large" />
         </shape>
     </item>
@@ -33,9 +35,7 @@
                 android:endColor="@color/transparent"
                 android:startColor="@color/deep_gray"
                 android:type="linear" />
-            <corners
-                android:bottomRightRadius="@dimen/layout_size_1_small"
-                android:topRightRadius="@dimen/layout_size_1_small" />
+            <corners android:topRightRadius="@dimen/layout_size_1_small" />
             <size android:width="@dimen/layout_size_1_large" />
         </shape>
     </item>
@@ -56,32 +56,20 @@
         </shape>
     </item>
 
-    <!-- 下侧渐变层 -->
-    <item android:gravity="bottom">
-        <shape>
-            <gradient
-                android:angle="90"
-                android:centerColor="@color/transparent"
-                android:endColor="@color/transparent"
-                android:startColor="@color/deep_gray"
-                android:type="linear" />
-            <corners
-                android:bottomLeftRadius="@dimen/layout_size_1_small"
-                android:bottomRightRadius="@dimen/layout_size_1_small" />
-            <size android:height="@dimen/layout_size_1_large" />
-        </shape>
-    </item>
+    <!--    &lt;!&ndash; 下侧渐变层 &ndash;&gt;-->
+    <!--    <item android:gravity="bottom">-->
+    <!--        <shape>-->
+    <!--            <gradient-->
+    <!--                android:angle="90"-->
+    <!--                android:centerColor="@color/transparent"-->
+    <!--                android:endColor="@color/transparent"-->
+    <!--                android:startColor="@color/deep_gray"-->
+    <!--                android:type="linear" />-->
+    <!--            <corners-->
+    <!--                android:bottomLeftRadius="@dimen/layout_size_1_small"-->
+    <!--                android:bottomRightRadius="@dimen/layout_size_1_small" />-->
+    <!--            <size android:height="@dimen/layout_size_1_large" />-->
+    <!--        </shape>-->
+    <!--    </item>-->
 
-
-    <!-- Ripple 效果 -->
-    <item>
-        <ripple android:color="?attr/colorControlHighlight">
-            <item android:id="@android:id/mask">
-                <shape>
-                    <solid android:color="@android:color/white" />
-                    <corners android:radius="@dimen/layout_size_1_small" />
-                </shape>
-            </item>
-        </ripple>
-    </item>
 </layer-list>

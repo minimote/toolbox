@@ -5,9 +5,8 @@
 
     <TextView
         android:id="@+id/textView_check_update"
-        style="@style/TextView.Toolbox.EditOperateName.Dark"
+        style="@style/TextView.Toolbox.CheckUpdate.Dark"
         android:text="@string/check_update"
-        android:textSize="@dimen/text_size_1_large"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

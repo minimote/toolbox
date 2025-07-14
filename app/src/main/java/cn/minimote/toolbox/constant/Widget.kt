@@ -5,9 +5,7 @@
 
 package cn.minimote.toolbox.constant
 
-// 设备类型
-object DeviceTypes {
-    const val ALL = "all"
-    const val PHONE = "phone"
-    const val WATCH = "watch"
+object Widget {
+    const val MIN_WIDGET_SIZE = 1
+    const val MAX_WIDGET_SIZE = 12
 }

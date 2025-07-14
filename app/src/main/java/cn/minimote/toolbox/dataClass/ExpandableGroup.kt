@@ -7,6 +7,6 @@ package cn.minimote.toolbox.dataClass
 
 data class ExpandableGroup(
     val titleId: Int,
-    val viewTypeList: List<ToolActivity>,
+    var viewTypeList: List<Tool>,
     var isExpanded: Boolean = true,
 )

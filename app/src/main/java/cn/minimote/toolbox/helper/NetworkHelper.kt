@@ -11,8 +11,8 @@ import android.net.NetworkCapabilities
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.constant.Config.ConfigKeys.NetworkAccessModeKeys
 import cn.minimote.toolbox.constant.Config.ConfigValues.NetworkAccessModeValues
-import cn.minimote.toolbox.constant.NetworkTypes
-import cn.minimote.toolbox.viewModel.ToolboxViewModel
+import cn.minimote.toolbox.constant.NetworkType
+import cn.minimote.toolbox.viewModel.MyViewModel
 
 object NetworkHelper {
 
@@ -20,21 +20,21 @@ object NetworkHelper {
     fun getNetworkType(context: Context): String {
         val connectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val network = connectivityManager.activeNetwork ?: return NetworkTypes.DISCONNECTED
+        val network = connectivityManager.activeNetwork ?: return NetworkType.DISCONNECTED
         val capabilities =
-            connectivityManager.getNetworkCapabilities(network) ?: return NetworkTypes.OTHER
+            connectivityManager.getNetworkCapabilities(network) ?: return NetworkType.OTHER
 
         return when {
             capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
-                -> NetworkTypes.MOBILE
+                -> NetworkType.MOBILE
 
             capabilities.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH)
-                -> NetworkTypes.BLUETOOTH
+                -> NetworkType.BLUETOOTH
 
             capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
-                -> NetworkTypes.WIFI
+                -> NetworkType.WIFI
 
-            else -> NetworkTypes.OTHER
+            else -> NetworkType.OTHER
         }
     }
 
@@ -53,23 +53,23 @@ object NetworkHelper {
         networkType: String,
     ): String {
         return when(networkType) {
-            NetworkTypes.WIFI -> {
+            NetworkType.WIFI -> {
                 context.getString(R.string.network_type_wifi)
             }
 
-            NetworkTypes.MOBILE -> {
+            NetworkType.MOBILE -> {
                 context.getString(R.string.network_type_mobile)
             }
 
-            NetworkTypes.BLUETOOTH -> {
+            NetworkType.BLUETOOTH -> {
                 context.getString(R.string.network_type_bluetooth)
             }
 
-            NetworkTypes.DISCONNECTED -> {
+            NetworkType.DISCONNECTED -> {
                 context.getString(R.string.network_type_disconnected)
             }
 
-            NetworkTypes.OTHER -> {
+            NetworkType.OTHER -> {
                 context.getString(R.string.network_type_other)
             }
 
@@ -83,22 +83,22 @@ object NetworkHelper {
     // 获取网络访问模式
     fun getNetworkAccessMode(
         networkType: String,
-        viewModel: ToolboxViewModel,
+        viewModel: MyViewModel,
     ): String {
         return when(networkType) {
-            NetworkTypes.MOBILE -> {
+            NetworkType.MOBILE -> {
                 ConfigHelper.getConfigValue(NetworkAccessModeKeys.MOBILE, viewModel)
             }
 
-            NetworkTypes.BLUETOOTH -> {
+            NetworkType.BLUETOOTH -> {
                 ConfigHelper.getConfigValue(NetworkAccessModeKeys.BLUETOOTH, viewModel)
             }
 
-            NetworkTypes.WIFI -> {
+            NetworkType.WIFI -> {
                 ConfigHelper.getConfigValue(NetworkAccessModeKeys.WIFI, viewModel)
             }
 
-            NetworkTypes.OTHER -> {
+            NetworkType.OTHER -> {
                 ConfigHelper.getConfigValue(NetworkAccessModeKeys.OTHER, viewModel)
             }
 

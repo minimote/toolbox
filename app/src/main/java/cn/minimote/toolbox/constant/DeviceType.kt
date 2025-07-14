@@ -5,9 +5,9 @@
 
 package cn.minimote.toolbox.constant
 
-object MenuTypes {
-    // 创建快捷方式
-    const val CREATE_SHORTCUT = 0
-    // 添加到主页
-    const val ADD_TO_HOME = 1
+// 设备类型
+object DeviceType {
+    const val ALL = "all"
+    const val PHONE = "phone"
+    const val WATCH = "watch"
 }

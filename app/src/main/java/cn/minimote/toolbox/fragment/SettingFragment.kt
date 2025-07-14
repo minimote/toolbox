@@ -17,14 +17,14 @@ import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.adapter.SettingAdapter
 import cn.minimote.toolbox.helper.ConfigHelper
-import cn.minimote.toolbox.viewModel.ToolboxViewModel
+import cn.minimote.toolbox.viewModel.MyViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 
 @AndroidEntryPoint
 class SettingFragment : Fragment() {
 
-    private val viewModel: ToolboxViewModel by activityViewModels()
+    private val viewModel: MyViewModel by activityViewModels()
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: SettingAdapter
@@ -49,7 +49,7 @@ class SettingFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_setting, container, false)
 
-        viewModel.settingWasModified.value = false
+        viewModel.configChanged.value = false
         ConfigHelper.restoreUserConfig(viewModel)
 
         // 初始化 RecyclerView

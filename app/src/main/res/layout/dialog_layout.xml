@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/background_widget_full">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        style="@style/ConstraintLayout.Toolbox.Dark"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="0px"
+        android:background="@drawable/background_widget_full"
+        android:clipToOutline="true">
+
+        <TextView
+            android:id="@+id/textView_title"
+            style="@style/TextView.Toolbox.Dark"
+            android:layout_width="match_parent"
+            android:padding="@dimen/layout_size_0_normal"
+            android:textSize="@dimen/text_size_1_large"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textView_message"
+            style="@style/TextView.Toolbox.Dark"
+            android:layout_width="match_parent"
+            android:gravity="start"
+            android:padding="@dimen/layout_size_0_normal"
+            app:layout_constraintBottom_toTopOf="@id/button_negative"
+            app:layout_constraintTop_toBottomOf="@id/textView_title" />
+
+        <Button
+            android:id="@+id/button_negative"
+            style="@style/Button.Toolbox.Dialog.Dark"
+            android:text="@string/cancel"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/button_positive"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textView_message" />
+
+        <Button
+            android:id="@+id/button_positive"
+            style="@style/Button.Toolbox.Dialog.Dark"
+            android:text="@string/confirm"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/button_negative"
+            app:layout_constraintTop_toBottomOf="@id/textView_message" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

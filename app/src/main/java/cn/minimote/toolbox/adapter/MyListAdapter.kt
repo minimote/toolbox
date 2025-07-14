@@ -12,32 +12,32 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
-import cn.minimote.toolbox.constant.FragmentNames
-import cn.minimote.toolbox.constant.ViewLists
-import cn.minimote.toolbox.constant.ViewTypes
+import cn.minimote.toolbox.constant.FragmentName
+import cn.minimote.toolbox.constant.ViewList
+import cn.minimote.toolbox.constant.ViewType
 import cn.minimote.toolbox.fragment.MyListFragment
 import cn.minimote.toolbox.helper.CheckUpdateHelper
 import cn.minimote.toolbox.helper.ClipboardHelper
 import cn.minimote.toolbox.helper.DataCleanHelper
+import cn.minimote.toolbox.helper.DialogHelper
 import cn.minimote.toolbox.helper.FragmentHelper
 import cn.minimote.toolbox.helper.ImageSaveHelper
 import cn.minimote.toolbox.helper.VibrationHelper
-import cn.minimote.toolbox.viewModel.ToolboxViewModel
+import cn.minimote.toolbox.viewModel.MyViewModel
 
 
 class MyListAdapter(
     private val context: Context,
-    val viewModel: ToolboxViewModel,
+    val viewModel: MyViewModel,
     private val fragment: MyListFragment,
     private val fragmentManager: FragmentManager,
 ) : RecyclerView.Adapter<MyListAdapter.MyViewHolder>() {
 
-    private val viewList = ViewLists.myList
-    private val viewTypes = ViewTypes.My
+    private val viewList = ViewList.myList
+    private val viewTypes = ViewType.My
 
     inner class MyViewHolder(
         itemView: View,
@@ -200,15 +200,18 @@ class MyListAdapter(
     private fun setupAppInfo(holder: MyViewHolder) {
         // 长按弹出保存图片的选项
         ImageSaveHelper.setPopupMenu(
-            holder.imageViewAppIcon,
-            viewModel.myAppName,
-            viewModel,
-            context,
+            imageView = holder.imageViewAppIcon,
+            fileName = viewModel.myAppName,
+            viewModel = viewModel,
+            context = context,
+            viewPager = fragment.viewPager,
         )
 
         holder.textViewAppName.text = viewModel.myAppName
+        // 禁用振动反馈
+        holder.textViewAppName.isHapticFeedbackEnabled = false
         holder.textViewAppName.setOnLongClickListener {
-            VibrationHelper.vibrateOnClick(context, viewModel)
+            VibrationHelper.vibrateOnLongPress(viewModel)
             ClipboardHelper.copyToClipboard(
                 context = context,
                 text = viewModel.myAppName,
@@ -218,8 +221,10 @@ class MyListAdapter(
         }
 
         holder.textViewPackageName.text = viewModel.myPackageName
+        // 禁用振动反馈
+        holder.textViewPackageName.isHapticFeedbackEnabled = false
         holder.textViewPackageName.setOnLongClickListener {
-            VibrationHelper.vibrateOnClick(context, viewModel)
+            VibrationHelper.vibrateOnLongPress(viewModel)
             ClipboardHelper.copyToClipboard(
                 context = context,
                 text = viewModel.myPackageName,
@@ -230,8 +235,10 @@ class MyListAdapter(
 
         holder.textViewAppVersion.text =
             context.getString(R.string.app_version, viewModel.myVersionName)
+        // 禁用振动反馈
+        holder.textViewAppVersion.isHapticFeedbackEnabled = false
         holder.textViewAppVersion.setOnLongClickListener {
-            VibrationHelper.vibrateOnClick(context, viewModel)
+            VibrationHelper.vibrateOnLongPress(viewModel)
             ClipboardHelper.copyToClipboard(
                 context = context,
                 text = viewModel.myVersionName,
@@ -242,8 +249,10 @@ class MyListAdapter(
 
         holder.textViewAppAuthor.text =
             context.getString(R.string.app_author, viewModel.myAuthorName)
+        // 禁用振动反馈
+        holder.textViewAppAuthor.isHapticFeedbackEnabled = false
         holder.textViewAppAuthor.setOnLongClickListener {
-            VibrationHelper.vibrateOnClick(context, viewModel)
+            VibrationHelper.vibrateOnLongPress(viewModel)
             ClipboardHelper.copyToClipboard(
                 context = context,
                 text = viewModel.myAuthorName,
@@ -259,30 +268,22 @@ class MyListAdapter(
         holder.textViewClearCache.text = context.getString(R.string.clear_cache)
         updateCacheSize(holder)
         holder.itemView.setOnClickListener {
-            VibrationHelper.vibrateOnClick(context, viewModel)
-            showClearCacheConfirmationDialog(holder)
+            VibrationHelper.vibrateOnClick(viewModel)
+            DialogHelper.showConfirmDialog(
+                context = context,
+                viewModel = viewModel,
+                titleText = context.getString(R.string.clear_cache_confirmation),
+                positiveAction = {
+                    DataCleanHelper.clearCache(viewModel)
+                    updateCacheSize(holder)
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.clear_cache_success),
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                },
+            )
         }
-    }
-    // 显示清除缓存的确认对话框
-    private fun showClearCacheConfirmationDialog(holder: MyViewHolder) {
-        val builder = AlertDialog.Builder(context)
-        builder.setMessage(context.getString(R.string.clear_cache_confirmation))
-        builder.setPositiveButton(context.getString(R.string.confirm)) { dialog, _ ->
-            VibrationHelper.vibrateOnClick(context, viewModel)
-            DataCleanHelper.clearCache(viewModel)
-            updateCacheSize(holder)
-            Toast.makeText(
-                context,
-                context.getString(R.string.clear_cache_success),
-                Toast.LENGTH_SHORT,
-            ).show()
-            dialog.dismiss()
-        }
-        builder.setNegativeButton(context.getString(R.string.cancel)) { dialog, _ ->
-            VibrationHelper.vibrateOnClick(context, viewModel)
-            dialog.dismiss()
-        }
-        builder.show()
     }
     // 更新缓存大小
     private fun updateCacheSize(holder: MyViewHolder) {
@@ -295,30 +296,23 @@ class MyListAdapter(
         holder.textViewClearData.text = context.getString(R.string.clear_data)
         updateDataSize(holder)
         holder.itemView.setOnClickListener {
-            VibrationHelper.vibrateOnClick(context, viewModel)
-            showClearDataConfirmationDialog(holder)
+            VibrationHelper.vibrateOnClick(viewModel)
+            VibrationHelper.vibrateOnDangerousOperation(viewModel)
+            DialogHelper.showConfirmDialog(
+                context = context,
+                viewModel = viewModel,
+                titleText = context.getString(R.string.clear_data_confirmation),
+                positiveAction = {
+                    DataCleanHelper.clearData(viewModel)
+                    updateDataSize(holder)
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.clear_data_success),
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                },
+            )
         }
-    }
-    // 显示清除数据的确认对话框
-    private fun showClearDataConfirmationDialog(holder: MyViewHolder) {
-        val builder = AlertDialog.Builder(context)
-        builder.setMessage(context.getString(R.string.clear_data_confirmation))
-        builder.setPositiveButton(context.getString(R.string.confirm)) { dialog, _ ->
-            VibrationHelper.vibrateOnClick(context, viewModel)
-            DataCleanHelper.clearData(viewModel)
-            updateDataSize(holder)
-            Toast.makeText(
-                context,
-                context.getString(R.string.clear_data_success),
-                Toast.LENGTH_SHORT,
-            ).show()
-            dialog.dismiss()
-        }
-        builder.setNegativeButton(context.getString(R.string.cancel)) { dialog, _ ->
-            VibrationHelper.vibrateOnClick(context, viewModel)
-            dialog.dismiss()
-        }
-        builder.show()
     }
     // 更新数据大小
     private fun updateDataSize(holder: MyViewHolder) {
@@ -330,9 +324,9 @@ class MyListAdapter(
     private fun setupSupportAuthor(holder: MyViewHolder) {
         holder.textViewName.text = context.getString(R.string.supportAuthor)
         holder.itemView.setOnClickListener {
-            VibrationHelper.vibrateOnClick(context, viewModel)
+            VibrationHelper.vibrateOnClick(viewModel)
             FragmentHelper.switchFragment(
-                fragmentName = FragmentNames.SUPPORT_AUTHOR_FRAGMENT,
+                fragmentName = FragmentName.SUPPORT_AUTHOR_FRAGMENT,
                 fragmentManager = fragmentManager,
                 viewModel = viewModel,
                 viewPager = fragment.viewPager,
@@ -346,9 +340,9 @@ class MyListAdapter(
     private fun setupAboutProject(holder: MyViewHolder) {
         holder.textViewName.text = context.getString(R.string.about_project)
         holder.itemView.setOnClickListener {
-            VibrationHelper.vibrateOnClick(context, viewModel)
+            VibrationHelper.vibrateOnClick(viewModel)
             FragmentHelper.switchFragment(
-                fragmentName = FragmentNames.ABOUT_PROJECT_FRAGMENT,
+                fragmentName = FragmentName.ABOUT_PROJECT_FRAGMENT,
                 fragmentManager = fragmentManager,
                 viewModel = viewModel,
                 viewPager = fragment.viewPager,
@@ -361,7 +355,7 @@ class MyListAdapter(
     // 检查更新
     private fun setupCheckUpdate(holder: MyViewHolder) {
         holder.itemView.setOnClickListener {
-            VibrationHelper.vibrateOnClick(context, viewModel)
+            VibrationHelper.vibrateOnClick(viewModel)
 
             CheckUpdateHelper.checkNetworkAccessModeAndCheckUpdate(
                 context = context,
@@ -376,9 +370,9 @@ class MyListAdapter(
     private fun setupSetting(holder: MyViewHolder) {
         holder.textViewName.text = context.getString(R.string.setting)
         holder.itemView.setOnClickListener {
-            VibrationHelper.vibrateOnClick(context, viewModel)
+            VibrationHelper.vibrateOnClick(viewModel)
             FragmentHelper.switchFragment(
-                fragmentName = FragmentNames.SETTING_FRAGMENT,
+                fragmentName = FragmentName.SETTING_FRAGMENT,
                 fragmentManager = fragmentManager,
                 viewModel = viewModel,
                 viewPager = fragment.viewPager,
@@ -396,10 +390,10 @@ class MyListAdapter(
     ) {
         holder.textViewName.text = textViewText
         holder.itemView.setOnClickListener {
-            VibrationHelper.vibrateOnClick(context, viewModel)
+            VibrationHelper.vibrateOnClick(viewModel)
             viewModel.webViewUrl = url
             FragmentHelper.switchFragment(
-                fragmentName = FragmentNames.WEB_VIEW_FRAGMENT,
+                fragmentName = FragmentName.WEB_VIEW_FRAGMENT,
                 fragmentManager = fragmentManager,
                 viewModel = viewModel,
                 context = context,

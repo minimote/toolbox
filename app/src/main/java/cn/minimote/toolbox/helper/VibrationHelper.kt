@@ -14,18 +14,37 @@ import android.os.VibratorManager
 import android.provider.Settings
 import cn.minimote.toolbox.constant.Config.ConfigKeys
 import cn.minimote.toolbox.constant.Config.ConfigValues.VibrationMode
-import cn.minimote.toolbox.viewModel.ToolboxViewModel
+import cn.minimote.toolbox.viewModel.MyViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 object VibrationHelper {
 
+    // 危险操作的振动
+    fun vibrateOnDangerousOperation(
+        viewModel: MyViewModel,
+        milliseconds: Long = 500L,
+        delayMillis: Long = 5L,
+    ) {
+        CoroutineScope(Dispatchers.Main).launch {
+
+            // 延迟
+            delay(delayMillis)
+
+            vibrateOnClick(viewModel, milliseconds)
+        }
+    }
+
 
     // 点击时震动
     fun vibrateOnClick(
-        context: Context,
-        viewModel: ToolboxViewModel,
+        viewModel: MyViewModel,
         milliseconds: Long = 100L,
     ) {
+        val context = viewModel.myContext
         val vibrator = getVibrator(context)
         if(enableVibration(
                 vibrator = vibrator, context = context,
@@ -33,6 +52,41 @@ object VibrationHelper {
             )
         ) {
             clickVibration(vibrator, milliseconds)
+        }
+    }
+
+
+    // 长按时震动
+    fun vibrateOnLongPress(
+        viewModel: MyViewModel,
+        duration: Long = 100L,
+        gap: Long = 5L,
+    ) {
+        val context = viewModel.myContext
+        val vibrator = getVibrator(context)
+        if(enableVibration(
+                vibrator = vibrator, context = context,
+                viewModel = viewModel
+            )
+        ) {
+            longPressVibration(
+                vibrator = vibrator,
+                duration = duration,
+                gap = gap,
+            )
+        }
+    }
+
+
+    // 不振动，仅用于占位
+    fun vibrateNoVibration(
+        viewModel: MyViewModel,
+        milliseconds: Long = 100L,
+    ) {
+        try {
+            Thread.sleep(milliseconds)
+        } catch(e: InterruptedException) {
+            Thread.currentThread().interrupt()
         }
     }
 
@@ -54,7 +108,7 @@ object VibrationHelper {
     private fun enableVibration(
         vibrator: Vibrator,
         context: Context,
-        viewModel: ToolboxViewModel,
+        viewModel: MyViewModel,
     ): Boolean {
         val vibrationMode = ConfigHelper.getConfigValue(
             key = ConfigKeys.VIBRATION_MODE,
@@ -90,15 +144,18 @@ object VibrationHelper {
     ) {
         val vibrationEffect = VibrationEffect.createOneShot(
             milliseconds,
-            VibrationEffect.DEFAULT_AMPLITUDE
+            VibrationEffect.DEFAULT_AMPLITUDE,
         )
-//        val vibrationAttributes = VibrationAttributes.Builder()
-//            .setUsage(VibrationAttributes.USAGE_TOUCH)
-//            .build()
-//        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-//            vibrator.vibrate(vibrationEffect, vibrationAttributes)
-//        }
         vibrator.vibrate(vibrationEffect)
+    }
+
+
+    // 长按的振动样式
+    private fun longPressVibration(vibrator: Vibrator, duration: Long, gap: Long) {
+        // 振动两次：[震动 -> 停顿 -> 震动]
+        val timings = longArrayOf(0, duration, gap, duration)
+        val effect = VibrationEffect.createWaveform(timings, -1) // -1 表示不重复
+        vibrator.vibrate(effect)
     }
 
 

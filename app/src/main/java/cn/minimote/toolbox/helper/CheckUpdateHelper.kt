@@ -10,10 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
-import android.view.LayoutInflater
-import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat.getString
 import androidx.core.net.toUri
 import cn.minimote.toolbox.R
@@ -22,8 +19,8 @@ import cn.minimote.toolbox.constant.CheckUpdate.Frequency
 import cn.minimote.toolbox.constant.Config.ConfigKeys
 import cn.minimote.toolbox.constant.Config.ConfigValues.CheckUpdateFrequency
 import cn.minimote.toolbox.constant.Config.ConfigValues.NetworkAccessModeValues
-import cn.minimote.toolbox.constant.NetworkTypes
-import cn.minimote.toolbox.viewModel.ToolboxViewModel
+import cn.minimote.toolbox.constant.NetworkType
+import cn.minimote.toolbox.viewModel.MyViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -45,7 +42,7 @@ object CheckUpdateHelper {
     // 自动检查更新
     fun autoCheckUpdate(
         context: Context,
-        viewModel: ToolboxViewModel,
+        viewModel: MyViewModel,
     ) {
         // 不自动检查更新
         if(viewModel.updateCheckGap == Frequency.NEVER) {
@@ -82,7 +79,7 @@ object CheckUpdateHelper {
 
     // 更新上次检查时间和下次检查时间
     private fun updateCheckTime(
-        viewModel: ToolboxViewModel,
+        viewModel: MyViewModel,
     ) {
         ConfigHelper.updateConfigValue(
             key = ConfigKeys.LAST_CHECK_UPDATE_TIME,
@@ -151,13 +148,13 @@ object CheckUpdateHelper {
     // 检查网络访问模式再检查更新
     fun checkNetworkAccessModeAndCheckUpdate(
         context: Context,
-        viewModel: ToolboxViewModel,
+        viewModel: MyViewModel,
         silence: Boolean, // 是否静默检查
     ) {
         // 获取网络类型
         val networkType = NetworkHelper.getNetworkType(viewModel.myContext)
         // 网络未连接
-        if(networkType == NetworkTypes.DISCONNECTED) {
+        if(networkType == NetworkType.DISCONNECTED) {
             if(!silence) {
                 Toast.makeText(
                     viewModel.myContext,
@@ -175,28 +172,22 @@ object CheckUpdateHelper {
 
         when(NetworkHelper.getNetworkAccessMode(networkType, viewModel)) {
             NetworkAccessModeValues.ALERT -> {
-                val builder = AlertDialog.Builder(context)
-                builder.setMessage(
-                    context.getString(
+                DialogHelper.showConfirmDialog(
+                    context = context,
+                    viewModel = viewModel,
+                    titleText = context.getString(
                         R.string.dialog_message_network_check_update,
                         networkTypeString,
-                    )
+                    ),
+                    positiveAction = {
+                        // 经过确认弹窗，执行非静默检查更新
+                        checkUpdate(
+                            context = context,
+                            viewModel = viewModel,
+                            silence = false,
+                        )
+                    }
                 )
-                builder.setPositiveButton(context.getString(R.string.confirm)) { dialog, _ ->
-                    VibrationHelper.vibrateOnClick(context, viewModel)
-                    // 经过确认弹窗，执行非静默检查更新
-                    checkUpdate(
-                        context = context,
-                        viewModel = viewModel,
-                        silence = false,
-                    )
-                    dialog.dismiss()
-                }
-                builder.setNegativeButton(context.getString(R.string.cancel)) { dialog, _ ->
-                    VibrationHelper.vibrateOnClick(context, viewModel)
-                    dialog.dismiss()
-                }
-                builder.show()
             }
 
             NetworkAccessModeValues.DENY -> {
@@ -226,7 +217,7 @@ object CheckUpdateHelper {
     // 检查更新
     fun checkUpdate(
         context: Context,
-        viewModel: ToolboxViewModel,
+        viewModel: MyViewModel,
         silence: Boolean, // 是否静默检查
     ) {
         val checkingUpdateToast = Toast.makeText(
@@ -338,7 +329,7 @@ object CheckUpdateHelper {
 
     // 获取本地版本号
     private fun getLocalVersion(
-        viewModel: ToolboxViewModel,
+        viewModel: MyViewModel,
     ): String {
         return viewModel.myVersionName.removeSuffix(CheckUpdate.LOCAL_VERSION_SUFFIX)
     }
@@ -369,7 +360,6 @@ object CheckUpdateHelper {
         remoteVersion: String,
         localVersion: String,
     ): Boolean {
-//        return true
         val remoteVersionList = getVersionIntList(remoteVersion)
         val localVersionList = getVersionIntList(localVersion)
 
@@ -406,7 +396,7 @@ object CheckUpdateHelper {
     // 显示更新确认对话框
     private fun showUpdateDialog(
         context: Context,
-        viewModel: ToolboxViewModel,
+        viewModel: MyViewModel,
         remoteVersion: String,
         releaseNotes: String,
         downloadUrl: String,
@@ -414,45 +404,68 @@ object CheckUpdateHelper {
     ) {
         checkingUpdateToast?.cancel()
 
-        val builder = AlertDialog.Builder(context)
-        val dialogView = LayoutInflater.from(context)
-            .inflate(R.layout.dialog_update_note, null)
-        builder.setView(dialogView)
-
-        val textViewTitle = dialogView.findViewById<TextView>(R.id.textViewTitle)
-        val textViewMessage = dialogView.findViewById<TextView>(R.id.textViewMessage)
-
-        textViewTitle.text = context.getString(
-            R.string.new_version_available,
-            remoteVersion,
+        DialogHelper.showConfirmDialog(
+            context = context,
+            viewModel = viewModel,
+            titleText = context.getString(
+                R.string.new_version_available,
+                remoteVersion,
+            ),
+            messageText = context.getString(
+                R.string.whether_download_now,
+                releaseNotes.trim() + "\n\n",
+            ),
+            positiveButtonText = context.getString(R.string.download_now),
+            negativeButtonText = context.getString(R.string.download_later),
+            positiveAction = {
+                // 处理立即下载逻辑
+                downloadUpdate(
+                    context = context,
+                    viewModel = viewModel,
+                    downloadUrl = downloadUrl,
+                )
+            }
         )
-        textViewMessage.text = context.getString(
-            R.string.whether_download_now,
-            releaseNotes + "\n",
-        )
 
-        builder.setPositiveButton(context.getString(R.string.download_now)) { dialog, _ ->
-            VibrationHelper.vibrateOnClick(context, viewModel)
-            // 处理立即下载逻辑
-            downloadUpdate(
-                context = context,
-                viewModel = viewModel,
-                downloadUrl = downloadUrl,
-            )
-            dialog.dismiss()
-        }
-        builder.setNegativeButton(context.getString(R.string.download_later)) { dialog, _ ->
-            VibrationHelper.vibrateOnClick(context, viewModel)
-            dialog.dismiss()
-        }
-        builder.show()
+//        val builder = AlertDialog.Builder(context)
+//        val dialogView = LayoutInflater.from(context)
+//            .inflate(R.layout.dialog_update_note, null)
+//        builder.setView(dialogView)
+//
+//        val textViewTitle = dialogView.findViewById<TextView>(R.id.textViewTitle)
+//        val textViewMessage = dialogView.findViewById<TextView>(R.id.textViewMessage)
+//
+//        textViewTitle.text = context.getString(
+//            R.string.new_version_available,
+//            remoteVersion,
+//        )
+//        textViewMessage.text = context.getString(
+//            R.string.whether_download_now,
+//            releaseNotes + "\n",
+//        )
+//
+//        builder.setPositiveButton(context.getString(R.string.download_now)) { dialog, _ ->
+//            VibrationHelper.vibrateOnClick(viewModel)
+//            // 处理立即下载逻辑
+//            downloadUpdate(
+//                context = context,
+//                viewModel = viewModel,
+//                downloadUrl = downloadUrl,
+//            )
+//            dialog.dismiss()
+//        }
+//        builder.setNegativeButton(context.getString(R.string.download_later)) { dialog, _ ->
+//            VibrationHelper.vibrateOnClick(viewModel)
+//            dialog.dismiss()
+//        }
+//        builder.show()
     }
 
 
     // 下载更新
     private fun downloadUpdate(
         context: Context,
-        viewModel: ToolboxViewModel,
+        viewModel: MyViewModel,
         downloadUrl: String,
     ) {
         val downloadingToast = Toast.makeText(
@@ -503,7 +516,7 @@ object CheckUpdateHelper {
     private fun monitorDownloadStatus(
         context: Context,
         downloadId: Long,
-        viewModel: ToolboxViewModel,
+        viewModel: MyViewModel,
         gapTime: Long = CheckUpdate.MONITOR_DOWNLOAD_STATUS_GAP_RIME,
         downloadingToast: Toast? = null,
     ) {
@@ -578,7 +591,7 @@ object CheckUpdateHelper {
     private fun installApk(
         context: Context,
         downloadId: Long,
-        viewModel: ToolboxViewModel,
+        viewModel: MyViewModel,
     ) {
 //        Toast.makeText(
 //            context, "准备安装", Toast.LENGTH_SHORT

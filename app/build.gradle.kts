@@ -26,7 +26,7 @@ android {
         var testSuffix = ""
 
         // 测试的后缀
-        testSuffix = "-alpha"
+        testSuffix = "-alpha2"
         // 版本号
         val versionCodeList = listOf(2, 0, 0)
 
@@ -79,11 +79,11 @@ android {
         }
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     buildFeatures {
         compose = true
@@ -198,7 +198,6 @@ dependencies {
 
     // 越界回弹
     implementation("io.github.scwang90:refresh-layout-kernel:3.0.0-alpha")
-
 }
 kapt {
     correctErrorTypes = true

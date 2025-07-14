@@ -13,32 +13,49 @@ import androidx.core.content.ContextCompat.startActivity
 import androidx.core.net.toUri
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.constant.LaunchTypes
-import cn.minimote.toolbox.dataClass.ToolActivity
+import cn.minimote.toolbox.dataClass.StoredTool
+import cn.minimote.toolbox.dataClass.Tool
+import cn.minimote.toolbox.viewModel.MyViewModel
 import java.io.Serializable
 
 object ActivityLaunchHelper {
 
-    fun launch(context: Context, toolActivity: ToolActivity): Boolean {
+    fun launch(
+        context: Context,
+        viewModel: MyViewModel,
+        tool: Tool,
+    ): Boolean {
 
-        if(!packageWasInstalled(context, toolActivity.packageName)) {
+        if(!packageWasInstalled(context, tool.packageName)) {
             Toast.makeText(
                 context,
-                context.getString(R.string.package_not_installed, toolActivity.packageName),
+                context.getString(R.string.package_not_installed, tool.packageName),
                 Toast.LENGTH_SHORT,
             ).show()
             return false
         }
 
-        val intent = getIntent(context = context, toolActivity = toolActivity)
+        val intent = getIntent(context = context, tool = tool)
 
         if(intent != null && isIntentAvailable(context, intent)) {
             startActivity(context, intent, null)
+            // 使用计数器加 1
+            if(tool is StoredTool) {
+                tool.useCount += 1
+                tool.lastUsedTime = System.currentTimeMillis()
+                viewModel.saveWidgetList()
+//                Toast.makeText(
+//                    context,
+//                    "已启动 ${toolActivity.launchCount} 次，上次启动时间 ${toolActivity.lastLaunchTime}",
+//                    Toast.LENGTH_SHORT,
+//                ).show()
+            }
             return true
         } else {
             // 启动失败，显示错误信息
             Toast.makeText(
                 context,
-                context.getString(R.string.start_fail, toolActivity.name),
+                context.getString(R.string.start_fail, tool.name),
                 Toast.LENGTH_SHORT,
             ).show()
             return false
@@ -47,21 +64,21 @@ object ActivityLaunchHelper {
 
 
     // 获取 Intent
-    fun getIntent(context: Context, toolActivity: ToolActivity): Intent? {
+    fun getIntent(context: Context, tool: Tool): Intent? {
 
-        return when(toolActivity.launchType) {
+        return when(tool.intentType) {
             LaunchTypes.PACKAGE_AND_ACTIVITY -> createPackageIntent(
-                context = context, toolActivity = toolActivity,
+                context = context, tool = tool,
             )
 
-            LaunchTypes.SCHEME -> createSchemeIntent(toolActivity)
+            LaunchTypes.SCHEME -> createSchemeIntent(tool)
 
             LaunchTypes.PACKAGE -> createPackageIntent(
-                context = context, toolActivity = toolActivity,
+                context = context, tool = tool,
             )
 
             LaunchTypes.ACTION -> createPackageIntent(
-                context = context, toolActivity = toolActivity,
+                context = context, tool = tool,
             )
 
             else -> null
@@ -71,10 +88,10 @@ object ActivityLaunchHelper {
 
     private fun createPackageIntent(
         context: Context,
-        toolActivity: ToolActivity,
+        tool: Tool,
     ): Intent? {
-        val packageName = toolActivity.packageName
-        val activityName = toolActivity.activityName
+        val packageName = tool.packageName
+        val activityName = tool.activityName
 
         return (if(activityName != null) {
             Intent().apply {
@@ -82,15 +99,15 @@ object ActivityLaunchHelper {
             }
         } else {
             context.packageManager.getLaunchIntentForPackage(packageName)
-        })?.setParams(toolActivity)
+        })?.setParams(tool)
     }
 
-    private fun createSchemeIntent(toolActivity: ToolActivity): Intent? {
-        val uriString = toolActivity.intentUri ?: return null
+    private fun createSchemeIntent(tool: Tool): Intent? {
+        val uriString = tool.intentUri ?: return null
         val uri = uriString.toUri()
 
         return Intent(Intent.ACTION_VIEW, uri).apply {
-        }.setParams(toolActivity)
+        }.setParams(tool)
     }
 
 //    private fun createActionIntent(storedActivity: StoredActivity): Intent? {
@@ -102,11 +119,11 @@ object ActivityLaunchHelper {
 //        }
 //    }
 
-    fun Intent.setParams(toolActivity: ToolActivity): Intent {
-        action = toolActivity.intentAction
-        addCategory(toolActivity.intentCategory)
-        flags = toolActivity.intentFlag
-        toolActivity.intentExtras?.forEach { (key, value) ->
+    fun Intent.setParams(tool: Tool): Intent {
+        action = tool.intentAction
+        addCategory(tool.intentCategory)
+        flags = tool.intentFlag
+        tool.intentExtras?.forEach { (key, value) ->
             when(value) {
                 is Int -> putExtra(key, value)
                 is String -> putExtra(key, value)

@@ -6,7 +6,7 @@
 package cn.minimote.toolbox.constant
 
 import cn.minimote.toolbox.constant.Icon.IconKey
-import cn.minimote.toolbox.dataClass.ToolActivity
+import cn.minimote.toolbox.dataClass.Tool
 
 object Tools {
 
@@ -18,11 +18,11 @@ object Tools {
             private const val URL_NAME = "wechat/"
 
             val scanQrCode by lazy {
-                ToolActivity(
+                Tool(
                     id = URL_NAME + "scan",
                     name = "微信-扫一扫",
                     packageName = PACKAGE_NAME,
-                    launchType = LaunchTypes.PACKAGE,
+                    intentType = LaunchTypes.PACKAGE,
                     iconKey = PACKAGE_NAME,
                     intentExtras = mapOf(
                         "LauncherUI.From.Scaner.Shortcut" to true
@@ -31,11 +31,11 @@ object Tools {
             }
 
             val payCode by lazy {
-                ToolActivity(
+                Tool(
                     id = URL_NAME + "pay_code",
                     name = "微信-付款码",
                     packageName = PACKAGE_NAME,
-                    launchType = LaunchTypes.ACTION,
+                    intentType = LaunchTypes.ACTION,
                     iconKey = PACKAGE_NAME,
                     intentAction = "com.tencent.mm.action.BIZSHORTCUT",
                     intentExtras = mapOf(
@@ -45,11 +45,11 @@ object Tools {
             }
 
             val myCard by lazy {
-                ToolActivity(
+                Tool(
                     id = URL_NAME + "my_card",
                     name = "微信-名片码",
                     packageName = PACKAGE_NAME,
-                    launchType = LaunchTypes.ACTION,
+                    intentType = LaunchTypes.ACTION,
                     iconKey = PACKAGE_NAME,
                     intentAction = "com.tencent.mm.action.BIZSHORTCUT",
                     intentExtras = mapOf(
@@ -65,44 +65,44 @@ object Tools {
             private const val URL_NAME = "alipay/"
 
             val scanQrCode by lazy {
-                ToolActivity(
+                Tool(
                     id = URL_NAME + "scan",
                     name = "支付宝-扫一扫",
                     packageName = PACKAGE_NAME,
-                    launchType = LaunchTypes.SCHEME,
+                    intentType = LaunchTypes.SCHEME,
                     iconKey = PACKAGE_NAME,
                     intentUri = "alipays://platformapi/startapp?appId=10000007",
                 )
             }
 
             val payCode by lazy {
-                ToolActivity(
+                Tool(
                     id = URL_NAME + "pay_code",
                     name = "支付宝-付款码",
                     packageName = PACKAGE_NAME,
-                    launchType = LaunchTypes.SCHEME,
+                    intentType = LaunchTypes.SCHEME,
                     iconKey = PACKAGE_NAME,
                     intentUri = "alipays://platformapi/startapp?appId=20000056",
                 )
             }
 
             val collectCode by lazy {
-                ToolActivity(
+                Tool(
                     id = URL_NAME + "collect_code",
                     name = "支付宝-收款码",
                     packageName = PACKAGE_NAME,
-                    launchType = LaunchTypes.SCHEME,
+                    intentType = LaunchTypes.SCHEME,
                     iconKey = PACKAGE_NAME,
                     intentUri = "alipays://platformapi/startapp?appId=20000123",
                 )
             }
 
             val rideCode by lazy {
-                ToolActivity(
+                Tool(
                     id = URL_NAME + "ride_code",
                     name = "支付宝-乘车码",
                     packageName = PACKAGE_NAME,
-                    launchType = LaunchTypes.SCHEME,
+                    intentType = LaunchTypes.SCHEME,
                     iconKey = PACKAGE_NAME,
                     intentUri = "alipays://platformapi/startapp?appId=200011235",
                 )
@@ -110,11 +110,11 @@ object Tools {
 
             // 手表付款码
             val watchPayCode by lazy {
-                ToolActivity(
+                Tool(
                     id = URL_NAME + "watch_pay_code",
                     name = "支付宝-付款码",
                     packageName = PACKAGE_NAME,
-                    launchType = LaunchTypes.SCHEME,
+                    intentType = LaunchTypes.SCHEME,
                     iconKey = PACKAGE_NAME,
                     intentUri = "alipays://showpage=codepay",
                 )
@@ -127,22 +127,22 @@ object Tools {
             private const val URL_NAME = "yunshanfu/"
 
             val scanQrCode by lazy {
-                ToolActivity(
+                Tool(
                     id = URL_NAME + "scan",
                     name = "云闪付-扫一扫",
                     packageName = PACKAGE_NAME,
-                    launchType = LaunchTypes.SCHEME,
+                    intentType = LaunchTypes.SCHEME,
                     iconKey = PACKAGE_NAME,
                     intentUri = "upwallet://native/scanCode",
                 )
             }
 
             val payCode by lazy {
-                ToolActivity(
+                Tool(
                     id = URL_NAME + "pay_code",
                     name = "云闪付-付款码",
                     packageName = PACKAGE_NAME,
-                    launchType = LaunchTypes.SCHEME,
+                    intentType = LaunchTypes.SCHEME,
                     iconKey = PACKAGE_NAME,
                     intentUri = "upwallet://native/codepay",
                 )
@@ -158,30 +158,30 @@ object Tools {
             private const val PACKAGE_NAME = "com.android.settings"
 
             val developerOption by lazy {
-                ToolActivity(
+                Tool(
                     id = URL_NAME + "developer_option",
                     name = "开发者选项",
                     packageName = PACKAGE_NAME,
                     activityName = "com.android.settings.Settings\$DevelopmentSettingsDashboardActivity",
-                    launchType = LaunchTypes.PACKAGE_AND_ACTIVITY,
+                    intentType = LaunchTypes.PACKAGE_AND_ACTIVITY,
                     iconKey = IconKey.DEVELOPER_OPTION,
                 )
             }
 
             val accessibilityOption by lazy {
-                ToolActivity(
+                Tool(
                     id = URL_NAME + "accessibility_option",
                     name = "无障碍选项",
                     packageName = PACKAGE_NAME,
                     activityName = "com.android.settings.Settings\$AccessibilitySettingsActivity",
-                    launchType = LaunchTypes.PACKAGE_AND_ACTIVITY,
+                    intentType = LaunchTypes.PACKAGE_AND_ACTIVITY,
                     iconKey = IconKey.ACCESSIBILITY_OPTION,
                 )
             }
         }
 
         val recentTask by lazy {
-            ToolActivity(
+            Tool(
                 id = URL_NAME + "recent_task",
                 name = "最近任务",
                 packageName = "com.heytap.wearable.launcher",

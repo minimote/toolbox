@@ -38,7 +38,7 @@
             android:paddingStart="@dimen/layout_size_1.5_footnote"
             android:paddingEnd="@dimen/layout_size_1_large"
             android:visibility="invisible"
-            app:layout_constraintEnd_toStartOf="@id/button_cancel"
+            app:layout_constraintEnd_toStartOf="@id/button_negative"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -52,12 +52,12 @@
             android:contentDescription="@string/clear_button"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@id/editText_searchBox"
-            app:layout_constraintEnd_toStartOf="@id/button_cancel"
+            app:layout_constraintEnd_toStartOf="@id/button_negative"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/fork" />
 
         <Button
-            android:id="@+id/button_cancel"
+            android:id="@+id/button_negative"
             style="@style/Button.Toolbox.Dark"
             android:layout_width="@dimen/layout_size_2_Large"
             android:layout_height="0dp"

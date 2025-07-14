@@ -6,7 +6,7 @@
 package cn.minimote.toolbox.constant
 
 // 网络类型
-object NetworkTypes {
+object NetworkType {
     const val MOBILE = "mobile"
     const val BLUETOOTH = "bluetooth"
     const val WIFI = "wifi"

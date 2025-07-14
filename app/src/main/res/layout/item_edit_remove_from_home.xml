@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    style="@style/ConstraintLayout.Toolbox.Clickable.Dark"
-    android:layout_marginHorizontal="0px">
+    style="@style/ConstraintLayout.Toolbox.RecyclerView.Dark">
 
-    <TextView
-        android:id="@+id/textView_menuItem"
-        style="@style/TextView.Toolbox.BottomSheetItem.Dark"
+    <Button
+        android:id="@+id/button_removeFromHome"
+        style="@style/Button.Toolbox.RemoveFromHome.Dark"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

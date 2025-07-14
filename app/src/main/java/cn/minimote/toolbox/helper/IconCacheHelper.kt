@@ -26,16 +26,16 @@ import androidx.core.graphics.scale
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.constant.Icon
 import cn.minimote.toolbox.constant.Icon.IconKey
-import cn.minimote.toolbox.dataClass.InstalledActivity
-import cn.minimote.toolbox.dataClass.ToolActivity
-import cn.minimote.toolbox.viewModel.ToolboxViewModel
+import cn.minimote.toolbox.dataClass.InstalledApp
+import cn.minimote.toolbox.dataClass.Tool
+import cn.minimote.toolbox.viewModel.MyViewModel
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
 
 class IconCacheHelper(
-    private val viewModel: ToolboxViewModel,
+    private val viewModel: MyViewModel,
 ) {
 
     private val context: Context = viewModel.myContext
@@ -124,20 +124,45 @@ class IconCacheHelper(
     ): Drawable? {
         if(activityName != null) {
             val componentName = ComponentName(packageName, activityName)
-            return try {
-                packageManager.getActivityIcon(componentName)
+            try {
+                return packageManager.getActivityIcon(componentName)
             } catch(_: Exception) {
-                // 忽略异常并尝试获取应用图标
-                try {
-                    packageManager.getApplicationIcon(packageName)
-                } catch(_: Exception) {
-                    getDefaultIcon()
-                }
+                // 忽略异常
             }
         }
 
         return try {
             packageManager.getApplicationIcon(packageName)
+        } catch(_: Exception) {
+            getDefaultIcon()
+        }
+    }
+
+
+    // 从 packageManager 中获取高清图标
+    private fun getHighResIconFromPackageManager(
+        packageName: String,
+        activityName: String?,
+    ): Drawable? {
+        if(activityName != null) {
+            val componentName = ComponentName(packageName, activityName)
+            try {
+                // 获取 ActivityInfo 对象
+                val activityInfo = packageManager.getActivityInfo(componentName, 0)
+                // 从 ActivityInfo 中获取 ApplicationInfo
+                val applicationInfo = activityInfo.applicationInfo
+                // 通过 ApplicationInfo 获取高清图标
+                return packageManager.getApplicationIcon(applicationInfo)
+            } catch(_: Exception) {
+                // 忽略异常
+            }
+        }
+
+        return try {
+            // 获取 ApplicationInfo 对象
+            val applicationInfo = packageManager.getApplicationInfo(packageName, 0)
+            // 获取高清图标
+            packageManager.getApplicationIcon(applicationInfo)
         } catch(_: Exception) {
             getDefaultIcon()
         }
@@ -152,7 +177,7 @@ class IconCacheHelper(
 
     // 获取 Drawable 图标
     fun getIconDrawable(
-        tool: ToolActivity,
+        tool: Tool,
     ): Drawable {
         return loadDrawableFromAllSources(
             iconKey = tool.iconKey,
@@ -162,33 +187,33 @@ class IconCacheHelper(
     }
 
     fun getIconDrawable(
-        installedActivity: InstalledActivity,
+        installedApp: InstalledApp,
     ): Drawable {
         return loadDrawableFromAllSources(
-            iconKey = installedActivity.iconKey,
-            packageName = installedActivity.packageName,
-            activityName = installedActivity.activityName,
+            iconKey = installedApp.iconKey,
+            packageName = installedApp.packageName,
+            activityName = installedApp.activityName,
         )
     }
 
 
     // 获取圆形 Drawable 图标
     fun getIconCircularDrawable(
-        tool: ToolActivity,
+        tool: Tool,
     ): Drawable {
         return getIconDrawable(tool).toCircularDrawable()
     }
 
     fun getIconCircularDrawable(
-        installedActivity: InstalledActivity,
+        installedApp: InstalledApp,
     ): Drawable {
-        return getIconDrawable(installedActivity).toCircularDrawable()
+        return getIconDrawable(installedApp).toCircularDrawable()
     }
 
 
     // 获取 Icon 图标
     fun getIconIcon(
-        tool: ToolActivity,
+        tool: Tool,
     ): android.graphics.drawable.Icon {
         return getIconDrawable(tool).toIcon(context)
     }
@@ -218,7 +243,7 @@ class IconCacheHelper(
                 // 从 drawable 中获取图标
                 appIcon = getIconFromDrawable(iconKey)
                 if(appIcon == null) {
-                    appIcon = getIconFromPackageManager(
+                    appIcon = getHighResIconFromPackageManager(
                         packageName = packageName,
                         activityName = activityName,
                     )

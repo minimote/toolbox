@@ -19,8 +19,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.adapter.MyListAdapter
-import cn.minimote.toolbox.constant.FragmentNames
-import cn.minimote.toolbox.viewModel.ToolboxViewModel
+import cn.minimote.toolbox.constant.FragmentName
+import cn.minimote.toolbox.viewModel.MyViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -30,7 +30,7 @@ class MyListFragment(
     val constraintLayoutOrigin: ConstraintLayout,
 ) : Fragment() {
 
-    private val viewModel: ToolboxViewModel by activityViewModels()
+    private val viewModel: MyViewModel by activityViewModels()
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: MyListAdapter
 
@@ -108,7 +108,7 @@ class MyListFragment(
     // 设置观察者
     private fun setObservers() {
         fragmentNameObserver = Observer { fragmentName ->
-            if(fragmentName == FragmentNames.WIDGET_LIST_FRAGMENT) {
+            if(fragmentName == FragmentName.WIDGET_LIST_FRAGMENT) {
                 // 切换回来的时候刷新数据，主要是从活动列表返回的时候
                 refreshData()
             }

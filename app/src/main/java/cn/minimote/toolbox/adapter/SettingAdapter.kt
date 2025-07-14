@@ -15,16 +15,16 @@ import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.constant.Config.ConfigKeys
 import cn.minimote.toolbox.constant.Config.ConfigValues.CheckUpdateFrequency
-import cn.minimote.toolbox.constant.NetworkTypes
+import cn.minimote.toolbox.constant.NetworkType
 import cn.minimote.toolbox.constant.SeekBarValueList
-import cn.minimote.toolbox.constant.ViewLists
-import cn.minimote.toolbox.constant.ViewTypes
+import cn.minimote.toolbox.constant.ViewList
+import cn.minimote.toolbox.constant.ViewType
 import cn.minimote.toolbox.helper.CheckUpdateHelper
 import cn.minimote.toolbox.helper.ConfigHelper
 import cn.minimote.toolbox.helper.NetworkHelper
 import cn.minimote.toolbox.helper.SeekBarHelper
 import cn.minimote.toolbox.helper.VibrationHelper
-import cn.minimote.toolbox.viewModel.ToolboxViewModel
+import cn.minimote.toolbox.viewModel.MyViewModel
 import java.util.concurrent.atomic.AtomicInteger
 
 
@@ -34,11 +34,11 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class SettingAdapter(
     private val context: Context,
-    private val viewModel: ToolboxViewModel,
+    private val viewModel: MyViewModel,
 ) : RecyclerView.Adapter<SettingAdapter.ViewHolder>() {
 
-    private val viewList = ViewLists.settingViewList
-    private val viewTypes = ViewTypes.Setting
+    private val viewList = ViewList.settingViewList
+    private val viewTypes = ViewType.Setting
 
     // 定义 sealed class ViewHolder
     sealed class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -49,7 +49,7 @@ class SettingAdapter(
         // 更新频率
         class CheckUpdateFrequencyViewHolder(
             itemView: View,
-            val viewModel: ToolboxViewModel,
+            val viewModel: MyViewModel,
         ) : ViewHolder(itemView) {
             private val textViewCheckUpdateFrequency: TextView =
                 itemView.findViewById(R.id.textView_check_update_frequency)
@@ -98,7 +98,7 @@ class SettingAdapter(
         // 振动模式
         class VibrationModeViewHolder(
             itemView: View,
-            val viewModel: ToolboxViewModel,
+            val viewModel: MyViewModel,
         ) : ViewHolder(itemView) {
             private val textViewVibrationMode: TextView =
                 itemView.findViewById(R.id.textView_vibration_mode)
@@ -127,7 +127,7 @@ class SettingAdapter(
         // 网络访问模式
         class NetworkAccessModeViewHolder(
             itemView: View,
-            val viewModel: ToolboxViewModel,
+            val viewModel: MyViewModel,
         ) : ViewHolder(itemView) {
             private val textViewNetworkAccessMode: TextView =
                 itemView.findViewById(R.id.textView_vibration_mode)
@@ -138,28 +138,28 @@ class SettingAdapter(
                 get() = when(itemViewType) {
                     viewTypes.NETWORK_ACCESS_MODE_WIFI -> {
                         NetworkHelper.getNetworkAccessMode(
-                            networkType = NetworkTypes.WIFI,
+                            networkType = NetworkType.WIFI,
                             viewModel = viewModel,
                         )
                     }
 
                     viewTypes.NETWORK_ACCESS_MODE_MOBILE -> {
                         NetworkHelper.getNetworkAccessMode(
-                            networkType = NetworkTypes.MOBILE,
+                            networkType = NetworkType.MOBILE,
                             viewModel = viewModel,
                         )
                     }
 
                     viewTypes.NETWORK_ACCESS_MODE_BLUETOOTH -> {
                         NetworkHelper.getNetworkAccessMode(
-                            networkType = NetworkTypes.BLUETOOTH,
+                            networkType = NetworkType.BLUETOOTH,
                             viewModel = viewModel,
                         )
                     }
 
                     viewTypes.NETWORK_ACCESS_MODE_OTHER -> {
                         NetworkHelper.getNetworkAccessMode(
-                            networkType = NetworkTypes.OTHER,
+                            networkType = NetworkType.OTHER,
                             viewModel = viewModel,
                         )
                     }
@@ -168,7 +168,7 @@ class SettingAdapter(
                         throw IllegalArgumentException("非法的 itemViewType")
                     }
                 }
-            val viewTypes = ViewTypes.Setting
+            val viewTypes = ViewType.Setting
 
             // 设置振动模式的文字显示
             fun setupTextView() {
@@ -176,38 +176,38 @@ class SettingAdapter(
 
                 val networkTypeString = when(itemViewType) {
                     viewTypes.NETWORK_ACCESS_MODE_WIFI -> {
-                        NetworkHelper.getNetworkTypeString(context, NetworkTypes.WIFI)
+                        NetworkHelper.getNetworkTypeString(context, NetworkType.WIFI)
                     }
 
                     viewTypes.NETWORK_ACCESS_MODE_MOBILE -> {
-                        NetworkHelper.getNetworkTypeString(context, NetworkTypes.MOBILE)
+                        NetworkHelper.getNetworkTypeString(context, NetworkType.MOBILE)
                     }
 
                     viewTypes.NETWORK_ACCESS_MODE_BLUETOOTH -> {
-                        NetworkHelper.getNetworkTypeString(context, NetworkTypes.BLUETOOTH)
+                        NetworkHelper.getNetworkTypeString(context, NetworkType.BLUETOOTH)
                     }
 
                     viewTypes.NETWORK_ACCESS_MODE_OTHER -> {
-                        NetworkHelper.getNetworkTypeString(context, NetworkTypes.OTHER)
+                        NetworkHelper.getNetworkTypeString(context, NetworkType.OTHER)
                     }
 
                     else -> throw IllegalArgumentException("非法的 itemViewType")
                 }
                 val networkAccessMode = when(itemViewType) {
                     viewTypes.NETWORK_ACCESS_MODE_WIFI -> {
-                        NetworkHelper.getNetworkAccessMode(NetworkTypes.WIFI, viewModel)
+                        NetworkHelper.getNetworkAccessMode(NetworkType.WIFI, viewModel)
                     }
 
                     viewTypes.NETWORK_ACCESS_MODE_MOBILE -> {
-                        NetworkHelper.getNetworkAccessMode(NetworkTypes.MOBILE, viewModel)
+                        NetworkHelper.getNetworkAccessMode(NetworkType.MOBILE, viewModel)
                     }
 
                     viewTypes.NETWORK_ACCESS_MODE_BLUETOOTH -> {
-                        NetworkHelper.getNetworkAccessMode(NetworkTypes.BLUETOOTH, viewModel)
+                        NetworkHelper.getNetworkAccessMode(NetworkType.BLUETOOTH, viewModel)
                     }
 
                     viewTypes.NETWORK_ACCESS_MODE_OTHER -> {
-                        NetworkHelper.getNetworkAccessMode(NetworkTypes.OTHER, viewModel)
+                        NetworkHelper.getNetworkAccessMode(NetworkType.OTHER, viewModel)
                     }
 
                     else -> throw IllegalArgumentException("非法的 itemViewType")
@@ -227,7 +227,7 @@ class SettingAdapter(
         // 恢复默认
         class RestoreDefaultViewHolder(
             itemView: View,
-            val viewModel: ToolboxViewModel,
+            val viewModel: MyViewModel,
         ) : ViewHolder(itemView) {
 
         }
@@ -331,7 +331,6 @@ class SettingAdapter(
                     valueList = holder.checkUpdateFrequencyList,
                     initPosition = holder.checkUpdateFrequencyList.indexOf(holder.frequency),
                     lastPosition = AtomicInteger(holder.lastPosition),
-                    context = context,
                     viewModel = viewModel,
                     callback = object : SeekBarHelper.SeekBarSetupCallback {
                         override fun updateConfigValue(key: String, value: String) {
@@ -357,7 +356,6 @@ class SettingAdapter(
                     valueList = holder.vibrationModeList,
                     initPosition = holder.vibrationModeList.indexOf(holder.vibrationMode),
                     lastPosition = AtomicInteger(holder.lastPosition),
-                    context = context,
                     viewModel = viewModel,
                     callback = object : SeekBarHelper.SeekBarSetupCallback {
                         override fun updateConfigValue(key: String, value: String) {
@@ -385,7 +383,6 @@ class SettingAdapter(
                         holder.networkAccessModeString
                     ),
                     lastPosition = AtomicInteger(holder.lastPosition),
-                    context = context,
                     viewModel = viewModel,
                     callback = object : SeekBarHelper.SeekBarSetupCallback {
                         override fun updateConfigValue(key: String, value: String) {
@@ -434,7 +431,7 @@ class SettingAdapter(
 
             is ViewHolder.RestoreDefaultViewHolder -> {
                 holder.itemView.setOnClickListener {
-                    VibrationHelper.vibrateOnClick(context, viewModel)
+                    VibrationHelper.vibrateOnClick(viewModel)
                     ConfigHelper.clearUserConfig(viewModel)
                     ConfigHelper.updateSettingWasModified(viewModel)
                 }

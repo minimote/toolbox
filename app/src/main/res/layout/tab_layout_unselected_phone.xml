@@ -1,12 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    style="@style/ConstraintLayout.Toolbox.Clickable.Dark"
-    android:layout_marginHorizontal="0px">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:background="@color/transparent">
 
     <TextView
-        android:id="@+id/textView_menuItem"
-        style="@style/TextView.Toolbox.BottomSheetItem.Dark"
+        android:id="@+id/textView_name"
+        style="@style/TextView.Toolbox.Dark"
+        android:textColor="@color/mid_gray"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

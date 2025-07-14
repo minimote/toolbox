@@ -35,12 +35,8 @@ Copyright (c) 2024-2025 minimote(微尘). All rights reserved.
 ## TODO
 
 - 功能：
+    - 整理 Theme 样式和字符串资源
     - scheme 启动工具
-    - 桌面快捷方式图标分辨率优化
-    - 部分操作(如修改透明度或颜色)会造成数据异常
-    - 重构 Viewmodel
-    - 不同排序方式：文件名、创建时间、修改时间
-    - 多选删除
     - 组件高度设置
     - 添加自定义活动
     - 工具：
@@ -63,9 +59,9 @@ Copyright (c) 2024-2025 minimote(微尘). All rights reserved.
         - 提取软件安装包
         - 导入导出配置
     - 美化
+        - 工具图标
         - 优化 SeekBar 样式
         - 优化进度环样式
-        - 设置右滑退出的页面透明度
 
 ## 支持作者
 
