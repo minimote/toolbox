@@ -5,6 +5,7 @@
 
 package cn.minimote.toolbox.helper
 
+import cn.minimote.toolbox.helper.ConfigHelper.clearUserAndBackupConfig
 import cn.minimote.toolbox.viewModel.MyViewModel
 import java.io.File
 import java.util.Locale
@@ -15,7 +16,7 @@ object DataCleanHelper {
     // 获取缓存路径列表
     private fun getCachePathList(viewModel: MyViewModel): List<File?> {
         return listOf(
-            viewModel.cachePath
+            viewModel.cachePath,
         )
     }
     // 获取缓存大小
@@ -38,6 +39,8 @@ object DataCleanHelper {
                 deleteDirectory(path)
             }
         }
+        // 清除内存缓存
+        viewModel.iconCacheHelper.clearMemoryCache()
     }
 
 
@@ -73,7 +76,7 @@ object DataCleanHelper {
         // 重新加载数据
         viewModel.loadStorageActivities()
         // 清除配置文件
-        ConfigHelper.clearUserAndBackupConfig(viewModel = viewModel)
+        viewModel.clearUserAndBackupConfig()
     }
 
 

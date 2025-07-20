@@ -6,7 +6,7 @@
 package cn.minimote.toolbox.dataClass
 
 import android.content.Intent
-import cn.minimote.toolbox.constant.LaunchTypes.PACKAGE_AND_ACTIVITY
+import cn.minimote.toolbox.constant.LaunchType.PACKAGE_AND_ACTIVITY
 
 
 // 工具类

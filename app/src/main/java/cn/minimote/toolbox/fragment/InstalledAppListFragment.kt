@@ -9,8 +9,6 @@ package cn.minimote.toolbox.fragment
 // import com.heytap.wearable.support.recycler.widget.LinearLayoutManager
 import android.content.Context
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.adapter.InstalledAppListAdapter
 import cn.minimote.toolbox.constant.UI
+import cn.minimote.toolbox.helper.EditTextHelper
 import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.viewModel.MyViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -135,40 +134,18 @@ class InstalledAppListFragment : Fragment() {
     private fun setupSearchBoxAndCancelButton(view: View) {
         searchBox = view.findViewById(R.id.editText_searchBox)
         searchBox.visibility = View.VISIBLE
+
         imageButtonClear = view.findViewById(R.id.imageButton_clear)
         imageButtonClear.visibility = View.GONE
-        buttonCancel = view.findViewById(R.id.button_negative)
-        buttonCancel.visibility = View.GONE
 
-        searchBox.hint = getString(
-            R.string.hint_search_activities, viewModel.installedAppListSize,
-        )
-
-        // 手动请求输入法，避免第一次点击出现闪烁
-        searchBox.onFocusChangeListener = View.OnFocusChangeListener { v, hasFocus ->
-            if(hasFocus) {
-                VibrationHelper.vibrateOnClick(viewModel)
-                val imm =
-                    v.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.showSoftInput(v, InputMethodManager.SHOW_IMPLICIT)
-
-                // 进入搜索模式
-                viewModel.searchMode.value = true
-            } else {
-                // 退出搜索模式
-                viewModel.searchMode.value = false
-            }
-        }
-
-        // 点击输入框时触发振动
-        searchBox.setOnClickListener {
-            VibrationHelper.vibrateOnClick(viewModel)
-        }
-
-        // 添加 TextWatcher 监听文本变化
-        searchBox.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-
+        EditTextHelper.setEditTextAndClearButton(
+            editText = searchBox,
+            stringHint = getString(
+                R.string.hint_search_activities,
+                viewModel.installedAppListSize,
+            ),
+            viewModel = viewModel,
+            afterTextChanged = { s ->
                 // 获取输入的文本
                 val query = s.toString().trim()
 
@@ -201,29 +178,23 @@ class InstalledAppListFragment : Fragment() {
                     recyclerView.alpha = originalAlpha
                     imageButtonClear.visibility = View.VISIBLE
                 }
-            }
+            },
+            onFocusGained = {
+                viewModel.searchMode.value = true
+            },
+            onFocusLost = {
+                viewModel.searchMode.value = false
+            },
+            imageButtonClear = imageButtonClear,
+        )
 
-            override fun beforeTextChanged(
-                s: CharSequence?, start: Int, count: Int, after: Int
-            ) {
-            }
 
-            override fun onTextChanged(
-                s: CharSequence?, start: Int, before: Int, count: Int
-            ) {
-            }
-        })
-
+        buttonCancel = view.findViewById(R.id.button_negative)
+        buttonCancel.visibility = View.GONE
         // 设置取消按钮点击事件
         buttonCancel.setOnClickListener {
             VibrationHelper.vibrateOnClick(viewModel)
             exitSearchMode()
-        }
-
-        // 设置清空按钮点击事件
-        imageButtonClear.setOnClickListener {
-            VibrationHelper.vibrateOnClick(viewModel)
-            searchBox.setText("")
         }
     }
 

@@ -22,7 +22,7 @@ object Tools {
                     id = URL_NAME + "scan",
                     name = "微信-扫一扫",
                     packageName = PACKAGE_NAME,
-                    intentType = LaunchTypes.PACKAGE,
+                    intentType = LaunchType.PACKAGE,
                     iconKey = PACKAGE_NAME,
                     intentExtras = mapOf(
                         "LauncherUI.From.Scaner.Shortcut" to true
@@ -35,7 +35,7 @@ object Tools {
                     id = URL_NAME + "pay_code",
                     name = "微信-付款码",
                     packageName = PACKAGE_NAME,
-                    intentType = LaunchTypes.ACTION,
+                    intentType = LaunchType.ACTION,
                     iconKey = PACKAGE_NAME,
                     intentAction = "com.tencent.mm.action.BIZSHORTCUT",
                     intentExtras = mapOf(
@@ -49,7 +49,7 @@ object Tools {
                     id = URL_NAME + "my_card",
                     name = "微信-名片码",
                     packageName = PACKAGE_NAME,
-                    intentType = LaunchTypes.ACTION,
+                    intentType = LaunchType.ACTION,
                     iconKey = PACKAGE_NAME,
                     intentAction = "com.tencent.mm.action.BIZSHORTCUT",
                     intentExtras = mapOf(
@@ -69,7 +69,7 @@ object Tools {
                     id = URL_NAME + "scan",
                     name = "支付宝-扫一扫",
                     packageName = PACKAGE_NAME,
-                    intentType = LaunchTypes.SCHEME,
+                    intentType = LaunchType.SCHEME,
                     iconKey = PACKAGE_NAME,
                     intentUri = "alipays://platformapi/startapp?appId=10000007",
                 )
@@ -80,7 +80,7 @@ object Tools {
                     id = URL_NAME + "pay_code",
                     name = "支付宝-付款码",
                     packageName = PACKAGE_NAME,
-                    intentType = LaunchTypes.SCHEME,
+                    intentType = LaunchType.SCHEME,
                     iconKey = PACKAGE_NAME,
                     intentUri = "alipays://platformapi/startapp?appId=20000056",
                 )
@@ -91,7 +91,7 @@ object Tools {
                     id = URL_NAME + "collect_code",
                     name = "支付宝-收款码",
                     packageName = PACKAGE_NAME,
-                    intentType = LaunchTypes.SCHEME,
+                    intentType = LaunchType.SCHEME,
                     iconKey = PACKAGE_NAME,
                     intentUri = "alipays://platformapi/startapp?appId=20000123",
                 )
@@ -102,7 +102,7 @@ object Tools {
                     id = URL_NAME + "ride_code",
                     name = "支付宝-乘车码",
                     packageName = PACKAGE_NAME,
-                    intentType = LaunchTypes.SCHEME,
+                    intentType = LaunchType.SCHEME,
                     iconKey = PACKAGE_NAME,
                     intentUri = "alipays://platformapi/startapp?appId=200011235",
                 )
@@ -114,7 +114,7 @@ object Tools {
                     id = URL_NAME + "watch_pay_code",
                     name = "支付宝-付款码",
                     packageName = PACKAGE_NAME,
-                    intentType = LaunchTypes.SCHEME,
+                    intentType = LaunchType.SCHEME,
                     iconKey = PACKAGE_NAME,
                     intentUri = "alipays://showpage=codepay",
                 )
@@ -131,7 +131,7 @@ object Tools {
                     id = URL_NAME + "scan",
                     name = "云闪付-扫一扫",
                     packageName = PACKAGE_NAME,
-                    intentType = LaunchTypes.SCHEME,
+                    intentType = LaunchType.SCHEME,
                     iconKey = PACKAGE_NAME,
                     intentUri = "upwallet://native/scanCode",
                 )
@@ -142,7 +142,7 @@ object Tools {
                     id = URL_NAME + "pay_code",
                     name = "云闪付-付款码",
                     packageName = PACKAGE_NAME,
-                    intentType = LaunchTypes.SCHEME,
+                    intentType = LaunchType.SCHEME,
                     iconKey = PACKAGE_NAME,
                     intentUri = "upwallet://native/codepay",
                 )
@@ -163,7 +163,7 @@ object Tools {
                     name = "开发者选项",
                     packageName = PACKAGE_NAME,
                     activityName = "com.android.settings.Settings\$DevelopmentSettingsDashboardActivity",
-                    intentType = LaunchTypes.PACKAGE_AND_ACTIVITY,
+                    intentType = LaunchType.PACKAGE_AND_ACTIVITY,
                     iconKey = IconKey.DEVELOPER_OPTION,
                 )
             }
@@ -174,7 +174,7 @@ object Tools {
                     name = "无障碍选项",
                     packageName = PACKAGE_NAME,
                     activityName = "com.android.settings.Settings\$AccessibilitySettingsActivity",
-                    intentType = LaunchTypes.PACKAGE_AND_ACTIVITY,
+                    intentType = LaunchType.PACKAGE_AND_ACTIVITY,
                     iconKey = IconKey.ACCESSIBILITY_OPTION,
                 )
             }

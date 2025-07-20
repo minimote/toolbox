@@ -16,7 +16,7 @@ object Config {
 
     // 配置的文件名
     object ConfigFileName {
-        const val DEFAULT_CONFIG = "default_config.jsonc"
+//        const val DEFAULT_CONFIG = "default_config.jsonc"
         const val USER_CONFIG = "user_config.jsonc"
     }
 
@@ -43,6 +43,10 @@ object Config {
 
         // downloadId
         const val DOWNLOAD_ID = "download_id"
+
+
+        // 保存按钮的位置
+        const val SAVE_BUTTON_POSITION ="save_button_position"
     }
 
 
@@ -97,6 +101,9 @@ object Config {
 
 //            // downloadId
             ConfigKeys.DOWNLOAD_ID to -1,
+
+            // 保存按钮的位置
+            ConfigKeys.SAVE_BUTTON_POSITION to listOf(-1, -1),
         )
     }
 }

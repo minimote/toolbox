@@ -135,7 +135,9 @@ class WidgetListFragment(
         textViewNoWidget = view.findViewById(R.id.textView_no_widget)
         if(viewModel.isWatch) {
             val paddingSize = resources.getDimensionPixelSize(R.dimen.layout_size_2_footnote)
-            textViewNoWidget.setPadding(paddingSize, paddingSize, paddingSize, paddingSize)
+            textViewNoWidget.setPadding(
+                paddingSize, paddingSize, paddingSize, paddingSize,
+            )
         }
         constraintLayoutBackground = view.findViewById(R.id.constraintLayout_background)
         constraintLayoutBackground.setOnClickListener {
@@ -316,12 +318,16 @@ class WidgetListFragment(
         multiSelectModeObserver = Observer { multiSelectMode ->
             if(multiSelectMode) {
                 // 进入多选模式
-                imageViewBackground.setImageResource(R.drawable.multiselect)
+                imageViewBackground.setImageResource(R.drawable.ic_multiselect)
                 imageViewBackground.visibility = View.VISIBLE
                 constraintLayoutBackground.isClickable = false
 
                 buttonSelectAll.visibility = View.VISIBLE
                 buttonReverseSelect.visibility = View.VISIBLE
+
+                textViewNoWidget.text = getString(context, R.string.multi_select)
+                textViewNoWidget.alpha = UI.ALPHA_5
+                textViewNoWidget.visibility = View.VISIBLE
 
                 Toast.makeText(
                     context,
@@ -335,6 +341,8 @@ class WidgetListFragment(
                 buttonSelectAll.visibility = View.GONE
                 buttonReverseSelect.visibility = View.GONE
 
+                textViewNoWidget.visibility = View.INVISIBLE
+
                 // 只有返回按钮和返回手势才会触发退出多选模式的 Toast
                 // 所以退出多选模式的 Toast 设置在 MainActivity 中
 
@@ -347,15 +355,24 @@ class WidgetListFragment(
         sortModeObserver = Observer { sortMode ->
             if(sortMode) {
                 // 进入排序模式
-                imageViewBackground.setImageResource(R.drawable.sort)
+                if(viewModel.freeSort) {
+                    enableItemTouchHelper()
+                    imageViewBackground.setImageResource(R.drawable.ic_drag)
+                    textViewNoWidget.text = getString(context, R.string.free_sort)
+                } else {
+                    disableItemTouchHelper()
+                    imageViewBackground.setImageResource(R.drawable.ic_sort)
+                    // 固定排序
+                    textViewNoWidget.text = viewModel.sortModeString
+                }
+
+                textViewNoWidget.alpha = UI.ALPHA_5
+                textViewNoWidget.visibility = View.VISIBLE
                 imageViewBackground.visibility = View.VISIBLE
                 constraintLayoutBackground.isClickable = false
 
                 buttonSortMode.visibility = View.VISIBLE
 
-                if(viewModel.freeSort) {
-                    enableItemTouchHelper()
-                }
             } else {
                 // 退出排序模式
                 imageViewBackground.visibility = View.INVISIBLE
@@ -406,7 +423,7 @@ class WidgetListFragment(
         if(viewModel.storedToolList.value?.isEmpty() == true) {
             textViewNoWidget.visibility = View.VISIBLE
             imageViewBackground.visibility = View.VISIBLE
-            imageViewBackground.setImageResource(R.drawable.blank)
+            imageViewBackground.setImageResource(R.drawable.ic_blank)
             constraintLayoutBackground.isClickable = true
 //            LogHelper.e("WidgetListFragment", "showNoWidget: 显示无组件提示")
         } else {

@@ -41,6 +41,14 @@ class IconCacheHelper(
     private val context: Context = viewModel.myContext
     private val packageManager: PackageManager = context.packageManager
 
+
+    private val iconMap: Map<String, Int> = mapOf(
+        IconKey.DEVELOPER_OPTION to R.drawable.ic_developer_option,
+        IconKey.RECENT_TASK to R.drawable.ic_recent_task,
+        IconKey.ACCESSIBILITY_OPTION to R.drawable.ic_accessibility_option,
+    )
+
+
     // 定义一个方法来获取缓存路径
     private fun getCachePath(): File {
         val cacheDir = viewModel.cachePath
@@ -64,13 +72,13 @@ class IconCacheHelper(
 
 
     // 放置图标到内存
-    private fun putIconToCache(iconKey: String, drawable: Drawable) {
+    private fun putDrawableToCache(iconKey: String, drawable: Drawable) {
         iconCache.put(iconKey, drawable)
     }
 
 
     // 保存图标到磁盘
-    private fun saveIconToFile(iconKey: String, drawable: Drawable) {
+    private fun saveDrawableToFile(iconKey: String, drawable: Drawable) {
         val file = File(getCachePath(), "$iconKey.png")
         val bitmap = drawable.toBitmap()
         try {
@@ -84,13 +92,19 @@ class IconCacheHelper(
 
 
     // 从内存中获取图标
-    private fun loadIconFromCache(iconKey: String): Drawable? {
+    private fun loadDrawableFromCache(iconKey: String): Drawable? {
         return iconCache.get(iconKey)
     }
 
 
+    // 清除内存缓存
+    fun clearMemoryCache() {
+        iconCache.evictAll()
+    }
+
+
     // 从磁盘获取图标
-    private fun loadIconFromFile(iconKey: String): Drawable? {
+    private fun loadDrawableFromFile(iconKey: String): Drawable? {
         val file = File(getCachePath(), "$iconKey.png")
         return if(file.exists()) {
             Drawable.createFromPath(file.absolutePath)
@@ -101,13 +115,7 @@ class IconCacheHelper(
 
 
     // 从 drawable 获取图标
-    private fun getIconFromDrawable(iconKey: String): Drawable? {
-        // 假设有一个映射表来关联 packageName 和 drawable 资源 ID
-        val iconMap: Map<String, Int> = mapOf(
-            IconKey.DEVELOPER_OPTION to R.drawable.ic_developer_option,
-            IconKey.RECENT_TASK to R.drawable.ic_recent_task,
-            IconKey.ACCESSIBILITY_OPTION to R.drawable.ic_accessibility_option,
-        )
+    private fun getDrawableFromDrawable(iconKey: String): Drawable? {
 
 //        var resourceId = R.drawable.ic_default
 //        if(iconMap.containsKey(iconKey)) {
@@ -118,7 +126,7 @@ class IconCacheHelper(
 
 
     // 从 packageManager 中获取图标
-    private fun getIconFromPackageManager(
+    private fun getDrawableFromPackageManager(
         packageName: String,
         activityName: String?,
     ): Drawable? {
@@ -134,13 +142,13 @@ class IconCacheHelper(
         return try {
             packageManager.getApplicationIcon(packageName)
         } catch(_: Exception) {
-            getDefaultIcon()
+            getDefaultDrawable()
         }
     }
 
 
     // 从 packageManager 中获取高清图标
-    private fun getHighResIconFromPackageManager(
+    private fun getHighResDrawableFromPackageManager(
         packageName: String,
         activityName: String?,
     ): Drawable? {
@@ -164,19 +172,19 @@ class IconCacheHelper(
             // 获取高清图标
             packageManager.getApplicationIcon(applicationInfo)
         } catch(_: Exception) {
-            getDefaultIcon()
+            getDefaultDrawable()
         }
     }
 
 
     // 获取默认图标
-    private fun getDefaultIcon(): Drawable? {
-        return ContextCompat.getDrawable(context, R.drawable.ic_default)
+    private fun getDefaultDrawable(): Drawable? {
+        return ContextCompat.getDrawable(context, R.drawable.ic_forbid)
     }
 
 
     // 获取 Drawable 图标
-    fun getIconDrawable(
+    fun getDrawable(
         tool: Tool,
     ): Drawable {
         return loadDrawableFromAllSources(
@@ -186,7 +194,7 @@ class IconCacheHelper(
         )
     }
 
-    fun getIconDrawable(
+    fun getDrawable(
         installedApp: InstalledApp,
     ): Drawable {
         return loadDrawableFromAllSources(
@@ -198,24 +206,24 @@ class IconCacheHelper(
 
 
     // 获取圆形 Drawable 图标
-    fun getIconCircularDrawable(
+    fun getCircularDrawable(
         tool: Tool,
     ): Drawable {
-        return getIconDrawable(tool).toCircularDrawable()
+        return getDrawable(tool).toCircularDrawable()
     }
 
-    fun getIconCircularDrawable(
+    fun getCircularDrawable(
         installedApp: InstalledApp,
     ): Drawable {
-        return getIconDrawable(installedApp).toCircularDrawable()
+        return getDrawable(installedApp).toCircularDrawable()
     }
 
 
     // 获取 Icon 图标
-    fun getIconIcon(
+    fun getIcon(
         tool: Tool,
     ): android.graphics.drawable.Icon {
-        return getIconDrawable(tool).toIcon(context)
+        return getDrawable(tool).toIcon(context)
     }
 
 
@@ -235,22 +243,22 @@ class IconCacheHelper(
 //        }
 
         // 从内存中获取图标
-        var appIcon = loadIconFromCache(iconKey)
+        var appIcon = loadDrawableFromCache(iconKey)
         if(appIcon == null) {
             // 从磁盘中获取图标
-            appIcon = loadIconFromFile(iconKey)
+            appIcon = loadDrawableFromFile(iconKey)
             if(appIcon == null) {
                 // 从 drawable 中获取图标
-                appIcon = getIconFromDrawable(iconKey)
+                appIcon = getDrawableFromDrawable(iconKey)
                 if(appIcon == null) {
-                    appIcon = getHighResIconFromPackageManager(
+                    appIcon = getHighResDrawableFromPackageManager(
                         packageName = packageName,
                         activityName = activityName,
                     )
                 }
                 if(appIcon != null) {
-                    putIconToCache(iconKey, appIcon)
-                    saveIconToFile(iconKey, appIcon)
+                    putDrawableToCache(iconKey, appIcon)
+                    saveDrawableToFile(iconKey, appIcon)
                 }
 //                Log.d("IconCacheManager", "从系统中获取了图标：$packageName")
             } else {

@@ -18,12 +18,10 @@ import java.util.TreeMap
 object ConfigHelper {
 
     // 获取配置的值
-    fun getConfigValue(
+    fun MyViewModel.getConfigValue(
         key: String,
-        viewModel: MyViewModel,
-//        defaultConfig: MutableMap<String, Any>,
-//        userConfig: MutableMap<String, Any>,
     ): Any? {
+        val viewModel = this
         val defaultConfig = viewModel.defaultConfig
         val userConfig = viewModel.userConfig
 
@@ -39,29 +37,24 @@ object ConfigHelper {
 
 
     // 清除用户和备份的配置文件
-    fun clearUserAndBackupConfig(
-        viewModel: MyViewModel,
-    ) {
-        viewModel.userConfig.clear()
-        viewModel.userConfigBackup.clear()
+    fun MyViewModel.clearUserAndBackupConfig() {
+        this.userConfig.clear()
+        this.userConfigBackup.clear()
     }
 
 
     // 仅清除用户配置
-    fun clearUserConfig(
-        viewModel: MyViewModel,
-    ) {
-        viewModel.userConfig.clear()
+    fun MyViewModel.clearUserConfig() {
+        this.userConfig.clear()
     }
 
     // 更新配置的值
-    fun updateConfigValue(
+    fun MyViewModel.updateConfigValue(
         key: String,
         value: Any,
-        viewModel: MyViewModel,
     ) {
-        val defaultConfig = viewModel.defaultConfig
-        val userConfig = viewModel.userConfig
+        val defaultConfig = this.defaultConfig
+        val userConfig = this.userConfig
 
         if(defaultConfig.containsKey(key)) {
             if(defaultConfig[key] == value) {
@@ -73,41 +66,35 @@ object ConfigHelper {
     }
 
 
-//    // 用户配置存在该项
-//    fun hasUserConfigKey(
-//        key: String,
-//        viewModel: ToolboxViewModel,
-//    ): Boolean {
-//        return viewModel.userConfig.containsKey(key)
-//    }
+    // 用户配置存在该项
+    fun MyViewModel.hasUserConfigKey(
+        key: String,
+    ): Boolean {
+        return this.userConfig.containsKey(key)
+    }
 
 
     // 删除配置的值
-    fun deleteConfigValue(
+    fun MyViewModel.deleteConfigValue(
         key: String,
-        viewModel: MyViewModel,
     ) {
-        viewModel.userConfig.remove(key)
+        this.userConfig.remove(key)
     }
 
 
     // 加载全部配置文件
-    fun loadAllConfig(
-        viewModel: MyViewModel,
-    ) {
-        viewModel.defaultConfig = Config.defaultConfig
-        viewModel.userConfig = loadUserConfig(viewModel)
-        checkConfigFile(viewModel)
-        viewModel.userConfigBackup = viewModel.userConfig.toMutableMap()
+    fun MyViewModel.loadAllConfig() {
+        this.defaultConfig = Config.defaultConfig
+        this.userConfig = loadUserConfig()
+        checkConfigFile()
+        this.userConfigBackup = this.userConfig.toMutableMap()
     }
 
 
     // 检查配置文件
-    fun checkConfigFile(
-        viewModel: MyViewModel,
-    ) {
-        val defaultConfig = viewModel.defaultConfig
-        val userConfig = viewModel.userConfig
+    fun MyViewModel.checkConfigFile() {
+        val defaultConfig = this.defaultConfig
+        val userConfig = this.userConfig
 
         val correctUserConfig = userConfig.filterTo(mutableMapOf()) { (key, value) ->
             val defaultValue = defaultConfig[key]
@@ -115,24 +102,22 @@ object ConfigHelper {
         }
 
         if(userConfig.size != correctUserConfig.size) {
-            viewModel.userConfig = correctUserConfig
-            saveUserConfig(viewModel)
+            this.userConfig = correctUserConfig
+            saveUserConfig()
         }
     }
 
 
     // 获取用户配置路径
-    private fun getUserConfigPath(viewModel: MyViewModel): File {
-        return File(viewModel.dataPath, ConfigFileName.USER_CONFIG)
+    private fun MyViewModel.getUserConfigPath(): File {
+        return File(this.dataPath, ConfigFileName.USER_CONFIG)
     }
 
 
     // 加载配置文件
-    private fun loadUserConfig(
-        viewModel: MyViewModel,
-    ): MutableMap<String, Any> {
+    private fun MyViewModel.loadUserConfig(): MutableMap<String, Any> {
         return try {
-            val inputStream = FileInputStream(getUserConfigPath(viewModel))
+            val inputStream = FileInputStream(getUserConfigPath())
 
             val json = inputStream.use { input ->
                 val bytes = input.readBytes()
@@ -147,21 +132,23 @@ object ConfigHelper {
 
 
     // 保存用户配置文件
-    fun saveUserConfig(
-        viewModel: MyViewModel,
+    fun MyViewModel.saveUserConfig(
+        config: Map<String, Any> = this.userConfig.toMap(),
+        updateBackup: Boolean = true,
     ) {
 //        viewModel.viewModelScope.launch(Dispatchers.IO) {
 //        val context = viewModel.myContext
-        val userConfigFile = getUserConfigPath(viewModel)
         try {
-            val config = viewModel.userConfig.toMap()
+            val userConfigFile = getUserConfigPath()
             val jsonString = JSONObject(config).toString()
 
             FileOutputStream(userConfigFile).use { outputStream ->
                 outputStream.write(jsonString.toByteArray(ENCODING))
             }
 
-            backupUserConfig(viewModel)
+            if(updateBackup) {
+                updateBackupConfig()
+            }
         } catch(e: Exception) {
             e.printStackTrace()
         }
@@ -170,26 +157,34 @@ object ConfigHelper {
 
 
     // 更新
-    fun updateSettingWasModified(viewModel: MyViewModel) {
-        val flag = viewModel.userConfig != viewModel.userConfigBackup
-//        Toast.makeText(
-//            viewModel.myContext,
-//            "user=${viewModel.userConfig.size}, back=${viewModel.userConfigBackup.size}",
-//            Toast.LENGTH_SHORT,
-//        ).show()
-        if(flag != viewModel.configChanged.value) {
-            viewModel.configChanged.value = flag
+    fun MyViewModel.updateSettingWasModified() {
+        val flag = this.userConfig != this.userConfigBackup
+        if(flag != this.configChanged.value) {
+            this.configChanged.value = flag
         }
     }
 
 
-    // 备份用户配置文件
-    private fun backupUserConfig(
-        viewModel: MyViewModel,
+    // 保存：保存按钮的位置
+    fun MyViewModel.saveButtonPosition(
+        targetPos: List<Float>,
     ) {
-        viewModel.userConfigBackup = TreeMap(viewModel.userConfig)
-        if(viewModel.configChanged.value != false) {
-            viewModel.configChanged.value = false
+        val key = Config.ConfigKeys.SAVE_BUTTON_POSITION
+        this.userConfig[key] = targetPos
+        this.userConfigBackup[key] = targetPos
+
+        saveUserConfig(
+            config = this.userConfigBackup,
+            updateBackup = false,
+        )
+    }
+
+
+    // 备份用户配置文件
+    private fun MyViewModel.updateBackupConfig() {
+        this.userConfigBackup = TreeMap(this.userConfig)
+        if(this.configChanged.value != false) {
+            this.configChanged.value = false
         }
     }
 

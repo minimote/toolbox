@@ -20,8 +20,12 @@ import cn.minimote.toolbox.constant.SeekBarValueList
 import cn.minimote.toolbox.constant.ViewList
 import cn.minimote.toolbox.constant.ViewType
 import cn.minimote.toolbox.helper.CheckUpdateHelper
-import cn.minimote.toolbox.helper.ConfigHelper
+import cn.minimote.toolbox.helper.ConfigHelper.clearUserConfig
+import cn.minimote.toolbox.helper.ConfigHelper.getConfigValue
+import cn.minimote.toolbox.helper.ConfigHelper.updateConfigValue
+import cn.minimote.toolbox.helper.ConfigHelper.updateSettingWasModified
 import cn.minimote.toolbox.helper.NetworkHelper
+import cn.minimote.toolbox.helper.NetworkHelper.getNetworkAccessMode
 import cn.minimote.toolbox.helper.SeekBarHelper
 import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.viewModel.MyViewModel
@@ -58,9 +62,8 @@ class SettingAdapter(
             val seekBar: SeekBar = itemView.findViewById(R.id.seekBar)
             var lastPosition: Int = -1
             val frequency: String
-                get() = ConfigHelper.getConfigValue(
+                get() = viewModel.getConfigValue(
                     key = ConfigKeys.CHECK_UPDATE_FREQUENCY,
-                    viewModel = viewModel,
                 ).toString()
             val checkUpdateFrequencyList = SeekBarValueList.checkUpdateFrequencyList
 
@@ -106,9 +109,8 @@ class SettingAdapter(
             var lastPosition: Int = -1
             val vibrationModeList = SeekBarValueList.vibrationModeList
             val vibrationMode: String
-                get() = ConfigHelper.getConfigValue(
+                get() = viewModel.getConfigValue(
                     key = ConfigKeys.VIBRATION_MODE,
-                    viewModel = viewModel,
                 ).toString()
 
             // 设置振动模式的文字显示
@@ -137,30 +139,26 @@ class SettingAdapter(
             val networkAccessModeString: String
                 get() = when(itemViewType) {
                     viewTypes.NETWORK_ACCESS_MODE_WIFI -> {
-                        NetworkHelper.getNetworkAccessMode(
+                        viewModel.getNetworkAccessMode(
                             networkType = NetworkType.WIFI,
-                            viewModel = viewModel,
                         )
                     }
 
                     viewTypes.NETWORK_ACCESS_MODE_MOBILE -> {
-                        NetworkHelper.getNetworkAccessMode(
+                        viewModel.getNetworkAccessMode(
                             networkType = NetworkType.MOBILE,
-                            viewModel = viewModel,
                         )
                     }
 
                     viewTypes.NETWORK_ACCESS_MODE_BLUETOOTH -> {
-                        NetworkHelper.getNetworkAccessMode(
+                        viewModel.getNetworkAccessMode(
                             networkType = NetworkType.BLUETOOTH,
-                            viewModel = viewModel,
                         )
                     }
 
                     viewTypes.NETWORK_ACCESS_MODE_OTHER -> {
-                        NetworkHelper.getNetworkAccessMode(
+                        viewModel.getNetworkAccessMode(
                             networkType = NetworkType.OTHER,
-                            viewModel = viewModel,
                         )
                     }
 
@@ -195,19 +193,19 @@ class SettingAdapter(
                 }
                 val networkAccessMode = when(itemViewType) {
                     viewTypes.NETWORK_ACCESS_MODE_WIFI -> {
-                        NetworkHelper.getNetworkAccessMode(NetworkType.WIFI, viewModel)
+                        viewModel.getNetworkAccessMode(NetworkType.WIFI)
                     }
 
                     viewTypes.NETWORK_ACCESS_MODE_MOBILE -> {
-                        NetworkHelper.getNetworkAccessMode(NetworkType.MOBILE, viewModel)
+                        viewModel.getNetworkAccessMode(NetworkType.MOBILE)
                     }
 
                     viewTypes.NETWORK_ACCESS_MODE_BLUETOOTH -> {
-                        NetworkHelper.getNetworkAccessMode(NetworkType.BLUETOOTH, viewModel)
+                        viewModel.getNetworkAccessMode(NetworkType.BLUETOOTH)
                     }
 
                     viewTypes.NETWORK_ACCESS_MODE_OTHER -> {
-                        NetworkHelper.getNetworkAccessMode(NetworkType.OTHER, viewModel)
+                        viewModel.getNetworkAccessMode(NetworkType.OTHER)
                     }
 
                     else -> throw IllegalArgumentException("非法的 itemViewType")
@@ -334,12 +332,11 @@ class SettingAdapter(
                     viewModel = viewModel,
                     callback = object : SeekBarHelper.SeekBarSetupCallback {
                         override fun updateConfigValue(key: String, value: String) {
-                            ConfigHelper.updateConfigValue(
+                            viewModel.updateConfigValue(
                                 key = ConfigKeys.CHECK_UPDATE_FREQUENCY,
                                 value = value,
-                                viewModel = viewModel,
                             )
-                            ConfigHelper.updateSettingWasModified(viewModel)
+                            viewModel.updateSettingWasModified()
                         }
 
                         override fun setupTextView() {
@@ -359,12 +356,11 @@ class SettingAdapter(
                     viewModel = viewModel,
                     callback = object : SeekBarHelper.SeekBarSetupCallback {
                         override fun updateConfigValue(key: String, value: String) {
-                            ConfigHelper.updateConfigValue(
+                            viewModel.updateConfigValue(
                                 key = ConfigKeys.VIBRATION_MODE,
                                 value = value,
-                                viewModel = viewModel,
                             )
-                            ConfigHelper.updateSettingWasModified(viewModel)
+                            viewModel.updateSettingWasModified()
                         }
 
                         override fun setupTextView() {
@@ -388,38 +384,34 @@ class SettingAdapter(
                         override fun updateConfigValue(key: String, value: String) {
                             when(holder.itemViewType) {
                                 holder.viewTypes.NETWORK_ACCESS_MODE_WIFI -> {
-                                    ConfigHelper.updateConfigValue(
+                                    viewModel.updateConfigValue(
                                         key = ConfigKeys.NetworkAccessModeKeys.WIFI,
                                         value = value,
-                                        viewModel = viewModel,
                                     )
                                 }
 
                                 holder.viewTypes.NETWORK_ACCESS_MODE_MOBILE -> {
-                                    ConfigHelper.updateConfigValue(
+                                    viewModel.updateConfigValue(
                                         key = ConfigKeys.NetworkAccessModeKeys.MOBILE,
                                         value = value,
-                                        viewModel = viewModel,
                                     )
                                 }
 
                                 holder.viewTypes.NETWORK_ACCESS_MODE_BLUETOOTH -> {
-                                    ConfigHelper.updateConfigValue(
+                                    viewModel.updateConfigValue(
                                         key = ConfigKeys.NetworkAccessModeKeys.BLUETOOTH,
                                         value = value,
-                                        viewModel = viewModel,
                                     )
                                 }
 
                                 holder.viewTypes.NETWORK_ACCESS_MODE_OTHER -> {
-                                    ConfigHelper.updateConfigValue(
+                                    viewModel.updateConfigValue(
                                         key = ConfigKeys.NetworkAccessModeKeys.OTHER,
                                         value = value,
-                                        viewModel = viewModel,
                                     )
                                 }
                             }
-                            ConfigHelper.updateSettingWasModified(viewModel)
+                            viewModel.updateSettingWasModified()
                         }
 
                         override fun setupTextView() {
@@ -432,8 +424,8 @@ class SettingAdapter(
             is ViewHolder.RestoreDefaultViewHolder -> {
                 holder.itemView.setOnClickListener {
                     VibrationHelper.vibrateOnClick(viewModel)
-                    ConfigHelper.clearUserConfig(viewModel)
-                    ConfigHelper.updateSettingWasModified(viewModel)
+                    viewModel.clearUserConfig()
+                    viewModel.updateSettingWasModified()
                 }
             }
         }

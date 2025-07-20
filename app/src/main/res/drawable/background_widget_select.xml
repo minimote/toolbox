@@ -12,5 +12,5 @@
 
     <!-- 设置圆角半径 -->
     <corners
-        android:radius="@dimen/layout_size_1_small" />
+        android:radius="@dimen/layout_radius_size" />
 </shape>

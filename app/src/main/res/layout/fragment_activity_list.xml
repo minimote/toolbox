@@ -7,7 +7,7 @@
     <com.scwang.smart.refresh.layout.SmartRefreshLayout
         android:id="@+id/refreshLayout"
         style="@style/SmartRefreshLayout.Toolbox.Dark"
-        android:layout_marginTop="55dp"
+        android:layout_marginTop="60dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -35,8 +35,6 @@
             android:layout_width="0dp"
             android:autofillHints=""
             android:hint="@string/hint_search_activities"
-            android:paddingStart="@dimen/layout_size_1.5_footnote"
-            android:paddingEnd="@dimen/layout_size_1_large"
             android:visibility="invisible"
             app:layout_constraintEnd_toStartOf="@id/button_negative"
             app:layout_constraintStart_toStartOf="parent"
@@ -44,17 +42,11 @@
 
         <ImageButton
             android:id="@+id/imageButton_clear"
-            style="@style/ImageButton.Toolbox.Dark"
-            android:layout_width="@dimen/layout_size_1_small"
-            android:layout_height="@dimen/layout_size_1_small"
-            android:layout_marginTop="@dimen/layout_size_3_script"
-            android:layout_marginEnd="@dimen/layout_size_2_footnote"
+            style="@style/ImageButton.Toolbox.ClearEditText.Dark"
             android:contentDescription="@string/clear_button"
-            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@id/editText_searchBox"
-            app:layout_constraintEnd_toStartOf="@id/button_negative"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/fork" />
+            app:layout_constraintEnd_toEndOf="@id/editText_searchBox"
+            app:layout_constraintTop_toTopOf="@id/editText_searchBox" />
 
         <Button
             android:id="@+id/button_negative"

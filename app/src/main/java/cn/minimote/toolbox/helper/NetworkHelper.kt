@@ -12,6 +12,7 @@ import cn.minimote.toolbox.R
 import cn.minimote.toolbox.constant.Config.ConfigKeys.NetworkAccessModeKeys
 import cn.minimote.toolbox.constant.Config.ConfigValues.NetworkAccessModeValues
 import cn.minimote.toolbox.constant.NetworkType
+import cn.minimote.toolbox.helper.ConfigHelper.getConfigValue
 import cn.minimote.toolbox.viewModel.MyViewModel
 
 object NetworkHelper {
@@ -81,25 +82,24 @@ object NetworkHelper {
 
 
     // 获取网络访问模式
-    fun getNetworkAccessMode(
+    fun MyViewModel.getNetworkAccessMode(
         networkType: String,
-        viewModel: MyViewModel,
     ): String {
         return when(networkType) {
             NetworkType.MOBILE -> {
-                ConfigHelper.getConfigValue(NetworkAccessModeKeys.MOBILE, viewModel)
+                this.getConfigValue(NetworkAccessModeKeys.MOBILE)
             }
 
             NetworkType.BLUETOOTH -> {
-                ConfigHelper.getConfigValue(NetworkAccessModeKeys.BLUETOOTH, viewModel)
+                this.getConfigValue(NetworkAccessModeKeys.BLUETOOTH)
             }
 
             NetworkType.WIFI -> {
-                ConfigHelper.getConfigValue(NetworkAccessModeKeys.WIFI, viewModel)
+                this.getConfigValue(NetworkAccessModeKeys.WIFI)
             }
 
             NetworkType.OTHER -> {
-                ConfigHelper.getConfigValue(NetworkAccessModeKeys.OTHER, viewModel)
+                this.getConfigValue(NetworkAccessModeKeys.OTHER)
             }
 
             else -> {

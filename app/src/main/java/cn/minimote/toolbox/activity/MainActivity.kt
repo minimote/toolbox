@@ -5,15 +5,15 @@
 
 package cn.minimote.toolbox.activity
 
+import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.Guideline
@@ -24,18 +24,17 @@ import cn.minimote.toolbox.adapter.ToolboxFragmentStateAdapter
 import cn.minimote.toolbox.constant.FragmentName
 import cn.minimote.toolbox.constant.ViewPaper
 import cn.minimote.toolbox.helper.CheckUpdateHelper
-import cn.minimote.toolbox.helper.ConfigHelper
+import cn.minimote.toolbox.helper.ConfigHelper.loadAllConfig
+import cn.minimote.toolbox.helper.ConfigHelper.saveUserConfig
 import cn.minimote.toolbox.helper.DialogHelper
 import cn.minimote.toolbox.helper.FragmentHelper
 import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.pageTransformer.ViewPager2Transformer
+import cn.minimote.toolbox.ui.widget.DraggableTextView
 import cn.minimote.toolbox.viewModel.MyViewModel
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 
 @AndroidEntryPoint
@@ -43,17 +42,11 @@ class MainActivity : AppCompatActivity() {
 
     private val viewModel: MyViewModel by viewModels()
 
-//    private val fragmentPositions = ToolboxViewModel.Constants.FragmentPositions
 
-    // 滑动返回的比例阈值
-//    private val thresholdExit = 0.2
-//
-//    private var initialX = 0f
-//    private var screenWidth: Int = 0
-
-    private lateinit var buttonTime: Button
+    //    private lateinit var buttonTime: Button
     private lateinit var buttonExit: Button
-    private lateinit var buttonAdd: Button
+    private lateinit var buttonSave: Button
+    private lateinit var draggableTextView: DraggableTextView
 
     private lateinit var viewPager: ViewPager2
     private lateinit var tabLayout: TabLayout
@@ -61,19 +54,18 @@ class MainActivity : AppCompatActivity() {
     private lateinit var constraintLayoutOrigin: ConstraintLayout
 
     // 用于更新时间
-    private val handler = Handler(Looper.getMainLooper())
-
-    private val runnable = object : Runnable {
-        override fun run() {
-            // 1 秒更新一次
-            handler.postDelayed(this, 1000)
-            // 编辑模式下显示的是排序，所以不更新时间
-            if(viewModel.multiselectMode.value == true && viewModel.getFragmentName() == FragmentName.WIDGET_LIST_FRAGMENT) {
-                return
-            }
-            updateTime()
-        }
-    }
+//    private val handler = android.os.Handler(Looper.getMainLooper())
+//    private var shouldUpdateTime = true
+//    private val runnable = object : Runnable {
+//        override fun run() {
+//            // 1 秒更新一次
+//            handler.postDelayed(this, 1000)
+//            // 编辑模式下显示的是排序，所以不更新时间
+//            if(shouldUpdateTime) {
+//                updateTime()
+//            }
+//        }
+//    }
 
     // 观察者
     private lateinit var widgetListOrderWasModifiedObserver: Observer<Boolean>
@@ -89,6 +81,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var selectedIdsObserver: Observer<MutableSet<String>>
 
 
+    @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 //        Log.d("MainActivity", "onCreate")
@@ -100,7 +93,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.layout_main)
 
         // 加载配置文件
-        ConfigHelper.loadAllConfig(viewModel)
+        viewModel.loadAllConfig()
 
         constraintLayoutOrigin = findViewById(R.id.constraintLayout_origin)
 
@@ -128,7 +121,8 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
 //        Log.i("MainActivity", "onDestroy")
         // 移除更新时间的任务
-        handler.removeCallbacks(runnable)
+//        handler.removeCallbacks(runnable)
+//        unregisterReceiver(timeChangeReceiver)
 //        backgroundThread.quitSafely()
         // 移除观察者
         removeObservers()
@@ -162,10 +156,18 @@ class MainActivity : AppCompatActivity() {
 
     // 设置按钮
     private fun setupButtons() {
-        if(viewModel.isWatch) {
-            // 将手表顶部的顶部按钮间距设为 30dp
+        draggableTextView = findViewById(R.id.draggableTextView)
+        draggableTextView.visibility = View.INVISIBLE
+        if(!viewModel.isWatch) {
+            // 将手机顶部的顶部按钮间距设为 0px
             val guideline = findViewById<Guideline>(R.id.guideline4)
-            guideline.setGuidelineBegin(viewModel.dpToPx(30f))
+            guideline.setGuidelineBegin(0)
+
+            draggableTextView.setOnClickListener {
+                buttonSave.performClick()
+            }
+
+            draggableTextView.viewModel = viewModel
         }
 
         buttonExit = findViewById(R.id.button_exit)
@@ -182,10 +184,10 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-        buttonAdd = findViewById(R.id.button_add)
-        buttonAdd.text = getString(R.string.save_button)
+        buttonSave = findViewById(R.id.button_save)
+        buttonSave.text = getString(R.string.save_button)
 
-        buttonAdd.setOnClickListener {
+        buttonSave.setOnClickListener {
             VibrationHelper.vibrateOnClick(viewModel)
             when(viewModel.getFragmentName()) {
                 FragmentName.WIDGET_LIST_FRAGMENT -> {
@@ -199,20 +201,39 @@ class MainActivity : AppCompatActivity() {
                             ),
                             positiveAction = {
                                 viewModel.deleteSelectedItemAndSave()
-                                buttonAdd.visibility = View.INVISIBLE
+//                                updateTime()
+//                                buttonSave.visibility = View.INVISIBLE
+                                hideSaveButton()
+                                Toast.makeText(
+                                    this@MainActivity,
+                                    getString(R.string.delete_success),
+                                    Toast.LENGTH_SHORT,
+                                ).show()
                             },
                         )
                         return@setOnClickListener
                     }
                     if(viewModel.sortMode.value == true) {
                         viewModel.saveWidgetList()
-                        buttonAdd.visibility = View.INVISIBLE
+//                        updateTime()
+//                        buttonSave.visibility = View.INVISIBLE
+                        hideSaveButton()
+                        Toast.makeText(
+                            this@MainActivity,
+                            getString(R.string.save_success),
+                            Toast.LENGTH_SHORT,
+                        ).show()
                         return@setOnClickListener
                     }
                 }
 
                 FragmentName.SETTING_FRAGMENT -> {
-                    ConfigHelper.saveUserConfig(viewModel)
+                    viewModel.saveUserConfig()
+                    Toast.makeText(
+                        this@MainActivity,
+                        getString(R.string.save_success),
+                        Toast.LENGTH_SHORT,
+                    ).show()
                     return@setOnClickListener
                 }
 
@@ -225,40 +246,97 @@ class MainActivity : AppCompatActivity() {
                 getString(R.string.save_success),
                 Toast.LENGTH_SHORT,
             ).show()
-            buttonAdd.visibility = View.INVISIBLE
+//            updateTime()
+//            buttonSave.visibility = View.INVISIBLE
+            hideSaveButton()
         }
+
+        // 第一次更新时间
+//        updateTime()
+//        handler.post(runnable)
+//        timeChangeReceiver = TimeChangeReceiver(
+//            shouldUpdateTime = {
+//                return@TimeChangeReceiver true
+//            },
+//            updateAction = {
+//                updateTime()
+//            }
+//        )
+
+//        val filter = IntentFilter().apply {
+//            addAction(Intent.ACTION_TIME_CHANGED)
+//            addAction(Intent.ACTION_TIMEZONE_CHANGED)
+//        }
+//
+//        registerReceiver(timeChangeReceiver, filter)
 
 
         // 设置时间
-        setupTimeButton()
+//        setupTimeButton()
+    }
+
+
+    // 显示保存按钮
+    private fun showSaveButton(text: String = getString(R.string.save)) {
+        if(viewModel.isWatch) {
+            buttonSave.visibility = View.VISIBLE
+            buttonSave.text = text
+        } else {
+            draggableTextView.setInitialPosition()
+            draggableTextView.visibility = View.VISIBLE
+            draggableTextView.text = text
+        }
+    }
+
+    // 隐藏保存按钮
+    private fun hideSaveButton(text: String = getString(R.string.save)) {
+        if(viewModel.isWatch) {
+            buttonSave.visibility = View.INVISIBLE
+            buttonSave.text = text
+        } else {
+            draggableTextView.visibility = View.INVISIBLE
+            draggableTextView.text = text
+        }
     }
 
 
     // 设置时间
-    private fun setupTimeButton() {
-        buttonTime = findViewById(R.id.button_time)
-//        buttonTime.setOnClickListener {
-////            Log.e(viewModel.getFragmentName(), viewModel.editMode.value.toString())
-//            if(viewModel.editMode.value == true && viewModel.getFragmentName() == FragmentName.WIDGET_LIST_FRAGMENT) {
-//                // 组件排序
-//                VibrationHelper.vibrateOnClick(this, viewModel)
-//                viewModel.sortStoredActivityList()
-//            }
-//        }
-        // 第一次更新时间
-        updateTime()
-        handler.post(runnable)
-        // 启动后台任务
-//        backgroundHandler.post(runnable)
-    }
+//    private fun setupTimeButton() {
+//        buttonTime = findViewById(R.id.button_time)
+////        buttonTime.setOnClickListener {
+//////            Log.e(viewModel.getFragmentName(), viewModel.editMode.value.toString())
+////            if(viewModel.editMode.value == true && viewModel.getFragmentName() == FragmentName.WIDGET_LIST_FRAGMENT) {
+////                // 组件排序
+////                VibrationHelper.vibrateOnClick(this, viewModel)
+////                viewModel.sortStoredActivityList()
+////            }
+////        }
+//        // 第一次更新时间
+//        updateTime()
+//        handler.post(runnable)
+//        // 启动后台任务
+////        backgroundHandler.post(runnable)
+//    }
 
 
-    private fun updateTime() {
-        // 从资源文件中获取时间格式字符串
-        val timeFormat = getString(R.string.time_format)
-        // 使用 SimpleDateFormat 格式化当前时间
-        buttonTime.text = SimpleDateFormat(timeFormat, Locale.getDefault()).format(Date())
-    }
+//    fun updateTime() {
+//        // 从资源文件中获取时间格式字符串
+//        val timeFormat = getString(R.string.time_format)
+//        // 使用 SimpleDateFormat 格式化当前时间
+//        buttonSave.text = SimpleDateFormat(timeFormat, Locale.getDefault()).format(Date())
+//        buttonSave.isClickable = false
+//        shouldUpdateTime = true
+////        handler.post(runnable)
+//    }
+//
+//
+//    private fun hideTimeAndRestoreClick(text: String = getString(R.string.save)) {
+//        buttonSave.text = text
+//        buttonSave.isClickable = true
+//        shouldUpdateTime = false
+//        // 移除更新时间的任务
+////        handler.removeCallbacks(runnable)
+//    }
 
 
     // 设置 ViewPager
@@ -351,18 +429,19 @@ class MainActivity : AppCompatActivity() {
 
             if(viewModel.isWatch) {
                 tab.customView = if(position == startViewPos) {
-                    layoutInflater.inflate(R.layout.tab_layout_selected_watch, tabLayout, false)
+                    layoutInflater.inflate(R.layout.layout_tab_selected_watch, tabLayout, false)
                 } else {
-                    layoutInflater.inflate(R.layout.tab_layout_unselected_watch, tabLayout, false)
+                    layoutInflater.inflate(R.layout.layout_tab_unselected_watch, tabLayout, false)
                 }
             } else {
                 tab.customView = if(position == startViewPos) {
-                    layoutInflater.inflate(R.layout.tab_layout_selected_phone, tabLayout, false)
+                    layoutInflater.inflate(R.layout.layout_tab_selected_phone, tabLayout, false)
                 } else {
-                    layoutInflater.inflate(R.layout.tab_layout_unselected_phone, tabLayout, false)
+                    layoutInflater.inflate(R.layout.layout_tab_unselected_phone, tabLayout, false)
                 }
 
-                val textViewName = tab.customView?.findViewById<android.widget.TextView>(R.id.textView_name)
+                val textViewName =
+                    tab.customView?.findViewById<android.widget.TextView>(R.id.textView_name)
                 textViewName?.text = tab.text
             }
         }.attach()
@@ -374,20 +453,24 @@ class MainActivity : AppCompatActivity() {
                 // 选中时
                 override fun onTabSelected(tab: TabLayout.Tab) {
                     tab.customView = layoutInflater.inflate(
-                        R.layout.tab_layout_selected_watch, tabLayout, false
+                        R.layout.layout_tab_selected_watch, tabLayout, false
                     )
                 }
 
                 // 未选中时
                 override fun onTabUnselected(tab: TabLayout.Tab) {
                     tab.customView =
-                        layoutInflater.inflate(R.layout.tab_layout_unselected_watch, tabLayout, false)
+                        layoutInflater.inflate(
+                            R.layout.layout_tab_unselected_watch,
+                            tabLayout,
+                            false
+                        )
                 }
 
                 // 重新选中时
                 override fun onTabReselected(tab: TabLayout.Tab) {
                     tab.customView = layoutInflater.inflate(
-                        R.layout.tab_layout_selected_watch, tabLayout, false
+                        R.layout.layout_tab_selected_watch, tabLayout, false
                     )
                 }
             })
@@ -405,26 +488,33 @@ class MainActivity : AppCompatActivity() {
                     // 页面切换的振动
                     VibrationHelper.vibrateOnClick(viewModel)
                     tab.customView = layoutInflater.inflate(
-                        R.layout.tab_layout_selected_phone, tabLayout, false
+                        R.layout.layout_tab_selected_phone, tabLayout, false
                     )
-                    val textViewName = tab.customView?.findViewById<android.widget.TextView>(R.id.textView_name)
+                    val textViewName =
+                        tab.customView?.findViewById<android.widget.TextView>(R.id.textView_name)
                     textViewName?.text = tab.text
                 }
 
                 // 未选中时
                 override fun onTabUnselected(tab: TabLayout.Tab) {
                     tab.customView =
-                        layoutInflater.inflate(R.layout.tab_layout_unselected_phone, tabLayout, false)
-                    val textViewName = tab.customView?.findViewById<android.widget.TextView>(R.id.textView_name)
+                        layoutInflater.inflate(
+                            R.layout.layout_tab_unselected_phone,
+                            tabLayout,
+                            false
+                        )
+                    val textViewName =
+                        tab.customView?.findViewById<android.widget.TextView>(R.id.textView_name)
                     textViewName?.text = tab.text
                 }
 
                 // 重新选中时
                 override fun onTabReselected(tab: TabLayout.Tab) {
                     tab.customView = layoutInflater.inflate(
-                        R.layout.tab_layout_selected_phone, tabLayout, false
+                        R.layout.layout_tab_selected_phone, tabLayout, false
                     )
-                    val textViewName = tab.customView?.findViewById<android.widget.TextView>(R.id.textView_name)
+                    val textViewName =
+                        tab.customView?.findViewById<android.widget.TextView>(R.id.textView_name)
                     textViewName?.text = tab.text
                 }
             })
@@ -449,9 +539,13 @@ class MainActivity : AppCompatActivity() {
         widgetListOrderWasModifiedObserver = Observer { widgetListOrderWasModified ->
 //            Log.e("顺序观察者", "$widgetListOrderWasModified")
             if(widgetListOrderWasModified) {
-                buttonAdd.visibility = View.VISIBLE
+//                hideTimeAndRestoreClick()
+//                buttonSave.visibility = View.VISIBLE
+                showSaveButton()
             } else {
-                buttonAdd.visibility = View.INVISIBLE
+//                buttonSave.visibility = View.INVISIBLE
+//                updateTime()
+                hideSaveButton()
             }
         }
         viewModel.toolListOrderChanged.observe(this, widgetListOrderWasModifiedObserver)
@@ -464,17 +558,25 @@ class MainActivity : AppCompatActivity() {
                 FragmentName.EDIT_LIST_FRAGMENT -> {
                     // 编辑列表存在大小改变和组件改变，必须同时不变才取消保存按钮
                     if(widgetListSizeWasModified || viewModel.toolChanged.value == true) {
-                        buttonAdd.visibility = View.VISIBLE
+//                        buttonSave.visibility = View.VISIBLE
+//                        hideTimeAndRestoreClick()
+                        showSaveButton()
                     } else {
-                        buttonAdd.visibility = View.INVISIBLE
+//                        buttonSave.visibility = View.INVISIBLE
+//                        updateTime()
+                        hideSaveButton()
                     }
                 }
 
                 else -> {
                     if(widgetListSizeWasModified) {
-                        buttonAdd.visibility = View.VISIBLE
+//                        buttonSave.visibility = View.VISIBLE
+//                        hideTimeAndRestoreClick()
+                        showSaveButton()
                     } else {
-                        buttonAdd.visibility = View.INVISIBLE
+//                        buttonSave.visibility = View.INVISIBLE
+//                        updateTime()
+                        hideSaveButton()
                     }
                 }
             }
@@ -487,17 +589,25 @@ class MainActivity : AppCompatActivity() {
                 FragmentName.EDIT_LIST_FRAGMENT -> {
                     // 编辑列表存在大小改变和组件改变，必须同时不变才取消保存按钮
                     if(widgetWasModified || viewModel.toolListSizeChanged.value == true) {
-                        buttonAdd.visibility = View.VISIBLE
+//                        buttonSave.visibility = View.VISIBLE
+//                        hideTimeAndRestoreClick()
+                        showSaveButton()
                     } else {
-                        buttonAdd.visibility = View.INVISIBLE
+//                        buttonSave.visibility = View.INVISIBLE
+//                        updateTime()
+                        hideSaveButton()
                     }
                 }
 
                 else -> {
                     if(widgetWasModified) {
-                        buttonAdd.visibility = View.VISIBLE
+//                        buttonSave.visibility = View.VISIBLE
+//                        hideTimeAndRestoreClick()
+                        showSaveButton()
                     } else {
-                        buttonAdd.visibility = View.INVISIBLE
+//                        buttonSave.visibility = View.INVISIBLE
+//                        updateTime()
+                        hideSaveButton()
                     }
                 }
             }
@@ -515,17 +625,20 @@ class MainActivity : AppCompatActivity() {
             if(multiSelectMode) {
 //                buttonAdd.text = getString(R.string.save_button)
                 buttonExit.text = getString(R.string.return_button)
-                buttonAdd.text = getString(R.string.delete_button)
+//                hideTimeAndRestoreClick(getString(R.string.delete))
                 // 进入多选模式后，必然选中了一个条目
-                buttonAdd.visibility = View.VISIBLE
+//                buttonSave.visibility = View.VISIBLE
+                showSaveButton(getString(R.string.delete_button))
+//                buttonSave.text = getString(R.string.delete_button)
 //                buttonTime.text = getString(R.string.sort)
 //                buttonTime.isClickable = true
             } else {
 //                viewModel.widgetListOrderWasModified.value = false
 ////                buttonAdd.text = getString(R.string.add_button)
-                buttonAdd.visibility = View.INVISIBLE
+//                buttonSave.visibility = View.INVISIBLE
                 buttonExit.text = getString(R.string.exit_button)
-                buttonAdd.text = getString(R.string.save_button)
+//                buttonSave.text = getString(R.string.save_button)
+                hideSaveButton()
 //                updateTime()
 //                buttonTime.isClickable = false
             }
@@ -542,7 +655,8 @@ class MainActivity : AppCompatActivity() {
                 buttonExit.text = getString(R.string.return_button)
             } else {
 //                viewModel.widgetListOrderWasModified.value = false
-                buttonAdd.visibility = View.INVISIBLE
+//                buttonSave.visibility = View.INVISIBLE
+                hideSaveButton()
                 buttonExit.text = getString(R.string.exit_button)
             }
         }
@@ -560,42 +674,59 @@ class MainActivity : AppCompatActivity() {
 //                        buttonTime.text = getString(R.string.sort)
 //                        buttonTime.isClickable = true
                         if(viewModel.toolListOrderChanged.value == true) {
-                            buttonAdd.visibility = View.VISIBLE
+//                            buttonSave.visibility = View.VISIBLE
+//                            hideTimeAndRestoreClick()
+                            showSaveButton()
                         } else {
-                            buttonAdd.visibility = View.INVISIBLE
+//                            buttonSave.visibility = View.INVISIBLE
+//                            updateTime()
+                            hideSaveButton()
                         }
                     } else {
 //                        buttonAdd.text = getString(R.string.add_button)
-                        buttonAdd.visibility = View.INVISIBLE
+//                        buttonSave.visibility = View.INVISIBLE
+//                        updateTime()
+                        hideSaveButton()
                     }
                 }
 
                 FragmentName.EDIT_LIST_FRAGMENT -> {
-                    updateTime()
+//                    updateTime()
 //                    buttonTime.isClickable = false
-                    buttonAdd.visibility = View.INVISIBLE
+//                    buttonSave.visibility = View.INVISIBLE
+                    hideSaveButton()
                 }
 
                 FragmentName.INSTALLED_APP_LIST_FRAGMENT -> {
-                    buttonAdd.visibility = View.INVISIBLE
+//                    updateTime()
+//                    buttonSave.visibility = View.INVISIBLE
+                    hideSaveButton()
 //                    buttonAdd.text = getString(R.string.save_button)
                 }
 
                 FragmentName.SUPPORT_AUTHOR_FRAGMENT -> {
-                    buttonAdd.visibility = View.INVISIBLE
+//                    updateTime()
+//                    buttonSave.visibility = View.INVISIBLE
+                    hideSaveButton()
                 }
 
                 FragmentName.ABOUT_PROJECT_FRAGMENT -> {
-                    buttonAdd.visibility = View.INVISIBLE
+//                    updateTime()
+//                    buttonSave.visibility = View.INVISIBLE
+                    hideSaveButton()
                 }
 
                 FragmentName.SETTING_FRAGMENT -> {
-                    buttonAdd.visibility = View.INVISIBLE
+//                    updateTime()
+//                    buttonSave.visibility = View.INVISIBLE
+                    hideSaveButton()
 //                    buttonAdd.text = getString(R.string.save_button)
                 }
 
                 FragmentName.WEB_VIEW_FRAGMENT -> {
-                    buttonAdd.visibility = View.INVISIBLE
+//                    updateTime()
+//                    buttonSave.visibility = View.INVISIBLE
+                    hideSaveButton()
                 }
             }
             if(fragmentName == FragmentName.WIDGET_LIST_FRAGMENT && viewModel.multiselectMode.value != true && viewModel.sortMode.value != true) {
@@ -617,9 +748,13 @@ class MainActivity : AppCompatActivity() {
         settingWasModifiedObserver = Observer { wasModified ->
             if(viewModel.getFragmentName() == FragmentName.SETTING_FRAGMENT) {
                 if(wasModified) {
-                    buttonAdd.visibility = View.VISIBLE
+//                    hideTimeAndRestoreClick()
+//                    buttonSave.visibility = View.VISIBLE
+                    showSaveButton()
                 } else {
-                    buttonAdd.visibility = View.INVISIBLE
+//                    updateTime()
+//                    buttonSave.visibility = View.INVISIBLE
+                    hideSaveButton()
                 }
             }
         }
@@ -630,9 +765,13 @@ class MainActivity : AppCompatActivity() {
             if(viewModel.getFragmentName() == FragmentName.WIDGET_LIST_FRAGMENT) {
                 if(viewModel.multiselectMode.value == true) {
                     if(selectedIds.isNotEmpty()) {
-                        buttonAdd.visibility = View.VISIBLE
+//                        hideTimeAndRestoreClick()
+//                        buttonSave.visibility = View.VISIBLE
+                        showSaveButton(getString(R.string.delete))
                     } else {
-                        buttonAdd.visibility = View.INVISIBLE
+//                        updateTime()
+//                        buttonSave.visibility = View.INVISIBLE
+                        hideSaveButton()
                     }
                 }
             }

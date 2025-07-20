@@ -20,6 +20,11 @@ import cn.minimote.toolbox.constant.Config.ConfigKeys
 import cn.minimote.toolbox.constant.Config.ConfigValues.CheckUpdateFrequency
 import cn.minimote.toolbox.constant.Config.ConfigValues.NetworkAccessModeValues
 import cn.minimote.toolbox.constant.NetworkType
+import cn.minimote.toolbox.helper.ConfigHelper.deleteConfigValue
+import cn.minimote.toolbox.helper.ConfigHelper.getConfigValue
+import cn.minimote.toolbox.helper.ConfigHelper.saveUserConfig
+import cn.minimote.toolbox.helper.ConfigHelper.updateConfigValue
+import cn.minimote.toolbox.helper.NetworkHelper.getNetworkAccessMode
 import cn.minimote.toolbox.viewModel.MyViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -45,13 +50,12 @@ object CheckUpdateHelper {
         viewModel: MyViewModel,
     ) {
         // 不自动检查更新
-        if(viewModel.updateCheckGap == Frequency.NEVER) {
+        if(viewModel.updateCheckGapLong == Frequency.NEVER) {
             return
         }
         // 如果存在下载ID，说明之前的APK没有安装
-        val downloadId = ConfigHelper.getConfigValue(
+        val downloadId = viewModel.getConfigValue(
             key = ConfigKeys.DOWNLOAD_ID,
-            viewModel = viewModel,
         ).toString().toLongOrNull()
         if(downloadId != null && downloadId >= 0) {
             installApk(
@@ -81,14 +85,11 @@ object CheckUpdateHelper {
     private fun updateCheckTime(
         viewModel: MyViewModel,
     ) {
-        ConfigHelper.updateConfigValue(
+        viewModel.updateConfigValue(
             key = ConfigKeys.LAST_CHECK_UPDATE_TIME,
             value = System.currentTimeMillis(),
-            viewModel = viewModel,
         )
-        ConfigHelper.saveUserConfig(
-            viewModel = viewModel,
-        )
+        viewModel.saveUserConfig()
     }
 
 
@@ -170,7 +171,7 @@ object CheckUpdateHelper {
             networkType = networkType,
         )
 
-        when(NetworkHelper.getNetworkAccessMode(networkType, viewModel)) {
+        when(viewModel.getNetworkAccessMode(networkType)) {
             NetworkAccessModeValues.ALERT -> {
                 DialogHelper.showConfirmDialog(
                     context = context,
@@ -604,12 +605,11 @@ object CheckUpdateHelper {
             // 申请“允许安装未知来源的应用”权限
             if(!context.packageManager.canRequestPackageInstalls()) {
                 //  保存下载ID，便于启动时直接调用安装程序
-                ConfigHelper.updateConfigValue(
+                viewModel.updateConfigValue(
                     key = ConfigKeys.DOWNLOAD_ID,
                     value = downloadId,
-                    viewModel = viewModel,
                 )
-                ConfigHelper.saveUserConfig(viewModel = viewModel)
+                viewModel.saveUserConfig()
 
                 CoroutineScope(Dispatchers.Main).launch {
                     Toast.makeText(
@@ -626,11 +626,10 @@ object CheckUpdateHelper {
                 context.startActivity(intent)
             } else {
                 // 删除下载ID，避免下次启动时重复调用安装程序
-                ConfigHelper.deleteConfigValue(
+                viewModel.deleteConfigValue(
                     key = ConfigKeys.DOWNLOAD_ID,
-                    viewModel = viewModel,
                 )
-                ConfigHelper.saveUserConfig(viewModel = viewModel)
+                viewModel.saveUserConfig()
 
                 startInstallIntent(context, uri)
             }

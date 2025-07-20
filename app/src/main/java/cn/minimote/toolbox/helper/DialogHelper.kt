@@ -14,7 +14,8 @@ import cn.minimote.toolbox.R
 import cn.minimote.toolbox.viewModel.MyViewModel
 
 object DialogHelper {
-    //TODO:自定义样式
+
+
     fun showConfirmDialog(
         context: Context,
         viewModel: MyViewModel,
@@ -25,13 +26,20 @@ object DialogHelper {
         positiveAction: (() -> Unit) = {},
         negativeAction: (() -> Unit) = {},
     ) {
-        val view = LayoutInflater.from(context).inflate(R.layout.dialog_layout, null)
 
-        val dialog = AlertDialog.Builder(context).setView(view).create()
+        val view: View = LayoutInflater.from(context).inflate(R.layout.layout_dialog, null)
+        val dialog = getCustomizeDialog(context = context, view = view)
+
+        val paddingSize = context.resources.getDimension(R.dimen.layout_size_2_footnote).toInt()
 
         val textViewTitle = view.findViewById<TextView>(R.id.textView_title)
         if(titleText.isNotEmpty()) {
             textViewTitle.text = titleText
+            if(viewModel.isWatch) {
+                textViewTitle.setPadding(
+                    paddingSize, paddingSize, paddingSize, paddingSize,
+                )
+            }
         } else {
             textViewTitle.visibility = View.GONE
         }
@@ -39,6 +47,11 @@ object DialogHelper {
         val textViewMessage = view.findViewById<TextView>(R.id.textView_message)
         if(messageText.isNotEmpty()) {
             textViewMessage.text = messageText
+            if(viewModel.isWatch) {
+                textViewMessage.setPadding(
+                    paddingSize, paddingSize, paddingSize, paddingSize,
+                )
+            }
             // 两者都有内容时，取消消息顶部的 padding
             if(titleText.isNotEmpty()) {
                 textViewMessage.setPadding(
@@ -69,5 +82,14 @@ object DialogHelper {
         }
 
         dialog.show()
+    }
+
+
+    fun getCustomizeDialog(
+        context: Context,
+        view: View,
+    ): AlertDialog {
+        val dialog = AlertDialog.Builder(context, R.style.dialog).setView(view).create()
+        return dialog
     }
 }

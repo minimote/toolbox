@@ -6,14 +6,12 @@
 package cn.minimote.toolbox.adapter
 
 import android.content.Context
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
@@ -21,12 +19,15 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.constant.StoredTool
 import cn.minimote.toolbox.constant.ViewList
 import cn.minimote.toolbox.constant.ViewType
 import cn.minimote.toolbox.helper.ClipboardHelper
 import cn.minimote.toolbox.helper.DialogHelper
+import cn.minimote.toolbox.helper.EditTextHelper
 import cn.minimote.toolbox.helper.SeekBarHelper
 import cn.minimote.toolbox.helper.VibrationHelper
+import cn.minimote.toolbox.ui.widget.MyRadioGroup
 import cn.minimote.toolbox.viewModel.MyViewModel
 import com.google.android.material.switchmaterial.SwitchMaterial
 import java.util.concurrent.atomic.AtomicInteger
@@ -59,6 +60,7 @@ class EditListAdapter(
 
         lateinit var editTextNickname: EditText
         lateinit var buttonResetNickname: Button
+        lateinit var imageButtonClear: ImageButton
 
         lateinit var switchShowName: SwitchMaterial
 
@@ -84,11 +86,12 @@ class EditListAdapter(
                 viewTypes.NICKNAME -> {
                     editTextNickname = itemView.findViewById(R.id.textView_nickName)
                     buttonResetNickname = itemView.findViewById(R.id.button_reset_nickName)
+                    imageButtonClear = itemView.findViewById(R.id.imageButton_clear)
                 }
 
                 // 是否显示名称
                 viewTypes.SHOW_NAME -> {
-                    switchShowName = itemView.findViewById(R.id.switch_whether_show_widgetName)
+//                    switchShowName = itemView.findViewById(R.id.switch_whether_show_widgetName)
                 }
 
                 // 组件大小修改
@@ -126,7 +129,7 @@ class EditListAdapter(
             viewTypes.PACKAGE_NAME -> R.layout.item_edit_package_name
             viewTypes.ACTIVITY_NAME -> R.layout.item_edit_activity_name
             viewTypes.NICKNAME -> R.layout.item_edit_nickname
-            viewTypes.SHOW_NAME -> R.layout.item_edit_whether_show_name
+            viewTypes.SHOW_NAME -> R.layout.item_edit_display_mode
             viewTypes.SIZE -> R.layout.item_edit_widget_width
             viewTypes.DELETE -> R.layout.item_edit_remove_from_home
             else -> -1
@@ -153,7 +156,7 @@ class EditListAdapter(
             }
 
             viewTypes.SHOW_NAME -> {
-                setupShowName(holder)
+                setupDisplayMode(holder)
             }
 
             viewTypes.SIZE -> {
@@ -253,60 +256,48 @@ class EditListAdapter(
 
     // 设置组件名称的编辑框
     private fun setupEditTextNickname(holder: EditViewHolder) {
-        holder.editTextNickname.let { editText ->
-            editText.setText(originTool.value?.nickname)
-
-            // 手动请求输入法，避免第一次点击出现闪烁
-            editText.onFocusChangeListener = View.OnFocusChangeListener { v, hasFocus ->
-                if(hasFocus) {
-                    VibrationHelper.vibrateOnClick(viewModel)
-                    val imm =
-                        v.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                    imm.showSoftInput(v, InputMethodManager.SHOW_IMPLICIT)
-                }
-            }
-
-            // 点击输入框时触发振动
-            editText.setOnClickListener {
-                VibrationHelper.vibrateOnClick(viewModel)
-            }
-
-            // 添加 TextWatcher 监听文本变化
-            editText.addTextChangedListener(object : TextWatcher {
-                override fun afterTextChanged(s: Editable?) {
-                    val newText = s.toString()
-                    editedTool.value?.nickname = newText
-                    viewModel.updateToolNicknameChanged()
-                    updateToolNicknameNeedReset()
-                }
-
-                override fun beforeTextChanged(
-                    s: CharSequence?, start: Int, count: Int, after: Int
-                ) {
-                }
-
-                override fun onTextChanged(
-                    s: CharSequence?, start: Int, before: Int, count: Int
-                ) {
-                }
-            })
+        val stringText = originTool.value?.nickname ?: ""
+        if(stringText != "") {
+            holder.imageButtonClear.visibility = View.VISIBLE
+        } else {
+            holder.imageButtonClear.visibility = View.GONE
         }
+        EditTextHelper.setEditTextAndClearButton(
+            editText = holder.editTextNickname,
+            stringText = stringText,
+            stringHint = context.getString(R.string.can_be_empty),
+            viewModel = viewModel,
+            afterTextChanged = { s ->
+                val newText = s.toString()
+                editedTool.value?.nickname = newText
+                viewModel.updateToolNicknameChanged()
+                updateToolNicknameNeedReset()
+
+                // 检查文本框内容是否为空
+                if(newText.isEmpty()) {
+                    holder.imageButtonClear.visibility = View.GONE
+                } else {
+                    holder.imageButtonClear.visibility = View.VISIBLE
+                }
+            },
+            imageButtonClear = holder.imageButtonClear,
+        )
     }
 
 
-    // 是否显示组件名称的相关设置
-    private fun setupShowName(holder: EditViewHolder) {
-        holder.switchShowName.let { switch ->
-            switch.isChecked = originTool.value?.showName == true
+    // 设置显示模式
+    private fun setupDisplayMode(holder: EditViewHolder) {
+        val radioGroup = holder.itemView.findViewById<MyRadioGroup>(R.id.myRadioGroup)
+        radioGroup.setRadioGroup(
+            viewModel = viewModel,
+            idToStringIdMap = StoredTool.DisplayMode.idToStringIdMap,
+            initId = editedTool.value!!.displayMode,
+            onCheckedChangeListener = { selectedId ->
+                editedTool.value?.displayMode = selectedId
+                viewModel.updateToolDisplayModeChanged()
+            },
+        )
 
-            // 显示组件名称
-            holder.itemView.setOnClickListener {
-                VibrationHelper.vibrateOnClick(viewModel)
-                switch.isChecked = !switch.isChecked
-                editedTool.value?.showName = switch.isChecked
-                viewModel.updateToolShowNameChanged()
-            }
-        }
     }
 
 

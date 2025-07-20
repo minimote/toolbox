@@ -11,49 +11,49 @@
         style="@style/Button.Toolbox.Top.Dark"
         android:text="@string/exit_button"
         app:layout_constraintBottom_toTopOf="@id/guideline4"
-        app:layout_constraintEnd_toStartOf="@+id/guideline1"
+        app:layout_constraintEnd_toStartOf="@+id/button_save"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.35" />
+    <!--    <androidx.constraintlayout.widget.Guideline-->
+    <!--        android:id="@+id/guideline1"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:orientation="vertical"-->
+    <!--        app:layout_constraintGuide_percent="0.35" />-->
 
     <Button
-        android:id="@+id/button_add"
+        android:id="@+id/button_save"
         style="@style/Button.Toolbox.Top.Dark"
         android:text="@string/save_button"
         app:layout_constraintBottom_toTopOf="@id/guideline4"
-        app:layout_constraintEnd_toStartOf="@id/guideline3"
-        app:layout_constraintStart_toEndOf="@id/guideline1"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.65" />
-
-    <Button
-        android:id="@+id/button_time"
-        style="@style/Button.Toolbox.Top.Dark"
-        android:clickable="false"
-        android:text="@string/time"
-        app:layout_constraintBottom_toTopOf="@id/guideline4"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/guideline3"
+        app:layout_constraintStart_toEndOf="@id/button_exit"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <!--    <androidx.constraintlayout.widget.Guideline-->
+    <!--        android:id="@+id/guideline3"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:orientation="vertical"-->
+    <!--        app:layout_constraintGuide_percent="0.65" />-->
+
+    <!--    <Button-->
+    <!--        android:id="@+id/button_time"-->
+    <!--        style="@style/Button.Toolbox.Top.Dark"-->
+    <!--        android:clickable="false"-->
+    <!--        android:text="@string/time"-->
+    <!--        app:layout_constraintBottom_toTopOf="@id/guideline4"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toEndOf="@id/guideline3"-->
+    <!--        app:layout_constraintTop_toTopOf="parent" />-->
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="40dp" />
+        app:layout_constraintGuide_begin="30dp" />
 
 
     <androidx.viewpager2.widget.ViewPager2
@@ -63,6 +63,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/guideline4" />
+
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
@@ -82,6 +83,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/guideline4" />
+
+
+    <cn.minimote.toolbox.ui.widget.DraggableTextView
+        android:id="@+id/draggableTextView"
+        style="@style/TextView.Toolbox.Dark"
+        android:layout_height="0px"
+        android:layout_centerInParent="true"
+        android:background="@drawable/background_circle"
+        android:padding="@dimen/layout_size_1_small"
+        app:layout_constraintBottom_toTopOf="@id/tabLayout"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/constraintLayout_origin" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

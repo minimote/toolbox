@@ -1,0 +1,26 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="1030"
+    android:viewportHeight="1024">
+
+
+    <!-- 添加黑色背景 -->
+    <path
+        android:fillColor="@color/black"
+        android:pathData="M0,0h1824v1824H0z" />
+
+<!--    &lt;!&ndash; 放大后需要向左右移动 &ndash;&gt;-->
+<!--    <group-->
+<!--        android:translateX="50"-->
+<!--        android:translateY="50">-->
+        <path
+            android:fillColor="@color/text_white"
+            android:pathData="M187.4,904a509.3,509.3 0,1 1,650.4 -784,509.3 509.3,0 1,1 -650.4,784zM794.5,172a441.7,441.7 0,1 0,-564 679.9,441.7 441.7,0 1,0 564,-679.9z" />
+
+        <path
+            android:fillColor="@color/text_white"
+            android:pathData="M146.8,166.5l772.8,641.1 -41.3,49.8 -772.8,-641.1z" />
+<!--    </group>-->
+
+</vector>

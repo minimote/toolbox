@@ -5,7 +5,11 @@
 
 package cn.minimote.toolbox.constant
 
-object StoredActivity {
+object LaunchType {
 
-    const val STORED_FILE_NAME = "app_info_storage.json"
+    const val SCHEME = "scheme"
+    const val PACKAGE_AND_ACTIVITY = "package_and_activity"
+    const val PACKAGE = "package"
+    const val ACTION = "action"
+
 }

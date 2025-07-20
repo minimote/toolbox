@@ -161,7 +161,7 @@ class InstalledAppListAdapter(
         holder.bind(installedApp)
 
         holder.appIcon.setImageDrawable(
-            viewModel.iconCacheHelper.getIconCircularDrawable(installedApp)
+            viewModel.iconCacheHelper.getCircularDrawable(installedApp)
         )
         // 手表活动名仅显示最后一个点后面的部分
         holder.activityName.text = if(viewModel.isWatch) {

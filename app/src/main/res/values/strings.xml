@@ -24,11 +24,11 @@
     <string name="setting">设置</string>
     <string name="split_char">\n</string>
     <string name="sort">排序</string>
-    <string name="start_fail">%1$s 启动失败</string>
+    <string name="start_fail">「%s」启动失败</string>
     <string name="switch_description_whether_show_in_home">是否在主页显示的开关</string>
     <string name="switch_description_whether_show_widget_name">是否显示组件名称的开关</string>
     <string name="time">10:24</string>
-    <string name="time_format">HH:mm</string>
+    <string name="time_format">HH:mm:ss</string>
     <string name="widget_type_full">整行</string>
     <string name="already_enter_edit_mode">已经在编辑模式了</string>
     <string name="reset">重置</string>
@@ -38,12 +38,12 @@
     <string name="widgetSize_increase">＋</string>
     <string name="widgetSize_decrease">－</string>
     <string name="widgetName">组件名称</string>
-    <string name="widgetSize_num">%1d</string>
-    <string name="widgetSize_maxSize">%1d</string>
+    <string name="widgetSize_num">%d</string>
+    <string name="widgetSize_maxSize">%d</string>
     <string name="widget_icon">小组件图标</string>
     <string name="toast_no_widget_exit_multiselect_mode">当前没有组件，退出多选模式</string>
     <string name="textView_no_widget">点击添加工具</string>
-    <string name="hint_search_activities">搜索 %1d 项</string>
+    <string name="hint_search_activities">搜索 %d 项</string>
     <string name="cancel">取消</string>
     <string name="no_result">无结果</string>
     <string name="recommended_activity">推荐活动</string>
@@ -202,4 +202,14 @@
     <string name="reverse_select">反选</string>
     <string name="sort_mode">排序方式</string>
     <string name="free_sort">拖动排序</string>
+    <string name="create">创建</string>
+    <string name="name">名称</string>
+    <string name="button">按钮</string>
+    <string name="name_cannot_be_blank">名称不能为空或全为空格</string>
+    <string name="delete">删除</string>
+    <string name="delete_success">删除成功</string>
+    <string name="display_mode">显示方式</string>
+    <string name="only_icon">仅图标</string>
+    <string name="only_name">仅名称</string>
+    <string name="icon_and_name">图标和名称</string>
 </resources>

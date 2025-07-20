@@ -20,6 +20,7 @@ import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.constant.MenuList
 import cn.minimote.toolbox.constant.MenuType
+import cn.minimote.toolbox.constant.StoredTool.DisplayMode
 import cn.minimote.toolbox.dataClass.StoredTool
 import cn.minimote.toolbox.fragment.WidgetListFragment
 import cn.minimote.toolbox.helper.ActivityLaunchHelper
@@ -43,23 +44,23 @@ class WidgetListAdapter(
 
 
     inner class WidgetViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val appIcon: ImageView = itemView.findViewById(R.id.imageView_app_icon)
+        val appIcon: ImageView? = itemView.findViewById(R.id.imageView_app_icon)
         val widgetName: TextView? = itemView.findViewById(R.id.textView_app_name)
         val viewBackground: View = itemView.findViewById(R.id.view_background)
     }
 
 
-    // 显示名称的视图类型为 1
     override fun getItemViewType(position: Int): Int {
-        return if(toolList[position].showName) 1 else 0
+        return toolList[position].displayMode
     }
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WidgetViewHolder {
 //        Log.i("WidgetListAdapter", "viewModel:${System.identityHashCode(viewModel)}")
         val layoutId = when(viewType) {
-            1 -> R.layout.item_widget_icon_and_name
-            else -> R.layout.item_widget_only_icon
+            DisplayMode.ONLY_ICON -> R.layout.item_widget_only_icon
+            DisplayMode.ONLY_NAME -> R.layout.item_widget_only_name
+            else -> R.layout.item_widget_icon_and_name
         }
         val view = LayoutInflater.from(context).inflate(layoutId, parent, false)
 
@@ -71,12 +72,30 @@ class WidgetListAdapter(
 
         val toolActivity = toolList[position]
 
-        if(toolActivity.showName) {
-            holder.widgetName?.text = toolActivity.nickname
+        when(toolActivity.displayMode) {
+            DisplayMode.ONLY_ICON -> {
+                holder.appIcon?.setImageDrawable(
+                    viewModel.iconCacheHelper.getCircularDrawable(toolActivity)
+                )
+                holder.appIcon?.visibility = View.VISIBLE
+                holder.widgetName?.visibility = View.GONE
+            }
+
+            DisplayMode.ONLY_NAME -> {
+                holder.appIcon?.visibility = View.GONE
+                holder.widgetName?.text = toolActivity.nickname
+                holder.widgetName?.visibility = View.VISIBLE
+            }
+
+            else -> {
+                holder.appIcon?.setImageDrawable(
+                    viewModel.iconCacheHelper.getCircularDrawable(toolActivity)
+                )
+                holder.appIcon?.visibility = View.VISIBLE
+                holder.widgetName?.text = toolActivity.nickname
+                holder.widgetName?.visibility = View.VISIBLE
+            }
         }
-        holder.appIcon.setImageDrawable(
-            viewModel.iconCacheHelper.getIconCircularDrawable(toolActivity)
-        )
 
         // 根据 selectedIds 设置背景状态
         val isSelected = viewModel.isSelected(toolActivity.id)

@@ -6,7 +6,8 @@
 package cn.minimote.toolbox.dataClass
 
 import android.content.Intent
-import cn.minimote.toolbox.constant.LaunchTypes.PACKAGE_AND_ACTIVITY
+import cn.minimote.toolbox.constant.LaunchType.PACKAGE_AND_ACTIVITY
+import cn.minimote.toolbox.constant.StoredTool.DisplayMode.ICON_AND_NAME
 
 
 // 用于存储的数据类(继承自工具类，因为比工具类属性多)
@@ -31,8 +32,7 @@ class StoredTool(
     iconKey: String = activityName ?: intentUri ?: id,
     var width: Int, // 宽度
     var height: Int = 1, // 高度
-    var showName: Boolean = true, // 是否显示名称
-    var showIcon: Boolean = true, // 是否显示图标
+    var displayMode: Int = ICON_AND_NAME,
     description: String = "", // 描述
 
     // 创建时间
@@ -42,7 +42,7 @@ class StoredTool(
     // 最后一次使用时间
     var lastUsedTime: Long = -1,
     // 使用次数
-    var useCount: Int = 0,
+    var useCount: ULong = 0u,
 ) : Tool(
     id = id,
     intentType = intentType,
@@ -64,8 +64,7 @@ class StoredTool(
         this.iconKey = storedTool.iconKey
         this.width = storedTool.width
         this.height = storedTool.height
-        this.showName = storedTool.showName
-        this.showIcon = storedTool.showIcon
+        this.displayMode = storedTool.displayMode
         this.description = storedTool.description
         this.lastModifiedTime = storedTool.lastModifiedTime
         this.lastUsedTime = storedTool.lastUsedTime
@@ -88,13 +87,12 @@ class StoredTool(
             iconKey = this.iconKey,
             width = this.width,
             height = this.height,
-            showName = this.showName,
-            showIcon = this.showIcon,
+            displayMode = this.displayMode,
             description = this.description,
             createdTime = this.createdTime,
             lastModifiedTime = this.lastModifiedTime,
             lastUsedTime = this.lastUsedTime,
-            useCount = this.useCount
+            useCount = this.useCount,
         )
     }
 

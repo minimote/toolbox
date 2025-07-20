@@ -24,6 +24,7 @@ import cn.minimote.toolbox.fragment.InstalledAppListFragment
 import cn.minimote.toolbox.fragment.SettingFragment
 import cn.minimote.toolbox.fragment.SupportAuthorFragment
 import cn.minimote.toolbox.fragment.WebViewFragment
+import cn.minimote.toolbox.helper.NetworkHelper.getNetworkAccessMode
 import cn.minimote.toolbox.viewModel.MyViewModel
 
 
@@ -85,7 +86,7 @@ object FragmentHelper {
                         networkType = networkType,
                     )
 
-                    when(NetworkHelper.getNetworkAccessMode(networkType, viewModel)) {
+                    when(viewModel.getNetworkAccessMode(networkType)) {
                         NetworkAccessModeValues.ALERT -> {
                             DialogHelper.showConfirmDialog(
                                 context = context,

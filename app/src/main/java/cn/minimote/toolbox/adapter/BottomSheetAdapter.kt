@@ -9,6 +9,9 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -22,6 +25,7 @@ import cn.minimote.toolbox.dataClass.StoredTool
 import cn.minimote.toolbox.dataClass.Tool
 import cn.minimote.toolbox.helper.ActivityLaunchHelper
 import cn.minimote.toolbox.helper.DialogHelper
+import cn.minimote.toolbox.helper.EditTextHelper
 import cn.minimote.toolbox.helper.FragmentHelper
 import cn.minimote.toolbox.helper.ShortcutHelper
 import cn.minimote.toolbox.helper.VibrationHelper
@@ -52,6 +56,7 @@ class BottomSheetAdapter(
     ): BottomSheetHolder {
         val layoutId = R.layout.item_bottom_sheet_menu
         val view = LayoutInflater.from(context).inflate(layoutId, parent, false)
+
         return BottomSheetHolder(view, viewType)
     }
 
@@ -105,6 +110,13 @@ class BottomSheetAdapter(
             }
         }
         holder.textViewMenuItem.text = context.getString(textId)
+
+        if(viewModel.isWatch) {
+            val paddingSize = context.resources.getDimension(R.dimen.layout_size_2_footnote).toInt()
+            holder.textViewMenuItem.setPadding(
+                paddingSize, paddingSize, paddingSize, paddingSize,
+            )
+        }
     }
 
 
@@ -152,8 +164,11 @@ class BottomSheetAdapter(
                 // 排序方式
                 else -> {
                     if(holder.viewType in MenuType.SortOrderSet) {
+                        viewModel.sortModeString = holder.textViewMenuItem.text.toString()
+
                         viewPager!!.isUserInputEnabled = false
                         if(holder.viewType != MenuType.SortOrder.FREE_SORT) {
+                            viewModel.freeSort = false
                             // 排序
                             viewModel.sortStoredToolList(holder.viewType)
                             Toast.makeText(
@@ -190,18 +205,109 @@ class BottomSheetAdapter(
 
     // 创建桌面快捷方式
     private fun createShortcut(context: Context, tool: Tool) {
-        val shortcutIntent = ActivityLaunchHelper.getIntent(context, tool)
-        val icon = viewModel.iconCacheHelper.getIconIcon(tool)
+        val view =
+            LayoutInflater.from(context).inflate(R.layout.layout_dialog_create_shortcut, null)
 
-        shortcutIntent?.let { nonNullIntent ->
-            ShortcutHelper.createShortcut(
-                context = context,
-                shortcutIntent = nonNullIntent,
-                shortLabel = tool.nickname,
-                longLabel = tool.description.ifBlank { tool.name },
-                icon = icon,
+        val dialog = DialogHelper.getCustomizeDialog(context, view)
+
+        val editTextNickname: EditText = view.findViewById(R.id.editText_nickName)
+        val imageButtonClear: ImageButton = view.findViewById(R.id.imageButton_clear)
+        val buttonReset: Button = view.findViewById(R.id.button_reset_nickName)
+        val buttonCancel: Button = view.findViewById(R.id.button_cancel)
+        val buttonConfirm: Button = view.findViewById(R.id.button_confirm)
+
+        val paddingSize = context.resources.getDimension(R.dimen.layout_size_2_footnote).toInt()
+        if(viewModel.isWatch) {
+            buttonReset.setPadding(
+                paddingSize, paddingSize, paddingSize, paddingSize,
             )
+            val layoutParams = editTextNickname.layoutParams as ViewGroup.MarginLayoutParams
+            layoutParams.bottomMargin = 0
+            editTextNickname.layoutParams = layoutParams
         }
+
+
+        fun setButtonReset() {
+            if(editTextNickname.text.toString() != tool.name) {
+                buttonReset.visibility = View.VISIBLE
+            } else {
+                buttonReset.visibility = View.INVISIBLE
+            }
+        }
+        fun setImageButtonClear() {
+            if(editTextNickname.text.toString() != "") {
+                imageButtonClear.visibility = View.VISIBLE
+            } else {
+                imageButtonClear.visibility = View.INVISIBLE
+            }
+        }
+        fun setConfirmButton() {
+            if(editTextNickname.text.isNotBlank()) {
+                buttonConfirm.setTextColor(context.getColor(R.color.purple_200))
+            } else {
+                buttonConfirm.setTextColor(context.getColor(R.color.mid_gray))
+            }
+        }
+
+
+        EditTextHelper.setEditTextAndClearButton(
+            editText = editTextNickname,
+            stringText = tool.nickname,
+            viewModel = viewModel,
+            imageButtonClear = imageButtonClear,
+            afterTextChanged = {
+                setButtonReset()
+                setImageButtonClear()
+                setConfirmButton()
+            }
+        )
+
+
+        setButtonReset()
+        setImageButtonClear()
+        setConfirmButton()
+
+
+        buttonReset.setOnClickListener {
+            VibrationHelper.vibrateOnClick(viewModel)
+            editTextNickname.setText(tool.name)
+            // 将光标移动到文本框最后
+            editTextNickname.setSelection(editTextNickname.text.length)
+        }
+
+        buttonCancel.setOnClickListener {
+            VibrationHelper.vibrateOnClick(viewModel)
+            dialog.dismiss()
+        }
+
+        buttonConfirm.setOnClickListener {
+            VibrationHelper.vibrateOnClick(viewModel)
+
+            if(editTextNickname.text.isNotBlank()) {
+                val shortcutIntent = ActivityLaunchHelper.getIntent(context, tool)
+                val icon = viewModel.iconCacheHelper.getIcon(tool)
+
+                shortcutIntent?.let {
+                    ShortcutHelper.createShortcut(
+                        context = context,
+                        shortcutIntent = shortcutIntent,
+                        shortLabel = editTextNickname.text.toString(),
+                        longLabel = tool.description.ifBlank { tool.name },
+                        icon = icon,
+                    )
+                }
+                dialog.dismiss()
+            } else {
+                Toast.makeText(
+                    context,
+                    R.string.name_cannot_be_blank,
+                    Toast.LENGTH_SHORT,
+                ).show()
+            }
+
+        }
+
+        dialog.show()
     }
 
 

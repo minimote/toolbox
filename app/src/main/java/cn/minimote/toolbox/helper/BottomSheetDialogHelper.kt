@@ -32,14 +32,14 @@ object BottomSheetDialogHelper {
         fragmentManager: FragmentManager? = null,
         viewPager: ViewPager2? = null,
         constraintLayoutOrigin: ConstraintLayout? = null,
-        onMenuItemClick: (Int) -> Unit = {} // 回调函数
+        onMenuItemClick: (Int) -> Unit = {}, // 回调函数
     ): BottomSheetDialog {
         val bottomSheetDialog = BottomSheetDialog(
             context,
             R.style.TranslucentBottomSheet,
         )
 
-        val view = LayoutInflater.from(context).inflate(R.layout.bottom_sheet_menu, null)
+        val view = LayoutInflater.from(context).inflate(R.layout.layout_bottom_sheet_menu, null)
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView_bottomSheet)
         recyclerView.adapter = BottomSheetAdapter(
@@ -91,7 +91,7 @@ object BottomSheetDialogHelper {
         fragmentManager: FragmentManager? = null,
         viewPager: ViewPager2? = null,
         constraintLayoutOrigin: ConstraintLayout? = null,
-        onMenuItemClick: (Int) -> Unit = {} // 回调函数
+        onMenuItemClick: (Int) -> Unit = {}, // 回调函数
     ): BottomSheetDialog {
         val bottomSheetDialog = getBottomSheetDialog(
             context = context,
@@ -106,4 +106,6 @@ object BottomSheetDialogHelper {
         bottomSheetDialog.show()
         return bottomSheetDialog
     }
+
+
 }

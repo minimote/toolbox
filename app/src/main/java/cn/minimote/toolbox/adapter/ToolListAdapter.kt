@@ -63,7 +63,7 @@ class ToolListAdapter(
             viewHolder.titleTextView?.text = context.getString(it.titleId)
             if(it.titleId == R.string.add_local_app) {
                 // 如果是添加本机软件，将图标设置为加号
-                viewHolder.groupIndicator?.setImageResource(R.drawable.add)
+                viewHolder.groupIndicator?.setImageResource(R.drawable.ic_add)
 
                 // 点击后跳转到软件列表
                 convertView.setOnClickListener {
@@ -110,7 +110,7 @@ class ToolListAdapter(
 
         val child = getChild(groupPosition, childPosition) as Tool
         viewHolder.imageViewAppIcon?.setImageDrawable(
-            viewModel.iconCacheHelper.getIconCircularDrawable(
+            viewModel.iconCacheHelper.getCircularDrawable(
                 child
             )
         )

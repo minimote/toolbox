@@ -30,7 +30,7 @@ import cn.minimote.toolbox.dataClass.InstalledApp
 import cn.minimote.toolbox.dataClass.StoredTool
 import cn.minimote.toolbox.dataClass.Tool
 import cn.minimote.toolbox.helper.CheckUpdateHelper
-import cn.minimote.toolbox.helper.ConfigHelper
+import cn.minimote.toolbox.helper.ConfigHelper.getConfigValue
 import cn.minimote.toolbox.helper.IconCacheHelper
 import cn.minimote.toolbox.helper.StoredToolHelper
 import cn.minimote.toolbox.helper.ToolListSortHelper
@@ -78,26 +78,35 @@ class MyViewModel
 
 
     // 保存路径
-    val savePath: File = File(
-        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-        myContext.getString(R.string.app_name_en),
-    ).apply {
-        if(!exists()) {
-            mkdirs()
+    val savePath: File
+        get() = File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+            myContext.getString(R.string.app_name_en),
+        ).apply {
+            if(!exists()) {
+                mkdirs()
+            }
         }
-    }
     // 数据路径
-    val dataPath: File = myContext.filesDir.apply {
-        if(!exists()) {
-            mkdirs()
+    val dataPath: File
+        get() = File(
+            myContext.filesDir,
+            myContext.getString(R.string.app_name_en),
+        ).apply {
+            if(!exists()) {
+                mkdirs()
+            }
         }
-    }
     // 缓存路径
-    val cachePath: File = myContext.cacheDir.apply {
-        if(!exists()) {
-            mkdirs()
+    val cachePath: File
+        get() = File(
+            myContext.cacheDir,
+            myContext.getString(R.string.app_name_en),
+        ).apply {
+            if(!exists()) {
+                mkdirs()
+            }
         }
-    }
 
 
     val iconCacheHelper: IconCacheHelper = IconCacheHelper(this)
@@ -131,23 +140,21 @@ class MyViewModel
 
     // 上次更新检查时间
     val lastUpdateCheckTime: Long
-        get() = ConfigHelper.getConfigValue(
+        get() = getConfigValue(
             key = ConfigKeys.LAST_CHECK_UPDATE_TIME,
-            viewModel = this,
         )?.toString()?.toLongOrNull() ?: 0L
 
     // 检查更新间隔
-    val updateCheckGap: Long
+    val updateCheckGapLong: Long
         get() = CheckUpdateHelper.getUpdateCheckGapLong(
-            ConfigHelper.getConfigValue(
+            getConfigValue(
                 key = ConfigKeys.CHECK_UPDATE_FREQUENCY,
-                viewModel = this,
             ).toString()
         )
 
     // 下次更新检查时间
     val nextUpdateCheckTime: Long
-        get() = lastUpdateCheckTime + updateCheckGap
+        get() = lastUpdateCheckTime + updateCheckGapLong
 
 
     // 配置文件
@@ -201,7 +208,7 @@ class MyViewModel
 
     // 编辑列表使用
     var toolNicknameChanged: MutableLiveData<Boolean> = MutableLiveData()
-    var toolShowNameChanged: MutableLiveData<Boolean> = MutableLiveData()
+    var toolDisplayModeChanged: MutableLiveData<Boolean> = MutableLiveData()
     var toolWidthChanged: MutableLiveData<Boolean> = MutableLiveData()
     // 自动更新修改状态
     val toolChanged = MediatorLiveData<Boolean>().apply {
@@ -211,7 +218,7 @@ class MyViewModel
         val observer = Observer<Boolean> { _ ->
             val changed = listOf(
                 toolNicknameChanged.value,
-                toolShowNameChanged.value,
+                toolDisplayModeChanged.value,
                 toolWidthChanged.value
             ).any { it == true }
 
@@ -219,7 +226,7 @@ class MyViewModel
         }
 
         addSource(toolNicknameChanged, observer)
-        addSource(toolShowNameChanged, observer)
+        addSource(toolDisplayModeChanged, observer)
         addSource(toolWidthChanged, observer)
     }
 
@@ -230,13 +237,14 @@ class MyViewModel
     var searchMode: MutableLiveData<Boolean> = MutableLiveData(false)
 
     var freeSort = false
+    var sortModeString = ""
 
 
-    // 将 dp 转换为 px
-    fun dpToPx(dp: Float): Int {
-        val density = myContext.resources.displayMetrics.density
-        return (dp * density).toInt()
-    }
+//    // 将 dp 转换为 px
+//    fun dpToPx(dp: Float): Int {
+//        val density = myContext.resources.displayMetrics.density
+//        return (dp * density).toInt()
+//    }
 
 
     fun updateFragmentName(fragmentName: String?) {
@@ -284,11 +292,11 @@ class MyViewModel
     }
 
 
-    // 小组件显示名称是否发生改变
-    fun updateToolShowNameChanged(): Boolean {
-        val flag = editedTool.value?.showName != originTool.value?.showName
-        if(toolShowNameChanged.value != flag) {
-            toolShowNameChanged.value = flag
+    // 小组件显示方式是否发生改变
+    fun updateToolDisplayModeChanged(): Boolean {
+        val flag = editedTool.value?.displayMode != originTool.value?.displayMode
+        if(toolDisplayModeChanged.value != flag) {
+            toolDisplayModeChanged.value = flag
         }
         return flag
     }
@@ -308,7 +316,7 @@ class MyViewModel
     fun updateToolChanged() {
         // toolChanged 会自动更新
         updateToolNicknameChanged()
-        updateToolShowNameChanged()
+        updateToolDisplayModeChanged()
         updateToolWidthChanged()
     }
 

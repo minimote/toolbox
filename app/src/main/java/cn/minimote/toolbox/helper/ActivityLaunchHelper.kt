@@ -12,7 +12,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat.startActivity
 import androidx.core.net.toUri
 import cn.minimote.toolbox.R
-import cn.minimote.toolbox.constant.LaunchTypes
+import cn.minimote.toolbox.constant.LaunchType
 import cn.minimote.toolbox.dataClass.StoredTool
 import cn.minimote.toolbox.dataClass.Tool
 import cn.minimote.toolbox.viewModel.MyViewModel
@@ -41,7 +41,7 @@ object ActivityLaunchHelper {
             startActivity(context, intent, null)
             // 使用计数器加 1
             if(tool is StoredTool) {
-                tool.useCount += 1
+                tool.useCount += 1u
                 tool.lastUsedTime = System.currentTimeMillis()
                 viewModel.saveWidgetList()
 //                Toast.makeText(
@@ -67,17 +67,17 @@ object ActivityLaunchHelper {
     fun getIntent(context: Context, tool: Tool): Intent? {
 
         return when(tool.intentType) {
-            LaunchTypes.PACKAGE_AND_ACTIVITY -> createPackageIntent(
+            LaunchType.PACKAGE_AND_ACTIVITY -> createPackageIntent(
                 context = context, tool = tool,
             )
 
-            LaunchTypes.SCHEME -> createSchemeIntent(tool)
+            LaunchType.SCHEME -> createSchemeIntent(tool)
 
-            LaunchTypes.PACKAGE -> createPackageIntent(
+            LaunchType.PACKAGE -> createPackageIntent(
                 context = context, tool = tool,
             )
 
-            LaunchTypes.ACTION -> createPackageIntent(
+            LaunchType.ACTION -> createPackageIntent(
                 context = context, tool = tool,
             )
 

@@ -18,4 +18,12 @@ object UI {
 
     // 全屏图片比例
     const val FULL_SCREEN_IMAGE_RATE = 0.7f
+
+
+    // 动画时长(ms)
+    const val ANIMATION_DURATION = 300L
+
+    // 状态栏高度(dp)
+    const val STATUS_BAR_HEIGHT = 40
+
 }

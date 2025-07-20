@@ -28,4 +28,8 @@
     <dimen name="layout_size_3_LARGE">128dp</dimen>
     <dimen name="layout_size_4_huge">256dp</dimen>
     <dimen name="layout_size_5_Huge">512dp</dimen>
+
+    <!-- 圆角 -->
+    <dimen name="layout_radius_size">12dp</dimen>
+    <dimen name="layout_shadow_width">24dp</dimen>
 </resources>

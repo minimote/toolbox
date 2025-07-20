@@ -14,6 +14,7 @@ import android.os.VibratorManager
 import android.provider.Settings
 import cn.minimote.toolbox.constant.Config.ConfigKeys
 import cn.minimote.toolbox.constant.Config.ConfigValues.VibrationMode
+import cn.minimote.toolbox.helper.ConfigHelper.getConfigValue
 import cn.minimote.toolbox.viewModel.MyViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -110,9 +111,8 @@ object VibrationHelper {
         context: Context,
         viewModel: MyViewModel,
     ): Boolean {
-        val vibrationMode = ConfigHelper.getConfigValue(
+        val vibrationMode = viewModel.getConfigValue(
             key = ConfigKeys.VIBRATION_MODE,
-            viewModel = viewModel,
         ) as String
         if(!vibrator.hasVibrator() || vibrationMode == VibrationMode.OFF) {
             return false
