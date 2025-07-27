@@ -7,7 +7,7 @@ package cn.minimote.toolbox.dataClass
 
 import android.content.Intent
 import cn.minimote.toolbox.constant.LaunchType.PACKAGE_AND_ACTIVITY
-import cn.minimote.toolbox.constant.StoredTool.DisplayMode.ICON_AND_NAME
+import cn.minimote.toolbox.constant.ToolConstants
 
 
 // 用于存储的数据类(继承自工具类，因为比工具类属性多)
@@ -30,10 +30,13 @@ class StoredTool(
 
     // 图标的标识符
     iconKey: String = activityName ?: intentUri ?: id,
-    var width: Int, // 宽度
+    var width: Int = ToolConstants.MAX_WIDGET_SIZE, // 宽度
     var height: Int = 1, // 高度
-    var displayMode: Int = ICON_AND_NAME,
-    description: String = "", // 描述
+    var displayMode: String = ToolConstants.DisplayMode.String.ICON_AND_NAME,
+    var alignment: String = ToolConstants.Alignment.CENTER,
+
+    description: String? = null, // 描述
+    warningMessage: String? = null, // 警告信息
 
     // 创建时间
     val createdTime: Long = System.currentTimeMillis(),
@@ -57,6 +60,7 @@ class StoredTool(
     activityName = activityName,
     iconKey = iconKey,
     description = description,
+    warningMessage = warningMessage,
 ) {
     // 用一个新的 StoredActivity 的属性覆盖原有的属性
     fun update(storedTool: StoredTool) {
@@ -65,7 +69,7 @@ class StoredTool(
         this.width = storedTool.width
         this.height = storedTool.height
         this.displayMode = storedTool.displayMode
-        this.description = storedTool.description
+        this.alignment = storedTool.alignment
         this.lastModifiedTime = storedTool.lastModifiedTime
         this.lastUsedTime = storedTool.lastUsedTime
         this.useCount = storedTool.useCount
@@ -88,7 +92,9 @@ class StoredTool(
             width = this.width,
             height = this.height,
             displayMode = this.displayMode,
+            alignment = this.alignment,
             description = this.description,
+            warningMessage = this.warningMessage,
             createdTime = this.createdTime,
             lastModifiedTime = this.lastModifiedTime,
             lastUsedTime = this.lastUsedTime,
@@ -96,4 +102,78 @@ class StoredTool(
         )
     }
 
+    companion object {
+        fun getFlagNameList(flags: Int): List<String> {
+            val flagNames = mutableListOf<String>()
+
+            // 只检查Activity相关的flag
+            if(flags and Intent.FLAG_ACTIVITY_NEW_TASK != 0) {
+                flagNames.add("FLAG_ACTIVITY_NEW_TASK")
+            }
+            if(flags and Intent.FLAG_ACTIVITY_CLEAR_TOP != 0) {
+                flagNames.add("FLAG_ACTIVITY_CLEAR_TOP")
+            }
+            if(flags and Intent.FLAG_ACTIVITY_SINGLE_TOP != 0) {
+                flagNames.add("FLAG_ACTIVITY_SINGLE_TOP")
+            }
+            if(flags and Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT != 0) {
+                flagNames.add("FLAG_ACTIVITY_BROUGHT_TO_FRONT")
+            }
+            if(flags and Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS != 0) {
+                flagNames.add("FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS")
+            }
+            if(flags and Intent.FLAG_ACTIVITY_FORWARD_RESULT != 0) {
+                flagNames.add("FLAG_ACTIVITY_FORWARD_RESULT")
+            }
+            if(flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0) {
+                flagNames.add("FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY")
+            }
+            if(flags and Intent.FLAG_ACTIVITY_MULTIPLE_TASK != 0) {
+                flagNames.add("FLAG_ACTIVITY_MULTIPLE_TASK")
+            }
+            if(flags and Intent.FLAG_ACTIVITY_NO_ANIMATION != 0) {
+                flagNames.add("FLAG_ACTIVITY_NO_ANIMATION")
+            }
+            if(flags and Intent.FLAG_ACTIVITY_NO_HISTORY != 0) {
+                flagNames.add("FLAG_ACTIVITY_NO_HISTORY")
+            }
+            if(flags and Intent.FLAG_ACTIVITY_NO_USER_ACTION != 0) {
+                flagNames.add("FLAG_ACTIVITY_NO_USER_ACTION")
+            }
+            if(flags and Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP != 0) {
+                flagNames.add("FLAG_ACTIVITY_PREVIOUS_IS_TOP")
+            }
+            if(flags and Intent.FLAG_ACTIVITY_REORDER_TO_FRONT != 0) {
+                flagNames.add("FLAG_ACTIVITY_REORDER_TO_FRONT")
+            }
+            if(flags and Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED != 0) {
+                flagNames.add("FLAG_ACTIVITY_RESET_TASK_IF_NEEDED")
+            }
+            if(flags and Intent.FLAG_ACTIVITY_RETAIN_IN_RECENTS != 0) {
+                flagNames.add("FLAG_ACTIVITY_RETAIN_IN_RECENTS")
+            }
+            if(flags and Intent.FLAG_ACTIVITY_TASK_ON_HOME != 0) {
+                flagNames.add("FLAG_ACTIVITY_TASK_ON_HOME")
+            }
+
+            // 一些通用flags，也可能在Activity中使用
+            if(flags and Intent.FLAG_DEBUG_LOG_RESOLUTION != 0) {
+                flagNames.add("FLAG_DEBUG_LOG_RESOLUTION")
+            }
+            if(flags and Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION != 0) {
+                flagNames.add("FLAG_GRANT_PERSISTABLE_URI_PERMISSION")
+            }
+            if(flags and Intent.FLAG_GRANT_PREFIX_URI_PERMISSION != 0) {
+                flagNames.add("FLAG_GRANT_PREFIX_URI_PERMISSION")
+            }
+            if(flags and Intent.FLAG_GRANT_READ_URI_PERMISSION != 0) {
+                flagNames.add("FLAG_GRANT_READ_URI_PERMISSION")
+            }
+            if(flags and Intent.FLAG_GRANT_WRITE_URI_PERMISSION != 0) {
+                flagNames.add("FLAG_GRANT_WRITE_URI_PERMISSION")
+            }
+
+            return flagNames
+        }
+    }
 }

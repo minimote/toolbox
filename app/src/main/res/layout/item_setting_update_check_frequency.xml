@@ -3,12 +3,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     style="@style/ConstraintLayout.Toolbox.Dark">
 
+    <View
+        android:id="@+id/point"
+        style="@style/View.Toolbox.Circle.NameLeft.Dark"
+        app:layout_constraintBottom_toBottomOf="@id/textView_check_update_frequency"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/textView_check_update_frequency" />
+
     <TextView
         android:id="@+id/textView_check_update_frequency"
         style="@style/TextView.Toolbox.Setting1.Dark"
+        android:layout_marginStart="@dimen/layout_size_2_footnote"
+        android:layout_width="wrap_content"
         android:text="@string/title_check_update_frequency"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/point"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -19,11 +27,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textView_check_update_frequency" />
 
-    <SeekBar
-        android:id="@+id/seekBar"
-        style="@style/SeekBar.Toolbox.Dark"
+    <cn.minimote.toolbox.ui.widget.RadioRecyclerView
+        android:id="@+id/radioRecyclerView"
+        style="@style/RadioRecyclerView.Toolbox.Dark"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textView_next_check_time" />
+
+<!--    <SeekBar-->
+<!--        android:id="@+id/seekBar"-->
+<!--        style="@style/SeekBar.Toolbox.Dark"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/textView_next_check_time" />-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

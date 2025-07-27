@@ -156,9 +156,16 @@ class InstalledAppListFragment : Fragment() {
                 if(viewModel.searchMode.value == true and query.isNotEmpty()) {
                     val filteredList = viewModel.installedAppList.value?.filter { activity ->
 //                        if(viewModel.searchMode.value == true and query.isNotEmpty()) {
+                        val activityName = if(viewModel.isWatch) {
+                            activity.activityName.substringAfterLast('.')
+                        } else {
+                            activity.activityName
+                        }
                         activity.name.contains(
                             query, ignoreCase = true
-                        ) && activity.packageName.isNotEmpty()
+                        ) || activityName.contains(
+                            query, ignoreCase = true
+                        )
 //                        } else {
 //                            true
 //                        }
@@ -172,11 +179,9 @@ class InstalledAppListFragment : Fragment() {
                 // 检查文本框内容是否为空
                 if(query.isEmpty()) {
                     recyclerView.alpha = alpha
-                    imageButtonClear.visibility = View.GONE
                 } else {
                     // 恢复 RecyclerView 的不透明度
                     recyclerView.alpha = originalAlpha
-                    imageButtonClear.visibility = View.VISIBLE
                 }
             },
             onFocusGained = {
@@ -200,7 +205,7 @@ class InstalledAppListFragment : Fragment() {
 
 
     // 退出搜索模式
-    private fun exitSearchMode() {
+    fun exitSearchMode() {
         searchBox.setText("")
         searchBox.clearFocus()
         val imm =

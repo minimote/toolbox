@@ -2,14 +2,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/container"
     style="@style/ConstraintLayout.Toolbox.Clickable.Dark"
-    android:paddingStart="@dimen/layout_size_1_small"
-    android:paddingEnd="0px">
+    android:paddingHorizontal="@dimen/layout_size_3_script"
+    android:layout_width="wrap_content">
 
     <RadioButton
         android:id="@+id/radioButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:minWidth="@dimen/layout_size_1_small"
+        style="@style/RadioButton.Toolbox.Dark"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -17,12 +15,10 @@
     <TextView
         android:id="@+id/textView_name"
         style="@style/TextView.Toolbox.Dark"
-        android:layout_width="0px"
         android:gravity="start"
         android:padding="@dimen/layout_size_3_script"
         android:text="@string/app_name"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/radioButton"
         app:layout_constraintTop_toTopOf="parent" />
 

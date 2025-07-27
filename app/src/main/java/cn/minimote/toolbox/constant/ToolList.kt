@@ -29,8 +29,8 @@ object ToolList {
                 ExpandableGroup(
                     titleId = R.string.system_tools,
                     viewTypeList = listOf(
-                        Tools.SystemTools.Settings.developerOption, // 开发者选项
-                        Tools.SystemTools.Settings.accessibilityOption, // 无障碍选项
+                        Tools.SystemTool.developerOption, // 开发者选项
+                        Tools.SystemTool.accessibilityOption, // 无障碍选项
                     ),
                 ),
             )
@@ -49,18 +49,26 @@ object ToolList {
                     titleId = R.string.scan_and_pay,
                     viewTypeList = listOf(
                         // 微信
-                        Tools.ScanAndPay.WeChat.scanQrCode, // 扫一扫
+                        Tools.ScanAndPay.WeChat.scan, // 扫一扫
                         Tools.ScanAndPay.WeChat.payCode, // 付款码
                         Tools.ScanAndPay.WeChat.myCard, // 名片码
                         // 支付宝
-                        Tools.ScanAndPay.Alipay.scanQrCode, // 扫一扫
+                        Tools.ScanAndPay.Alipay.scan, // 扫一扫
                         Tools.ScanAndPay.Alipay.payCode, // 付款码
                         Tools.ScanAndPay.Alipay.collectCode, // 收款码
                         Tools.ScanAndPay.Alipay.rideCode, // 乘车码
                         // 云闪付
-                        Tools.ScanAndPay.YunShanFu.scanQrCode, // 扫一扫
+                        Tools.ScanAndPay.YunShanFu.scan, // 扫一扫
                         Tools.ScanAndPay.YunShanFu.payCode, // 付款码
                     )
+                ),
+                // 系统工具
+                ExpandableGroup(
+                    titleId = R.string.system_tools,
+                    viewTypeList = listOf(
+                        Tools.SystemTool.systemUIDemoMode, // 系统界面调节
+                        Tools.SystemTool.androidEasterEgg, // 安卓彩蛋
+                    ),
                 ),
             )
         }
@@ -78,14 +86,14 @@ object ToolList {
                     titleId = R.string.scan_and_pay,
                     viewTypeList = listOf(
                         // 支付宝
-                        Tools.ScanAndPay.Alipay.watchPayCode, // 付款码
+                        Tools.ScanAndPay.Alipay.payCodeWatch, // 付款码
                     )
                 ),
                 // 系统工具
                 ExpandableGroup(
                     titleId = R.string.system_tools,
                     viewTypeList = listOf(
-                        Tools.SystemTools.recentTask, // 最近任务
+                        Tools.SystemTool.recentTask, // 最近任务
                     ),
                 ),
             )

@@ -20,9 +20,13 @@ object DialogHelper {
         context: Context,
         viewModel: MyViewModel,
         titleText: String = "",
+        titleTextColor: Int? = null,
         messageText: String = "",
+        messageTextColor: Int? = null,
         positiveButtonText: String = context.getString(R.string.confirm),
         negativeButtonText: String = context.getString(R.string.cancel),
+        positiveButtonTextColor: Int? = null,
+        negativeButtonTextColor: Int? = null,
         positiveAction: (() -> Unit) = {},
         negativeAction: (() -> Unit) = {},
     ) {
@@ -40,17 +44,31 @@ object DialogHelper {
                     paddingSize, paddingSize, paddingSize, paddingSize,
                 )
             }
+            if(titleTextColor != null) {
+                textViewTitle.setTextColor(titleTextColor)
+            }
         } else {
             textViewTitle.visibility = View.GONE
         }
 
         val textViewMessage = view.findViewById<TextView>(R.id.textView_message)
         if(messageText.isNotEmpty()) {
-            textViewMessage.text = messageText
+            val indent = context.getString(R.string.indent)
+            if(!messageText.startsWith(indent)) {
+                textViewMessage.text = context.getString(
+                    R.string.indent_with_arg,
+                    messageText,
+                )
+            } else {
+                textViewMessage.text = messageText
+            }
             if(viewModel.isWatch) {
                 textViewMessage.setPadding(
                     paddingSize, paddingSize, paddingSize, paddingSize,
                 )
+            }
+            if(messageTextColor != null) {
+                textViewMessage.setTextColor(messageTextColor)
             }
             // 两者都有内容时，取消消息顶部的 padding
             if(titleText.isNotEmpty()) {
@@ -72,6 +90,9 @@ object DialogHelper {
             positiveAction.invoke()
             dialog.dismiss()
         }
+        if(positiveButtonTextColor != null) {
+            buttonPositive.setTextColor(positiveButtonTextColor)
+        }
 
         val buttonNegative = view.findViewById<TextView>(R.id.button_negative)
         buttonNegative.text = negativeButtonText
@@ -79,6 +100,9 @@ object DialogHelper {
             VibrationHelper.vibrateOnClick(viewModel)
             negativeAction.invoke()
             dialog.dismiss()
+        }
+        if (negativeButtonTextColor != null) {
+            buttonNegative.setTextColor(negativeButtonTextColor)
         }
 
         dialog.show()

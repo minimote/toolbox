@@ -6,31 +6,34 @@
 package cn.minimote.toolbox.adapter
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.Context
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.activity.MainActivity
 import cn.minimote.toolbox.constant.MenuList
 import cn.minimote.toolbox.constant.MenuType
-import cn.minimote.toolbox.constant.StoredTool.DisplayMode
+import cn.minimote.toolbox.constant.ToolConstants.Alignment
+import cn.minimote.toolbox.constant.ToolConstants.DisplayMode
 import cn.minimote.toolbox.dataClass.StoredTool
 import cn.minimote.toolbox.fragment.WidgetListFragment
-import cn.minimote.toolbox.helper.ActivityLaunchHelper
 import cn.minimote.toolbox.helper.BottomSheetDialogHelper
+import cn.minimote.toolbox.helper.LaunchHelper
 import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.viewModel.MyViewModel
 
 
 class WidgetListAdapter(
-    private val context: Context,
+    private val myActivity: MainActivity,
     private val viewModel: MyViewModel,
     private val fragment: WidgetListFragment,
     private val fragmentManager: FragmentManager,
@@ -38,67 +41,88 @@ class WidgetListAdapter(
 ) : RecyclerView.Adapter<WidgetListAdapter.WidgetViewHolder>() {
 
     private lateinit var itemTouchHelper: ItemTouchHelper
-    //    var activityList: MutableList<StoredActivity> =
-//        viewModel.storedActivityList.value ?: mutableListOf()
     var toolList: MutableList<StoredTool> = loadToolList()
 
 
     inner class WidgetViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val appIcon: ImageView? = itemView.findViewById(R.id.imageView_app_icon)
-        val widgetName: TextView? = itemView.findViewById(R.id.textView_app_name)
         val viewBackground: View = itemView.findViewById(R.id.view_background)
     }
 
 
-    override fun getItemViewType(position: Int): Int {
-        return toolList[position].displayMode
-    }
-
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WidgetViewHolder {
-//        Log.i("WidgetListAdapter", "viewModel:${System.identityHashCode(viewModel)}")
-        val layoutId = when(viewType) {
-            DisplayMode.ONLY_ICON -> R.layout.item_widget_only_icon
-            DisplayMode.ONLY_NAME -> R.layout.item_widget_only_name
-            else -> R.layout.item_widget_icon_and_name
-        }
-        val view = LayoutInflater.from(context).inflate(layoutId, parent, false)
+
+        val layoutId = R.layout.item_widget_icon_and_name
+        val view = LayoutInflater.from(myActivity).inflate(layoutId, parent, false)
 
         return WidgetViewHolder(view)
     }
 
 
+    @SuppressLint("RtlHardcoded")
     override fun onBindViewHolder(holder: WidgetViewHolder, position: Int) {
 
-        val toolActivity = toolList[position]
+        val tool = toolList[position]
 
-        when(toolActivity.displayMode) {
-            DisplayMode.ONLY_ICON -> {
-                holder.appIcon?.setImageDrawable(
-                    viewModel.iconCacheHelper.getCircularDrawable(toolActivity)
+        val widgetIcon: ImageView = holder.itemView.findViewById(R.id.imageView_app_icon)
+        val widgetName: TextView = holder.itemView.findViewById(R.id.textView_app_name)
+
+        when(tool.displayMode) {
+            DisplayMode.String.ONLY_ICON -> {
+                widgetIcon.setImageDrawable(
+                    viewModel.iconCacheHelper.getCircularDrawable(tool)
                 )
-                holder.appIcon?.visibility = View.VISIBLE
-                holder.widgetName?.visibility = View.GONE
+                widgetIcon.visibility = View.VISIBLE
+
+                widgetName.visibility = View.GONE
             }
 
-            DisplayMode.ONLY_NAME -> {
-                holder.appIcon?.visibility = View.GONE
-                holder.widgetName?.text = toolActivity.nickname
-                holder.widgetName?.visibility = View.VISIBLE
+            DisplayMode.String.ONLY_NAME -> {
+                widgetIcon.visibility = View.GONE
+
+                widgetName.text = tool.nickname
+                widgetName.visibility = View.VISIBLE
             }
 
             else -> {
-                holder.appIcon?.setImageDrawable(
-                    viewModel.iconCacheHelper.getCircularDrawable(toolActivity)
+                widgetIcon.setImageDrawable(
+                    viewModel.iconCacheHelper.getCircularDrawable(tool)
                 )
-                holder.appIcon?.visibility = View.VISIBLE
-                holder.widgetName?.text = toolActivity.nickname
-                holder.widgetName?.visibility = View.VISIBLE
+                widgetIcon.visibility = View.VISIBLE
+
+                widgetName.text = tool.nickname
+                widgetName.visibility = View.VISIBLE
             }
         }
 
+
+        val linearLayout = holder.itemView.findViewById<LinearLayout>(R.id.linearLayout)
+        val layoutParams = linearLayout.layoutParams as ConstraintLayout.LayoutParams
+
+        when(tool.alignment) {
+            Alignment.LEFT -> {
+                layoutParams.startToStart = ConstraintLayout.LayoutParams.PARENT_ID
+                layoutParams.endToEnd = ConstraintLayout.LayoutParams.UNSET
+                widgetName.gravity = Gravity.START
+            }
+
+            Alignment.RIGHT -> {
+                layoutParams.startToStart = ConstraintLayout.LayoutParams.UNSET
+                layoutParams.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
+                widgetName.gravity = Gravity.END
+            }
+
+            else -> {
+                layoutParams.startToStart = ConstraintLayout.LayoutParams.PARENT_ID
+                layoutParams.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
+                widgetName.gravity = Gravity.CENTER
+            }
+        }
+        // 应用修改后的约束
+        linearLayout.layoutParams = layoutParams
+
+
         // 根据 selectedIds 设置背景状态
-        val isSelected = viewModel.isSelected(toolActivity.id)
+        val isSelected = viewModel.isSelected(tool.id)
         holder.viewBackground.visibility = if(
             viewModel.multiselectMode.value == true && isSelected
         ) {
@@ -111,17 +135,17 @@ class WidgetListAdapter(
         holder.itemView.setOnClickListener {
             if(viewModel.multiselectMode.value == true) {
                 VibrationHelper.vibrateOnClick(viewModel)
-                if(viewModel.isSelected(toolActivity.id)) {
-                    viewModel.deselectItem(toolActivity.id)
+                if(viewModel.isSelected(tool.id)) {
+                    viewModel.deselectItem(tool.id)
                     holder.viewBackground.visibility = View.INVISIBLE
                 } else {
-                    viewModel.selectedItem(toolActivity.id)
+                    viewModel.selectedItem(tool.id)
                     holder.viewBackground.visibility = View.VISIBLE
                 }
             } else if(viewModel.sortMode.value != true) {
                 VibrationHelper.vibrateOnClick(viewModel)
                 // 启动新活动并结束当前活动
-                startActivityAndFinishCurrent(toolActivity)
+                startActivityAndFinishCurrent(tool)
             }
         }
 
@@ -131,10 +155,10 @@ class WidgetListAdapter(
             if(viewModel.multiselectMode.value != true && viewModel.sortMode.value != true) {
                 VibrationHelper.vibrateOnLongPress(viewModel)
                 BottomSheetDialogHelper.setAndShowBottomSheetDialog(
-                    context = context,
+                    context = myActivity,
                     viewModel = viewModel,
-                    tool = toolActivity,
-                    menuList = MenuList.widget,
+                    tool = tool,
+                    menuList = if(viewModel.isWatch) MenuList.widget_watch else MenuList.widget,
                     viewPager = viewPager,
                     fragmentManager = fragmentManager,
                     constraintLayoutOrigin = fragment.constraintLayoutOrigin,
@@ -143,7 +167,7 @@ class WidgetListAdapter(
                             MenuType.MULTI_SELECT -> {
                                 holder.viewBackground.visibility = View.VISIBLE
                                 viewModel.clearSelectedIds()
-                                viewModel.selectedItem(toolActivity.id)
+                                viewModel.selectedItem(tool.id)
                                 viewModel.multiselectMode.value = true
                             }
 
@@ -168,14 +192,22 @@ class WidgetListAdapter(
 
     // 启动新活动并结束当前活动
     private fun startActivityAndFinishCurrent(appInfo: StoredTool) {
-        val flag = ActivityLaunchHelper.launch(
-            context = context,
+        LaunchHelper.launch(
+            myActivity = myActivity,
             viewModel = viewModel,
             tool = appInfo,
+//            tool = Tool(
+//                id = appInfo.id,
+//                intentType = SCHEME,
+//                packageName = appInfo.packageName,
+//                name = "",
+//                intentUri = "toolbox://",
+//                description = "kjhsdkjhksd",
+//            )
         )
-        if(flag) {
-            (context as? Activity)?.finishAffinity()
-        }
+//        if(flag) {
+//            (context as? Activity)?.finishAffinity()
+//        }
     }
 
 

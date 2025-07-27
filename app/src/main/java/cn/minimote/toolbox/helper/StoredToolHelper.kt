@@ -9,7 +9,7 @@ package cn.minimote.toolbox.helper
 import android.widget.Toast
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.constant.Config.ENCODING
-import cn.minimote.toolbox.constant.StoredTool.STORED_FILE_NAME
+import cn.minimote.toolbox.constant.ToolConstants.STORED_FILE_NAME
 import cn.minimote.toolbox.constant.Version
 import cn.minimote.toolbox.dataClass.StoredActivityContainer
 import cn.minimote.toolbox.dataClass.StoredTool
@@ -58,13 +58,13 @@ object StoredToolHelper {
     // 加载存储列表
     fun loadStoredToolList(viewModel: MyViewModel): MutableList<StoredTool> {
         val file = getStoredFile(viewModel)
-        LogHelper.e("loadStoredToolList", "读取文件: ${file.absolutePath}")
+//        LogHelper.e("loadStoredToolList", "读取文件: ${file.absolutePath}")
 
         if(!file.exists()) {
-            LogHelper.e("loadStoredToolList", "文件不存在: ${file.absolutePath}")
+//            LogHelper.e("loadStoredToolList", "文件不存在: ${file.absolutePath}")
             return mutableListOf()
         }
-        LogHelper.e("loadStoredToolList", "文件存在: ${file.absolutePath}")
+//        LogHelper.e("loadStoredToolList", "文件存在: ${file.absolutePath}")
 
         return synchronized(this) {
             try {

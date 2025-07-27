@@ -26,7 +26,7 @@ android {
         var testSuffix = ""
 
         // 测试的后缀
-        testSuffix = "-alpha3"
+        testSuffix = "-alpha.4"
         // 版本号
         val versionCodeList = listOf(2, 0, 0)
 

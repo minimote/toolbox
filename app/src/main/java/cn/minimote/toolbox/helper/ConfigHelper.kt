@@ -46,6 +46,7 @@ object ConfigHelper {
     // 仅清除用户配置
     fun MyViewModel.clearUserConfig() {
         this.userConfig.clear()
+        this.configChanged.value = this.configChanged.value
     }
 
     // 更新配置的值

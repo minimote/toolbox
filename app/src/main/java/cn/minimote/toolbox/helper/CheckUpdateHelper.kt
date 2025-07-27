@@ -37,9 +37,6 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 
 object CheckUpdateHelper {
@@ -93,40 +90,33 @@ object CheckUpdateHelper {
     }
 
 
-    // 将时间戳转换为格式化时间
-    fun getFormatTimeString(timestamp: Long): String {
-        val dateFormat = SimpleDateFormat("M月d日 HH:mm:ss", Locale.CHINA)
-        return dateFormat.format(Date(timestamp))
-    }
-
-
-    // 获取更新频率的字符串
-    fun getUpdateFrequencyString(
-        context: Context,
-        frequency: String,
-    ): String {
-        return when(frequency) {
-            CheckUpdateFrequency.DAILY -> {
-                context.getString(R.string.check_update_frequency_daily)
-            }
-
-            CheckUpdateFrequency.WEEKLY -> {
-                context.getString(R.string.check_update_frequency_weekly)
-            }
-
-            CheckUpdateFrequency.MONTHLY -> {
-                context.getString(R.string.check_update_frequency_monthly)
-            }
-
-            CheckUpdateFrequency.NEVER -> {
-                context.getString(R.string.check_update_frequency_never)
-            }
-
-            else -> {
-                throw IllegalArgumentException("非法的频率：$frequency")
-            }
-        }
-    }
+//    // 获取更新频率的字符串
+//    fun getUpdateFrequencyString(
+//        context: Context,
+//        frequency: String,
+//    ): String {
+//        return when(frequency) {
+//            CheckUpdateFrequency.DAILY -> {
+//                context.getString(R.string.check_update_frequency_daily)
+//            }
+//
+//            CheckUpdateFrequency.WEEKLY -> {
+//                context.getString(R.string.check_update_frequency_weekly)
+//            }
+//
+//            CheckUpdateFrequency.MONTHLY -> {
+//                context.getString(R.string.check_update_frequency_monthly)
+//            }
+//
+//            CheckUpdateFrequency.NEVER -> {
+//                context.getString(R.string.check_update_frequency_never)
+//            }
+//
+//            else -> {
+//                throw IllegalArgumentException("非法的频率：$frequency")
+//            }
+//        }
+//    }
 
 
     // 获取更新间隔

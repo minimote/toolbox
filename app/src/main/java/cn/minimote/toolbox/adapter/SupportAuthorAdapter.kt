@@ -6,31 +6,31 @@
 package cn.minimote.toolbox.adapter
 
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.activity.MainActivity
+import cn.minimote.toolbox.constant.Tools
 import cn.minimote.toolbox.constant.ViewList
-import cn.minimote.toolbox.constant.ViewType
+import cn.minimote.toolbox.constant.ViewTypes
 import cn.minimote.toolbox.helper.ImageSaveHelper
+import cn.minimote.toolbox.helper.LaunchHelper
 import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.viewModel.MyViewModel
 
 
 class SupportAuthorAdapter(
-    private val context: Context,
+    private val myActivity: MainActivity,
     val viewModel: MyViewModel,
 ) : RecyclerView.Adapter<SupportAuthorAdapter.SupportAuthorViewHolder>() {
 
     private val viewList = ViewList.supportAuthorViewList
-    private val viewTypes = ViewType.SupportAuthor
+    private val viewTypes = ViewTypes.SupportAuthor
 
     inner class SupportAuthorViewHolder(
         itemView: View,
@@ -89,7 +89,7 @@ class SupportAuthorAdapter(
             viewTypes.OPERATE_WECHAT -> R.layout.item_support_author_operate_wechat
             else -> -1
         }
-        val view = LayoutInflater.from(context).inflate(layoutId, parent, false)
+        val view = LayoutInflater.from(myActivity).inflate(layoutId, parent, false)
         return SupportAuthorViewHolder(view, viewType)
     }
 
@@ -104,9 +104,9 @@ class SupportAuthorAdapter(
                 holder.imageViewQRAlipay.layoutParams.height = imageSize
                 ImageSaveHelper.setPopupMenu(
                     imageView = holder.imageViewQRAlipay,
-                    fileName = context.getString(R.string.qr_alipay_file_name),
+                    fileName = myActivity.getString(R.string.qr_alipay_file_name),
                     viewModel = viewModel,
-                    context = context,
+                    context = myActivity,
                 )
             }
 
@@ -119,9 +119,9 @@ class SupportAuthorAdapter(
                 holder.imageViewQRWechat.layoutParams.height = imageSize
                 ImageSaveHelper.setPopupMenu(
                     imageView = holder.imageViewQRWechat,
-                    fileName = context.getString(R.string.qr_wechat_file_name),
+                    fileName = myActivity.getString(R.string.qr_wechat_file_name),
                     viewModel = viewModel,
-                    context = context,
+                    context = myActivity,
                 )
             }
 
@@ -142,39 +142,18 @@ class SupportAuthorAdapter(
         } else {
             holder.buttonGotoAlipay.setOnClickListener {
                 VibrationHelper.vibrateOnClick(viewModel)
-                gotoAlipay(context)
+                gotoAlipay()
             }
         }
     }
 
 
-    private fun gotoAlipay(context: Context) {
-        val url = context.getString(R.string.qr_url_alipay)
-        // 安装了支付宝，直接跳转
-        if(appWasInstalled(context, context.getString(R.string.packageName_alipay))) {
-            val alipayUrl = "alipays://platformapi/startapp?saId=10000007&qrcode=$url"
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(alipayUrl))
-            context.startActivity(intent)
-        } else {
-            // 未安装支付宝，跳转到浏览器打开
-            Toast.makeText(
-                context, context.getString(R.string.alipay_not_installed), Toast.LENGTH_SHORT,
-            ).show()
-//            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-//            context.startActivity(intent)
-        }
-    }
-
-
-    // 检查软件是否安装
-    private fun appWasInstalled(context: Context, packageName: String): Boolean {
-        val packageManager = context.packageManager
-        return try {
-            packageManager.getPackageInfo(packageName, 0)
-            true
-        } catch(e: Exception) {
-            false
-        }
+    private fun gotoAlipay() {
+        LaunchHelper.launch(
+            myActivity = myActivity,
+            viewModel = viewModel,
+            tool = Tools.ScanAndPay.Alipay.support_author,
+        )
     }
 
 
@@ -187,12 +166,12 @@ class SupportAuthorAdapter(
         } else {
             holder.buttonSaveWechatQR.setOnClickListener {
                 VibrationHelper.vibrateOnClick(viewModel)
-                saveWechatQR(context)
+                saveWechatQR(myActivity)
             }
 
             holder.buttonOpenWechatScan.setOnClickListener {
                 VibrationHelper.vibrateOnClick(viewModel)
-                openWechatScan(context)
+                openWechatScan()
             }
         }
     }
@@ -211,20 +190,12 @@ class SupportAuthorAdapter(
 
 
     // 打开微信扫一扫
-    private fun openWechatScan(context: Context) {
-        val packageName = context.getString(R.string.packageName_wechat)
-        if(appWasInstalled(context, packageName)) {
-            val intent = context.packageManager.getLaunchIntentForPackage(packageName)
-                ?.apply {
-                    putExtra("LauncherUI.From.Scaner.Shortcut", true)
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                }
-            context.startActivity(intent)
-        } else {
-            Toast.makeText(
-                context, context.getString(R.string.wechat_not_installed), Toast.LENGTH_SHORT,
-            ).show()
-        }
+    private fun openWechatScan() {
+        LaunchHelper.launch(
+            myActivity = myActivity,
+            viewModel = viewModel,
+            tool = Tools.ScanAndPay.WeChat.scan,
+        )
     }
 
 }

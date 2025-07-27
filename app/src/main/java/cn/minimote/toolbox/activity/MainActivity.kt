@@ -5,6 +5,9 @@
 
 package cn.minimote.toolbox.activity
 
+import android.content.Intent
+import android.content.res.Configuration
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -28,6 +31,7 @@ import cn.minimote.toolbox.helper.ConfigHelper.loadAllConfig
 import cn.minimote.toolbox.helper.ConfigHelper.saveUserConfig
 import cn.minimote.toolbox.helper.DialogHelper
 import cn.minimote.toolbox.helper.FragmentHelper
+import cn.minimote.toolbox.helper.SchemeHelper
 import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.pageTransformer.ViewPager2Transformer
 import cn.minimote.toolbox.ui.widget.DraggableTextView
@@ -48,10 +52,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var buttonSave: Button
     private lateinit var draggableTextView: DraggableTextView
 
-    private lateinit var viewPager: ViewPager2
+    lateinit var viewPager: ViewPager2
     private lateinit var tabLayout: TabLayout
 
-    private lateinit var constraintLayoutOrigin: ConstraintLayout
+    lateinit var constraintLayoutOrigin: ConstraintLayout
 
     // 用于更新时间
 //    private val handler = android.os.Handler(Looper.getMainLooper())
@@ -109,11 +113,34 @@ class MainActivity : AppCompatActivity() {
         // 设置 ViewPager
         setupViewPager()
 
-        // 检查更新
-        CheckUpdateHelper.autoCheckUpdate(
-            context = this, viewModel = viewModel,
-        )
+        val uri: Uri? = intent.data
+        if(uri != null) {
+            SchemeHelper.handleScheme(
+                uri = uri,
+                myActivity = this,
+                viewModel = viewModel,
+            )
+        } else {
+            // 直接打开应用时才检查更新
+            CheckUpdateHelper.autoCheckUpdate(
+                context = this, viewModel = viewModel,
+            )
+        }
 
+
+    }
+
+
+    // 后台已经有该软件的实例也能处理 Scheme
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        if(intent != null && intent.data != null) {
+            SchemeHelper.handleScheme(
+                uri = intent.data!!,
+                myActivity = this,
+                viewModel = viewModel,
+            )
+        }
     }
 
 
@@ -156,9 +183,11 @@ class MainActivity : AppCompatActivity() {
 
     // 设置按钮
     private fun setupButtons() {
-        draggableTextView = findViewById(R.id.draggableTextView)
-        draggableTextView.visibility = View.INVISIBLE
+
         if(!viewModel.isWatch) {
+            draggableTextView = findViewById(R.id.draggableTextView)
+            draggableTextView.visibility = View.INVISIBLE
+            draggableTextView.viewModel = viewModel
             // 将手机顶部的顶部按钮间距设为 0px
             val guideline = findViewById<Guideline>(R.id.guideline4)
             guideline.setGuidelineBegin(0)
@@ -166,8 +195,6 @@ class MainActivity : AppCompatActivity() {
             draggableTextView.setOnClickListener {
                 buttonSave.performClick()
             }
-
-            draggableTextView.viewModel = viewModel
         }
 
         buttonExit = findViewById(R.id.button_exit)
@@ -747,6 +774,9 @@ class MainActivity : AppCompatActivity() {
 
         settingWasModifiedObserver = Observer { wasModified ->
             if(viewModel.getFragmentName() == FragmentName.SETTING_FRAGMENT) {
+                if(!viewModel.isWatch) {
+                    draggableTextView.setInitialPosition()
+                }
                 if(wasModified) {
 //                    hideTimeAndRestoreClick()
 //                    buttonSave.visibility = View.VISIBLE
@@ -789,6 +819,14 @@ class MainActivity : AppCompatActivity() {
         viewModel.configChanged.removeObserver(settingWasModifiedObserver)
         viewModel.sortMode.removeObserver(sortModeObserver)
         viewModel.selectedIds.removeObserver(selectedIdsObserver)
+    }
+
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+//        Toast.makeText(this, "横屏：${resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE}", Toast.LENGTH_SHORT).show()
+//        // 屏幕旋转后重新设置 DraggableTextView 的位置
+//        draggableTextView.setInitialPosition()
     }
 
 }

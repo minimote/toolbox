@@ -42,6 +42,7 @@ object EditTextHelper {
             afterTextChanged = afterTextChanged,
             onFocusGained = onFocusGained,
             onFocusLost = onFocusLost,
+            imageButtonClear = imageButtonClear,
         )
         setClearButton(
             editText = editText,
@@ -64,13 +65,21 @@ object EditTextHelper {
         afterTextChanged: (s: Editable?) -> Unit = { s: Editable? -> },
         onFocusGained: () -> Unit = {}, // 当获得焦点时执行的逻辑
         onFocusLost: () -> Unit = {}, // 当失去焦点时执行的逻辑
+        imageButtonClear: ImageButton,
     ) {
         if(stringText.isNotEmpty()) {
             editText.setText(stringText)
+            if(canShowClearButton(viewModel)) {
+                imageButtonClear.visibility = View.VISIBLE
+            }
         }
 
         if(stringHint.isNotEmpty()) {
             editText.hint = stringHint
+        }
+
+        if(!canShowClearButton(viewModel)) {
+            removeEditTextRightPadding(editText)
         }
 
         // 禁用振动反馈
@@ -98,6 +107,17 @@ object EditTextHelper {
         editText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 afterTextChanged(s)
+                val newText = s.toString()
+                // 检查文本框内容是否为空
+                if(canShowClearButton(
+                        viewModel = viewModel,
+                        text = newText,
+                    )
+                ) {
+                    imageButtonClear.visibility = View.VISIBLE
+                } else {
+                    imageButtonClear.visibility = View.GONE
+                }
             }
 
             override fun beforeTextChanged(
@@ -115,16 +135,40 @@ object EditTextHelper {
     }
 
 
+    // 移除输入框右边的多余间距
+    fun removeEditTextRightPadding(editText: EditText) {
+        editText.setPadding(
+            editText.paddingStart,
+            editText.paddingTop,
+            editText.paddingStart,
+            editText.paddingBottom
+        )
+    }
+
+
+    // 可以显示搜索框清除按钮的标志
+    private fun canShowClearButton(
+        viewModel: MyViewModel,
+        text: String = " ",
+    ): Boolean {
+        return !viewModel.isWatch && text.isNotEmpty()
+    }
+
+
     // 设置清除按钮
     private fun setClearButton(
         editText: EditText,
         viewModel: MyViewModel,
         imageButtonClear: ImageButton,
     ) {
-        // 设置清空按钮点击事件
-        imageButtonClear.setOnClickListener {
-            VibrationHelper.vibrateOnClick(viewModel)
-            editText.setText("")
+        if(canShowClearButton(viewModel)) {
+            // 设置清空按钮点击事件
+            imageButtonClear.setOnClickListener {
+                VibrationHelper.vibrateOnClick(viewModel)
+                editText.setText("")
+            }
+        } else {
+            imageButtonClear.visibility = View.GONE
         }
     }
 }

@@ -7,6 +7,7 @@ package cn.minimote.toolbox.dataClass
 
 import android.content.Intent
 import cn.minimote.toolbox.constant.LaunchType.PACKAGE_AND_ACTIVITY
+import cn.minimote.toolbox.constant.ToolConstants
 
 
 // 工具类
@@ -33,7 +34,8 @@ open class Tool(
 //    var height: Int = 1, // 高度
 //    var showName: Boolean = true, // 是否显示名称
 //    var showIcon: Boolean = true, // 是否显示图标
-    var description: String = "", // 描述
+    val description: String? = null, // 描述
+    val warningMessage: String? = null, // 警告信息
 
 //    // 创建时间
 //    val createTime: Long = System.currentTimeMillis(),
@@ -47,7 +49,7 @@ open class Tool(
 
     // 转换为存储类型
     fun toStoredTool(
-        width: Int,
+        width: Int = ToolConstants.MAX_WIDGET_SIZE,
     ): StoredTool {
         return StoredTool(
             id = id,
@@ -56,6 +58,7 @@ open class Tool(
             activityName = activityName,
             iconKey = iconKey,
             description = description,
+            warningMessage = warningMessage,
             intentType = intentType,
             intentAction = intentAction,
             intentCategory = intentCategory,

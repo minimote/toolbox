@@ -6,6 +6,7 @@
 package cn.minimote.toolbox.ui.widget
 
 import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.util.AttributeSet
@@ -34,6 +35,30 @@ class DraggableTextView @JvmOverloads constructor(
 
     lateinit var viewModel: MyViewModel
 
+    // 判断是否为横屏
+//    private fun isLandscape(): Boolean {
+//        return resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+//    }
+
+    // 获取父布局的宽度
+    private fun getParentWidth(): Int {
+        val parent = parent as View
+//        return if(isLandscape()) {
+//            parent.height
+//        } else {
+        return parent.width
+//        }
+    }
+
+    // 获取父布局的高度
+    private fun getParentHeight(): Int {
+        val parent = parent as View
+//        return if(isLandscape()) {
+//            parent.width
+//        } else {
+        return parent.height
+//        }
+    }
 
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -56,42 +81,9 @@ class DraggableTextView @JvmOverloads constructor(
             }
 
             MotionEvent.ACTION_UP -> {
-                // 调整位置到最近的边缘
-                val parent = parent as View
-                val parentWidth = parent.width
-                val parentHeight = parent.height
-
-                // 获取状态栏高度
-                val statusBarHeight = getStatusBarHeight()
-
-                // 判断距离哪边更近
-                val leftDistance = abs(this.x)
-                val rightDistance = abs(parentWidth - (this.x + this.width))
-                val topDistance = abs(this.y)
-                val bottomDistance = abs(parentHeight - (this.y + this.height))
-
-                // 找出最小的距离
-                val minDistance = listOf(
-                    leftDistance, rightDistance, topDistance, bottomDistance,
-                ).min()
-
-                // 目标坐标
-                var targetX = this.x
-                var targetY = this.y
-
-                // 根据最小距离调整位置
-                when(minDistance) {
-                    leftDistance -> targetX = 0f
-                    rightDistance -> targetX = parentWidth - this.width.toFloat()
-                    topDistance -> targetY = statusBarHeight
-                    bottomDistance -> targetY = parentHeight - this.height.toFloat()
-                }
 
                 // 边界限制
-                val targetPos = getLegalPosition(targetX, targetY)
-
-                // 保存按钮位置
-                viewModel.saveButtonPosition(targetPos)
+                val targetPos = getNearestPosition()
 
                 // 使用 ObjectAnimator 实现平滑移动
                 val animatorX = ObjectAnimator.ofFloat(
@@ -112,6 +104,9 @@ class DraggableTextView @JvmOverloads constructor(
                 val dy = abs(event.rawY - initialTouchY)
                 if(dx < 1 && dy < 1) {
                     performClick()
+                } else {
+                    // 保存按钮位置
+                    viewModel.saveButtonPosition(targetPos)
                 }
 
             }
@@ -126,7 +121,57 @@ class DraggableTextView @JvmOverloads constructor(
     }
 
 
+    // 获取最近位置
+    fun getNearestPosition(pos: List<Float> = listOf(this.x, this.y)): List<Float> {
+        val x = pos[0]
+        val y = pos[1]
+        // 调整位置到最近的边缘
+        val parentWidth = getParentWidth()
+        val parentHeight = getParentHeight()
+
+        // 获取状态栏高度
+        val statusBarHeight = getStatusBarHeight()
+
+        // 判断距离哪边更近
+        val leftDistance = abs(0 - x)
+        val rightDistance = abs(parentWidth - (x + this.width))
+
+        val topDistance = abs(0 - y)
+        val bottomDistance = abs(parentHeight - (y + this.height))
+
+        // 找出最小的距离
+        val minDistance = listOf(
+            leftDistance, rightDistance, topDistance, bottomDistance,
+        ).min()
+
+        // 目标坐标
+        var targetX = this.x
+        var targetY = this.y
+
+        // 根据最小距离调整位置
+        when(minDistance) {
+            leftDistance -> targetX = 0f
+            rightDistance -> targetX = parentWidth - this.width.toFloat()
+            topDistance -> targetY = statusBarHeight
+            bottomDistance -> targetY = parentHeight - this.height.toFloat()
+        }
+
+        targetX = maxOf(
+            0f,
+            minOf(targetX, parentWidth - this.width.toFloat()),
+        )
+        // 横屏时上下边界限制
+        targetY = maxOf(
+            0f,
+            minOf(targetY, parentHeight - this.height.toFloat()),
+        )
+
+        return listOf(targetX, targetY)
+    }
+
+
     // 获取状态栏高度
+    @SuppressLint("InternalInsetResource", "DiscouragedApi")
     private fun getStatusBarHeight(): Float {
         val resourceId = resources.getIdentifier(
             "status_bar_height", "dimen", "android",
@@ -147,12 +192,12 @@ class DraggableTextView @JvmOverloads constructor(
         if(viewModel.hasUserConfigKey(Config.ConfigKeys.SAVE_BUTTON_POSITION)) {
             val pos =
                 viewModel.getConfigValue(Config.ConfigKeys.SAVE_BUTTON_POSITION).toFloatList()
-            setPosition(pos)
+            val targetPos = getNearestPosition(pos)
+            setPosition(targetPos)
+            viewModel.saveButtonPosition(targetPos)
         } else {
-            val parent = parent as View
-            val parentHeight = parent.height
+            val parentHeight = getParentHeight()
 
-            // 左侧中间位置
             setPosition(listOf(0f, (parentHeight - this.height) / 2f))
         }
     }
@@ -181,27 +226,8 @@ class DraggableTextView @JvmOverloads constructor(
 
     // 设置位置
     fun setPosition(pos: List<Float>) {
-        val targetPos = getLegalPosition(pos[0], pos[1])
-        this.x = targetPos[0]
-        this.y = targetPos[1]
+        this.x = pos[0]
+        this.y = pos[1]
     }
 
-
-    // 获取合法位置
-    fun getLegalPosition(x: Float, y: Float): List<Float> {
-        val parent = parent as View
-        val parentWidth = parent.width
-        val parentHeight = parent.height
-
-        val targetX = maxOf(
-            0f,
-            minOf(x, parentWidth - this.width.toFloat()),
-        )
-        val targetY = maxOf(
-            getStatusBarHeight(),
-            minOf(y, parentHeight - this.height.toFloat()),
-        )
-
-        return listOf(targetX, targetY)
-    }
 }

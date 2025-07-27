@@ -18,8 +18,8 @@ object ClipboardHelper {
     fun copyToClipboard(
         context: Context,
         text: String,
-        toastString: String? = "",
-        label: String = "",
+        toastString: String? = null,
+        label: String? = toastString,
     ) {
         val clipboard =
             context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -28,10 +28,13 @@ object ClipboardHelper {
             text,
         )
         clipboard.setPrimaryClip(clip)
-        if(toastString != null) {
+        if(!toastString.isNullOrBlank()) {
             Toast.makeText(
                 context,
-                toastString + context.getString(R.string.clipboard_copy_success),
+                context.getString(
+                    R.string.clipboard_copy_success,
+                    toastString,
+                ),
                 Toast.LENGTH_SHORT,
             ).show()
         }

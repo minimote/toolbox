@@ -3,26 +3,33 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     style="@style/ConstraintLayout.Toolbox.Dark">
 
-    <TextView
-        android:id="@+id/textView_clearData"
-        style="@style/TextView.Toolbox.EditOperateName.Dark"
-        android:text="@string/widgetName"
-        app:layout_constraintBottom_toTopOf="@id/textView_nickName"
+    <View
+        android:id="@+id/point"
+        style="@style/View.Toolbox.Circle.NameLeft.Dark"
+        app:layout_constraintBottom_toBottomOf="@id/textView_name"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/textView_name" />
+
+    <TextView
+        android:id="@+id/textView_name"
+        style="@style/TextView.Toolbox.EditName.EditText.Dark"
+        android:layout_marginStart="@dimen/layout_size_2_footnote"
+        android:text="@string/widgetName"
+        app:layout_constraintBottom_toTopOf="@id/textView_editText"
+        app:layout_constraintStart_toEndOf="@id/point"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button_reset_nickName"
+        android:id="@+id/button_reset"
         style="@style/Button.Toolbox.Reset.Dark"
-        app:layout_constraintBottom_toTopOf="@id/textView_nickName"
+        app:layout_constraintBottom_toTopOf="@id/textView_editText"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView_clearData"
+        app:layout_constraintStart_toEndOf="@+id/textView_name"
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/textView_nickName"
+        android:id="@+id/textView_editText"
         style="@style/EditText.Toolbox.Dark"
-        android:layout_marginHorizontal="@dimen/layout_size_3_script"
         android:autofillHints=""
         android:hint="@string/can_be_empty"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -33,8 +40,8 @@
         android:id="@+id/imageButton_clear"
         style="@style/ImageButton.Toolbox.ClearEditText.Dark"
         android:contentDescription="@string/clear_button"
-        app:layout_constraintBottom_toBottomOf="@id/textView_nickName"
-        app:layout_constraintEnd_toEndOf="@id/textView_nickName"
-        app:layout_constraintTop_toTopOf="@id/textView_nickName" />
+        app:layout_constraintBottom_toBottomOf="@id/textView_editText"
+        app:layout_constraintEnd_toEndOf="@id/textView_editText"
+        app:layout_constraintTop_toTopOf="@id/textView_editText" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

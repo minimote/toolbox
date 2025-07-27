@@ -35,28 +35,19 @@ class ToolboxFragmentStateAdapter(
     override fun createFragment(position: Int): Fragment {
         return when(fragmentList[position]) {
             FragmentName.TOOL_LIST_FRAGMENT -> {
-                ToolListFragment(
-                    constraintLayoutOrigin = constraintLayoutOrigin,
-                    viewPager = viewPager
-                )
+                ToolListFragment()
             }
 
             FragmentName.WIDGET_LIST_FRAGMENT -> {
-                WidgetListFragment(
-                    viewPager = viewPager,
-                    constraintLayoutOrigin = constraintLayoutOrigin,
-                )
+                WidgetListFragment()
             }
 
             FragmentName.MY_LIST_FRAGMENT -> {
-                MyListFragment(
-                    viewPager = viewPager,
-                    constraintLayoutOrigin = constraintLayoutOrigin,
-                )
+                MyListFragment()
             }
 
             else -> {
-                throw IllegalArgumentException("非法的 fragment: $fragmentList[position]")
+                throw IllegalArgumentException("非法的 fragment: ${fragmentList[position]}")
             }
         }
     }

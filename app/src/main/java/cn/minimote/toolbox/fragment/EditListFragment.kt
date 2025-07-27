@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.adapter.EditListAdapter
+import cn.minimote.toolbox.ui.widget.MyDividerItemDecoration
 import cn.minimote.toolbox.viewModel.MyViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -29,7 +30,7 @@ class EditListFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.toolChanged.value = false
+        viewModel.resetToolChanged()
         viewModel.toolListSizeChanged.value = false
     }
 
@@ -40,7 +41,7 @@ class EditListFragment : Fragment() {
         viewModel.originTool.value = null
         viewModel.editedTool.value = null
 
-        viewModel.toolChanged.value = false
+        viewModel.resetToolChanged()
         viewModel.toolListSizeChanged.value = false
     }
 
@@ -64,10 +65,15 @@ class EditListFragment : Fragment() {
         )
         recyclerView.adapter = adapter
 
-//        // 添加分割线
-//        recyclerView.addItemDecoration(
-//            DividerItemDecoration(requireContext())
-//        )
+        val context = requireContext()
+        // 添加分割线
+        recyclerView.addItemDecoration(
+            MyDividerItemDecoration(
+                context = context,
+                dividerColor = context.getColor(R.color.transparent),
+                width = resources.getDimension(R.dimen.layout_size_3_script).toInt(),
+            )
+        )
 
         return view
     }

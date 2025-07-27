@@ -5,6 +5,7 @@
 
 package cn.minimote.toolbox.constant
 
+import cn.minimote.toolbox.R
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 
@@ -17,7 +18,7 @@ object Config {
     // 配置的文件名
     object ConfigFileName {
 //        const val DEFAULT_CONFIG = "default_config.jsonc"
-        const val USER_CONFIG = "user_config.jsonc"
+        const val USER_CONFIG = "user_config.json"
     }
 
     // 配置的键
@@ -47,6 +48,16 @@ object Config {
 
         // 保存按钮的位置
         const val SAVE_BUTTON_POSITION ="save_button_position"
+
+
+        // 全部工具页面的列数
+//        const val TOOL_LIST_COLUMN_COUNT = "tool_list_column_count"
+//        // Scheme 页面的列数
+//        const val SCHEME_LIST_COLUMN_COUNT = "scheme_list_column_count"
+
+
+        // 打开工具后退出本软件
+        const val EXIT_AFTER_LAUNCH = "exit_after_launch"
     }
 
 
@@ -57,6 +68,14 @@ object Config {
             const val AUTO = "auto"
             const val ON = "on"
             const val OFF = "off"
+
+            val idToStringIdMap by lazy {
+                linkedMapOf(
+                    ON to R.string.vibration_mode_on,
+                    AUTO to R.string.vibration_mode_auto,
+                    OFF to R.string.vibration_mode_off,
+                )
+            }
         }
 
         // 更新检查频率：每天、每周、每月、从不
@@ -65,6 +84,15 @@ object Config {
             const val WEEKLY = "weekly"
             const val MONTHLY = "monthly"
             const val NEVER = "never"
+
+            val idToStringIdMap by lazy {
+                linkedMapOf(
+                    DAILY to R.string.check_update_frequency_daily,
+                    WEEKLY to R.string.check_update_frequency_weekly,
+                    MONTHLY to R.string.check_update_frequency_monthly,
+                    NEVER to R.string.check_update_frequency_never,
+                )
+            }
         }
 
         // 网络访问模式
@@ -72,6 +100,14 @@ object Config {
             const val ALLOW = "allow"  // 允许
             const val DENY = "deny"    // 拒绝
             const val ALERT = "alert"  // 提示
+
+            val idToStringIdMap by lazy {
+                linkedMapOf(
+                    ALLOW to R.string.network_access_mode_allow,
+                    ALERT to R.string.network_access_mode_alert,
+                    DENY to R.string.network_access_mode_deny,
+                )
+            }
         }
     }
 
@@ -104,6 +140,14 @@ object Config {
 
             // 保存按钮的位置
             ConfigKeys.SAVE_BUTTON_POSITION to listOf(-1, -1),
+
+//            // 全部工具页面的列数
+//            ConfigKeys.TOOL_LIST_COLUMN_COUNT to 1,
+//            // Scheme 页面的列数
+//            ConfigKeys.SCHEME_LIST_COLUMN_COUNT to 1,
+
+            // 打开工具后退出本软件
+            ConfigKeys.EXIT_AFTER_LAUNCH to false,
         )
     }
 }

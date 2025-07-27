@@ -10,28 +10,40 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
-import android.graphics.drawable.Icon
 import android.widget.Toast
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.dataClass.Tool
+import cn.minimote.toolbox.viewModel.MyViewModel
 import java.util.UUID
 
 object ShortcutHelper {
 
     fun createShortcut(
         context: Context,
-        shortcutIntent: Intent,
+        viewModel: MyViewModel,
+        tool: Tool,
         shortLabel: String,
         longLabel: String,
-        icon: Icon = Icon.createWithResource(context, R.drawable.ic_default),
     ) {
+        val intent = LaunchHelper.getShortcutIntent(context, tool)
+        if(intent == null) {
+            // 创建快捷方式失败
+            Toast.makeText(
+                context,
+                R.string.shortcut_create_failed,
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
 
+        val icon = viewModel.iconCacheHelper.getIcon(tool)
         // 生成唯一 ID
         val uniqueId = UUID.randomUUID().toString()
         val shortcutInfo = ShortcutInfo.Builder(context, uniqueId)
             .setShortLabel(shortLabel)
             .setLongLabel(longLabel)
             .setIcon(icon)
-            .setIntent(shortcutIntent)
+            .setIntent(intent)
             .build()
 
         val shortcutManager = context.getSystemService(ShortcutManager::class.java)
@@ -45,7 +57,10 @@ object ShortcutHelper {
                     Intent(),
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
-                shortcutManager.requestPinShortcut(shortcutInfo, pendingIntent.intentSender)
+                shortcutManager.requestPinShortcut(
+                    shortcutInfo,
+                    pendingIntent.intentSender,
+                )
 
             } else {
                 // 设备不支持固定快捷方式
@@ -57,4 +72,5 @@ object ShortcutHelper {
             }
         }
     }
+
 }

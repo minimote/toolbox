@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.activity.MainActivity
 import cn.minimote.toolbox.adapter.ToolListAdapter
 import cn.minimote.toolbox.constant.DeviceType
 import cn.minimote.toolbox.constant.ToolList
@@ -26,11 +27,17 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class ToolListFragment(
-    val viewPager: ViewPager2,
-    val constraintLayoutOrigin: ConstraintLayout,
+    val isSchemeList: Boolean = false,
 ) : Fragment() {
 
     private val viewModel: MyViewModel by activityViewModels()
+
+    private val myActivity get() = requireActivity() as MainActivity
+
+    val viewPager: ViewPager2
+        get() = myActivity.viewPager
+    val constraintLayoutOrigin: ConstraintLayout
+        get() = myActivity.constraintLayoutOrigin
     private lateinit var expandableListView: ExpandableListView
     private lateinit var adapter: ToolListAdapter
 
@@ -44,17 +51,24 @@ class ToolListFragment(
         val fragmentView = inflater.inflate(R.layout.fragment_tool_list, container, false)
         expandableListView = fragmentView.findViewById(R.id.expandableListView)
 
+        var groupList = if(viewModel.isWatch) {
+            ToolList.getToolListByDeviceType(myActivity, DeviceType.WATCH)
+        } else {
+            ToolList.getToolListByDeviceType(myActivity, DeviceType.PHONE)
+        }
+        // Scheme 页面去除掉顶部的添加本机软件
+        if(isSchemeList) {
+            groupList = groupList.drop(1)
+        }
+
         adapter = ToolListAdapter(
-            context = requireContext(),
-            groupList = if(viewModel.isWatch) {
-                ToolList.getToolListByDeviceType(requireContext(), DeviceType.WATCH)
-            } else {
-                ToolList.getToolListByDeviceType(requireContext(), DeviceType.PHONE)
-            },
+            myActivity = myActivity,
+            groupList = groupList,
             viewModel = viewModel,
             fragment = this,
-            fragmentManager = requireActivity().supportFragmentManager,
+            fragmentManager = myActivity.supportFragmentManager,
             viewPager = viewPager,
+            isSchemeList = isSchemeList,
         )
         expandableListView.setAdapter(adapter)
 

@@ -88,9 +88,10 @@
     <cn.minimote.toolbox.ui.widget.DraggableTextView
         android:id="@+id/draggableTextView"
         style="@style/TextView.Toolbox.Dark"
+        android:visibility="invisible"
         android:layout_height="0px"
         android:layout_centerInParent="true"
-        android:background="@drawable/background_circle"
+        android:background="@drawable/background_circle_gradient"
         android:padding="@dimen/layout_size_1_small"
         app:layout_constraintBottom_toTopOf="@id/tabLayout"
         app:layout_constraintDimensionRatio="1:1"

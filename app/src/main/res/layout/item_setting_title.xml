@@ -4,10 +4,10 @@
     style="@style/ConstraintLayout.Toolbox.Dark">
 
     <View
-        style="@style/View.Toolbox.Dark"
         android:id="@+id/view_left"
-        app:layout_constraintBottom_toBottomOf="parent"
+        style="@style/View.Toolbox.Line.Dark"
         android:layout_marginVertical="@dimen/layout_size_0_normal"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/title_name"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -16,8 +16,9 @@
         android:id="@+id/title_name"
         style="@style/TextView.Toolbox.Dark"
         android:paddingHorizontal="@dimen/layout_size_2_footnote"
-        android:textSize="@dimen/text_size_1_large"
+        android:paddingVertical="0px"
         android:text="@string/title"
+        android:textSize="@dimen/text_size_1_large"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -25,11 +26,11 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <View
-        style="@style/View.Toolbox.Dark"
         android:id="@+id/view_right"
+        style="@style/View.Toolbox.Line.Dark"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/title_name"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/title_name"
         app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

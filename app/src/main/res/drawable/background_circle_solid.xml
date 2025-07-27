@@ -4,13 +4,7 @@
 
     <item>
         <shape android:shape="oval">
-            <gradient
-                android:type="radial"
-                android:gradientRadius="50%"
-                android:centerX="0.5"
-                android:centerY="0.5"
-                android:startColor="@color/black"
-                android:endColor="@color/mid_gray" />
+            <solid android:color="@color/mid_gray" />
         </shape>
     </item>
 

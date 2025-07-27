@@ -12,24 +12,25 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
-import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
-import cn.minimote.toolbox.constant.StoredTool
+import cn.minimote.toolbox.constant.SeekBarValueList.columnCountList
+import cn.minimote.toolbox.constant.ToolConstants
+import cn.minimote.toolbox.constant.ToolConstants.Alignment
 import cn.minimote.toolbox.constant.ViewList
-import cn.minimote.toolbox.constant.ViewType
-import cn.minimote.toolbox.helper.ClipboardHelper
+import cn.minimote.toolbox.constant.ViewTypes
 import cn.minimote.toolbox.helper.DialogHelper
 import cn.minimote.toolbox.helper.EditTextHelper
 import cn.minimote.toolbox.helper.SeekBarHelper
 import cn.minimote.toolbox.helper.VibrationHelper
-import cn.minimote.toolbox.ui.widget.MyRadioGroup
+import cn.minimote.toolbox.ui.widget.RadioRecyclerView
 import cn.minimote.toolbox.viewModel.MyViewModel
-import com.google.android.material.switchmaterial.SwitchMaterial
 import java.util.concurrent.atomic.AtomicInteger
 
 
@@ -47,69 +48,30 @@ class EditListAdapter(
     // 观察者
     private lateinit var toolNicknameNeedResetObserver: Observer<Boolean>
 
-    private val viewTypes = ViewType.Edit
+    private val viewTypes = ViewTypes.Edit
+
+    private lateinit var previewAdapter: WidgetPreviewAdapter
 
 
     inner class EditViewHolder(
         itemView: View,
         viewType: Int,
     ) : RecyclerView.ViewHolder(itemView) {
-        lateinit var textViewPackageName: TextView
-
-        lateinit var textViewActivityName: TextView
 
         lateinit var editTextNickname: EditText
         lateinit var buttonResetNickname: Button
         lateinit var imageButtonClear: ImageButton
 
-        lateinit var switchShowName: SwitchMaterial
-
-        lateinit var textViewToolWidthFraction: TextView
-        lateinit var seekBar: SeekBar
-        var lastPosition: Int = -1
-
-        lateinit var buttonDeleteTool: Button
-
         init {
             when(viewType) {
-                // 包名
-                viewTypes.PACKAGE_NAME -> {
-                    textViewPackageName = itemView.findViewById(R.id.textView_nickName)
-                }
 
-                // 活动名
-                viewTypes.ACTIVITY_NAME -> {
-                    textViewActivityName = itemView.findViewById(R.id.textView_activityName)
-                }
-
-                // 显示名称修改
+                // 昵称修改
                 viewTypes.NICKNAME -> {
-                    editTextNickname = itemView.findViewById(R.id.textView_nickName)
-                    buttonResetNickname = itemView.findViewById(R.id.button_reset_nickName)
+                    editTextNickname = itemView.findViewById(R.id.textView_editText)
+                    buttonResetNickname = itemView.findViewById(R.id.button_reset)
                     imageButtonClear = itemView.findViewById(R.id.imageButton_clear)
                 }
 
-                // 是否显示名称
-                viewTypes.SHOW_NAME -> {
-//                    switchShowName = itemView.findViewById(R.id.switch_whether_show_widgetName)
-                }
-
-                // 组件大小修改
-                viewTypes.SIZE -> {
-//                    buttonResetWidgetSize = itemView.findViewById(R.id.button_reset_widgetSize)
-                    textViewToolWidthFraction =
-                        itemView.findViewById(R.id.textView_widgetSize_fraction)
-                    seekBar = itemView.findViewById(R.id.seekBar)
-//                    buttonWidgetSizeDecrease =
-//                        itemView.findViewById(R.id.button_widgetSize_decrease)
-//                    buttonWidgetSizeIncrease =
-//                        itemView.findViewById(R.id.button_widgetSize_increase)
-                }
-
-                // 删除组件
-                viewTypes.DELETE -> {
-                    buttonDeleteTool = itemView.findViewById(R.id.button_removeFromHome)
-                }
             }
         }
     }
@@ -125,15 +87,17 @@ class EditListAdapter(
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EditViewHolder {
-        val layoutId = when(viewType) {
-            viewTypes.PACKAGE_NAME -> R.layout.item_edit_package_name
-            viewTypes.ACTIVITY_NAME -> R.layout.item_edit_activity_name
-            viewTypes.NICKNAME -> R.layout.item_edit_nickname
-            viewTypes.SHOW_NAME -> R.layout.item_edit_display_mode
-            viewTypes.SIZE -> R.layout.item_edit_widget_width
-            viewTypes.DELETE -> R.layout.item_edit_remove_from_home
-            else -> -1
-        }
+        val layoutId =
+            when(viewType) {
+                viewTypes.PREVIEW -> R.layout.item_edit_preview
+
+                viewTypes.NICKNAME -> R.layout.item_edit_edittext
+                viewTypes.DISPLAY_MODE -> R.layout.item_edit_radio_recyclerview
+                viewTypes.WIDTH -> R.layout.item_edit_seekbar
+                viewTypes.ALIGNMENT -> R.layout.item_edit_radio_recyclerview
+                viewTypes.DELETE -> R.layout.item_my_check_update
+                else -> -1
+            }
         val view = LayoutInflater.from(context).inflate(layoutId, parent, false)
         return EditViewHolder(view, viewType)
     }
@@ -142,29 +106,71 @@ class EditListAdapter(
     override fun onBindViewHolder(holder: EditViewHolder, position: Int) {
 
         when(holder.itemViewType) {
-            viewTypes.PACKAGE_NAME -> {
-                setupPackageName(holder)
-            }
 
-
-            viewTypes.ACTIVITY_NAME -> {
-                setupActivityName(holder)
+            viewTypes.PREVIEW -> {
+                setPreview(holder)
             }
 
             viewTypes.NICKNAME -> {
                 setupNickname(holder)
             }
 
-            viewTypes.SHOW_NAME -> {
-                setupDisplayMode(holder)
+            viewTypes.DISPLAY_MODE -> {
+                setRadioGroup(
+                    holder = holder,
+                    name = context.getString(R.string.display_mode),
+                    idToStringIdMap = ToolConstants.DisplayMode.idToStringIdMap,
+                    initId = editedTool.value!!.displayMode,
+                    onCheckedChangeListener = { selectedId ->
+                        editedTool.value?.displayMode = selectedId
+                        viewModel.updateToolDisplayModeChanged()
+                        updatePreview()
+                    },
+                )
             }
 
-            viewTypes.SIZE -> {
-                setupToolWidth(holder)
+            viewTypes.WIDTH -> {
+                val textViewToolWidthFraction =
+                    holder.itemView.findViewById<TextView>(R.id.textView_content)
+                setSeekBar(
+                    holder = holder,
+                    valueList = columnCountList,
+                    initPosition = editedTool.value!!.width,
+                    callback = object : SeekBarHelper.SeekBarCallback {
+                        override fun updateConfigValue(key: String, value: String) {
+                            editedTool.value?.width = value.toInt()
+                            viewModel.updateToolWidthChanged()
+                            updatePreview()
+                        }
+
+                        override fun setupTextView() {
+                            // 组件宽度
+                            textViewToolWidthFraction.text = context.getString(
+                                R.string.widgetSize_fraction,
+                                editedTool.value?.width,
+                                viewModel.maxWidgetSize,
+                            )
+                        }
+                    },
+                )
+            }
+
+            viewTypes.ALIGNMENT -> {
+                setRadioGroup(
+                    holder = holder,
+                    name = context.getString(R.string.alignment),
+                    idToStringIdMap = Alignment.idToStringIdMap,
+                    initId = editedTool.value!!.alignment,
+                    onCheckedChangeListener = { selectedId ->
+                        editedTool.value?.alignment = selectedId
+                        viewModel.updateToolAlignmentChanged()
+                        updatePreview()
+                    },
+                )
             }
 
             viewTypes.DELETE -> {
-                setupDeleteTool(holder)
+                setDeleteTool(holder)
             }
         }
 
@@ -178,37 +184,31 @@ class EditListAdapter(
     }
 
 
-    // 包名
-    private fun setupPackageName(holder: EditViewHolder) {
-        holder.textViewPackageName.text = originTool.value?.packageName
-        // 禁用振动反馈
-        holder.itemView.isHapticFeedbackEnabled = false
-        holder.itemView.setOnLongClickListener {
-            VibrationHelper.vibrateOnLongPress(viewModel)
-            ClipboardHelper.copyToClipboard(
-                context = context,
-                text = holder.textViewPackageName.text as String,
-                label = context.getString(R.string.textView_package_name),
-            )
-            true
+    // 设置预览
+    private fun setPreview(holder: EditViewHolder) {
+        val recyclerView = holder.itemView.findViewById<RecyclerView>(R.id.recyclerView)
+
+        previewAdapter = WidgetPreviewAdapter(
+            context = context,
+            viewModel = viewModel,
+        )
+        recyclerView.adapter = previewAdapter
+
+        // 使用 GridLayoutManager
+        val gridLayoutManager = GridLayoutManager(context, viewModel.maxWidgetSize)
+        gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int {
+                return previewAdapter.toolList[position].width
+            }
         }
+        recyclerView.layoutManager = gridLayoutManager
     }
 
 
-    // 活动名
-    private fun setupActivityName(holder: EditViewHolder) {
-        holder.textViewActivityName.text = originTool.value?.activityName
-        // 禁用振动反馈
-        holder.itemView.isHapticFeedbackEnabled = false
-        holder.itemView.setOnLongClickListener {
-            VibrationHelper.vibrateOnLongPress(viewModel)
-            ClipboardHelper.copyToClipboard(
-                context = context,
-                text = holder.textViewActivityName.text as String,
-                label = context.getString(R.string.textView_activity_name),
-            )
-            true
-        }
+    // 更新预览
+    private fun updatePreview() {
+//        notifyItemChanged(0)
+        previewAdapter.submit()
     }
 
 
@@ -244,11 +244,12 @@ class EditListAdapter(
             holder.editTextNickname.setSelection(holder.editTextNickname.text.length)
             // viewModel.updateWidgetWasChanged()
             updateToolNicknameNeedReset()
+            updatePreview()
         }
     }
 
 
-    // 组件名称是否被修改
+    // 组件名称是否可以重置
     private fun updateToolNicknameNeedReset() {
         toolNicknameNeedReset.value = editedTool.value?.nickname != editedTool.value?.name
     }
@@ -272,101 +273,81 @@ class EditListAdapter(
                 editedTool.value?.nickname = newText
                 viewModel.updateToolNicknameChanged()
                 updateToolNicknameNeedReset()
-
-                // 检查文本框内容是否为空
-                if(newText.isEmpty()) {
-                    holder.imageButtonClear.visibility = View.GONE
-                } else {
-                    holder.imageButtonClear.visibility = View.VISIBLE
-                }
+                updatePreview()
             },
             imageButtonClear = holder.imageButtonClear,
         )
     }
 
 
-    // 设置显示模式
-    private fun setupDisplayMode(holder: EditViewHolder) {
-        val radioGroup = holder.itemView.findViewById<MyRadioGroup>(R.id.myRadioGroup)
+    // 设置单选组
+    private fun setRadioGroup(
+        holder: EditViewHolder,
+        name: String,
+        idToStringIdMap: LinkedHashMap<String, Int>,
+        initId: String,
+        onCheckedChangeListener: (String) -> Unit = {},
+    ) {
+        val textViewName = holder.itemView.findViewById<TextView>(R.id.textView_name)
+        textViewName.text = name
+
+        val radioGroup = holder.itemView.findViewById<RadioRecyclerView>(R.id.radioRecyclerView)
         radioGroup.setRadioGroup(
             viewModel = viewModel,
-            idToStringIdMap = StoredTool.DisplayMode.idToStringIdMap,
-            initId = editedTool.value!!.displayMode,
-            onCheckedChangeListener = { selectedId ->
-                editedTool.value?.displayMode = selectedId
-                viewModel.updateToolDisplayModeChanged()
-            },
+            idToStringIdMap = idToStringIdMap,
+            initId = initId,
+            onCheckedChangeListener = onCheckedChangeListener,
         )
-
     }
 
 
-    // 组件宽度的相关设置
-    private fun setupToolWidth(holder: EditViewHolder) {
-
-        SeekBarHelper.setupSeekBar(
-            seekBar = holder.seekBar,
-            valueList = (viewModel.minWidgetSize..viewModel.maxWidgetSize).map {
-                it.toString()
-            },
-            initPosition = editedTool.value!!.width,
-            lastPosition = AtomicInteger(holder.lastPosition),
+    // 设置 SeekBar
+    private fun setSeekBar(
+        holder: EditViewHolder,
+        valueList: List<String>,
+        initPosition: Int,
+        callback: SeekBarHelper.SeekBarCallback,
+    ) {
+        SeekBarHelper.setSeekBar(
+            seekBar = holder.itemView.findViewById(R.id.seekBar),
+            valueList = valueList,
+            initPosition = initPosition,
+            lastPosition = AtomicInteger(-1),
             viewModel = viewModel,
-            callback = object : SeekBarHelper.SeekBarSetupCallback {
-                override fun updateConfigValue(key: String, value: String) {
-                    editedTool.value?.width = value.toInt()
-                    viewModel.updateToolWidthChanged()
-                }
-
-                override fun setupTextView() {
-                    showWidgetSize(holder)
-                }
-            },
+            callback = callback,
         )
 
-    }
-
-
-    // 显示组件大小
-    private fun showWidgetSize(holder: EditViewHolder) {
-        // 显示组件大小
-        holder.textViewToolWidthFraction.text = context.getString(
-            R.string.widgetSize_fraction,
-            editedTool.value?.width,
-            viewModel.maxWidgetSize,
-        )
     }
 
 
     // 删除组件
-    private fun setupDeleteTool(holder: EditViewHolder) {
-        holder.buttonDeleteTool.let { button: Button ->
-            button.setOnClickListener {
-                VibrationHelper.vibrateOnClick(viewModel)
-                DialogHelper.showConfirmDialog(
-                    context = context,
-                    viewModel = viewModel,
-                    titleText = context.getString(
-                        R.string.confirm_remove_from_home,
-                        editedTool.value?.nickname,
-                    ),
-                    positiveAction = {
-                        viewModel.removeFromSizeChangeMap(editedTool.value!!.id)
-                        viewModel.saveWidgetList()
-                        Toast.makeText(
-                            context,
-                            context.getString(
-                                R.string.already_remove_from_home,
-                                editedTool.value?.nickname,
-                            ),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        // 触发返回键行为
-                        (context as? androidx.appcompat.app.AppCompatActivity)?.onBackPressedDispatcher?.onBackPressed()
-                    }
-                )
-            }
+    private fun setDeleteTool(holder: EditViewHolder) {
+        val textViewText = holder.itemView.findViewById<TextView>(R.id.textView_text)
+        textViewText.text = context.getString(R.string.delete_widget)
+        textViewText.setTextColor(context.getColor(R.color.red))
+
+        val clickableContainer = holder.itemView.findViewById<ConstraintLayout>(R.id.clickable_container)
+
+        clickableContainer.setOnClickListener {
+            VibrationHelper.vibrateOnClick(viewModel)
+            DialogHelper.showConfirmDialog(
+                context = context, viewModel = viewModel, titleText = context.getString(
+                    R.string.confirm_remove_from_home,
+                    editedTool.value?.nickname,
+                ), positiveAction = {
+                    viewModel.removeFromSizeChangeMap(editedTool.value!!.id)
+                    viewModel.saveWidgetList()
+                    Toast.makeText(
+                        context, context.getString(
+                            R.string.already_remove_from_home,
+                            editedTool.value?.nickname,
+                        ), Toast.LENGTH_SHORT
+                    ).show()
+                    // 触发返回键行为
+                    (context as? androidx.appcompat.app.AppCompatActivity)?.onBackPressedDispatcher?.onBackPressed()
+                })
         }
+
     }
 
 
@@ -374,4 +355,5 @@ class EditListAdapter(
     private fun removeObserver() {
         toolNicknameNeedReset.removeObserver(toolNicknameNeedResetObserver)
     }
+
 }

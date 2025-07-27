@@ -13,9 +13,14 @@ object MenuList {
             MenuType.ADD_TO_HOME_OR_REMOVE_FROM_HOME,
             // 创建快捷方式
             MenuType.CREATE_SHORTCUT,
+            // 工具信息
+            MenuType.TOOL_DETAIL,
             // 取消
             MenuType.CANCEL,
         )
+    }
+    val tool_watch by lazy {
+        tool.filter { it != MenuType.CREATE_SHORTCUT }
     }
 
     // 桌面组件的弹出菜单
@@ -25,8 +30,10 @@ object MenuList {
             MenuType.ADD_TO_HOME_OR_REMOVE_FROM_HOME,
             // 创建快捷方式
             MenuType.CREATE_SHORTCUT,
-            // 编辑该组件
+            // 编辑工具
             MenuType.EDIT_THIS_WIDGET,
+            // 工具信息
+            MenuType.WIDGET_DETAIL,
             // 多选
             MenuType.MULTI_SELECT,
             // 排序
@@ -34,6 +41,9 @@ object MenuList {
             // 取消
             MenuType.CANCEL,
         )
+    }
+    val widget_watch by lazy {
+        widget.filter { it != MenuType.CREATE_SHORTCUT }
     }
 
     // 排序的菜单

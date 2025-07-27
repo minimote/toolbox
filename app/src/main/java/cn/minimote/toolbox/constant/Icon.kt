@@ -9,6 +9,7 @@ object Icon {
     const val ICON_CACHE_PATH = "app_icon"
 
     object IconKey {
+        const val DEFAULT = "default"
         const val DEVELOPER_OPTION = "developer_option"
         const val RECENT_TASK = "recent_task"
         const val ACCESSIBILITY_OPTION = "accessibility_option"

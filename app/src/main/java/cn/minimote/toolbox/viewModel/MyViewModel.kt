@@ -24,14 +24,16 @@ import cn.minimote.toolbox.constant.Collator
 import cn.minimote.toolbox.constant.Config
 import cn.minimote.toolbox.constant.Config.ConfigKeys
 import cn.minimote.toolbox.constant.FragmentName
+import cn.minimote.toolbox.constant.ToolConstants
 import cn.minimote.toolbox.constant.UI
-import cn.minimote.toolbox.constant.Widget
+import cn.minimote.toolbox.constant.ViewTypes
 import cn.minimote.toolbox.dataClass.InstalledApp
 import cn.minimote.toolbox.dataClass.StoredTool
 import cn.minimote.toolbox.dataClass.Tool
 import cn.minimote.toolbox.helper.CheckUpdateHelper
 import cn.minimote.toolbox.helper.ConfigHelper.getConfigValue
 import cn.minimote.toolbox.helper.IconCacheHelper
+import cn.minimote.toolbox.helper.SchemeHelper
 import cn.minimote.toolbox.helper.StoredToolHelper
 import cn.minimote.toolbox.helper.ToolListSortHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -45,7 +47,6 @@ import kotlin.math.min
 class MyViewModel
 @Inject constructor(
     private val application: Application,
-//    private val iconCacheManager: IconCacheManager,
 ) : AndroidViewModel(application) {
 
     // 获取上下文
@@ -112,9 +113,9 @@ class MyViewModel
     val iconCacheHelper: IconCacheHelper = IconCacheHelper(this)
 
 
-    // 最小最大组件大小
-    val minWidgetSize = Widget.MIN_WIDGET_SIZE
-    val maxWidgetSize = Widget.MAX_WIDGET_SIZE
+    //    // 最小最大组件大小
+//    val minWidgetSize = MIN_WIDGET_SIZE
+    val maxWidgetSize = ToolConstants.MAX_WIDGET_SIZE
 
 
     // 屏幕尺寸
@@ -210,6 +211,7 @@ class MyViewModel
     var toolNicknameChanged: MutableLiveData<Boolean> = MutableLiveData()
     var toolDisplayModeChanged: MutableLiveData<Boolean> = MutableLiveData()
     var toolWidthChanged: MutableLiveData<Boolean> = MutableLiveData()
+    var toolAlignmentChanged: MutableLiveData<Boolean> = MutableLiveData()
     // 自动更新修改状态
     val toolChanged = MediatorLiveData<Boolean>().apply {
         // 初始化值
@@ -219,7 +221,8 @@ class MyViewModel
             val changed = listOf(
                 toolNicknameChanged.value,
                 toolDisplayModeChanged.value,
-                toolWidthChanged.value
+                toolWidthChanged.value,
+                toolAlignmentChanged.value,
             ).any { it == true }
 
             this.value = changed
@@ -228,6 +231,7 @@ class MyViewModel
         addSource(toolNicknameChanged, observer)
         addSource(toolDisplayModeChanged, observer)
         addSource(toolWidthChanged, observer)
+        addSource(toolAlignmentChanged, observer)
     }
 
 
@@ -238,6 +242,8 @@ class MyViewModel
 
     var freeSort = false
     var sortModeString = ""
+
+    private val _detailList = MutableLiveData<List<Int>>()
 
 
 //    // 将 dp 转换为 px
@@ -254,6 +260,49 @@ class MyViewModel
 
     fun getFragmentName(): String {
         return _fragmentName.value ?: FragmentName.NO_FRAGMENT
+    }
+
+
+    fun updateDetailList(dataList: List<Int>) {
+        _detailList.value = dataList
+    }
+
+    fun getDetailList(): List<Int> {
+        return _detailList.value?.filter {
+            showInDetailList(it)
+        } ?: emptyList()
+    }
+
+    private fun showInDetailList(viewType: Int): Boolean {
+        return when(viewType) {
+            ViewTypes.WidgetDetail.SCHEME -> {
+                SchemeHelper.getSchemeFromId(originTool.value!!.id).isNotBlank()
+            }
+
+            ViewTypes.WidgetDetail.DESCRIPTION -> {
+                originTool.value?.description != null
+            }
+
+            ViewTypes.WidgetDetail.WARNING_MESSAGE -> {
+                originTool.value?.warningMessage != null
+            }
+
+            ViewTypes.WidgetDetail.ACTIVITY_NAME -> {
+                originTool.value?.activityName != null
+            }
+
+            ViewTypes.WidgetDetail.INTENT_EXTRAS -> {
+                originTool.value?.intentExtras != null
+            }
+
+            ViewTypes.WidgetDetail.INTENT_URI -> {
+                originTool.value?.intentUri != null
+            }
+
+            else -> {
+                true
+            }
+        }
     }
 
 
@@ -282,6 +331,15 @@ class MyViewModel
     }
 
 
+    // 重置单个相关的 LiveData
+    fun resetToolChanged() {
+        toolNicknameChanged.value = false
+        toolDisplayModeChanged.value = false
+        toolWidthChanged.value = false
+        toolAlignmentChanged.value = false
+    }
+
+
     // 小组件昵称是否发生改变
     fun updateToolNicknameChanged(): Boolean {
         val flag = editedTool.value?.nickname != originTool.value?.nickname
@@ -307,6 +365,16 @@ class MyViewModel
         val flag = editedTool.value?.width != originTool.value?.width
         if(toolWidthChanged.value != flag) {
             toolWidthChanged.value = flag
+        }
+        return flag
+    }
+
+
+    // 小组件对齐方式是否发生改变
+    fun updateToolAlignmentChanged(): Boolean {
+        val flag = editedTool.value?.alignment != originTool.value?.alignment
+        if(toolAlignmentChanged.value != flag) {
+            toolAlignmentChanged.value = flag
         }
         return flag
     }

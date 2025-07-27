@@ -21,6 +21,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.constant.UI
+import cn.minimote.toolbox.constant.ViewTypes
 import cn.minimote.toolbox.dataClass.InstalledApp
 import cn.minimote.toolbox.fragment.InstalledAppListFragment
 import cn.minimote.toolbox.helper.VibrationHelper
@@ -35,10 +36,6 @@ class InstalledAppListAdapter(
     private val viewModel: MyViewModel,
 ) : RecyclerView.Adapter<InstalledAppListAdapter.AppViewHolder>() {
 
-    companion object {
-        private const val VIEW_TYPE_NORMAL = 0
-        private const val VIEW_TYPE_TITLE = 1
-    }
 
     private var installedAppList: List<InstalledApp> =
         viewModel.installedAppList.value ?: getNoResultList()
@@ -46,44 +43,37 @@ class InstalledAppListAdapter(
 
     inner class AppViewHolder(itemView: View, val viewType: Int) :
         RecyclerView.ViewHolder(itemView) {
-        val textViewAppName: TextView = itemView.findViewById(R.id.app_name)
-
+        lateinit var appName: TextView
         lateinit var appIcon: ImageView
         lateinit var activityName: TextView
         lateinit var switch: SwitchMaterial
 
-        // 左右的横线
-        lateinit var viewLeft: View
-        lateinit var viewRight: View
-
-        // 添加 rootView 引用
-        val rootView: View = itemView
 
         init {
             when(viewType) {
-                VIEW_TYPE_NORMAL -> {
+                ViewTypes.InstalledAppList.NORMAL -> {
+                    appName = itemView.findViewById(R.id.textView_app_name)
                     appIcon = itemView.findViewById(R.id.imageView_app_icon)
-                    activityName = itemView.findViewById(R.id.activity_name)
+                    activityName = itemView.findViewById(R.id.textView_activity_name)
                     switch = itemView.findViewById(R.id.switch_whether_show_in_home)
                 }
 
-                VIEW_TYPE_TITLE -> {
-                    viewLeft = itemView.findViewById(R.id.view_left)
-                    viewRight = itemView.findViewById(R.id.view_right)
+                ViewTypes.InstalledAppList.TITLE -> {
+                    appName = itemView.findViewById(R.id.title_name)
                 }
             }
         }
 
 
-        fun bind(activity: InstalledApp) {
-            val appName = activity.name
+        fun highlightAppNameAndActivityName(activity: InstalledApp) {
             val query = viewModel.searchQuery.value.orEmpty()
-            // 手表不高亮显示
-            if(viewModel.isWatch || query.isEmpty()) {
-                textViewAppName.text = appName
+            if(query.isEmpty()) {
+                appName.text = activity.name
+                activityName.text = activity.activityName
                 return
             }
-            textViewAppName.text = highlightSearchTerm(appName, query)
+            appName.text = highlightSearchTerm(activity.name, query)
+            activityName.text = highlightSearchTerm(activity.activityName, query)
         }
     }
 
@@ -111,8 +101,8 @@ class InstalledAppListAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppViewHolder {
         val layoutId = when(viewType) {
-            VIEW_TYPE_NORMAL -> R.layout.item_activity
-            VIEW_TYPE_TITLE -> R.layout.item_activity_title
+            ViewTypes.InstalledAppList.NORMAL -> R.layout.item_installed_app
+            ViewTypes.InstalledAppList.TITLE -> R.layout.item_setting_title
             else -> -1
         }
         val view = LayoutInflater.from(parent.context).inflate(layoutId, parent, false)
@@ -123,8 +113,8 @@ class InstalledAppListAdapter(
     override fun onBindViewHolder(holder: AppViewHolder, position: Int) {
         val installedApp = installedAppList[position]
 
-        if(holder.viewType == VIEW_TYPE_TITLE) {
-            holder.textViewAppName.text = installedApp.name
+        if(holder.viewType == ViewTypes.InstalledAppList.TITLE) {
+            holder.appName.text = installedApp.name
             // 标题都不可点击
 //            holder.itemView.isClickable = false
             // 需要手动设置线条颜色，不然可能会受到无名称项的影响而变成空
@@ -141,34 +131,35 @@ class InstalledAppListAdapter(
                 // 无结果提示为灰色正常字体
                 context.getString(R.string.no_result) -> {
                     // 设置字体样式为正常
-                    holder.textViewAppName.setTypeface(null, Typeface.NORMAL)
+                    holder.appName.setTypeface(null, Typeface.NORMAL)
                     // 设置字体颜色为灰色
-                    holder.textViewAppName.setTextColor(context.getColor(R.color.mid_gray))
+                    holder.appName.setTextColor(context.getColor(R.color.mid_gray))
                 }
 
                 else -> {
                     // 设置字体样式为粗体
-                    holder.textViewAppName.setTypeface(null, Typeface.BOLD)
+                    holder.appName.setTypeface(null, Typeface.BOLD)
                     // 设置字体颜色为白色
-                    holder.textViewAppName.setTextColor(context.getColor(R.color.white))
+                    holder.appName.setTextColor(context.getColor(R.color.white))
                 }
 
             }
             return
         }
 
-        // 高亮显示搜索结果
-        holder.bind(installedApp)
-
         holder.appIcon.setImageDrawable(
             viewModel.iconCacheHelper.getCircularDrawable(installedApp)
         )
-        // 手表活动名仅显示最后一个点后面的部分
-        holder.activityName.text = if(viewModel.isWatch) {
-            installedApp.activityName.substringAfterLast('.')
+
+        if(viewModel.isWatch) {
+            holder.appName.text = installedApp.name
+            // 手表活动名仅显示最后一个点后面的部分
+            holder.activityName.text = installedApp.activityName.substringAfterLast('.')
         } else {
-            installedApp.activityName
+            // 高亮显示搜索结果
+            holder.highlightAppNameAndActivityName(installedApp)
         }
+
 //        holder.switch.isChecked = viewModel.isStoredActivity(installedActivity.activityName)
         holder.switch.isChecked = viewModel.inSizeChangeMap(installedApp.activityName)
         // 设置暗淡效果的滤镜
@@ -182,11 +173,11 @@ class InstalledAppListAdapter(
         // 项目被点到时切换开关状态
         fun toggleSwitch() {
             val searchBoxText = fragment.searchBox.text.toString().trim()
-            if(viewModel.searchMode.value == true && searchBoxText.isEmpty()
-            ) {
-                fragment.buttonCancel.performClick()
+            if(viewModel.searchMode.value == true && searchBoxText.isEmpty()) {
+                // 直接退出模式，而不是通过取消按钮退出，避免振动
+                fragment.exitSearchMode()
             } else {
-                if(holder.viewType == VIEW_TYPE_NORMAL) {
+                if(holder.viewType == ViewTypes.InstalledAppList.NORMAL) {
                     holder.switch.isChecked = !holder.switch.isChecked
 
                     // 触发设备振动
@@ -220,9 +211,9 @@ class InstalledAppListAdapter(
         val originAlpha = UI.ALPHA_10
 
         if(shouldDim) {
-            holder.rootView.alpha = alpha
+            holder.itemView.alpha = alpha
         } else {
-            holder.rootView.alpha = originAlpha
+            holder.itemView.alpha = originAlpha
         }
     }
 
@@ -242,19 +233,16 @@ class InstalledAppListAdapter(
 
     override fun getItemViewType(position: Int): Int {
         return if(installedAppList[position].packageName.isEmpty()) {
-            VIEW_TYPE_TITLE
+            ViewTypes.InstalledAppList.TITLE
         } else {
-            VIEW_TYPE_NORMAL
+            ViewTypes.InstalledAppList.NORMAL
         }
     }
 
 
     @SuppressLint("NotifyDataSetChanged")
     fun submitList(newInstalledAppList: List<InstalledApp> = loadActivityList()) {
-        installedAppList = if(newInstalledAppList.isNotEmpty()) {
-            // 搜索结果非空，添加一个空的活动来占位
-            newInstalledAppList//.plus(viewModel.getEmptyInstalledActivity())
-        } else {
+        installedAppList = newInstalledAppList.ifEmpty {
             getNoResultList()
         }
         notifyDataSetChanged()

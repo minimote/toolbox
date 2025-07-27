@@ -29,4 +29,11 @@ object SeekBarValueList {
         ConfigValues.VibrationMode.AUTO,
         ConfigValues.VibrationMode.OFF,
     )
+
+
+    // 列数列表
+    val columnCountList =
+        (ToolConstants.MIN_WIDGET_SIZE..ToolConstants.MAX_WIDGET_SIZE).map { it.toString() }
+
+
 }

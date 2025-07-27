@@ -45,9 +45,21 @@
             android:launchMode="singleTask"
             android:noHistory="false">
             <!-- android:excludeFromRecents="true" -->
+
+            <!-- Launcher intent-filter -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- Scheme intent-filter -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="toolbox" android:host="open" />
             </intent-filter>
         </activity>
 

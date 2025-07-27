@@ -46,6 +46,7 @@ class IconCacheHelper(
         IconKey.DEVELOPER_OPTION to R.drawable.ic_developer_option,
         IconKey.RECENT_TASK to R.drawable.ic_recent_task,
         IconKey.ACCESSIBILITY_OPTION to R.drawable.ic_accessibility_option,
+        IconKey.DEFAULT to R.drawable.ic_default,
     )
 
 

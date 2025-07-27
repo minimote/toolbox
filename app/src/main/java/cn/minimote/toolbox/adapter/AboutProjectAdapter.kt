@@ -17,7 +17,7 @@ import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.constant.ViewList
-import cn.minimote.toolbox.constant.ViewType
+import cn.minimote.toolbox.constant.ViewTypes
 import cn.minimote.toolbox.helper.ClipboardHelper
 import cn.minimote.toolbox.helper.ImageSaveHelper
 import cn.minimote.toolbox.helper.VibrationHelper
@@ -30,7 +30,7 @@ class AboutProjectAdapter(
 ) : RecyclerView.Adapter<AboutProjectAdapter.SupportAuthorViewHolder>() {
 
     private val viewList = ViewList.aboutProjectViewList
-    private val viewTypes = ViewType.AboutProject
+    private val viewTypes = ViewTypes.AboutProject
 
     inner class SupportAuthorViewHolder(
         itemView: View,
@@ -183,7 +183,7 @@ class AboutProjectAdapter(
             ClipboardHelper.copyToClipboard(
                 context = context,
                 text = textViewURL.text.toString(),
-                label = context.getString(R.string.projectPath_name),
+                toastString = context.getString(R.string.projectPath_name),
             )
             true
         }

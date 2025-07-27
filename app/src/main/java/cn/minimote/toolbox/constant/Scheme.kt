@@ -5,7 +5,7 @@
 
 package cn.minimote.toolbox.constant
 
-object Widget {
-    const val MIN_WIDGET_SIZE = 1
-    const val MAX_WIDGET_SIZE = 12
+object Scheme {
+    const val SCHEME = "toolbox"
+    const val HOST = "open"
 }

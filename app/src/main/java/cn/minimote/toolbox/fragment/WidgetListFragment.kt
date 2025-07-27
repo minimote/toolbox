@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.activity.MainActivity
 import cn.minimote.toolbox.adapter.WidgetListAdapter
 import cn.minimote.toolbox.constant.FragmentName
 import cn.minimote.toolbox.constant.MenuList
@@ -36,21 +37,22 @@ import dagger.hilt.android.AndroidEntryPoint
 
 
 @AndroidEntryPoint
-class WidgetListFragment(
-//    private val viewModel: ToolboxViewModel,
-    val viewPager: ViewPager2,
-    val constraintLayoutOrigin: ConstraintLayout,
-) : Fragment() {
+class WidgetListFragment() : Fragment() {
 
     private val viewModel: MyViewModel by activityViewModels()
-//    val viewModel: ToolboxViewModel = ViewModelProvider(this)[ToolboxViewModel::class.java]
-//    private val viewModel: ToolboxViewModel by viewModels()
+
+    private val activity get() = requireActivity() as MainActivity
+
+    val viewPager: ViewPager2
+        get() = activity.viewPager
+    val constraintLayoutOrigin: ConstraintLayout
+        get() = activity.constraintLayoutOrigin
+
 
     private lateinit var context: Context
     private lateinit var imageViewBackground: ImageView
     private lateinit var textViewNoWidget: TextView
     private lateinit var constraintLayoutBackground: ConstraintLayout
-//    private lateinit var constraintLayoutMultiselect: ConstraintLayout
 
     private lateinit var buttonSelectAll: Button
     private lateinit var buttonReverseSelect: Button
@@ -74,14 +76,14 @@ class WidgetListFragment(
     private lateinit var sortModeObserver: Observer<Boolean>
 
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-//        Log.d("WidgetListFragment", "ViewModel initialized: ${System.identityHashCode(viewModel)}")
-
-//        Log.i("WidgetListFragment", "onCreate")
-////        viewModel = ViewModelProvider(this)[WidgetListViewModel::class.java]
-//        Log.i("WidgetListFragment", "viewModel:${System.identityHashCode(viewModel)}")
-    }
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+////        Log.d("WidgetListFragment", "ViewModel initialized: ${System.identityHashCode(viewModel)}")
+//
+////        Log.i("WidgetListFragment", "onCreate")
+//////        viewModel = ViewModelProvider(this)[WidgetListViewModel::class.java]
+////        Log.i("WidgetListFragment", "viewModel:${System.identityHashCode(viewModel)}")
+//    }
 
 
 //    override fun onDestroy() {
@@ -210,7 +212,7 @@ class WidgetListFragment(
         recyclerView = view.findViewById(R.id.recyclerView_widget_list)
 
         adapter = WidgetListAdapter(
-            context = context,
+            myActivity = activity,
             viewModel = viewModel,
             fragment = this,
             fragmentManager = requireActivity().supportFragmentManager,
@@ -223,11 +225,6 @@ class WidgetListFragment(
         val gridLayoutManager = GridLayoutManager(requireContext(), maxWidgetSize)
         gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
-//                return if (adapter.toolList.isNotEmpty() && position < adapter.toolList.size) {
-//                    adapter.toolList[position].width
-//                } else {
-//                    maxWidgetSize
-//                }
                 return adapter.toolList[position].width
             }
         }

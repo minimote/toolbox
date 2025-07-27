@@ -19,10 +19,12 @@ import cn.minimote.toolbox.constant.Config.ConfigValues.NetworkAccessModeValues
 import cn.minimote.toolbox.constant.FragmentName
 import cn.minimote.toolbox.constant.NetworkType
 import cn.minimote.toolbox.fragment.AboutProjectFragment
+import cn.minimote.toolbox.fragment.DetailListFragment
 import cn.minimote.toolbox.fragment.EditListFragment
 import cn.minimote.toolbox.fragment.InstalledAppListFragment
 import cn.minimote.toolbox.fragment.SettingFragment
 import cn.minimote.toolbox.fragment.SupportAuthorFragment
+import cn.minimote.toolbox.fragment.ToolListFragment
 import cn.minimote.toolbox.fragment.WebViewFragment
 import cn.minimote.toolbox.helper.NetworkHelper.getNetworkAccessMode
 import cn.minimote.toolbox.viewModel.MyViewModel
@@ -49,7 +51,6 @@ object FragmentHelper {
             val fragment = when(fragmentName) {
                 FragmentName.INSTALLED_APP_LIST_FRAGMENT -> {
                     InstalledAppListFragment()
-
                 }
 
                 FragmentName.EDIT_LIST_FRAGMENT -> {
@@ -126,6 +127,15 @@ object FragmentHelper {
                         NetworkAccessModeValues.ALLOW -> {}
                     }
                     WebViewFragment()
+                }
+
+
+                FragmentName.SCHEME_LIST_FRAGMENT -> {
+                    ToolListFragment(isSchemeList = true)
+                }
+
+                FragmentName.DETAIL_LIST_FRAGMENT -> {
+                    DetailListFragment()
                 }
 
                 else -> {

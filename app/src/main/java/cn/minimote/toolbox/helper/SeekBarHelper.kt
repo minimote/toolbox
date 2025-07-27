@@ -15,18 +15,18 @@ import kotlin.math.abs
 object SeekBarHelper {
 
     // 添加一个方法来获取当前值，这个方法需要在具体的适配器中实现
-    interface SeekBarSetupCallback {
+    interface SeekBarCallback {
         fun updateConfigValue(key: String, value: String)
         fun setupTextView()
     }
 
-    fun setupSeekBar(
+    fun setSeekBar(
         seekBar: SeekBar,
         valueList: List<String>,
         initPosition: Int,
         lastPosition: AtomicInteger,
         viewModel: MyViewModel,
-        callback: SeekBarSetupCallback,
+        callback: SeekBarCallback,
     ) {
         callback.setupTextView()
         // 设置初始进度

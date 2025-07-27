@@ -14,6 +14,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.activity.MainActivity
 import cn.minimote.toolbox.adapter.SupportAuthorAdapter
 import cn.minimote.toolbox.viewModel.MyViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -22,6 +23,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class SupportAuthorFragment : Fragment() {
 
+    private val myActivity: MainActivity get() = requireActivity() as MainActivity
     private val viewModel: MyViewModel by activityViewModels()
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: SupportAuthorAdapter
@@ -36,7 +38,7 @@ class SupportAuthorFragment : Fragment() {
         recyclerView = view.findViewById(R.id.recyclerView_supportAuthor)
         recyclerView.layoutManager = LinearLayoutManager(context)
         adapter = SupportAuthorAdapter(
-            context = requireContext(),
+            myActivity = myActivity,
             viewModel = viewModel,
         )
         recyclerView.adapter = adapter

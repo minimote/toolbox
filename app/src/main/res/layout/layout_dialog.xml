@@ -19,7 +19,7 @@
             android:id="@+id/textView_title"
             style="@style/TextView.Toolbox.Dark"
             android:layout_width="match_parent"
-            android:padding="@dimen/layout_size_0_normal"
+            android:padding="@dimen/layout_size_1_small"
             android:textSize="@dimen/text_size_1_large"
             android:textStyle="bold"
             app:layout_constraintTop_toTopOf="parent" />
@@ -29,7 +29,7 @@
             style="@style/TextView.Toolbox.Dark"
             android:layout_width="match_parent"
             android:gravity="start"
-            android:padding="@dimen/layout_size_0_normal"
+            android:padding="@dimen/layout_size_1_small"
             app:layout_constraintBottom_toTopOf="@id/button_negative"
             app:layout_constraintTop_toBottomOf="@id/textView_title" />
 

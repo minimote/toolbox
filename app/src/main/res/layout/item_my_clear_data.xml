@@ -4,7 +4,7 @@
     style="@style/ConstraintLayout.Toolbox.Clickable.Dark">
 
     <TextView
-        android:id="@+id/textView_clearData"
+        android:id="@+id/textView_name"
         style="@style/TextView.Toolbox.MyList.Name.Dark"
         android:gravity="start"
         android:text="@string/clear_cache"
@@ -20,7 +20,7 @@
         android:textSize="@dimen/text_size_3_script"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView_clearData"
+        app:layout_constraintStart_toEndOf="@+id/textView_name"
         app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

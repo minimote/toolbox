@@ -71,4 +71,9 @@ object MenuType {
 
     // 保存图片
     const val SAVE_IMAGE = 17
+
+
+    // 工具信息
+    const val TOOL_DETAIL = 18
+    const val WIDGET_DETAIL = 19
 }

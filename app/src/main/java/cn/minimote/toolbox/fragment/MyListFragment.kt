@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.activity.MainActivity
 import cn.minimote.toolbox.adapter.MyListAdapter
 import cn.minimote.toolbox.constant.FragmentName
 import cn.minimote.toolbox.viewModel.MyViewModel
@@ -25,12 +26,17 @@ import dagger.hilt.android.AndroidEntryPoint
 
 
 @AndroidEntryPoint
-class MyListFragment(
-    val viewPager: ViewPager2,
-    val constraintLayoutOrigin: ConstraintLayout,
-) : Fragment() {
+class MyListFragment() : Fragment() {
 
     private val viewModel: MyViewModel by activityViewModels()
+
+    private val myActivity get() = requireActivity() as MainActivity
+
+    val viewPager: ViewPager2
+        get() = myActivity.viewPager
+    val constraintLayoutOrigin: ConstraintLayout
+        get() = myActivity.constraintLayoutOrigin
+
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: MyListAdapter
 
@@ -59,13 +65,13 @@ class MyListFragment(
 //        Log.i("${this::class.simpleName}", "当前：${viewModel.fragmentName.value}")
 
         // 初始化 RecyclerView
-        recyclerView = view.findViewById(R.id.recyclerView_my_list)
+        recyclerView = view.findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(context)
         adapter = MyListAdapter(
-            context = requireContext(),
+            myActivity = myActivity,
             viewModel = viewModel,
             fragment = this,
-            fragmentManager = requireActivity().supportFragmentManager,
+            fragmentManager = myActivity.supportFragmentManager,
         )
         recyclerView.adapter = adapter
 //

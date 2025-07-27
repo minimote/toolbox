@@ -16,5 +16,7 @@ object FragmentName {
     const val MY_LIST_FRAGMENT = "MyListFragment"
     const val SETTING_FRAGMENT = "SettingFragment"
     const val WEB_VIEW_FRAGMENT = "WebViewFragment"
-    const val TOOL_LIST_FRAGMENT =  "ToolListFragment"
+    const val TOOL_LIST_FRAGMENT = "ToolListFragment"
+    const val SCHEME_LIST_FRAGMENT = "SchemeListFragment"
+    const val DETAIL_LIST_FRAGMENT = "DetailListFragment"
 }

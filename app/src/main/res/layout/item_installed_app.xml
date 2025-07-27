@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    style="@style/ConstraintLayout.Toolbox.Clickable.Dark">
+    style="@style/ConstraintLayout.Toolbox.Clickable.Dark"
+    android:paddingVertical="@dimen/layout_size_2_footnote">
 
     <ImageView
         android:id="@+id/imageView_app_icon"
@@ -9,34 +10,26 @@
         android:contentDescription="@string/app_icon"
         android:src="@drawable/ic_toolbox"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/guideline1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_begin="@dimen/layout_size_1_large" />
-
     <TextView
-        android:id="@+id/app_name"
+        android:id="@+id/textView_app_name"
         style="@style/TextView.Toolbox.AppName.Dark"
         android:text="@string/app_name"
-        app:layout_constraintBottom_toTopOf="@id/activity_name"
+        app:layout_constraintBottom_toTopOf="@id/textView_activity_name"
         app:layout_constraintEnd_toStartOf="@+id/guideline3"
-        app:layout_constraintStart_toEndOf="@+id/guideline1"
+        app:layout_constraintStart_toEndOf="@id/imageView_app_icon"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/activity_name"
+        android:id="@+id/textView_activity_name"
         style="@style/TextView.Toolbox.ActivityName.Dark"
         android:text="@string/activity_name"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline3"
-        app:layout_constraintStart_toStartOf="@+id/guideline1"
-        app:layout_constraintTop_toBottomOf="@+id/app_name" />
+        app:layout_constraintStart_toEndOf="@id/imageView_app_icon"
+        app:layout_constraintTop_toBottomOf="@+id/textView_app_name" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline3"

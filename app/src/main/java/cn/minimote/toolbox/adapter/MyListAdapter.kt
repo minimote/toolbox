@@ -5,19 +5,23 @@
 
 package cn.minimote.toolbox.adapter
 
-import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.activity.MainActivity
 import cn.minimote.toolbox.constant.FragmentName
 import cn.minimote.toolbox.constant.ViewList
-import cn.minimote.toolbox.constant.ViewType
+import cn.minimote.toolbox.constant.ViewTypes
 import cn.minimote.toolbox.fragment.MyListFragment
 import cn.minimote.toolbox.helper.CheckUpdateHelper
 import cn.minimote.toolbox.helper.ClipboardHelper
@@ -25,19 +29,20 @@ import cn.minimote.toolbox.helper.DataCleanHelper
 import cn.minimote.toolbox.helper.DialogHelper
 import cn.minimote.toolbox.helper.FragmentHelper
 import cn.minimote.toolbox.helper.ImageSaveHelper
+import cn.minimote.toolbox.helper.LaunchHelper
 import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.viewModel.MyViewModel
 
 
 class MyListAdapter(
-    private val context: Context,
+    private val myActivity: MainActivity,
     val viewModel: MyViewModel,
     private val fragment: MyListFragment,
     private val fragmentManager: FragmentManager,
 ) : RecyclerView.Adapter<MyListAdapter.MyViewHolder>() {
 
     private val viewList = ViewList.myList
-    private val viewTypes = ViewType.My
+    private val viewTypes = ViewTypes.My
 
     inner class MyViewHolder(
         itemView: View,
@@ -71,13 +76,13 @@ class MyListAdapter(
 
                 // 清除缓存
                 viewTypes.CLEAR_CACHE -> {
-                    textViewClearCache = itemView.findViewById(R.id.textView_clearData)
+                    textViewClearCache = itemView.findViewById(R.id.textView_name)
                     textViewCacheSize = itemView.findViewById(R.id.textView_dataSize)
                 }
 
                 // 清除数据
                 viewTypes.CLEAR_DATA -> {
-                    textViewClearData = itemView.findViewById(R.id.textView_clearData)
+                    textViewClearData = itemView.findViewById(R.id.textView_name)
                     textViewDataSize = itemView.findViewById(R.id.textView_dataSize)
                 }
 
@@ -102,6 +107,14 @@ class MyListAdapter(
                 }
 
                 viewTypes.PROBLEM_FEEDBACK -> {
+                    textViewName = itemView.findViewById(R.id.textView_name)
+                }
+
+                viewTypes.SCHEME_LIST -> {
+                    textViewName = itemView.findViewById(R.id.textView_name)
+                }
+
+                viewTypes.APP_DETAIL -> {
                     textViewName = itemView.findViewById(R.id.textView_name)
                 }
             }
@@ -130,9 +143,11 @@ class MyListAdapter(
             viewTypes.INSTRUCTION -> R.layout.item_my_setting
             viewTypes.UPDATE_LOG -> R.layout.item_my_setting
             viewTypes.PROBLEM_FEEDBACK -> R.layout.item_my_setting
+            viewTypes.SCHEME_LIST -> R.layout.item_my_setting
+            viewTypes.APP_DETAIL -> R.layout.item_my_setting
             else -> -1
         }
-        val view = LayoutInflater.from(context).inflate(layoutId, parent, false)
+        val view = LayoutInflater.from(myActivity).inflate(layoutId, parent, false)
         return MyViewHolder(view, viewType)
     }
 
@@ -171,25 +186,33 @@ class MyListAdapter(
             viewTypes.INSTRUCTION -> {
                 setupWebView(
                     holder = holder,
-                    textViewText = context.getString(R.string.instruction),
-                    url = context.getString(R.string.instruction_url),
+                    textViewText = myActivity.getString(R.string.instruction),
+                    url = myActivity.getString(R.string.instruction_url),
                 )
             }
 
             viewTypes.UPDATE_LOG -> {
                 setupWebView(
                     holder = holder,
-                    textViewText = context.getString(R.string.update_log),
-                    url = context.getString(R.string.update_log_url),
+                    textViewText = myActivity.getString(R.string.update_log),
+                    url = myActivity.getString(R.string.update_log_url),
                 )
             }
 
             viewTypes.PROBLEM_FEEDBACK -> {
                 setupWebView(
                     holder = holder,
-                    textViewText = context.getString(R.string.problem_feedback),
-                    url = context.getString(R.string.problem_feedback_url),
+                    textViewText = myActivity.getString(R.string.problem_feedback),
+                    url = myActivity.getString(R.string.problem_feedback_url),
                 )
+            }
+
+            viewTypes.SCHEME_LIST -> {
+                setupSchemeList(holder = holder)
+            }
+
+            viewTypes.APP_DETAIL -> {
+                setupAppDetail(holder = holder)
             }
         }
 
@@ -203,7 +226,7 @@ class MyListAdapter(
             imageView = holder.imageViewAppIcon,
             fileName = viewModel.myAppName,
             viewModel = viewModel,
-            context = context,
+            context = myActivity,
             viewPager = fragment.viewPager,
         )
 
@@ -213,9 +236,9 @@ class MyListAdapter(
         holder.textViewAppName.setOnLongClickListener {
             VibrationHelper.vibrateOnLongPress(viewModel)
             ClipboardHelper.copyToClipboard(
-                context = context,
+                context = myActivity,
                 text = viewModel.myAppName,
-                toastString = context.getString(R.string.toast_app_name),
+                toastString = myActivity.getString(R.string.toast_app_name),
             )
             true
         }
@@ -226,37 +249,37 @@ class MyListAdapter(
         holder.textViewPackageName.setOnLongClickListener {
             VibrationHelper.vibrateOnLongPress(viewModel)
             ClipboardHelper.copyToClipboard(
-                context = context,
+                context = myActivity,
                 text = viewModel.myPackageName,
-                toastString = context.getString(R.string.toast_package_name),
+                toastString = myActivity.getString(R.string.toast_package_name),
             )
             true
         }
 
         holder.textViewAppVersion.text =
-            context.getString(R.string.app_version, viewModel.myVersionName)
+            myActivity.getString(R.string.app_version, viewModel.myVersionName)
         // 禁用振动反馈
         holder.textViewAppVersion.isHapticFeedbackEnabled = false
         holder.textViewAppVersion.setOnLongClickListener {
             VibrationHelper.vibrateOnLongPress(viewModel)
             ClipboardHelper.copyToClipboard(
-                context = context,
+                context = myActivity,
                 text = viewModel.myVersionName,
-                toastString = context.getString(R.string.toast_app_version),
+                toastString = myActivity.getString(R.string.toast_app_version),
             )
             true
         }
 
         holder.textViewAppAuthor.text =
-            context.getString(R.string.app_author, viewModel.myAuthorName)
+            myActivity.getString(R.string.app_author, viewModel.myAuthorName)
         // 禁用振动反馈
         holder.textViewAppAuthor.isHapticFeedbackEnabled = false
         holder.textViewAppAuthor.setOnLongClickListener {
             VibrationHelper.vibrateOnLongPress(viewModel)
             ClipboardHelper.copyToClipboard(
-                context = context,
+                context = myActivity,
                 text = viewModel.myAuthorName,
-                toastString = context.getString(R.string.toast_author_name),
+                toastString = myActivity.getString(R.string.toast_author_name),
             )
             true
         }
@@ -265,23 +288,24 @@ class MyListAdapter(
 
     // 设置清除缓存
     private fun setupClearCache(holder: MyViewHolder) {
-        holder.textViewClearCache.text = context.getString(R.string.clear_cache)
+        holder.textViewClearCache.text = myActivity.getString(R.string.clear_cache)
         updateCacheSize(holder)
         holder.itemView.setOnClickListener {
             VibrationHelper.vibrateOnClick(viewModel)
             DialogHelper.showConfirmDialog(
-                context = context,
+                context = myActivity,
                 viewModel = viewModel,
-                titleText = context.getString(R.string.clear_cache_confirmation),
+                titleText = myActivity.getString(R.string.clear_cache_confirmation),
                 positiveAction = {
                     DataCleanHelper.clearCache(viewModel)
                     updateCacheSize(holder)
                     Toast.makeText(
-                        context,
-                        context.getString(R.string.clear_cache_success),
+                        myActivity,
+                        myActivity.getString(R.string.clear_cache_success),
                         Toast.LENGTH_SHORT,
                     ).show()
                 },
+                positiveButtonTextColor = myActivity.getColor(R.color.red),
             )
         }
     }
@@ -293,24 +317,25 @@ class MyListAdapter(
 
     // 设置清除数据
     private fun setupClearData(holder: MyViewHolder) {
-        holder.textViewClearData.text = context.getString(R.string.clear_data)
+        holder.textViewClearData.text = myActivity.getString(R.string.clear_data)
         updateDataSize(holder)
         holder.itemView.setOnClickListener {
             VibrationHelper.vibrateOnClick(viewModel)
             VibrationHelper.vibrateOnDangerousOperation(viewModel)
             DialogHelper.showConfirmDialog(
-                context = context,
+                context = myActivity,
                 viewModel = viewModel,
-                titleText = context.getString(R.string.clear_data_confirmation),
+                titleText = myActivity.getString(R.string.clear_data_confirmation),
                 positiveAction = {
                     DataCleanHelper.clearData(viewModel)
                     updateDataSize(holder)
                     Toast.makeText(
-                        context,
-                        context.getString(R.string.clear_data_success),
+                        myActivity,
+                        myActivity.getString(R.string.clear_data_success),
                         Toast.LENGTH_SHORT,
                     ).show()
                 },
+                positiveButtonTextColor = myActivity.getColor(R.color.red),
             )
         }
     }
@@ -322,7 +347,7 @@ class MyListAdapter(
 
     // 支持作者
     private fun setupSupportAuthor(holder: MyViewHolder) {
-        holder.textViewName.text = context.getString(R.string.supportAuthor)
+        holder.textViewName.text = myActivity.getString(R.string.supportAuthor)
         holder.itemView.setOnClickListener {
             VibrationHelper.vibrateOnClick(viewModel)
             FragmentHelper.switchFragment(
@@ -338,7 +363,7 @@ class MyListAdapter(
 
     // 关于项目
     private fun setupAboutProject(holder: MyViewHolder) {
-        holder.textViewName.text = context.getString(R.string.about_project)
+        holder.textViewName.text = myActivity.getString(R.string.about_project)
         holder.itemView.setOnClickListener {
             VibrationHelper.vibrateOnClick(viewModel)
             FragmentHelper.switchFragment(
@@ -354,11 +379,13 @@ class MyListAdapter(
 
     // 检查更新
     private fun setupCheckUpdate(holder: MyViewHolder) {
-        holder.itemView.setOnClickListener {
+        val clickableContainer = holder.itemView.findViewById<ConstraintLayout>(R.id.clickable_container)
+
+        clickableContainer.setOnClickListener {
             VibrationHelper.vibrateOnClick(viewModel)
 
             CheckUpdateHelper.checkNetworkAccessModeAndCheckUpdate(
-                context = context,
+                context = myActivity,
                 viewModel = viewModel,
                 silence = false,
             )
@@ -368,7 +395,7 @@ class MyListAdapter(
 
     // 设置
     private fun setupSetting(holder: MyViewHolder) {
-        holder.textViewName.text = context.getString(R.string.setting)
+        holder.textViewName.text = myActivity.getString(R.string.setting)
         holder.itemView.setOnClickListener {
             VibrationHelper.vibrateOnClick(viewModel)
             FragmentHelper.switchFragment(
@@ -396,10 +423,43 @@ class MyListAdapter(
                 fragmentName = FragmentName.WEB_VIEW_FRAGMENT,
                 fragmentManager = fragmentManager,
                 viewModel = viewModel,
-                context = context,
+                context = myActivity,
                 viewPager = fragment.viewPager,
                 constraintLayoutOrigin = fragment.constraintLayoutOrigin,
             )
+        }
+    }
+
+    private fun setupSchemeList(holder: MyViewHolder) {
+        holder.textViewName.text = myActivity.getString(R.string.scheme_list)
+        holder.itemView.setOnClickListener {
+            VibrationHelper.vibrateOnClick(viewModel)
+            FragmentHelper.switchFragment(
+                fragmentName = FragmentName.SCHEME_LIST_FRAGMENT,
+                fragmentManager = fragmentManager,
+                viewModel = viewModel,
+                context = myActivity,
+                viewPager = fragment.viewPager,
+                constraintLayoutOrigin = fragment.constraintLayoutOrigin,
+            )
+        }
+    }
+
+
+    // 应用详情
+    private fun setupAppDetail(holder: MyViewHolder) {
+        holder.textViewName.text = myActivity.getString(R.string.app_detail)
+        holder.itemView.setOnClickListener {
+            VibrationHelper.vibrateOnClick(viewModel)
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            val uri = Uri.fromParts("package", myActivity.packageName, null)
+            intent.data = uri
+            LaunchHelper.launch(
+                myActivity = myActivity,
+                viewModel = viewModel,
+                intent = intent,
+            )
+
         }
     }
 }

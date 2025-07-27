@@ -21,9 +21,10 @@ import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.constant.FragmentName
 import cn.minimote.toolbox.constant.MenuType
+import cn.minimote.toolbox.constant.ViewList.toolDetailList
+import cn.minimote.toolbox.constant.ViewList.widgetDetailList
 import cn.minimote.toolbox.dataClass.StoredTool
 import cn.minimote.toolbox.dataClass.Tool
-import cn.minimote.toolbox.helper.ActivityLaunchHelper
 import cn.minimote.toolbox.helper.DialogHelper
 import cn.minimote.toolbox.helper.EditTextHelper
 import cn.minimote.toolbox.helper.FragmentHelper
@@ -87,6 +88,8 @@ class BottomSheetAdapter(
             MenuType.SORT -> R.string.sort
             MenuType.CANCEL -> R.string.cancel
             MenuType.SAVE_IMAGE -> R.string.save_image
+            MenuType.TOOL_DETAIL -> R.string.tool_detail
+            MenuType.WIDGET_DETAIL -> R.string.tool_detail
 
             // 排序方式
             else -> when(holder.viewType) {
@@ -156,10 +159,33 @@ class BottomSheetAdapter(
                     viewPager!!.isUserInputEnabled = false
                 }
 
-                MenuType.SORT -> {
-                }
+                MenuType.SORT -> {}
 
                 MenuType.CANCEL -> {}
+
+                MenuType.TOOL_DETAIL -> {
+                    viewModel.originTool.value = tool!!.toStoredTool()
+                    viewModel.updateDetailList(toolDetailList)
+                    FragmentHelper.switchFragment(
+                        fragmentName = FragmentName.DETAIL_LIST_FRAGMENT,
+                        fragmentManager = fragmentManager!!,
+                        viewModel = viewModel,
+                        viewPager = viewPager,
+                        constraintLayoutOrigin = constraintLayoutOrigin,
+                    )
+                }
+
+                MenuType.WIDGET_DETAIL -> {
+                    viewModel.originTool.value = tool as StoredTool
+                    viewModel.updateDetailList(widgetDetailList)
+                    FragmentHelper.switchFragment(
+                        fragmentName = FragmentName.DETAIL_LIST_FRAGMENT,
+                        fragmentManager = fragmentManager!!,
+                        viewModel = viewModel,
+                        viewPager = viewPager,
+                        constraintLayoutOrigin = constraintLayoutOrigin,
+                    )
+                }
 
                 // 排序方式
                 else -> {
@@ -212,7 +238,7 @@ class BottomSheetAdapter(
 
         val editTextNickname: EditText = view.findViewById(R.id.editText_nickName)
         val imageButtonClear: ImageButton = view.findViewById(R.id.imageButton_clear)
-        val buttonReset: Button = view.findViewById(R.id.button_reset_nickName)
+        val buttonReset: Button = view.findViewById(R.id.button_reset)
         val buttonCancel: Button = view.findViewById(R.id.button_cancel)
         val buttonConfirm: Button = view.findViewById(R.id.button_confirm)
 
@@ -234,16 +260,10 @@ class BottomSheetAdapter(
                 buttonReset.visibility = View.INVISIBLE
             }
         }
-        fun setImageButtonClear() {
-            if(editTextNickname.text.toString() != "") {
-                imageButtonClear.visibility = View.VISIBLE
-            } else {
-                imageButtonClear.visibility = View.INVISIBLE
-            }
-        }
+
         fun setConfirmButton() {
             if(editTextNickname.text.isNotBlank()) {
-                buttonConfirm.setTextColor(context.getColor(R.color.purple_200))
+                buttonConfirm.setTextColor(context.getColor(R.color.primary))
             } else {
                 buttonConfirm.setTextColor(context.getColor(R.color.mid_gray))
             }
@@ -253,18 +273,17 @@ class BottomSheetAdapter(
         EditTextHelper.setEditTextAndClearButton(
             editText = editTextNickname,
             stringText = tool.nickname,
+            stringHint = context.getString(R.string.cannot_be_blank),
             viewModel = viewModel,
             imageButtonClear = imageButtonClear,
             afterTextChanged = {
                 setButtonReset()
-                setImageButtonClear()
                 setConfirmButton()
             }
         )
 
 
         setButtonReset()
-        setImageButtonClear()
         setConfirmButton()
 
 
@@ -284,23 +303,18 @@ class BottomSheetAdapter(
             VibrationHelper.vibrateOnClick(viewModel)
 
             if(editTextNickname.text.isNotBlank()) {
-                val shortcutIntent = ActivityLaunchHelper.getIntent(context, tool)
-                val icon = viewModel.iconCacheHelper.getIcon(tool)
-
-                shortcutIntent?.let {
-                    ShortcutHelper.createShortcut(
-                        context = context,
-                        shortcutIntent = shortcutIntent,
-                        shortLabel = editTextNickname.text.toString(),
-                        longLabel = tool.description.ifBlank { tool.name },
-                        icon = icon,
-                    )
-                }
+                ShortcutHelper.createShortcut(
+                    context = context,
+                    viewModel = viewModel,
+                    tool = tool,
+                    shortLabel = editTextNickname.text.toString(),
+                    longLabel = tool.description?.ifBlank { tool.nickname } ?: tool.name,
+                )
                 dialog.dismiss()
             } else {
                 Toast.makeText(
                     context,
-                    R.string.name_cannot_be_blank,
+                    R.string.cannot_be_blank,
                     Toast.LENGTH_SHORT,
                 ).show()
             }

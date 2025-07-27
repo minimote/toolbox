@@ -15,18 +15,19 @@
 
         <TextView
             android:id="@+id/textView_name"
-            style="@style/TextView.Toolbox.EditOperateName.Dark"
-            android:paddingHorizontal="@dimen/layout_size_1_small"
+            style="@style/TextView.Toolbox.EditName.EditText.Dark"
+            android:layout_marginStart="@dimen/layout_size_1.5_footnote"
+            android:padding="@dimen/layout_size_1.5_footnote"
             android:text="@string/name"
             app:layout_constraintBottom_toTopOf="@id/editText_nickName"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            android:id="@+id/button_reset_nickName"
+            android:id="@+id/button_reset"
             style="@style/Button.Toolbox.Reset.Dark"
             android:layout_height="wrap_content"
-            android:padding="@dimen/layout_size_0_normal"
+            android:padding="@dimen/layout_size_1.5_footnote"
             app:layout_constraintBottom_toTopOf="@id/editText_nickName"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/textView_name"
@@ -35,7 +36,7 @@
         <EditText
             android:id="@+id/editText_nickName"
             style="@style/EditText.Toolbox.Dark"
-            android:layout_margin="@dimen/layout_size_1_small"
+            android:layout_margin="@dimen/layout_size_1.5_footnote"
             android:autofillHints=""
             android:hint="@string/can_be_empty"
             app:layout_constraintBottom_toTopOf="@id/button_cancel"
@@ -56,7 +57,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/cancel"
-            android:textColor="@color/purple_200"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/button_confirm"
             app:layout_constraintStart_toStartOf="parent" />
@@ -67,7 +67,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/create"
-            android:textColor="@color/purple_200"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/button_cancel" />

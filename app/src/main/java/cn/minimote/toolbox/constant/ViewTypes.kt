@@ -6,15 +6,21 @@
 package cn.minimote.toolbox.constant
 
 // 视图类型
-object ViewType {
+object ViewTypes {
+    // 安装应用列表
+    object InstalledAppList {
+        const val NORMAL = 0
+        const val TITLE = 1
+    }
+
     // 编辑视图类型
     object Edit {
-        const val PACKAGE_NAME = 0
-        const val ACTIVITY_NAME = 1
-        const val NICKNAME = 2
-        const val SHOW_NAME = 3
-        const val SIZE = 4
-        const val DELETE = 5
+        const val PREVIEW = 0
+        const val NICKNAME = 1
+        const val DISPLAY_MODE = 2
+        const val WIDTH = 3
+        const val DELETE = 4
+        const val ALIGNMENT = 5
     }
 
     // 我的视图类型
@@ -29,6 +35,8 @@ object ViewType {
         const val INSTRUCTION = 7
         const val UPDATE_LOG = 8
         const val PROBLEM_FEEDBACK = 9
+        const val SCHEME_LIST = 10
+        const val APP_DETAIL = 11
     }
 
     // 支持作者视图类型
@@ -55,14 +63,51 @@ object ViewType {
     object Setting {
         const val TITLE_CHECK_UPDATE = 0
         const val UPDATE_CHECK_FREQUENCY = 1
+
+
         const val TITLE_VIBRATION = 2
         const val VIBRATION_MODE = 3
+
+
         const val TITLE_NETWORK = 4
         const val NETWORK_ACCESS_MODE_MOBILE = 5
         const val NETWORK_ACCESS_MODE_WIFI = 6
         const val NETWORK_ACCESS_MODE_BLUETOOTH = 7
         const val NETWORK_ACCESS_MODE_OTHER = 8
-        const val RESTORE_DEFAULT = 9
+
+
+        const val TITLE_RESTORE = 9
+        const val RESTORE_DEFAULT = 10
+
+
+        const val TITLE_LAUNCH = 11
+        const val EXIT_AFTER_LAUNCH = 12
+    }
+
+
+    // 组件详情
+    object WidgetDetail {
+
+        const val SCHEME = 0
+
+        const val DEFAULT_NAME = 1
+        const val DESCRIPTION = 2
+        const val WARNING_MESSAGE = 3
+
+        const val PACKAGE_NAME = 4
+        const val ACTIVITY_NAME = 5
+
+        const val INTENT_ACTION = 6
+        const val INTENT_CATEGORY = 7
+        const val INTENT_FLAG = 8
+        const val INTENT_EXTRAS = 9
+        const val INTENT_URI = 10
+
+        const val CREATED_TIME = 11
+        const val LAST_MODIFIED_TIME = 12
+        const val LAST_USED_TIME = 13
+        const val USE_COUNT = 14
+
     }
 
 }
