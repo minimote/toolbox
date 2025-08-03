@@ -45,7 +45,7 @@
     </style>
     <!-- Button：圆角 -->
     <style name="Button.Toolbox.Round.Dark" parent="Button.Toolbox.Dark">
-        <item name="cornerRadius">@dimen/layout_size_1.5_footnote</item> <!-- 圆角半径 -->
+        <item name="cornerRadius">@dimen/layout_size_radius_size</item> <!-- 圆角半径 -->
     </style>
     <!-- Button：Dialog -->
     <style name="Button.Toolbox.Dialog.Dark" parent="Button.Toolbox.SelectAll.Dark">
@@ -79,7 +79,7 @@
     <style name="Button.Toolbox.RemoveFromHome.Dark" parent="Button.Toolbox.Dark">
         <item name="android:layout_width">0dp</item>
         <!--        <item name="android:layout_height">0dp</item>-->
-        <item name="android:text">@string/remove_from_home</item>
+        <item name="android:text">@string/cancel_collection</item>
         <item name="android:textColor">@color/red</item>
         <item name="android:padding">@dimen/layout_size_2_footnote</item>
     </style>
@@ -122,10 +122,10 @@
     </style>
     <!-- View：名称左边的圆点 -->
     <style name="View.Toolbox.Circle.NameLeft.Dark" parent="Theme.Toolbox.Dark">
-        <item name="android:layout_width">@dimen/layout_size_2_footnote</item>
-        <item name="android:layout_height">@dimen/layout_size_2_footnote</item>
+        <item name="android:layout_width">@dimen/layout_size_3_script</item>
+        <item name="android:layout_height">@dimen/layout_size_1_small</item>
         <item name="android:layout_marginHorizontal">@dimen/layout_size_2_footnote</item>
-        <item name="android:background">@drawable/background_circle_solid</item>
+        <item name="android:background">@drawable/background_rectangle_solid</item>
     </style>
 
 
@@ -146,6 +146,16 @@
     <style name="ImageView.Toolbox.AppIcon.Dark" parent="ImageView.Toolbox.Dark">
         <item name="android:layout_width">@dimen/layout_size_1_large</item>
         <item name="android:layout_height">@dimen/layout_size_1_large</item>
+        <!--        <item name="android:layout_marginStart">@dimen/layout_size_2_footnote</item>-->
+        <!--        <item name="android:layout_marginEnd">@dimen/layout_size_2_footnote</item>-->
+        <!--        <item name="android:layout_marginVertical">@dimen/layout_size_2_footnote</item>-->
+    </style>
+    <!-- ImageView：收藏图标 -->
+    <style name="ImageView.Toolbox.LikeIcon.Dark" parent="ImageView.Toolbox.Dark">
+        <item name="android:layout_width">@dimen/layout_size_1.5_footnote</item>
+        <item name="android:layout_height">@dimen/layout_size_1.5_footnote</item>
+        <item name="android:layout_marginTop">-4dp</item>
+        <item name="android:layout_marginEnd">-7dp</item>
         <!--        <item name="android:layout_marginStart">@dimen/layout_size_2_footnote</item>-->
         <!--        <item name="android:layout_marginEnd">@dimen/layout_size_2_footnote</item>-->
         <!--        <item name="android:layout_marginVertical">@dimen/layout_size_2_footnote</item>-->
@@ -173,9 +183,10 @@
     </style>
     <!-- ImageView：编辑模式背景 -->
     <style name="ImageView.Toolbox.EditBackground.Dark" parent="ImageView.Toolbox.Dark">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <!--        <item name="android:background">@drawable/background_ripple</item>-->
+        <item name="android:layout_width">0px</item>
+        <item name="android:layout_height">0px</item>
+        <item name="layout_constraintHeight_percent">@dimen/layout_size_image_ratio</item>
+        <item name="layout_constraintWidth_percent">@dimen/layout_size_image_ratio</item>
     </style>
 
 
@@ -194,6 +205,13 @@
         <!-- 行距倍数 -->
         <item name="android:lineSpacingMultiplier">1.25</item>
         <item name="android:text">@string/app_name</item>
+    </style>
+    <!-- TextView：工具标题 -->
+    <style name="TextView.Toolbox.ToolTitle.Dark" parent="TextView.Toolbox.Dark">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:textSize">@dimen/text_size_2_Large</item>
+        <item name="android:layout_marginVertical">@dimen/layout_size_1_small</item>
+        <item name="android:textStyle">bold</item>
     </style>
     <!-- TextView：一级设置项 -->
     <style name="TextView.Toolbox.Setting1.Dark" parent="TextView.Toolbox.Dark">
@@ -297,6 +315,7 @@
         <item name="android:gravity">start</item>
         <item name="android:padding">0px</item>
         <item name="android:paddingStart">@dimen/layout_size_2_footnote</item>
+        <item name="android:paddingEnd">@dimen/layout_size_2_footnote</item>
         <!--                <item name="android:layout_marginVertical">@dimen/layout_size_3_script</item>-->
         <!--        <item name="android:layout_marginEnd">@dimen/layout_size_2_footnote</item>-->
         <!--        <item name="android:layout_marginTop">@dimen/layout_size_2_footnote</item>-->
@@ -324,6 +343,7 @@
         <item name="android:gravity">start</item>
         <item name="android:padding">0px</item>
         <item name="android:paddingStart">@dimen/layout_size_2_footnote</item>
+        <item name="android:paddingEnd">@dimen/layout_size_2_footnote</item>
         <!--        <item name="android:layout_marginStart">@dimen/layout_size_2_footnote</item>-->
         <!--        <item name="android:layout_marginTop">@dimen/layout_size_2_footnote</item>-->
         <!--        <item name="android:layout_marginBottom">@dimen/layout_size_3_script</item>-->
@@ -600,8 +620,8 @@
         <item name="android:windowNoTitle">true</item>
         <item name="android:gravity">center</item>
         <!-- 设置 Dialog 的最小宽度为 80% match_parent -->
-        <item name="android:windowMinWidthMajor">80%</item>
-        <item name="android:windowMinWidthMinor">80%</item>
+        <item name="android:windowMinWidthMajor">85%</item>
+        <item name="android:windowMinWidthMinor">85%</item>
     </style>
 
 
@@ -614,4 +634,18 @@
         <item name="android:minWidth">@dimen/layout_size_2_footnote</item>
         <item name="android:background">@color/transparent</item>
     </style>
+
+
+    <style name="SearchView.Toolbox.Dark" parent="Widget.AppCompat.SearchView">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="iconifiedByDefault">true</item>
+<!--        <item name="searchIcon">@drawable/ic_add</item>-->
+<!--        <item name="closeIcon">@drawable/ic_close</item>-->
+        <item name="queryBackground">@drawable/background_edittext</item>
+        <item name="submitBackground">@drawable/background_edittext</item>
+        <item name="android:textColor">@color/text_white</item>
+        <item name="android:textColorHint">@color/mid_gray</item>
+    </style>
+
 </resources>

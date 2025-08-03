@@ -28,7 +28,12 @@
     <color name="switch_track_on">#FF217CFF</color>
     <color name="switch_track_off">#FF535353</color>
     <color name="yellow">#FFF8D714</color>
+
     <color name="ic_color">#FF24ADF3</color>
+    <color name="ic_color_developer_option">#4285F4</color>
+    <color name="ic_color_accessibility_option">#34A853</color>
+    <color name="ic_color_recent_task">#D9A300</color>
+
     <color name="alipay_blue">#FF0066FF</color>
     <color name="wechat_green">#FF2CA138</color>
 </resources>

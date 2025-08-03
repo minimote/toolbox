@@ -4,6 +4,8 @@
     style="@style/ConstraintLayout.Toolbox.Clickable.Dark"
     android:layout_width="wrap_content"
     android:background="@drawable/background_ripple_round"
+    android:clipToPadding="false"
+    android:paddingHorizontal="@dimen/layout_size_3_script"
     android:paddingVertical="@dimen/layout_size_1.5_footnote">
 
     <ImageView
@@ -14,6 +16,14 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/imageView_heart"
+        style="@style/ImageView.Toolbox.LikeIcon.Dark"
+        android:importantForAccessibility="no"
+        android:src="@drawable/ic_heart"
+        app:layout_constraintEnd_toEndOf="@id/imageView_app_icon"
+        app:layout_constraintTop_toTopOf="@id/imageView_app_icon" />
 
     <TextView
         android:id="@+id/textView_app_name"

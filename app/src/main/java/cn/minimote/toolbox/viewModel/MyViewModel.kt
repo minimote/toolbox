@@ -24,6 +24,7 @@ import cn.minimote.toolbox.constant.Collator
 import cn.minimote.toolbox.constant.Config
 import cn.minimote.toolbox.constant.Config.ConfigKeys
 import cn.minimote.toolbox.constant.FragmentName
+import cn.minimote.toolbox.constant.MenuType
 import cn.minimote.toolbox.constant.ToolConstants
 import cn.minimote.toolbox.constant.UI
 import cn.minimote.toolbox.constant.ViewTypes
@@ -34,10 +35,12 @@ import cn.minimote.toolbox.helper.CheckUpdateHelper
 import cn.minimote.toolbox.helper.ConfigHelper.getConfigValue
 import cn.minimote.toolbox.helper.IconCacheHelper
 import cn.minimote.toolbox.helper.SchemeHelper
+import cn.minimote.toolbox.helper.SortHelper
 import cn.minimote.toolbox.helper.StoredToolHelper
-import cn.minimote.toolbox.helper.ToolListSortHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 import kotlin.math.min
@@ -142,14 +145,14 @@ class MyViewModel
     // 上次更新检查时间
     val lastUpdateCheckTime: Long
         get() = getConfigValue(
-            key = ConfigKeys.LAST_CHECK_UPDATE_TIME,
+            key = ConfigKeys.CheckUpdate.LAST_CHECK_UPDATE_TIME,
         )?.toString()?.toLongOrNull() ?: 0L
 
     // 检查更新间隔
     val updateCheckGapLong: Long
         get() = CheckUpdateHelper.getUpdateCheckGapLong(
             getConfigValue(
-                key = ConfigKeys.CHECK_UPDATE_FREQUENCY,
+                key = ConfigKeys.CheckUpdate.CHECK_UPDATE_FREQUENCY,
             ).toString()
         )
 
@@ -434,7 +437,7 @@ class MyViewModel
         builtChangeOrderMap()
     }
     // 建立用于修改列表大小的映射
-    private fun builtChangeSizeMap() {
+    fun builtChangeSizeMap() {
         _toolListSizeChangeMap = builtMapFromList(_storedToolList.value!!)
     }
     // 建立用于修改顺序的映射
@@ -544,8 +547,18 @@ class MyViewModel
     fun sortStoredToolList(sortType: Int) {
 //        Log.e("排序", "开始排序")
         _storedToolList.value?.let { activities ->
-//            Log.e("排序", "进入排序")
-            _storedToolList.value = ToolListSortHelper.sort(activities, sortType)
+            when(sortType) {
+                MenuType.SortOrder.RESTORE_SORT -> {
+                    restoreStoredToolList()
+                }
+                MenuType.SortOrder.FREE_SORT -> {
+
+                }
+                else -> {
+        //            Log.e("排序", "进入排序")
+                    _storedToolList.value = SortHelper.sort(activities, sortType)
+                }
+            }
 
             updateStoredToolListOrder()
         }
@@ -556,6 +569,23 @@ class MyViewModel
     fun getInstalledAppCoroutine() {
         viewModelScope.launch {
             getInstalledApp()
+            // 预加载所有已安装应用的图标
+            preloadAppIcons()
+        }
+    }
+
+
+    // 预加载应用图标
+    private suspend fun preloadAppIcons() {
+        withContext(Dispatchers.IO) {
+            installedAppList.value?.forEach { app ->
+                try {
+                    // 获取并缓存图标
+                    iconCacheHelper.getCircularDrawable(app)
+                } catch(_: Exception) {
+                    // 忽略单个图标加载失败的情况
+                }
+            }
         }
     }
 
@@ -692,6 +722,16 @@ class MyViewModel
     // 获取选中集合中的大小
     fun getSelectedSize(): Int {
         return _selectedIds.value?.size ?: 0
+    }
+
+
+    // 获取选中的工具名称
+    fun getSelectedWidgetName(): String {
+        val selectedIds = _selectedIds.value ?: return ""
+        if(selectedIds.size == 1) {
+            return _storedToolMap[selectedIds.first()]?.name ?: ""
+        }
+        return ""
     }
 
 

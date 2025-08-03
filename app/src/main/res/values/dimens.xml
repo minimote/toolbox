@@ -28,8 +28,16 @@
     <dimen name="layout_size_3_LARGE">128dp</dimen>
     <dimen name="layout_size_4_huge">256dp</dimen>
     <dimen name="layout_size_5_Huge">512dp</dimen>
+    <!-- 弹窗最大宽度 -->
+    <dimen name="layout_size_dialog_maxWidth">450dp</dimen>
+    <!-- 弹窗最大高度 -->
+    <dimen name="layout_size_dialog_maxHeight">800dp</dimen>
+    <!-- 图片比例 -->
+    <dimen name="layout_size_image_ratio">0.7</dimen>
+    <!-- 图片比例(手表) -->
+    <dimen name="layout_size_image_ratio_watch">0.5</dimen>
 
     <!-- 圆角 -->
-    <dimen name="layout_radius_size">12dp</dimen>
-    <dimen name="layout_shadow_width">24dp</dimen>
+    <dimen name="layout_size_radius_size">12dp</dimen>
+    <dimen name="layout_size_shadow_width">24dp</dimen>
 </resources>

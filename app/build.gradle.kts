@@ -26,7 +26,7 @@ android {
         var testSuffix = ""
 
         // 测试的后缀
-        testSuffix = "-alpha.4"
+        testSuffix = "-alpha.5"
         // 版本号
         val versionCodeList = listOf(2, 0, 0)
 
@@ -198,6 +198,10 @@ dependencies {
 
     // 越界回弹
     implementation("io.github.scwang90:refresh-layout-kernel:3.0.0-alpha")
+
+    // 拼音匹配
+    implementation("com.github.promeg:tinypinyin:2.0.3")
+
 }
 kapt {
     correctErrorTypes = true

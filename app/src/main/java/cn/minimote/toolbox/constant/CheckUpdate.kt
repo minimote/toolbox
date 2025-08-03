@@ -27,7 +27,7 @@ object CheckUpdate {
     val VERSION_NAME_SEPARATOR_REGEX = "[\\s_-]".toRegex()
 
     // 轮询查询下载状态的间隔时间
-    const val MONITOR_DOWNLOAD_STATUS_GAP_RIME = 1000L
+    const val MONITOR_DOWNLOAD_STATUS_GAP_RIME = 100L
 
     const val GITEE_API_URL = "https://gitee.com/api/v5/repos/{owner}/{repo}/releases/latest"
     const val GITEE_API_OWNER = "{owner}"

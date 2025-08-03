@@ -158,7 +158,7 @@ class AboutProjectAdapter(
         try {
             val intent = Intent(Intent.ACTION_VIEW, url.toUri())
             context.startActivity(intent)
-        } catch(e: Exception) {
+        } catch(_: Exception) {
             Toast.makeText(
                 context,
                 context.getString(R.string.openUrlError, url),

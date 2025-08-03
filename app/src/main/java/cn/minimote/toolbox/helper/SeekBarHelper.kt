@@ -48,7 +48,7 @@ object SeekBarHelper {
                     if(seekBar.progress != lastPosition.get()) {
                         lastPosition.set(seekBar.progress)
                         val selectedValue = valueList[seekBar.progress]
-                        callback.updateConfigValue(ConfigKeys.CHECK_UPDATE_FREQUENCY, selectedValue)
+                        callback.updateConfigValue(ConfigKeys.CheckUpdate.CHECK_UPDATE_FREQUENCY, selectedValue)
                         callback.setupTextView()
                         VibrationHelper.vibrateOnClick(viewModel)
                     }

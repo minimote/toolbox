@@ -6,6 +6,9 @@
 package cn.minimote.toolbox.constant
 
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.constant.FragmentName.MY_LIST_FRAGMENT
+import cn.minimote.toolbox.constant.FragmentName.TOOL_LIST_FRAGMENT
+import cn.minimote.toolbox.constant.FragmentName.WIDGET_LIST_FRAGMENT
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 
@@ -17,7 +20,7 @@ object Config {
 
     // 配置的文件名
     object ConfigFileName {
-//        const val DEFAULT_CONFIG = "default_config.jsonc"
+        //        const val DEFAULT_CONFIG = "default_config.json"
         const val USER_CONFIG = "user_config.json"
     }
 
@@ -26,10 +29,12 @@ object Config {
 //        // 版本号
 //        const val VERSION = "version"
 
-        // 上次检查更新时间
-        const val LAST_CHECK_UPDATE_TIME = "last_check_update_time"
-        // 更新检查频率
-        const val CHECK_UPDATE_FREQUENCY = "check_update_frequency"
+        object CheckUpdate {
+            // 上次检查更新时间
+            const val LAST_CHECK_UPDATE_TIME = "last_check_update_time"
+            // 更新检查频率
+            const val CHECK_UPDATE_FREQUENCY = "check_update_frequency"
+        }
 
         // 振动模式
         const val VIBRATION_MODE = "vibration_mode"
@@ -47,7 +52,7 @@ object Config {
 
 
         // 保存按钮的位置
-        const val SAVE_BUTTON_POSITION ="save_button_position"
+        const val SAVE_BUTTON_POSITION = "save_button_position"
 
 
         // 全部工具页面的列数
@@ -56,8 +61,20 @@ object Config {
 //        const val SCHEME_LIST_COLUMN_COUNT = "scheme_list_column_count"
 
 
-        // 打开工具后退出本软件
-        const val EXIT_AFTER_LAUNCH = "exit_after_launch"
+        object Launch {
+            // 打开工具后退出本软件
+            const val EXIT_AFTER_LAUNCH = "exit_after_launch"
+            // 软件启动的首页
+            const val HOME_PAGE = "home_page"
+        }
+
+
+        object Display {
+            // 显示收藏标志
+            const val SHOW_LIKE_ICON = "show_like_icon"
+            // 显示不可用的工具
+            const val SHOW_UNAVAILABLE_TOOLS = "show_unavailable_tools"
+        }
     }
 
 
@@ -109,6 +126,18 @@ object Config {
                 )
             }
         }
+
+
+        // 软件启动首页
+        object HomePage {
+            val idToStringIdMap by lazy {
+                linkedMapOf(
+                    TOOL_LIST_FRAGMENT to R.string.fragment_name_tool_list,
+                    WIDGET_LIST_FRAGMENT to R.string.fragment_name_widget_list,
+                    MY_LIST_FRAGMENT to R.string.fragment_name_my_list,
+                )
+            }
+        }
     }
 
 
@@ -119,9 +148,9 @@ object Config {
 //            ConfigKeys.VERSION to Version.CONFIG,
 
             // 上次更新时间
-            ConfigKeys.LAST_CHECK_UPDATE_TIME to 0,
+            ConfigKeys.CheckUpdate.LAST_CHECK_UPDATE_TIME to 0,
             // 更新检查频率：daily, weekly, monthly, never
-            ConfigKeys.CHECK_UPDATE_FREQUENCY to ConfigValues.CheckUpdateFrequency.DAILY,
+            ConfigKeys.CheckUpdate.CHECK_UPDATE_FREQUENCY to ConfigValues.CheckUpdateFrequency.DAILY,
 
             // 振动模式：auto, on, off
             ConfigKeys.VIBRATION_MODE to ConfigValues.VibrationMode.AUTO,
@@ -147,7 +176,16 @@ object Config {
 //            ConfigKeys.SCHEME_LIST_COLUMN_COUNT to 1,
 
             // 打开工具后退出本软件
-            ConfigKeys.EXIT_AFTER_LAUNCH to false,
+            ConfigKeys.Launch.EXIT_AFTER_LAUNCH to false,
+
+            // 启动的主页
+            ConfigKeys.Launch.HOME_PAGE to FragmentName.WIDGET_LIST_FRAGMENT,
+
+            // 显示收藏标志
+            ConfigKeys.Display.SHOW_LIKE_ICON to true,
+
+            // 显示不可用的工具
+            ConfigKeys.Display.SHOW_UNAVAILABLE_TOOLS to false,
         )
     }
 }

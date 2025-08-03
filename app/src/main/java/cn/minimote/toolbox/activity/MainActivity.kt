@@ -23,7 +23,7 @@ import androidx.constraintlayout.widget.Guideline
 import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
-import cn.minimote.toolbox.adapter.ToolboxFragmentStateAdapter
+import cn.minimote.toolbox.adapter.MyFragmentStateAdapter
 import cn.minimote.toolbox.constant.FragmentName
 import cn.minimote.toolbox.constant.ViewPaper
 import cn.minimote.toolbox.helper.CheckUpdateHelper
@@ -31,6 +31,7 @@ import cn.minimote.toolbox.helper.ConfigHelper.loadAllConfig
 import cn.minimote.toolbox.helper.ConfigHelper.saveUserConfig
 import cn.minimote.toolbox.helper.DialogHelper
 import cn.minimote.toolbox.helper.FragmentHelper
+import cn.minimote.toolbox.helper.FragmentHelper.getStartFragmentPos
 import cn.minimote.toolbox.helper.SchemeHelper
 import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.pageTransformer.ViewPager2Transformer
@@ -222,18 +223,36 @@ class MainActivity : AppCompatActivity() {
                         DialogHelper.showConfirmDialog(
                             context = this,
                             viewModel = viewModel,
-                            titleText = getString(
-                                R.string.confirm_delete_widget,
-                                viewModel.getSelectedSize(),
-                            ),
+                            titleText = if(viewModel.getSelectedSize() == 1) {
+                                getString(
+                                    R.string.confirm_remove_single_tool,
+                                    viewModel.getSelectedWidgetName(),
+                                )
+                            } else {
+                                getString(
+                                    R.string.confirm_remove_tools,
+                                    viewModel.getSelectedSize(),
+                                )
+                            },
                             positiveAction = {
+                                val toastString =  if(viewModel.getSelectedSize() == 1) {
+                                    getString(
+                                        R.string.remove_success_single_tool,
+                                        viewModel.getSelectedWidgetName(),
+                                    )
+                                } else {
+                                    getString(
+                                        R.string.remove_success_tools,
+                                        viewModel.getSelectedSize(),
+                                    )
+                                }
                                 viewModel.deleteSelectedItemAndSave()
 //                                updateTime()
 //                                buttonSave.visibility = View.INVISIBLE
                                 hideSaveButton()
                                 Toast.makeText(
                                     this@MainActivity,
-                                    getString(R.string.delete_success),
+                                    toastString,
                                     Toast.LENGTH_SHORT,
                                 ).show()
                             },
@@ -368,12 +387,12 @@ class MainActivity : AppCompatActivity() {
 
     // 设置 ViewPager
     private fun setupViewPager() {
-        val startViewPos = ViewPaper.START_VIEW_POS
+        val startViewPos = viewModel.getStartFragmentPos()
 
         viewPager = findViewById(R.id.viewPager_origin)
         tabLayout = findViewById(R.id.tabLayout)
 
-        val adapter = ToolboxFragmentStateAdapter(
+        val adapter = MyFragmentStateAdapter(
             fragmentActivity = this,
             viewPager = viewPager,
             constraintLayoutOrigin = constraintLayoutOrigin,
@@ -398,6 +417,11 @@ class MainActivity : AppCompatActivity() {
                 if(viewModel.isWatch) {
                     // 手表没有页面切换振动，所以点击都会振动
                     VibrationHelper.vibrateOnClick(viewModel)
+                    Toast.makeText(
+                        this@MainActivity,
+                        tab.text,
+                        Toast.LENGTH_SHORT,
+                    ).show()
                 } else {
                     // 手机有页面切换振动，所以点击时只有点击当前页面才振动
                     if(currentPosition == position) {
@@ -655,7 +679,7 @@ class MainActivity : AppCompatActivity() {
 //                hideTimeAndRestoreClick(getString(R.string.delete))
                 // 进入多选模式后，必然选中了一个条目
 //                buttonSave.visibility = View.VISIBLE
-                showSaveButton(getString(R.string.delete_button))
+                showSaveButton(getString(R.string.button_remove))
 //                buttonSave.text = getString(R.string.delete_button)
 //                buttonTime.text = getString(R.string.sort)
 //                buttonTime.isClickable = true
@@ -797,7 +821,7 @@ class MainActivity : AppCompatActivity() {
                     if(selectedIds.isNotEmpty()) {
 //                        hideTimeAndRestoreClick()
 //                        buttonSave.visibility = View.VISIBLE
-                        showSaveButton(getString(R.string.delete))
+                        showSaveButton(getString(R.string.button_remove))
                     } else {
 //                        updateTime()
 //                        buttonSave.visibility = View.INVISIBLE

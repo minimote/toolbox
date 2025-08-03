@@ -45,6 +45,9 @@ class RadioRecyclerView @JvmOverloads constructor(
         flexboxLayoutManager.flexWrap = FlexWrap.WRAP  // 确保可以换行
 
         layoutManager = flexboxLayoutManager
+
+        // 禁用触摸滚动，避免与外部RecyclerView冲突
+        isNestedScrollingEnabled = false
     }
 
     private fun selectedItem(id: String, invokeListener: Boolean = true) {

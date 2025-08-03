@@ -45,7 +45,7 @@ class DetailListFragment : Fragment() {
         recyclerView.addItemDecoration(
             MyDividerItemDecoration(
                 context = context,
-                dividerColor = context.getColor(R.color.deep_gray),
+                dividerColor = context.getColor(R.color.transparent),
                 width = resources.getDimension(R.dimen.layout_size_5_very_tiny).toInt(),
             )
         )

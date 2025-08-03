@@ -2,7 +2,9 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     style="@style/ConstraintLayout.Toolbox.Clickable.Dark"
-    android:paddingVertical="@dimen/layout_size_2_footnote">
+    android:background="@drawable/background_ripple_round"
+    android:paddingVertical="@dimen/layout_size_2_footnote"
+    android:paddingStart="@dimen/layout_size_2.5_script">
 
     <ImageView
         android:id="@+id/imageView_app_icon"

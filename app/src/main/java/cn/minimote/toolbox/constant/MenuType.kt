@@ -14,6 +14,7 @@ import cn.minimote.toolbox.constant.MenuType.SortOrder.LAST_USED_TIME_EARLY_TO_L
 import cn.minimote.toolbox.constant.MenuType.SortOrder.LAST_USED_TIME_LATE_TO_EARLY
 import cn.minimote.toolbox.constant.MenuType.SortOrder.NAME_A_TO_Z
 import cn.minimote.toolbox.constant.MenuType.SortOrder.NAME_Z_TO_A
+import cn.minimote.toolbox.constant.MenuType.SortOrder.RESTORE_SORT
 import cn.minimote.toolbox.constant.MenuType.SortOrder.USE_CNT_LESS_TO_MORE
 import cn.minimote.toolbox.constant.MenuType.SortOrder.USE_CNT_MORE_TO_LESS
 
@@ -55,11 +56,15 @@ object MenuType {
 
         // 自由排序
         const val FREE_SORT = 16
+
+        // 恢复排序
+        const val RESTORE_SORT = 17
     }
     // 所有合法值集合
     val SortOrderSet by lazy {
         setOf(
             FREE_SORT,
+            RESTORE_SORT,
             NAME_A_TO_Z, NAME_Z_TO_A,
             USE_CNT_LESS_TO_MORE, USE_CNT_MORE_TO_LESS,
             CREATED_TIME_EARLY_TO_LATE, CREATED_TIME_LATE_TO_EARLY,
@@ -70,10 +75,10 @@ object MenuType {
 
 
     // 保存图片
-    const val SAVE_IMAGE = 17
+    const val SAVE_IMAGE = 18
 
 
     // 工具信息
-    const val TOOL_DETAIL = 18
-    const val WIDGET_DETAIL = 19
+    const val TOOL_DETAIL = 19
+    const val WIDGET_DETAIL = 20
 }

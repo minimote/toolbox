@@ -14,7 +14,6 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
@@ -276,6 +275,9 @@ class EditListAdapter(
                 updatePreview()
             },
             imageButtonClear = holder.imageButtonClear,
+            onFocusGained = {
+                VibrationHelper.vibrateOnClick(viewModel)
+            }
         )
     }
 
@@ -322,24 +324,25 @@ class EditListAdapter(
 
     // 删除组件
     private fun setDeleteTool(holder: EditViewHolder) {
-        val textViewText = holder.itemView.findViewById<TextView>(R.id.textView_text)
+        val textViewText = holder.itemView.findViewById<TextView>(R.id.textView_name)
         textViewText.text = context.getString(R.string.delete_widget)
         textViewText.setTextColor(context.getColor(R.color.red))
 
-        val clickableContainer = holder.itemView.findViewById<ConstraintLayout>(R.id.clickable_container)
+//        val clickableContainer = holder.itemView.findViewById<ConstraintLayout>(R.id.clickable_container)
 
-        clickableContainer.setOnClickListener {
+//        clickableContainer.setOnClickListener {
+        holder.itemView.setOnClickListener {
             VibrationHelper.vibrateOnClick(viewModel)
             DialogHelper.showConfirmDialog(
                 context = context, viewModel = viewModel, titleText = context.getString(
-                    R.string.confirm_remove_from_home,
+                    R.string.confirm_cancel_collection_single_tool,
                     editedTool.value?.nickname,
                 ), positiveAction = {
                     viewModel.removeFromSizeChangeMap(editedTool.value!!.id)
                     viewModel.saveWidgetList()
                     Toast.makeText(
                         context, context.getString(
-                            R.string.already_remove_from_home,
+                            R.string.already_cancel_collection,
                             editedTool.value?.nickname,
                         ), Toast.LENGTH_SHORT
                     ).show()

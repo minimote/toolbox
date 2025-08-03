@@ -2,13 +2,14 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/fragment_widget_list"
-    style="@style/ConstraintLayout.Toolbox.RecyclerView.Dark">
+    style="@style/ConstraintLayout.Toolbox.RecyclerView.Dark"
+    android:layout_height="match_parent">
 
     <com.scwang.smart.refresh.layout.SmartRefreshLayout
         android:id="@+id/refreshLayout"
         style="@style/SmartRefreshLayout.Toolbox.Dark"
-        app:layout_constraintBottom_toTopOf="@id/constraintLayout_bottomButton"
         android:layout_height="0px"
+        app:layout_constraintBottom_toTopOf="@id/constraintLayout_bottomButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -26,7 +27,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout_background"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:background="@drawable/background_ripple"
         android:clickable="true"
         android:focusable="true"
@@ -44,18 +45,18 @@
             app:layout_constraintBottom_toTopOf="@id/textView_no_widget"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
 
         <TextView
             android:id="@+id/textView_no_widget"
             style="@style/TextView.Toolbox.Dark"
             android:layout_width="match_parent"
-            android:paddingHorizontal="@dimen/layout_size_2_footnote"
-            android:paddingTop="@dimen/layout_size_2.5_Large"
-            android:paddingBottom="@dimen/layout_size_1_large"
+            android:padding="@dimen/layout_size_2_footnote"
             android:text="@string/textView_no_widget"
             android:textSize="@dimen/text_size_3_LARGE"
             android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/imageView_background" />
@@ -74,8 +75,8 @@
         <Button
             android:id="@+id/button_select_all"
             style="@style/Button.Toolbox.SelectAll.Dark"
-            android:visibility="gone"
             android:text="@string/select_all"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/button_reverse_select"
             app:layout_constraintStart_toStartOf="parent"
@@ -84,8 +85,8 @@
         <Button
             android:id="@+id/button_reverse_select"
             style="@style/Button.Toolbox.SelectAll.Dark"
-            android:visibility="gone"
             android:text="@string/reverse_select"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/button_select_all"
@@ -95,8 +96,8 @@
         <Button
             android:id="@+id/button_sort_mode"
             style="@style/Button.Toolbox.SelectAll.Dark"
-            android:visibility="gone"
             android:text="@string/sort_mode"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

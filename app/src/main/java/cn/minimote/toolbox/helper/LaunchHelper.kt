@@ -14,7 +14,9 @@ import androidx.core.net.toUri
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.activity.MainActivity
 import cn.minimote.toolbox.constant.Config
-import cn.minimote.toolbox.constant.LaunchType
+import cn.minimote.toolbox.constant.FragmentName
+import cn.minimote.toolbox.constant.IntentType
+import cn.minimote.toolbox.constant.ToolID
 import cn.minimote.toolbox.constant.ToolMap
 import cn.minimote.toolbox.dataClass.StoredTool
 import cn.minimote.toolbox.dataClass.Tool
@@ -29,15 +31,23 @@ object LaunchHelper {
         viewModel: MyViewModel,
         tool: Tool,
     ) {
-
-        if(!packageWasInstalled(myActivity, tool.packageName)) {
-            Toast.makeText(
-                myActivity,
-                myActivity.getString(R.string.package_not_installed, tool.packageName),
-                Toast.LENGTH_SHORT,
-            ).show()
+        if(tool.intentType == IntentType.FRAGMENT) {
+            launchFragment(
+                myActivity = myActivity,
+                viewModel = viewModel,
+                tool = tool,
+            )
             return
         }
+
+//        if(!packageWasInstalled(myActivity, tool.packageName)) {
+//            Toast.makeText(
+//                myActivity,
+//                myActivity.getString(R.string.package_not_installed, tool.packageName),
+//                Toast.LENGTH_SHORT,
+//            ).show()
+//            return
+//        }
 
         if(!tool.warningMessage.isNullOrBlank()) {
             VibrationHelper.vibrateOnDangerousOperation(viewModel)
@@ -46,7 +56,7 @@ object LaunchHelper {
                 viewModel = viewModel,
                 titleText = myActivity.getString(R.string.warning),
                 titleTextColor = myActivity.getColor(R.color.red),
-                messageText = tool.warningMessage,
+                messageText = myActivity.getString(R.string.indent) + tool.warningMessage,
                 positiveAction = {
                     getIntentAndLaunch(
                         myActivity = myActivity,
@@ -100,6 +110,26 @@ object LaunchHelper {
         }
     }
 
+    // 运行 Fragment
+    fun launchFragment(
+        myActivity: MainActivity,
+        viewModel: MyViewModel,
+        tool: Tool,
+    ) {
+        when(tool.id) {
+            ToolID.Other.WOODEN_FISH -> {
+                FragmentHelper.switchFragment(
+                    fragmentName = FragmentName.WOODEN_FISH_FRAGMENT,
+                    fragmentManager = myActivity.supportFragmentManager,
+                    viewModel = viewModel,
+                    context = myActivity,
+                    viewPager = myActivity.viewPager,
+                    constraintLayoutOrigin = myActivity.constraintLayoutOrigin,
+                )
+            }
+        }
+    }
+
 
     // 获取 Intent 并启动
     private fun getIntentAndLaunch(
@@ -149,7 +179,7 @@ object LaunchHelper {
     fun exitAfterLaunch(
         viewModel: MyViewModel,
     ): Boolean {
-        return viewModel.getConfigValue(Config.ConfigKeys.EXIT_AFTER_LAUNCH) as Boolean
+        return viewModel.getConfigValue(Config.ConfigKeys.Launch.EXIT_AFTER_LAUNCH) as Boolean
     }
 
 
@@ -157,17 +187,17 @@ object LaunchHelper {
     private fun getIntent(context: Context, tool: Tool): Intent? {
 
         return when(tool.intentType) {
-            LaunchType.PACKAGE_AND_ACTIVITY -> createPackageIntent(
+            IntentType.PACKAGE_AND_ACTIVITY -> createPackageIntent(
                 context = context, tool = tool,
             )
 
-            LaunchType.SCHEME -> createSchemeIntent(tool)
+            IntentType.SCHEME -> createSchemeIntent(tool)
 
-            LaunchType.PACKAGE -> createPackageIntent(
+            IntentType.PACKAGE -> createPackageIntent(
                 context = context, tool = tool,
             )
 
-            LaunchType.ACTION -> createPackageIntent(
+            IntentType.ACTION -> createPackageIntent(
                 context = context, tool = tool,
             )
 
@@ -204,7 +234,10 @@ object LaunchHelper {
     // 获取快捷方式的 Intent
     fun getShortcutIntent(context: Context, tool: Tool): Intent? {
         // 存在警告信息的工具只能通过本软件启动
-        if(!tool.warningMessage.isNullOrBlank() && tool.id in ToolMap.idToTool) {
+        if(
+            (!tool.warningMessage.isNullOrBlank() && tool.id in ToolMap.idToTool)
+            || tool.intentType == IntentType.FRAGMENT
+        ) {
             val scheme = SchemeHelper.getSchemeFromId(tool.id)
             return Intent(Intent.ACTION_VIEW, scheme.toUri())
         }
@@ -243,10 +276,20 @@ object LaunchHelper {
     }
 
 
-//    // 判断是否有活动可以响应该 Intent
-//    private fun isIntentAvailable(context: Context, intent: Intent): Boolean {
-//        val packageManager = context.packageManager
-//        val activities = packageManager.queryIntentActivities(intent, 0)
-//        return activities.isNotEmpty()
-//    }
+    // 判断工具是否可用
+    fun isToolAvailable(context: Context, tool: Tool): Boolean {
+        if(tool.intentType == IntentType.FRAGMENT) {
+            return true
+        }
+        val intent = getIntent(context = context, tool = tool)
+        return intent != null && isIntentAvailable(context, intent)
+    }
+
+
+    // 判断是否有活动可以响应该 Intent
+    private fun isIntentAvailable(context: Context, intent: Intent): Boolean {
+        val packageManager = context.packageManager
+        val activities = packageManager.queryIntentActivities(intent, 0)
+        return activities.isNotEmpty()
+    }
 }

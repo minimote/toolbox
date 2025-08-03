@@ -1,29 +1,30 @@
 　　此处列出了本项目依赖的开源组件及其对应的许可证。
 
 　　使用 Apache-2.0 的组件：
- · AndroidX Core KTX (androidx.core:core-ktx)
- · AndroidX Lifecycle (androidx.lifecycle:lifecycle-runtime-ktx)
- · AndroidX Activity Compose (androidx.activity:activity-compose)
- · AndroidX Compose (androidx.compose)
- · AndroidX ConstraintLayout (androidx.constraintlayout:constraintlayout)
- · AndroidX CoordinatorLayout (androidx.coordinatorlayout:coordinatorlayout)
- · AndroidX CustomView (androidx.customview:customview)
- · AndroidX Navigation (androidx.navigation:navigation-fragment-ktx, navigation-ui-ktx)
- · AndroidX JUnit (androidx.test.ext:junit)
- · AndroidX Room (androidx.room:room-ktx)
- · AndroidX ViewPager2 (androidx.viewpager2:viewpager2)
- · AndroidX WorkManager (androidx.work:work-runtime-ktx)
- · AndroidX SplashScreen (androidx.core:core-splashscreen)
- · Espresso (androidx.test.espresso:espresso-core)
- · Google Material Components for Android (com.google.android.material:material)
- · Google FlexboxLayout (com.google.android.flexbox:flexbox)
- · Gson (com.google.code.gson:gson)
- · SmartRefreshLayout (io.github.scwang90:refresh-layout-kernel)
+— AndroidX Core KTX (androidx.core:core-ktx)
+─ AndroidX Lifecycle (androidx.lifecycle:lifecycle-runtime-ktx)
+─ AndroidX Activity Compose (androidx.activity:activity-compose)
+─ AndroidX Compose (androidx.compose)
+─ AndroidX ConstraintLayout (androidx.constraintlayout:constraintlayout)
+─ AndroidX CoordinatorLayout (androidx.coordinatorlayout:coordinatorlayout)
+─ AndroidX CustomView (androidx.customview:customview)
+─ AndroidX Navigation (androidx.navigation:navigation-fragment-ktx, navigation-ui-ktx)
+─ AndroidX JUnit (androidx.test.ext:junit)
+─ AndroidX Room (androidx.room:room-ktx)
+─ AndroidX ViewPager2 (androidx.viewpager2:viewpager2)
+─ AndroidX WorkManager (androidx.work:work-runtime-ktx)
+─ AndroidX SplashScreen (androidx.core:core-splashscreen)
+─ Espresso (androidx.test.espresso:espresso-core)
+─ Google Material Components for Android (com.google.android.material:material)
+─ Google FlexboxLayout (com.google.android.flexbox:flexbox)
+─ Gson (com.google.code.gson:gson)
+─ SmartRefreshLayout (io.github.scwang90:refresh-layout-kernel)
+─ TinyPinyin (com.github.promeg:tinypinyin)
 
 　　使用 MIT 的组件：
- · Hilt (com.google.dagger:hilt-android, hilt-android-compiler)
+─ Hilt (com.google.dagger:hilt-android, hilt-android-compiler)
 
 　　其他许可证：
- · JUnit (junit:junit) - EPL-2.0
+─ JUnit (junit:junit) - EPL-2.0
 
 　　如有遗漏或疑问，请参考各依赖库的官方仓库和 LICENSE 文件。

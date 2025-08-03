@@ -88,19 +88,26 @@ object EditTextHelper {
         // 手动请求输入法，避免第一次点击出现闪烁
         editText.onFocusChangeListener = View.OnFocusChangeListener { v, hasFocus ->
             if(hasFocus) {
-                VibrationHelper.vibrateOnClick(viewModel)
+//                LogHelper.e("获得焦点的振动", "获得焦点的振动")
                 val imm =
                     v.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.showSoftInput(v, InputMethodManager.SHOW_IMPLICIT)
                 onFocusGained()
             } else {
+                // 隐藏软键盘
+                val imm =
+                    v.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(v.windowToken, 0)
                 onFocusLost()
             }
         }
 
         // 点击输入框时触发振动
         editText.setOnClickListener {
-            VibrationHelper.vibrateOnClick(viewModel)
+//            if(editText.hasFocus()) {
+//                LogHelper.e("点击输入框的振动", "点击输入框的振动")
+                VibrationHelper.vibrateOnClick(viewModel)
+//            }
         }
 
         // 添加 TextWatcher 监听文本变化

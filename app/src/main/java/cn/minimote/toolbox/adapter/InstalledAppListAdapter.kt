@@ -9,25 +9,21 @@ package cn.minimote.toolbox.adapter
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Typeface
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.constant.UI
 import cn.minimote.toolbox.constant.ViewTypes
 import cn.minimote.toolbox.dataClass.InstalledApp
 import cn.minimote.toolbox.fragment.InstalledAppListFragment
+import cn.minimote.toolbox.helper.SearchHelper.highlightSearchTermForDevice
 import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.viewModel.MyViewModel
 import com.google.android.material.switchmaterial.SwitchMaterial
-import java.util.Locale
 
 
 class InstalledAppListAdapter(
@@ -59,43 +55,22 @@ class InstalledAppListAdapter(
                 }
 
                 ViewTypes.InstalledAppList.TITLE -> {
-                    appName = itemView.findViewById(R.id.title_name)
+                    appName = itemView.findViewById(R.id.textView_name)
                 }
             }
         }
 
 
         fun highlightAppNameAndActivityName(activity: InstalledApp) {
-            val query = viewModel.searchQuery.value.orEmpty()
-            if(query.isEmpty()) {
-                appName.text = activity.name
-                activityName.text = activity.activityName
-                return
-            }
-            appName.text = highlightSearchTerm(activity.name, query)
-            activityName.text = highlightSearchTerm(activity.activityName, query)
-        }
-    }
-
-
-    // 高亮显示搜索结果中的匹配项
-    private fun highlightSearchTerm(text: String, query: String): SpannableString {
-        val spannableString = SpannableString(text)
-        val lowerCaseText = text.lowercase(Locale.getDefault())
-        val lowerCaseQuery = query.lowercase(Locale.getDefault())
-
-        var index = lowerCaseText.indexOf(lowerCaseQuery)
-        while(index >= 0) {
-            spannableString.setSpan(
-                ForegroundColorSpan(ContextCompat.getColor(context, R.color.light_blue)),
-                index,
-                index + query.length,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            appName.text = highlightSearchTermForDevice(
+                viewModel = viewModel,
+                text = activity.name,
             )
-            index = lowerCaseText.indexOf(lowerCaseQuery, index + query.length)
+            activityName.text = highlightSearchTermForDevice(
+                viewModel = viewModel,
+                text = activity.activityName,
+            )
         }
-
-        return spannableString
     }
 
 
@@ -151,14 +126,14 @@ class InstalledAppListAdapter(
             viewModel.iconCacheHelper.getCircularDrawable(installedApp)
         )
 
-        if(viewModel.isWatch) {
-            holder.appName.text = installedApp.name
-            // 手表活动名仅显示最后一个点后面的部分
-            holder.activityName.text = installedApp.activityName.substringAfterLast('.')
-        } else {
+//        if(viewModel.isWatch) {
+//            holder.appName.text = installedApp.name
+//            // 手表活动名仅显示最后一个点后面的部分
+//            holder.activityName.text = installedApp.activityName.substringAfterLast('.')
+//        } else {
             // 高亮显示搜索结果
             holder.highlightAppNameAndActivityName(installedApp)
-        }
+//        }
 
 //        holder.switch.isChecked = viewModel.isStoredActivity(installedActivity.activityName)
         holder.switch.isChecked = viewModel.inSizeChangeMap(installedApp.activityName)
@@ -172,10 +147,12 @@ class InstalledAppListAdapter(
 
         // 项目被点到时切换开关状态
         fun toggleSwitch() {
-            val searchBoxText = fragment.searchBox.text.toString().trim()
-            if(viewModel.searchMode.value == true && searchBoxText.isEmpty()) {
+//            val searchBoxText = fragment.editTextSearchBox.text.toString().trim()
+//            if(viewModel.searchMode.value == true && searchBoxText.isEmpty()) {
+            if(fragment.recyclerView.alpha != fragment.originalAlpha) {
                 // 直接退出模式，而不是通过取消按钮退出，避免振动
-                fragment.exitSearchMode()
+                viewModel.searchMode.value = false
+//                fragment.exitSearchMode()
             } else {
                 if(holder.viewType == ViewTypes.InstalledAppList.NORMAL) {
                     holder.switch.isChecked = !holder.switch.isChecked

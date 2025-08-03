@@ -35,14 +35,23 @@ object SchemeHelper {
         }
     }
 
+
     // 从 ID 获取 Scheme
     fun getSchemeFromId(
         id: String,
     ): String {
         if(id in ToolMap.idToTool) {
-            return Scheme.SCHEME + "://" + Scheme.HOST + "/" + id
+            return generateSchemeFromId(id)
         }
         return ""
 //        return context.getString(R.string.scheme_not_found)
+    }
+
+
+    // 从 Tool 获取 Scheme
+    fun generateSchemeFromId(
+        id: String,
+    ): String {
+        return Scheme.SCHEME + "://" + Scheme.HOST + "/" + id
     }
 }

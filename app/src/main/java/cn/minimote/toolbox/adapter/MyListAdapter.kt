@@ -14,7 +14,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
@@ -115,6 +114,10 @@ class MyListAdapter(
                 }
 
                 viewTypes.APP_DETAIL -> {
+                    textViewName = itemView.findViewById(R.id.textView_name)
+                }
+
+                viewTypes.CHECK_UPDATE -> {
                     textViewName = itemView.findViewById(R.id.textView_name)
                 }
             }
@@ -379,9 +382,11 @@ class MyListAdapter(
 
     // 检查更新
     private fun setupCheckUpdate(holder: MyViewHolder) {
-        val clickableContainer = holder.itemView.findViewById<ConstraintLayout>(R.id.clickable_container)
+//        val clickableContainer = holder.itemView.findViewById<ConstraintLayout>(R.id.clickable_container)
 
-        clickableContainer.setOnClickListener {
+        holder.textViewName.text = myActivity.getString(R.string.check_update)
+        //        clickableContainer.setOnClickListener {
+        holder.itemView.setOnClickListener {
             VibrationHelper.vibrateOnClick(viewModel)
 
             CheckUpdateHelper.checkNetworkAccessModeAndCheckUpdate(

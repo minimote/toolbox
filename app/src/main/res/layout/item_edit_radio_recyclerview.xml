@@ -12,7 +12,6 @@
 
     <TextView
         android:id="@+id/textView_name"
-
         style="@style/TextView.Toolbox.EditName.Dark"
         android:layout_width="wrap_content"
         android:layout_marginStart="@dimen/layout_size_2_footnote"

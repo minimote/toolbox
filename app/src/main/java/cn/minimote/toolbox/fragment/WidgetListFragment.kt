@@ -136,10 +136,12 @@ class WidgetListFragment() : Fragment() {
     private fun setNoWidgetShow(view: View) {
         textViewNoWidget = view.findViewById(R.id.textView_no_widget)
         if(viewModel.isWatch) {
-            val paddingSize = resources.getDimensionPixelSize(R.dimen.layout_size_2_footnote)
-            textViewNoWidget.setPadding(
-                paddingSize, paddingSize, paddingSize, paddingSize,
-            )
+//            textViewNoWidget.textSize = resources.getDimension(R.dimen.text_size_2_footnote)
+//            val paddingSize = resources.getDimensionPixelSize(R.dimen.layout_size_3_script)
+//            textViewNoWidget.setPadding(
+//                paddingSize, paddingSize, paddingSize, paddingSize,
+//            )
+            textViewNoWidget.visibility = View.GONE
         }
         constraintLayoutBackground = view.findViewById(R.id.constraintLayout_background)
         constraintLayoutBackground.setOnClickListener {
@@ -155,11 +157,24 @@ class WidgetListFragment() : Fragment() {
 
     // 设置编辑模式的背景
     private fun setEditModeBackground(view: View) {
-        val imageViewSize = viewModel.imageSize
+//        val imageViewSize = viewModel.imageSize
         imageViewBackground = view.findViewById(R.id.imageView_background)
+
+        if(viewModel.isWatch) {
+            val layoutParams = imageViewBackground.layoutParams as ConstraintLayout.LayoutParams
+
+            // 修改高度百分比
+            layoutParams.matchConstraintPercentHeight = 0.5f
+            // 修改宽度百分比
+            layoutParams.matchConstraintPercentWidth = 0.5f
+
+            // 应用更改
+            imageViewBackground.layoutParams = layoutParams
+        }
+
         imageViewBackground.visibility = View.INVISIBLE
-        imageViewBackground.layoutParams.width = imageViewSize
-        imageViewBackground.layoutParams.height = imageViewSize
+//        imageViewBackground.layoutParams.width = imageViewSize
+//        imageViewBackground.layoutParams.height = imageViewSize
         imageViewBackground.alpha = UI.ALPHA_3
     }
 
@@ -324,7 +339,9 @@ class WidgetListFragment() : Fragment() {
 
                 textViewNoWidget.text = getString(context, R.string.multi_select)
                 textViewNoWidget.alpha = UI.ALPHA_5
-                textViewNoWidget.visibility = View.VISIBLE
+                if(!viewModel.isWatch) {
+                    textViewNoWidget.visibility = View.VISIBLE
+                }
 
                 Toast.makeText(
                     context,
@@ -338,7 +355,9 @@ class WidgetListFragment() : Fragment() {
                 buttonSelectAll.visibility = View.GONE
                 buttonReverseSelect.visibility = View.GONE
 
-                textViewNoWidget.visibility = View.INVISIBLE
+                if(!viewModel.isWatch) {
+                    textViewNoWidget.visibility = View.INVISIBLE
+                }
 
                 // 只有返回按钮和返回手势才会触发退出多选模式的 Toast
                 // 所以退出多选模式的 Toast 设置在 MainActivity 中
@@ -364,7 +383,11 @@ class WidgetListFragment() : Fragment() {
                 }
 
                 textViewNoWidget.alpha = UI.ALPHA_5
-                textViewNoWidget.visibility = View.VISIBLE
+
+                if(!viewModel.isWatch) {
+                    textViewNoWidget.visibility = View.VISIBLE
+                }
+
                 imageViewBackground.visibility = View.VISIBLE
                 constraintLayoutBackground.isClickable = false
 
@@ -418,13 +441,21 @@ class WidgetListFragment() : Fragment() {
             return
         }
         if(viewModel.storedToolList.value?.isEmpty() == true) {
+            textViewNoWidget.text = getString(context, R.string.textView_no_widget)
+            textViewNoWidget.alpha = UI.ALPHA_10
             textViewNoWidget.visibility = View.VISIBLE
+
             imageViewBackground.visibility = View.VISIBLE
             imageViewBackground.setImageResource(R.drawable.ic_blank)
+
             constraintLayoutBackground.isClickable = true
 //            LogHelper.e("WidgetListFragment", "showNoWidget: 显示无组件提示")
         } else {
-            textViewNoWidget.visibility = View.INVISIBLE
+            if(viewModel.isWatch) {
+                textViewNoWidget.visibility = View.GONE
+            } else {
+                textViewNoWidget.visibility = View.INVISIBLE
+            }
             imageViewBackground.visibility = View.INVISIBLE
             constraintLayoutBackground.isClickable = false
         }

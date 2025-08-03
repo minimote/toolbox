@@ -49,6 +49,7 @@ object MenuList {
     // 排序的菜单
     val sort by lazy {
         listOf(
+            MenuType.SortOrder.RESTORE_SORT,
             MenuType.SortOrder.FREE_SORT,
             // 启动次数
             MenuType.SortOrder.USE_CNT_LESS_TO_MORE,

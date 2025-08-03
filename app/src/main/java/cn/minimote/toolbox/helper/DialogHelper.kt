@@ -31,17 +31,24 @@ object DialogHelper {
         negativeAction: (() -> Unit) = {},
     ) {
 
-        val view: View = LayoutInflater.from(context).inflate(R.layout.layout_dialog, null)
+        val view: View = LayoutInflater.from(context).inflate(
+            R.layout.layout_dialog, null
+        )
         val dialog = getCustomizeDialog(context = context, view = view)
 
-        val paddingSize = context.resources.getDimension(R.dimen.layout_size_2_footnote).toInt()
+        val paddingSize = context.resources.getDimension(
+            R.dimen.layout_size_2_footnote
+        ).toInt()
 
         val textViewTitle = view.findViewById<TextView>(R.id.textView_title)
         if(titleText.isNotEmpty()) {
             textViewTitle.text = titleText
             if(viewModel.isWatch) {
                 textViewTitle.setPadding(
-                    paddingSize, paddingSize, paddingSize, paddingSize,
+                    paddingSize,
+                    paddingSize,
+                    paddingSize,
+                    paddingSize,
                 )
             }
             if(titleTextColor != null) {
@@ -53,15 +60,15 @@ object DialogHelper {
 
         val textViewMessage = view.findViewById<TextView>(R.id.textView_message)
         if(messageText.isNotEmpty()) {
-            val indent = context.getString(R.string.indent)
-            if(!messageText.startsWith(indent)) {
-                textViewMessage.text = context.getString(
-                    R.string.indent_with_arg,
-                    messageText,
-                )
-            } else {
-                textViewMessage.text = messageText
-            }
+//            val indent = context.getString(R.string.indent)
+//            if(!messageText.startsWith(indent)) {
+//                textViewMessage.text = context.getString(
+//                    R.string.indent_with_arg,
+//                    messageText,
+//                )
+//            } else {
+            textViewMessage.text = messageText
+//            }
             if(viewModel.isWatch) {
                 textViewMessage.setPadding(
                     paddingSize, paddingSize, paddingSize, paddingSize,
@@ -101,8 +108,26 @@ object DialogHelper {
             negativeAction.invoke()
             dialog.dismiss()
         }
-        if (negativeButtonTextColor != null) {
+        if(negativeButtonTextColor != null) {
             buttonNegative.setTextColor(negativeButtonTextColor)
+        }
+
+        val buttonPaddingSize = context.resources.getDimension(
+            R.dimen.layout_size_4_tiny
+        ).toInt()
+        if(viewModel.isWatch) {
+            buttonNegative.setPadding(
+                buttonPaddingSize,
+                buttonNegative.paddingTop,
+                buttonPaddingSize,
+                buttonNegative.paddingBottom,
+            )
+            buttonPositive.setPadding(
+                buttonPaddingSize,
+                buttonPositive.paddingTop,
+                buttonPaddingSize,
+                buttonPositive.paddingBottom,
+            )
         }
 
         dialog.show()

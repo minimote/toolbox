@@ -82,6 +82,42 @@ object ViewTypes {
 
         const val TITLE_LAUNCH = 11
         const val EXIT_AFTER_LAUNCH = 12
+        const val HOME_PAGE = 13
+
+
+        const val TITLE_DISPLAY = 14
+        const val SHOW_LIKE_ICON = 15
+        const val SHOW_UNAVAILABLE_TOOLS = 16
+
+        val titleViewSet by lazy {
+            setOf(
+                TITLE_CHECK_UPDATE,
+                TITLE_VIBRATION,
+                TITLE_NETWORK,
+                TITLE_RESTORE,
+                TITLE_LAUNCH,
+                TITLE_DISPLAY,
+            )
+        }
+
+        val switchViewSet by lazy {
+            setOf(
+                EXIT_AFTER_LAUNCH,
+                SHOW_LIKE_ICON,
+                SHOW_UNAVAILABLE_TOOLS,
+            )
+        }
+
+        val radioViewSet by lazy {
+            setOf(
+                NETWORK_ACCESS_MODE_MOBILE,
+                NETWORK_ACCESS_MODE_BLUETOOTH,
+                NETWORK_ACCESS_MODE_WIFI,
+                NETWORK_ACCESS_MODE_OTHER,
+                VIBRATION_MODE,
+                HOME_PAGE,
+            )
+        }
     }
 
 

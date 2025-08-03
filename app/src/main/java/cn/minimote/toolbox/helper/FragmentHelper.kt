@@ -15,9 +15,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.constant.Config
 import cn.minimote.toolbox.constant.Config.ConfigValues.NetworkAccessModeValues
 import cn.minimote.toolbox.constant.FragmentName
 import cn.minimote.toolbox.constant.NetworkType
+import cn.minimote.toolbox.constant.ViewPaper.FragmentList
+import cn.minimote.toolbox.constant.ViewPaper.START_VIEW_POS
 import cn.minimote.toolbox.fragment.AboutProjectFragment
 import cn.minimote.toolbox.fragment.DetailListFragment
 import cn.minimote.toolbox.fragment.EditListFragment
@@ -26,6 +29,8 @@ import cn.minimote.toolbox.fragment.SettingFragment
 import cn.minimote.toolbox.fragment.SupportAuthorFragment
 import cn.minimote.toolbox.fragment.ToolListFragment
 import cn.minimote.toolbox.fragment.WebViewFragment
+import cn.minimote.toolbox.fragment.WoodenFishFragment
+import cn.minimote.toolbox.helper.ConfigHelper.getConfigValue
 import cn.minimote.toolbox.helper.NetworkHelper.getNetworkAccessMode
 import cn.minimote.toolbox.viewModel.MyViewModel
 
@@ -138,6 +143,10 @@ object FragmentHelper {
                     DetailListFragment()
                 }
 
+                FragmentName.WOODEN_FISH_FRAGMENT -> {
+                    WoodenFishFragment()
+                }
+
                 else -> {
                     throw IllegalArgumentException("非法的 Fragment: $fragmentName")
                 }
@@ -212,10 +221,13 @@ object FragmentHelper {
                         Toast.LENGTH_SHORT,
                     ).show()
                     return
+                } else if(viewModel.searchMode.value == true) {
+                    viewModel.searchMode.value = false
+                    return
                 }
             }
 
-            FragmentName.INSTALLED_APP_LIST_FRAGMENT -> {
+            FragmentName.INSTALLED_APP_LIST_FRAGMENT, FragmentName.SCHEME_LIST_FRAGMENT -> {
                 // 如果处于搜索模式，则仅退出搜索模式
                 if(viewModel.searchMode.value == true) {
                     viewModel.searchMode.value = false
@@ -223,9 +235,6 @@ object FragmentHelper {
                 }
             }
 
-            FragmentName.EDIT_LIST_FRAGMENT -> {
-
-            }
         }
 
 
@@ -277,23 +286,24 @@ object FragmentHelper {
         context: Context,
         fragmentName: String,
     ): String {
-        return when(fragmentName) {
-            FragmentName.WIDGET_LIST_FRAGMENT -> {
-                context.getString(R.string.fragment_name_widget_list)
-            }
+        val stringId = Config.ConfigValues.HomePage.idToStringIdMap[fragmentName]
 
-            FragmentName.MY_LIST_FRAGMENT -> {
-                context.getString(R.string.fragment_name_my_list)
-            }
-
-            FragmentName.TOOL_LIST_FRAGMENT -> {
-                context.getString(R.string.fragment_name_tool_list)
+        return when(stringId) {
+            null -> {
+                context.getString(R.string.unknown)
             }
 
             else -> {
-                context.getString(R.string.unknown)
+                context.getString(stringId)
             }
         }
+    }
+
+
+    fun MyViewModel.getStartFragmentPos(): Int {
+        val fragmentName = this.getConfigValue(Config.ConfigKeys.Launch.HOME_PAGE)
+        val index = FragmentList.indexOf(fragmentName)
+        return if(index == -1) START_VIEW_POS else index
     }
 
 

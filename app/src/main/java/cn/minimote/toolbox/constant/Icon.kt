@@ -10,8 +10,11 @@ object Icon {
 
     object IconKey {
         const val DEFAULT = "default"
+        // 不可用
+        const val UNAVAILABLE = "unavailable"
         const val DEVELOPER_OPTION = "developer_option"
         const val RECENT_TASK = "recent_task"
         const val ACCESSIBILITY_OPTION = "accessibility_option"
+        const val WOODEN_FISH = "wooden_fish"
     }
 }

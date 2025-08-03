@@ -19,6 +19,7 @@ import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.activity.MainActivity
 import cn.minimote.toolbox.constant.FragmentName
+import cn.minimote.toolbox.constant.ToolList
 import cn.minimote.toolbox.dataClass.ExpandableGroup
 import cn.minimote.toolbox.fragment.ToolListFragment
 import cn.minimote.toolbox.helper.FragmentHelper
@@ -56,7 +57,7 @@ class ToolListAdapter(
                 myActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             convertView = layoutInflater.inflate(R.layout.item_tool_title, parent, false)
 
-            viewHolder.titleTextView = convertView!!.findViewById(R.id.title_name)
+            viewHolder.titleTextView = convertView!!.findViewById(R.id.textView_name)
             viewHolder.groupIndicator = convertView.findViewById(R.id.group_indicator)
             convertView.tag = viewHolder
         } else {
@@ -65,8 +66,8 @@ class ToolListAdapter(
 
         val group = getGroup(groupPosition) as? ExpandableGroup
         group?.let {
-            viewHolder.titleTextView?.text = myActivity.getString(it.titleId)
-            if(it.titleId == R.string.add_local_app) {
+            viewHolder.titleTextView?.text = it.titleString
+            if(it.titleString == myActivity.getString(ToolList.GroupNameId.addLocalApp)) {
                 // 如果是添加本机软件，将图标设置为加号
                 viewHolder.groupIndicator?.setImageResource(R.drawable.ic_add)
 
@@ -103,7 +104,7 @@ class ToolListAdapter(
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
 
-        val toolList = groupList[groupPosition].viewTypeList
+        val toolList = groupList[groupPosition].dataList
 //        // 每行显示的数量
 //        val spanCount = viewModel.getConfigValue(
 //            if(isSchemeList) {
@@ -152,7 +153,7 @@ class ToolListAdapter(
 
 
     override fun getChild(groupPosition: Int, childPosition: Int): Any? {
-        return groupList[groupPosition].viewTypeList
+        return groupList[groupPosition].dataList
     }
 
     override fun getChildId(groupPosition: Int, childPosition: Int): Long {
@@ -160,7 +161,7 @@ class ToolListAdapter(
     }
 
     override fun getChildrenCount(groupPosition: Int): Int {
-        return min(1, groupList[groupPosition].viewTypeList.size)
+        return min(1, groupList[groupPosition].dataList.size)
     }
 
     override fun getGroup(groupPosition: Int): Any? {
@@ -182,6 +183,11 @@ class ToolListAdapter(
 
     override fun isChildSelectable(groupPosition: Int, childPosition: Int): Boolean {
         return true
+    }
+
+    fun updateData(newGroupList: List<ExpandableGroup>) {
+        groupList = newGroupList
+        notifyDataSetChanged()
     }
 }
 

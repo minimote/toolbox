@@ -46,6 +46,9 @@ class IconCacheHelper(
         IconKey.DEVELOPER_OPTION to R.drawable.ic_developer_option,
         IconKey.RECENT_TASK to R.drawable.ic_recent_task,
         IconKey.ACCESSIBILITY_OPTION to R.drawable.ic_accessibility_option,
+        IconKey.WOODEN_FISH to R.drawable.ic_wooden_fish,
+        // 不可用
+        IconKey.UNAVAILABLE to R.drawable.ic_forbid,
         IconKey.DEFAULT to R.drawable.ic_default,
     )
 
@@ -60,8 +63,18 @@ class IconCacheHelper(
         return appIconDir
     }
 
+
+    // 根据设备情况动态设置缓存大小
+    private fun getMaxMemoryCacheSize(): Int {
+        val maxMemory = (Runtime.getRuntime().maxMemory() / 1024).toInt()
+//        LogHelper.e("最大内存","maxMemory: $maxMemory KB")
+        // 使用可用内存的 1/8 作为缓存大小，但不低于 1MB，不超过 16MB
+        return minOf(maxOf(maxMemory / 8, 1024), 16 * 1024)
+    }
+
+
     // 定义 LruCache
-    private val iconCache: LruCache<String, Drawable> = object : LruCache<String, Drawable>(1024) {
+    private val iconCache: LruCache<String, Drawable> = object : LruCache<String, Drawable>(getMaxMemoryCacheSize()) {
         override fun sizeOf(key: String, value: Drawable): Int {
             return if(value is BitmapDrawable) {
                 value.bitmap.byteCount / 1024
@@ -180,7 +193,7 @@ class IconCacheHelper(
 
     // 获取默认图标
     private fun getDefaultDrawable(): Drawable? {
-        return ContextCompat.getDrawable(context, R.drawable.ic_forbid)
+        return ContextCompat.getDrawable(context, R.drawable.ic_default)
     }
 
 

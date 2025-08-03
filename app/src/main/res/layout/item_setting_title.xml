@@ -8,12 +8,12 @@
         style="@style/View.Toolbox.Line.Dark"
         android:layout_marginVertical="@dimen/layout_size_0_normal"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/title_name"
+        app:layout_constraintEnd_toStartOf="@id/textView_name"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/title_name"
+        android:id="@+id/textView_name"
         style="@style/TextView.Toolbox.Dark"
         android:paddingHorizontal="@dimen/layout_size_2_footnote"
         android:paddingVertical="0px"
@@ -30,7 +30,7 @@
         style="@style/View.Toolbox.Line.Dark"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/title_name"
+        app:layout_constraintStart_toEndOf="@id/textView_name"
         app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

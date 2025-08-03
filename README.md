@@ -9,13 +9,13 @@ Copyright (c) 2024-2025 minimote(微尘). All rights reserved.
 
 <div align="center">
 
-|                   手机版                   |                   手表版                   |
-| :-----------------------------------------: | :-----------------------------------------: |
-| ![手机版](instruction/images/首页-手机版.jpg) | ![手表版](instruction/images/首页-手表版.png) |
+| 手机版 | 手表版 |
+| :-: | :-: |
+| ![手机版](instruction/figures/收藏页面-手机版.jpg) | ![手表版](instruction/figures/收藏页面-手表版.png) |
 
 </div>
 
-&emsp;&emsp;软件核心功能是将常用工具和应用集中管理，便于快速访问。用户可以将手电筒、支付宝收款码、最近任务等常用功能或软件添加到工具箱中，并且**支持自定义组件的顺序、大小和显示名称等**。由于手表通常只能通过按键快速启动一到两个应用，将本应用设为快速启动后，用户可以自由添加和调整常用应用，极大提升操作效率。
+&emsp;&emsp;软件核心功能是将常用工具和应用集中管理，便于快速访问。用户可以将手电筒、支付宝收款码、最近任务等常用功能或软件添加到工具箱中，并且**支持自定义组件的顺序、大小和显示名称等**。由于手表通常只能通过按键快速启动一到两个应用，将本应用设为快速启动后，用户可以自由添加和调整常用应用，提升操作效率。
 
 <!-- 后续会添加一些内置小工具，如木鱼，基于 WebView 的简易浏览器等。 -->
 
@@ -33,13 +33,24 @@ Copyright (c) 2024-2025 minimote(微尘). All rights reserved.
 - [Gitee【推荐】: https://gitee.com/minimote/toolbox/issues](https://gitee.com/minimote/toolbox/issues)
 - [GitHub: https://github.com/minimote/toolbox/issues](https://github.com/minimote/toolbox/issues)
 
+## 注意
+
+&emsp;&emsp;目前在一些设备上会出现报毒的情况，请自行判断，介意者请勿使用。
+
+<div align="center">
+
+| 疑似被举报 | 未知风险 |
+| :-: | :-: |
+| ![手机版](instruction/figures/报毒/疑似被举报.jpg) | ![手表版](instruction/figures/报毒/未知风险.jpg) |
+
+</div>
+
 ## TODO
 
-- 整理 Theme 样式和字符串资源
-- 整理 Fragment 和 Adaper 里的 context
 - 功能：
   - 组件高度设置(根据最小宽度调整？)
   - 添加自定义活动
+  - 记住折叠状态
 - 工具：
   - 木鱼
   - 振动器
@@ -61,10 +72,6 @@ Copyright (c) 2024-2025 minimote(微尘). All rights reserved.
     - 更换组件图标
     - 提取软件安装包
     - 导入导出配置
-  - 美化
-    - 工具图标
-    - 优化 SeekBar 样式
-    - 优化进度环样式
 
 ## 支持作者
 
@@ -83,8 +90,8 @@ Copyright (c) 2024-2025 minimote(微尘). All rights reserved.
 
 <div align="center">
 
-|                      微信                      |                      支付宝                      |
-| :--------------------------------------------: | :----------------------------------------------: |
+| 微信 | 支付宝 |
+| :-: | :-: |
 | ![微信](app/src/main/res/drawable/qr_wechat.png) | ![支付宝](app/src/main/res/drawable/qr_alipay.png) |
 
 </div>

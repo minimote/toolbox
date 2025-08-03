@@ -10,7 +10,11 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import android.view.LayoutInflater
+import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat.getString
 import androidx.core.net.toUri
 import cn.minimote.toolbox.R
@@ -26,6 +30,7 @@ import cn.minimote.toolbox.helper.ConfigHelper.saveUserConfig
 import cn.minimote.toolbox.helper.ConfigHelper.updateConfigValue
 import cn.minimote.toolbox.helper.NetworkHelper.getNetworkAccessMode
 import cn.minimote.toolbox.viewModel.MyViewModel
+import com.google.android.material.progressindicator.LinearProgressIndicator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -83,7 +88,7 @@ object CheckUpdateHelper {
         viewModel: MyViewModel,
     ) {
         viewModel.updateConfigValue(
-            key = ConfigKeys.LAST_CHECK_UPDATE_TIME,
+            key = ConfigKeys.CheckUpdate.LAST_CHECK_UPDATE_TIME,
             value = System.currentTimeMillis(),
         )
         viewModel.saveUserConfig()
@@ -351,17 +356,27 @@ object CheckUpdateHelper {
         remoteVersion: String,
         localVersion: String,
     ): Boolean {
+//        return true
         val remoteVersionList = getVersionIntList(remoteVersion)
         val localVersionList = getVersionIntList(localVersion)
 
-//        Log.e("检查更新", "远端：$remoteVersionList, 本地：$localVersionList")
+//        LogHelper.e("检查更新", "远端：$remoteVersionList, 本地：$localVersionList")
 
-        for((remoteCode, localCode) in remoteVersionList.zip(localVersionList)) {
-            if(remoteCode > localCode) {
+        // 获取两个列表的最大长度
+        val maxLength = maxOf(remoteVersionList.size, localVersionList.size)
+
+        // 逐个比较版本号的每个部分
+        for (i in 0 until maxLength) {
+            // 如果一个列表已经没有元素，则默认值为 -1
+            val remoteCode = if (i < remoteVersionList.size) remoteVersionList[i] else -1
+            val localCode = if (i < localVersionList.size) localVersionList[i] else -1
+
+            if (remoteCode > localCode) {
                 return true
-            } else if(remoteCode < localCode) {
+            } else if (remoteCode < localCode) {
                 return false
             }
+            // 如果相等，继续比较下一个部分
         }
         return false
     }
@@ -407,6 +422,7 @@ object CheckUpdateHelper {
                 releaseNotes.trim() + "\n\n",
             ),
             positiveButtonText = context.getString(R.string.download_now),
+            positiveButtonTextColor = context.getColor(R.color.primary),
             negativeButtonText = context.getString(R.string.download_later),
             positiveAction = {
                 // 处理立即下载逻辑
@@ -414,6 +430,7 @@ object CheckUpdateHelper {
                     context = context,
                     viewModel = viewModel,
                     downloadUrl = downloadUrl,
+//                    downloadUrl = "https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda-1.8.0-Linux-x86_64.sh",
                 )
             }
         )
@@ -498,19 +515,120 @@ object CheckUpdateHelper {
             context = context,
             downloadId = downloadId,
             viewModel = viewModel,
-            downloadingToast = downloadingToast,
         )
     }
 
 
+    // 轮询查询下载状态
     // 轮询查询下载状态
     private fun monitorDownloadStatus(
         context: Context,
         downloadId: Long,
         viewModel: MyViewModel,
         gapTime: Long = CheckUpdate.MONITOR_DOWNLOAD_STATUS_GAP_RIME,
-        downloadingToast: Toast? = null,
     ) {
+
+        var progressDialog: AlertDialog? = null
+        var progressBar: LinearProgressIndicator? = null
+        var textViewProgress: TextView? = null
+//        var textViewSpeed: TextView? = null
+//        var lastBytes: Long = 0
+//        var lastTime: Long = System.currentTimeMillis()
+        var lastProgress = 0
+        var buttonNegative: Button?
+        var buttonPositive: Button?
+
+
+        fun updateProgress(progress: Int) {
+
+            progressBar?.progress = progress
+            textViewProgress?.text = context.getString(
+                R.string.percent,
+                progress,
+            )
+
+//            val speedText = if(bytesPerSecond > 0) {
+//                when {
+//                    bytesPerSecond >= 1024 * 1024 * 1024 -> {
+//                        "%.1f GB/s".format(bytesPerSecond / (1024.0 * 1024.0 * 1024.0))
+//                    }
+//
+//                    bytesPerSecond >= 1024 * 1024 -> {
+//                        "%.1f MB/s".format(bytesPerSecond / (1024.0 * 1024.0))
+//                    }
+//
+//                    bytesPerSecond >= 1024 -> {
+//                        "%.1f KB/s".format(bytesPerSecond / 1024.0)
+//                    }
+//
+//                    else -> {
+//                        "$bytesPerSecond B/s"
+//                    }
+//                }
+//            } else {
+//                ""
+//            }
+//            textViewSpeed?.text = speedText
+
+        }
+
+
+        CoroutineScope(Dispatchers.Main).launch {
+            val progressView =
+                LayoutInflater.from(context).inflate(R.layout.layout_dialog_download, null)
+            progressBar = progressView.findViewById(R.id.linearProgressIndicator)
+            textViewProgress = progressView.findViewById(R.id.textView_progress)
+//            textViewSpeed = progressView.findViewById(R.id.textView_speed)
+
+            buttonNegative = progressView.findViewById(R.id.button_negative)
+            buttonNegative?.setOnClickListener {
+                VibrationHelper.vibrateOnClick(viewModel)
+                progressDialog?.dismiss()
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.background_continue_download),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+            buttonPositive = progressView.findViewById(R.id.button_positive)
+            buttonPositive?.setOnClickListener {
+                VibrationHelper.vibrateOnClick(viewModel)
+                VibrationHelper.vibrateOnDangerousOperation(viewModel)
+                // 显示确认对话框
+                DialogHelper.showConfirmDialog(
+                    context = context,
+                    viewModel = viewModel,
+                    titleText = context.getString(R.string.confirm_cancel_download),
+                    positiveAction = {
+                        // 确认取消下载
+                        val downloadManager =
+                            context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+                        downloadManager.remove(downloadId)
+
+                        // 关闭对话框
+                        progressDialog?.dismiss()
+
+                        // 显示取消提示
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.download_cancelled),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                )
+            }
+
+            updateProgress(lastProgress)
+
+            progressDialog = DialogHelper.getCustomizeDialog(
+                context = context,
+                view = progressView,
+            )
+            progressDialog.show()
+        }
+
+
         CoroutineScope(Dispatchers.IO).launch {
             val downloadManager =
                 context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
@@ -522,6 +640,7 @@ object CheckUpdateHelper {
                     val statusColumnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
                     if(statusColumnIndex == -1) {
                         withContext(Dispatchers.Main) {
+                            progressDialog?.dismiss()
                             Toast.makeText(
                                 context,
                                 context.getString(R.string.unable_get_download_status),
@@ -535,10 +654,9 @@ object CheckUpdateHelper {
                     val status = cursor.getInt(statusColumnIndex)
                     when(status) {
                         DownloadManager.STATUS_SUCCESSFUL -> {
-//                            withContext(Dispatchers.Main) {
-//                                Toast.makeText(context, "下载完成", Toast.LENGTH_SHORT).show()
-//                            }
-                            downloadingToast?.cancel()
+                            withContext(Dispatchers.Main) {
+                                progressDialog?.dismiss()
+                            }
                             // 调用安装逻辑
                             installApk(
                                 context = context,
@@ -551,6 +669,7 @@ object CheckUpdateHelper {
 
                         DownloadManager.STATUS_FAILED -> {
                             withContext(Dispatchers.Main) {
+                                progressDialog?.dismiss()
                                 Toast.makeText(
                                     context,
                                     context.getString(R.string.download_failed),
@@ -561,18 +680,52 @@ object CheckUpdateHelper {
                             break // 停止轮询
                         }
 
-                        DownloadManager.STATUS_PAUSED -> {
-                            // 下载暂停，可选择继续轮询
+                        DownloadManager.STATUS_RUNNING -> {
+                            // 获取下载进度
+                            val sofarIndex =
+                                cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR)
+                            val totalIndex =
+                                cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES)
+
+                            if(sofarIndex != -1 && totalIndex != -1) {
+                                val sofar = cursor.getLong(sofarIndex)
+                                val total = cursor.getLong(totalIndex)
+
+                                if(total > 0) {
+                                    val progress = ((sofar * 100) / total).toInt()
+//                                    val currentTime = System.currentTimeMillis()
+//
+//                                    // 计算下载速度
+//                                    val bytesDiff = sofar - lastBytes
+//                                    val timeDiff = currentTime - lastTime
+//                                    val bytesPerSecond = if(timeDiff >= 10) { // 至少100毫秒才计算速度
+//                                        (bytesDiff * 1000) / timeDiff
+//                                    } else {
+//                                        0
+//                                    }
+//
+//                                    lastBytes = sofar
+//                                    lastTime = currentTime
+
+                                    // 只有当进度变化时才更新UI
+                                    if(progress != lastProgress) {
+                                        lastProgress = progress
+                                        withContext(Dispatchers.Main) {
+                                            updateProgress(progress)
+                                        }
+                                    }
+                                }
+                            }
                         }
 
-                        DownloadManager.STATUS_RUNNING -> {
-                            // 下载进行中，可选择显示进度
+                        DownloadManager.STATUS_PAUSED -> {
+                            // 下载暂停，可选择继续轮询
                         }
                     }
                 }
                 cursor?.close()
                 // 延迟一段时间再继续轮询
-                delay(gapTime)
+                delay(gapTime) // 添加延迟
             }
         }
     }

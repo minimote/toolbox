@@ -78,7 +78,7 @@ class BottomSheetAdapter(
             MenuType.CREATE_SHORTCUT -> R.string.create_shortcut
             MenuType.ADD_TO_HOME_OR_REMOVE_FROM_HOME ->
                 if(viewModel.inSizeChangeMap(tool!!.id)) {
-                    R.string.remove_from_home
+                    R.string.cancel_collection
                 } else {
                     R.string.add_to_home
                 }
@@ -94,6 +94,8 @@ class BottomSheetAdapter(
             // 排序方式
             else -> when(holder.viewType) {
                 MenuType.SortOrder.FREE_SORT -> R.string.free_sort
+
+                MenuType.SortOrder.RESTORE_SORT -> R.string.restore_sort
 
                 MenuType.SortOrder.NAME_A_TO_Z -> R.string.sort_order_name_a_to_z
                 MenuType.SortOrder.NAME_Z_TO_A -> R.string.sort_order_name_z_to_a
@@ -139,7 +141,10 @@ class BottomSheetAdapter(
                 }
 
                 MenuType.ADD_TO_HOME_OR_REMOVE_FROM_HOME -> {
-                    addToHomeOrRemoveFromHome(context, tool!!)
+                    addToHomeOrRemoveFromHome(
+                        context = context,
+                        tool = tool!!,
+                        afterAction = { onMenuItemClick(holder.viewType) })
                 }
 
                 MenuType.EDIT_THIS_WIDGET -> {
@@ -193,16 +198,7 @@ class BottomSheetAdapter(
                         viewModel.sortModeString = holder.textViewMenuItem.text.toString()
 
                         viewPager!!.isUserInputEnabled = false
-                        if(holder.viewType != MenuType.SortOrder.FREE_SORT) {
-                            viewModel.freeSort = false
-                            // 排序
-                            viewModel.sortStoredToolList(holder.viewType)
-                            Toast.makeText(
-                                context,
-                                context.getString(R.string.sort_finished),
-                                Toast.LENGTH_SHORT,
-                            ).show()
-                        } else {
+                        if(holder.viewType == MenuType.SortOrder.FREE_SORT) {
                             viewModel.freeSort = true
                             // 自由排序
                             Toast.makeText(
@@ -210,6 +206,23 @@ class BottomSheetAdapter(
                                 context.getString(R.string.enter_free_sort),
                                 Toast.LENGTH_SHORT,
                             ).show()
+                        } else {
+                            viewModel.freeSort = false
+                            // 排序
+                            viewModel.sortStoredToolList(holder.viewType)
+                            if(holder.viewType == MenuType.SortOrder.RESTORE_SORT) {
+                                Toast.makeText(
+                                    context,
+                                    context.getString(R.string.restore_sort_finished),
+                                    Toast.LENGTH_SHORT,
+                                ).show()
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    context.getString(R.string.sort_finished),
+                                    Toast.LENGTH_SHORT,
+                                ).show()
+                            }
                         }
                         viewModel.sortMode.value = true
                     }
@@ -326,14 +339,18 @@ class BottomSheetAdapter(
 
 
     // 添加到主页或从主页移除
-    private fun addToHomeOrRemoveFromHome(context: Context, tool: Tool) {
+    private fun addToHomeOrRemoveFromHome(
+        context: Context,
+        tool: Tool,
+        afterAction: () -> Unit,
+    ) {
         // 已经在主页：显示从主页移除
         if(viewModel.inSizeChangeMap(tool.id)) {
             DialogHelper.showConfirmDialog(
                 context = context,
                 viewModel = viewModel,
                 titleText = context.getString(
-                    R.string.confirm_remove_from_home,
+                    R.string.confirm_cancel_collection_single_tool,
                     tool.nickname,
                 ),
                 positiveAction = {
@@ -345,11 +362,12 @@ class BottomSheetAdapter(
                     Toast.makeText(
                         context,
                         context.getString(
-                            R.string.already_remove_from_home,
+                            R.string.already_cancel_collection,
                             tool.nickname,
                         ),
                         Toast.LENGTH_SHORT
                     ).show()
+                    afterAction()
                 },
             )
         } else {
@@ -358,7 +376,10 @@ class BottomSheetAdapter(
             viewModel.saveWidgetList()
             Toast.makeText(
                 context,
-                context.getString(R.string.add_success),
+                context.getString(
+                    R.string.collection_success,
+                    tool.nickname,
+                ),
                 Toast.LENGTH_SHORT,
             ).show()
         }

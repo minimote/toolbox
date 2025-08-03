@@ -126,7 +126,7 @@ class DetailListAdapter(
             ViewTypes.WidgetDetail.INTENT_FLAG -> {
                 setNameAndContent(
                     holder = holder,
-                    name = context.getString(R.string.indent_flag),
+                    name = context.getString(R.string.intent_flag),
                     content = StoredTool.getFlagNameList(tool.intentFlag),
                 )
             }

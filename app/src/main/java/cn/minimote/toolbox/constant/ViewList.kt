@@ -27,13 +27,16 @@ object ViewList {
             ViewTypes.My.CLEAR_CACHE, // 清理缓存
             ViewTypes.My.CLEAR_DATA, // 清除数据
             ViewTypes.My.APP_DETAIL, // 应用详情
+
             ViewTypes.My.SETTING, // 设置
-            ViewTypes.My.SUPPORT_AUTHOR, // 支持作者
-            ViewTypes.My.ABOUT_PROJECT, // 关于项目
             ViewTypes.My.INSTRUCTION, // 使用说明
-            ViewTypes.My.UPDATE_LOG, // 更新日志,
             ViewTypes.My.PROBLEM_FEEDBACK, // 问题反馈
+
+            ViewTypes.My.UPDATE_LOG, // 更新日志
+            ViewTypes.My.ABOUT_PROJECT, // 关于项目
+            ViewTypes.My.SUPPORT_AUTHOR, // 支持作者
             ViewTypes.My.SCHEME_LIST, // Scheme 列表
+
             ViewTypes.My.CHECK_UPDATE, // 检查更新
         )
     }
@@ -65,6 +68,17 @@ object ViewList {
     // 设置
     val settingViewList by lazy {
         listOf(
+            ViewTypes.Setting.TITLE_DISPLAY, // 显示设置标题
+            ViewTypes.Setting.SHOW_UNAVAILABLE_TOOLS, // 显示不可用工具
+            ViewTypes.Setting.SHOW_LIKE_ICON, // 显示收藏标志
+
+            ViewTypes.Setting.TITLE_LAUNCH, // 启动设置标题
+            ViewTypes.Setting.EXIT_AFTER_LAUNCH, // 启动后退出
+            ViewTypes.Setting.HOME_PAGE, // 启动的主页
+
+            ViewTypes.Setting.TITLE_VIBRATION, // 振动设置的标题
+            ViewTypes.Setting.VIBRATION_MODE, // 振动模式
+
             ViewTypes.Setting.TITLE_NETWORK, // 网络设置标题
             ViewTypes.Setting.NETWORK_ACCESS_MODE_MOBILE, // 移动网络
             ViewTypes.Setting.NETWORK_ACCESS_MODE_BLUETOOTH, // 蓝牙网络
@@ -74,18 +88,9 @@ object ViewList {
             ViewTypes.Setting.TITLE_CHECK_UPDATE, // 更新设置的标题
             ViewTypes.Setting.UPDATE_CHECK_FREQUENCY, // 更新检查频率
 
-            ViewTypes.Setting.TITLE_VIBRATION, // 振动设置的标题
-            ViewTypes.Setting.VIBRATION_MODE, // 振动模式
-
-//            ViewTypes.Setting.TITLE_PAGE_SETTING, // 页面设置标题
-//            ViewTypes.Setting.TOOL_LIST_COLUMN_COUNT, // 工具列表列数
-//            ViewTypes.Setting.SCHEME_LIST_COLUMN_COUNT, // Scheme 列表列数
-
-            ViewTypes.Setting.TITLE_LAUNCH, // 启动设置标题
-            ViewTypes.Setting.EXIT_AFTER_LAUNCH, // 启动后退出
-
             ViewTypes.Setting.TITLE_RESTORE, // 恢复设置的标题(只是要个分隔线)
             ViewTypes.Setting.RESTORE_DEFAULT, // 恢复默认
+            ViewTypes.Setting.TITLE_RESTORE, // 恢复设置的标题(只是要个分隔线)
         )
     }
 

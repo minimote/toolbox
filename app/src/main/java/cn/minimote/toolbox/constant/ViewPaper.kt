@@ -13,5 +13,6 @@ object ViewPaper {
         FragmentName.MY_LIST_FRAGMENT,
     )
 
+    // 获取不到配置时的默认值
     const val START_VIEW_POS = 1
 }

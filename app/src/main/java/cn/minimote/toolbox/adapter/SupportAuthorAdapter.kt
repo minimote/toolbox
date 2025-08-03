@@ -152,7 +152,7 @@ class SupportAuthorAdapter(
         LaunchHelper.launch(
             myActivity = myActivity,
             viewModel = viewModel,
-            tool = Tools.ScanAndPay.Alipay.support_author,
+            tool = Tools.AppTool.Alipay.supportAuthor,
         )
     }
 
@@ -194,7 +194,7 @@ class SupportAuthorAdapter(
         LaunchHelper.launch(
             myActivity = myActivity,
             viewModel = viewModel,
-            tool = Tools.ScanAndPay.WeChat.scan,
+            tool = Tools.AppTool.WeChat.scan,
         )
     }
 

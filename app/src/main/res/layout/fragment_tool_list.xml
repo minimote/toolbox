@@ -1,17 +1,157 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.scwang.smart.refresh.layout.SmartRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/refreshLayout"
-    style="@style/SmartRefreshLayout.Toolbox.Dark">
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="match_parent"
+    style="@style/ConstraintLayout.Toolbox.RecyclerView.Dark">
 
-    <ExpandableListView
-        android:id="@+id/expandableListView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/transparent"
-        android:childDivider="@color/transparent"
-        android:divider="@color/transparent"
-        android:dividerHeight="@dimen/layout_size_3_script"
-        android:groupIndicator="@null"
-        android:listSelector="@color/transparent" />
+    <com.scwang.smart.refresh.layout.SmartRefreshLayout
+        android:id="@+id/refreshLayout"
+        style="@style/SmartRefreshLayout.Toolbox.Dark"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/layout_size_4_tiny"
+        android:minHeight="@dimen/layout_size_1_large"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/constraintLayout_add_app">
 
-</com.scwang.smart.refresh.layout.SmartRefreshLayout>
+        <cn.minimote.toolbox.ui.widget.ExpandableRecyclerView
+            android:id="@+id/expandableRecyclerView"
+            style="@style/ConstraintLayout.Toolbox.Dark"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </com.scwang.smart.refresh.layout.SmartRefreshLayout>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout_add_app"
+        style="@style/ConstraintLayout.Toolbox.Clickable.Dark"
+        android:layout_width="0dp"
+        android:background="@drawable/background_widget_full"
+        android:paddingHorizontal="@dimen/layout_size_1_small"
+        android:paddingVertical="10dp"
+        android:layout_marginStart="@dimen/layout_size_3_script"
+        app:layout_constraintEnd_toStartOf="@id/constraintLayout_searchBox"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/group_indicator"
+            android:layout_width="@dimen/layout_size_1_small"
+            android:layout_height="@dimen/layout_size_1_small"
+            android:layout_marginVertical="@dimen/layout_size_2.5_script"
+            android:background="@color/transparent"
+            android:contentDescription="@string/group_indicator"
+            android:src="@drawable/ic_add"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textView_name"
+            style="@style/TextView.Toolbox.Dark"
+            android:layout_width="0dp"
+            android:layout_marginStart="@dimen/layout_size_1.5_footnote"
+            android:layout_marginEnd="0dp"
+            android:gravity="start"
+            android:padding="0px"
+            android:text="@string/add_local_app"
+            android:textSize="@dimen/text_size_1_large"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/group_indicator"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout_searchBox"
+        style="@style/ConstraintLayout.Toolbox.Clickable.Dark"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:background="@drawable/background_widget_full"
+        android:layout_marginHorizontal="@dimen/layout_size_3_script"
+        app:layout_constraintBottom_toBottomOf="@+id/constraintLayout_add_app"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/constraintLayout_add_app"
+        app:layout_constraintTop_toTopOf="@id/constraintLayout_add_app">
+
+        <EditText
+            android:id="@+id/editText_searchBox"
+            style="@style/EditText.Toolbox.Dark"
+            android:layout_width="0dp"
+            android:layout_margin="0dp"
+            android:autofillHints=""
+            android:hint="@string/hint_search"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/button_negative"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/imageButton_clear"
+            style="@style/ImageButton.Toolbox.ClearEditText.Dark"
+            android:contentDescription="@string/clear_button"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/editText_searchBox"
+            app:layout_constraintEnd_toEndOf="@id/editText_searchBox"
+            app:layout_constraintTop_toTopOf="@id/editText_searchBox" />
+
+        <Button
+            android:id="@+id/button_negative"
+            style="@style/Button.Toolbox.Dark"
+            android:layout_width="@dimen/layout_size_2_Large"
+            android:layout_height="0dp"
+            android:text="@string/cancel"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/editText_searchBox"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/editText_searchBox"
+            app:layout_constraintTop_toTopOf="@id/editText_searchBox" />
+
+        <ImageView
+            android:id="@+id/imageView_searchIcon"
+            android:layout_width="@dimen/layout_size_1_small"
+            android:layout_height="@dimen/layout_size_1_small"
+            android:layout_marginHorizontal="@dimen/layout_size_1_small"
+            android:background="@color/transparent"
+            android:contentDescription="@string/search_icon"
+            android:src="@drawable/ic_search"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <!--    <androidx.constraintlayout.widget.ConstraintLayout-->
+    <!--        android:id="@+id/constraintLayout_searchIcon"-->
+    <!--        style="@style/ConstraintLayout.Toolbox.Clickable.Dark"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="0px"-->
+    <!--        android:layout_marginHorizontal="0px"-->
+    <!--        android:background="@drawable/background_widget_full"-->
+    <!--        android:paddingHorizontal="@dimen/layout_size_1_small"-->
+    <!--        app:layout_constraintBottom_toBottomOf="@id/constraintLayout_add_app"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintTop_toTopOf="@id/constraintLayout_add_app">-->
+
+    <!--        <ImageView-->
+    <!--            android:id="@+id/imageView_searchIcon"-->
+    <!--            android:layout_width="@dimen/layout_size_1_small"-->
+    <!--            android:layout_height="@dimen/layout_size_1_small"-->
+    <!--            android:background="@color/transparent"-->
+    <!--            android:contentDescription="@string/group_indicator"-->
+    <!--            android:src="@drawable/ic_add"-->
+    <!--            app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--            app:layout_constraintEnd_toEndOf="parent"-->
+    <!--            app:layout_constraintTop_toTopOf="parent" />-->
+
+    <!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
+
+</androidx.constraintlayout.widget.ConstraintLayout>
