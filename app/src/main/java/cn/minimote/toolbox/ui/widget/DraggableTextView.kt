@@ -211,7 +211,7 @@ class DraggableTextView @JvmOverloads constructor(
                 val list = mutableListOf<Float>()
                 for(i in 0 until length()) {
                     try {
-                        list.add(get(i).toString().toFloat())
+                        list.add(opt(i).toString().toFloat())
                     } catch(_: Exception) {
                         list.add(0f)
                     }

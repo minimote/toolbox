@@ -28,6 +28,8 @@ import cn.minimote.toolbox.dataClass.Tool
 import cn.minimote.toolbox.helper.BottomSheetDialogHelper
 import cn.minimote.toolbox.helper.ClipboardHelper
 import cn.minimote.toolbox.helper.ConfigHelper.getConfigValue
+import cn.minimote.toolbox.helper.ConfigHelper.saveUserConfig
+import cn.minimote.toolbox.helper.ConfigHelper.updateConfigValue
 import cn.minimote.toolbox.helper.LaunchHelper
 import cn.minimote.toolbox.helper.SchemeHelper
 import cn.minimote.toolbox.helper.SearchHelper
@@ -58,6 +60,8 @@ class ExpandableRecyclerView @JvmOverloads constructor(
     private lateinit var viewModel: MyViewModel
     private lateinit var myActivity: MainActivity
     private var isSchemeList: Boolean = false
+    private lateinit var configKey: String
+    var searchMode: Boolean = false
 
     fun setParameters(
         viewModel: MyViewModel,
@@ -68,10 +72,16 @@ class ExpandableRecyclerView @JvmOverloads constructor(
         this.myActivity = myActivity
         this.isSchemeList = isSchemeList
 
+        configKey = if(isSchemeList) {
+            Config.ConfigKeys.CollapsedGroups.SCHEME_LIST
+        } else {
+            Config.ConfigKeys.CollapsedGroups.TOOL_LIST
+        }
+
         // 初始化适配器
         adapter = ExpandableAdapter()
 
-        // 手表使用 Lin
+        // 手表使用 LinearLayoutManager
         if(viewModel.isWatch) {
             layoutManager = LinearLayoutManager(context)
         } else {
@@ -95,6 +105,19 @@ class ExpandableRecyclerView @JvmOverloads constructor(
 
     fun setGroups(groups: List<ExpandableGroup>) {
         adapter.setGroups(groups)
+    }
+
+
+    fun inSearchMode(): Boolean {
+//        return viewModel.searchMode.value == true
+//        Toast.makeText(context, "inSearchMode: ${this@ExpandableRecyclerView.alpha}", Toast.LENGTH_SHORT).show()
+//        return viewModel.searchMode.value == true && this@ExpandableRecyclerView.alpha != 1f
+        return searchMode
+    }
+
+
+    fun updateSearchMode(searchMode: Boolean) {
+        this.searchMode = searchMode
     }
 
 //    fun setOnItemClickListener(listener: (Tool) -> Unit) {
@@ -298,7 +321,7 @@ class ExpandableRecyclerView @JvmOverloads constructor(
     inner class ExpandableAdapter : Adapter<ViewHolder>() {
 
         private var groups = listOf<ExpandableGroup>()
-        private var expandedGroups = mutableSetOf<Int>()
+        private var collapsedGroups = mutableSetOf<String>()
         private var onItemClickListener: ((Tool) -> Unit)? = null
 
         @SuppressLint("NotifyDataSetChanged")
@@ -306,14 +329,40 @@ class ExpandableRecyclerView @JvmOverloads constructor(
             groups = newGroups
 
             // 初始化展开状态
-            expandedGroups.clear()
-            groups.forEachIndexed { index, group ->
-                if(group.isExpanded) {
-                    expandedGroups.add(index)
-                }
+//            collapsedGroups = configValue.toMutableSet()
+            collapsedGroups.clear()
+            if(!inSearchMode()) {
+                getSavedCollapsedGroups()
             }
 
+//            groups.forEachIndexed { index, group ->
+//                if(!group.isExpanded) {
+//                    collapsedGroups.add(group.titleString)
+//                }
+//            }
+
             notifyDataSetChanged()
+        }
+
+        // 获取当前折叠的组
+        fun getCollapsedGroups(): List<String> {
+            return collapsedGroups.toList()
+        }
+
+        // 获取保存的折叠组
+        fun getSavedCollapsedGroups() {
+            val configValue = viewModel.getConfigValue(
+                key = configKey,
+            )
+            if(configValue is org.json.JSONArray) {
+                // 如果是JSONArray类型，逐个提取字符串
+                for(i in 0 until configValue.length()) {
+                    val item = configValue.opt(i)
+                    if(item is String) {
+                        collapsedGroups.add(item)
+                    }
+                }
+            }
         }
 
 //        fun setOnItemClickListener(listener: (Tool) -> Unit) {
@@ -415,7 +464,7 @@ class ExpandableRecyclerView @JvmOverloads constructor(
                 count++
 
                 // Count children if group is expanded
-                if(expandedGroups.contains(index)) {
+                if(!collapsedGroups.contains(group.titleString)) {
                     count += group.dataList.size
                 }
             }
@@ -434,7 +483,7 @@ class ExpandableRecyclerView @JvmOverloads constructor(
                 currentPosition++
 
                 // If group is expanded, check children
-                if(expandedGroups.contains(groupIndex)) {
+                if(!collapsedGroups.contains(group.titleString)) {
                     val childrenCount = group.dataList.size
                     if(position < currentPosition + childrenCount) {
                         val childIndex = position - currentPosition
@@ -456,17 +505,17 @@ class ExpandableRecyclerView @JvmOverloads constructor(
 //                Toast.LENGTH_SHORT
 //            ).show()
 
-            if(expandedGroups.contains(groupIndex)) {
-                expandedGroups.remove(groupIndex)
-                // 只通知该组范围内的项目变化
-                notifyItemRangeRemoved(
+            if(!collapsedGroups.contains(groups[groupIndex].titleString)) {
+                collapsedGroups.add(groups[groupIndex].titleString)
+                notifyItemRangeInserted(
                     startPosition + 1,
                     groups[groupIndex].dataList.size,
                 )
-            } else {
-                expandedGroups.add(groupIndex)
                 // 只通知该组范围内的项目变化
-                notifyItemRangeInserted(
+            } else {
+                collapsedGroups.remove(groups[groupIndex].titleString)
+                // 只通知该组范围内的项目变化
+                notifyItemRangeRemoved(
                     startPosition + 1,
                     groups[groupIndex].dataList.size,
                 )
@@ -476,6 +525,20 @@ class ExpandableRecyclerView @JvmOverloads constructor(
 //            adapter.notifyDataSetChanged()
             // 更新组标题本身
             notifyItemChanged(startPosition)
+            if(!inSearchMode()) {
+                saveCollapsedGroups()
+            }
+
+        }
+
+
+        // 保存折叠状态到配置中
+        private fun saveCollapsedGroups() {
+            viewModel.updateConfigValue(
+                key = configKey,
+                value = getCollapsedGroups(),
+            )
+            viewModel.saveUserConfig()
         }
 
 
@@ -483,7 +546,7 @@ class ExpandableRecyclerView @JvmOverloads constructor(
             var position = 0
             for(i in 0 until groupIndex) {
                 position++ // Group header
-                if(expandedGroups.contains(i)) {
+                if(!collapsedGroups.contains(groups[i].titleString)) {
                     position += groups[i].dataList.size // Expanded children
                 }
             }
@@ -519,7 +582,7 @@ class ExpandableRecyclerView @JvmOverloads constructor(
 //                } else {
                 imageViewGroupIndicator.setImageResource(R.drawable.ic_arrow_right)
                 // 根据展开状态设置图标旋转角度
-                val isExpanded = expandedGroups.contains(groupIndex)
+                val isExpanded = !collapsedGroups.contains(groups[groupIndex].titleString)
                 imageViewGroupIndicator.rotation = if(isExpanded) 90f else 0f
 
                 itemView.setOnClickListener {
@@ -528,7 +591,7 @@ class ExpandableRecyclerView @JvmOverloads constructor(
                     } else {
                         VibrationHelper.vibrateOnClick(viewModel)
                         // 执行指示器旋转动画
-                        animateIndicator(!isExpanded)
+//                        animateIndicator(!isExpanded)
                         onGroupClick()
                     }
                 }
@@ -536,18 +599,18 @@ class ExpandableRecyclerView @JvmOverloads constructor(
             }
 
 
-            fun animateIndicator(expanded: Boolean) {
-                val endRotation = if(expanded) 90f else 0f
-//                Toast.makeText(context, "expanded: $expanded", Toast.LENGTH_SHORT).show()
-                // 取消之前的动画，避免冲突
-//                imageViewGroupIndicator.animate().cancel()
-
-                imageViewGroupIndicator.animate()
-                    .rotation(endRotation)
-                    .setDuration(250) // 动画时长
-                    .setInterpolator(android.view.animation.AccelerateDecelerateInterpolator()) // 使用更平滑的插值器
-                    .start()
-            }
+//            fun animateIndicator(expanded: Boolean) {
+//                val endRotation = if(expanded) 90f else 0f
+////                Toast.makeText(context, "expanded: $expanded", Toast.LENGTH_SHORT).show()
+//                // 取消之前的动画，避免冲突
+////                imageViewGroupIndicator.animate().cancel()
+//
+//                imageViewGroupIndicator.animate()
+//                    .rotation(endRotation)
+//                    .setDuration(250) // 动画时长
+//                    .setInterpolator(android.view.animation.AccelerateDecelerateInterpolator()) // 使用更平滑的插值器
+//                    .start()
+//            }
 
 
         }
@@ -560,17 +623,30 @@ class ExpandableRecyclerView @JvmOverloads constructor(
             val textViewName: TextView = itemView.findViewById(R.id.textView_app_name)
             val textViewDescription: TextView = itemView.findViewById(R.id.textView_activity_name)
 
+
             init {
-                val layoutParams = itemView.layoutParams as? FlexboxLayoutManager.LayoutParams
-                layoutParams?.flexGrow = 1f
+                if(viewModel.isWatch) {
+                    itemView.layoutParams.width = LayoutParams.MATCH_PARENT
+                } else {
+                    val layoutParams = itemView.layoutParams as? FlexboxLayoutManager.LayoutParams
+                    layoutParams?.flexGrow = 1f
+                }
+
+                // 设置最大宽度
+                textViewName.maxWidth =
+                    (viewModel.screenWidth - resources.getDimensionPixelSize(R.dimen.layout_size_1_large) * 1.5).toInt()
+                textViewDescription.maxWidth = textViewName.maxWidth
             }
 
+
             fun bind(tool: Tool, onItemClick: () -> Unit) {
+
                 imageViewIcon.setImageDrawable(viewModel.iconCacheHelper.getCircularDrawable(tool))
                 textViewName.text = SearchHelper.highlightSearchTermForDevice(
                     viewModel = viewModel,
                     text = tool.name,
                 )
+
                 val descriptionText = if(isSchemeList) {
                     SchemeHelper.getSchemeFromId(tool.id)
                 } else {
@@ -618,7 +694,7 @@ class ExpandableRecyclerView @JvmOverloads constructor(
                         ClipboardHelper.copyToClipboard(
                             context = myActivity,
                             text = SchemeHelper.getSchemeFromId(tool.id),
-                            toastString = tool.name + myActivity.getString(R.string.scheme),
+                            toastString = tool.name + myActivity.getString(R.string.some_scheme),
                         )
                     } else {
                         BottomSheetDialogHelper.setAndShowBottomSheetDialog(

@@ -141,10 +141,17 @@ object ConfigHelper {
 //        val context = viewModel.myContext
         try {
             val userConfigFile = getUserConfigPath()
-            val jsonString = JSONObject(config).toString()
+            // 如果配置为空，删除配置文件
+            if(config.isEmpty()) {
+                if(userConfigFile.exists()) {
+                    userConfigFile.delete()
+                }
+            } else {
+                val jsonString = JSONObject(config).toString()
 
-            FileOutputStream(userConfigFile).use { outputStream ->
-                outputStream.write(jsonString.toByteArray(ENCODING))
+                FileOutputStream(userConfigFile).use { outputStream ->
+                    outputStream.write(jsonString.toByteArray(ENCODING))
+                }
             }
 
             if(updateBackup) {

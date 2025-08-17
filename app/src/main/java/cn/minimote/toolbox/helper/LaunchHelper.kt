@@ -56,7 +56,7 @@ object LaunchHelper {
                 viewModel = viewModel,
                 titleText = myActivity.getString(R.string.warning),
                 titleTextColor = myActivity.getColor(R.color.red),
-                messageText = myActivity.getString(R.string.indent) + tool.warningMessage,
+                messageText = tool.warningMessage,
                 positiveAction = {
                     getIntentAndLaunch(
                         myActivity = myActivity,

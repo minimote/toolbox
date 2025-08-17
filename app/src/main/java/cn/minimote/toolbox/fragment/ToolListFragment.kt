@@ -77,7 +77,8 @@ class ToolListFragment(
     private lateinit var imageViewSearchIcon: ImageView
     private lateinit var textViewName: TextView
 
-    private val alpha = UI.ALPHA_3
+    // TODO: 设置透明度为 0 只是暂时的解决方案，因为透明度为 0 还可以滑动
+    private val alpha = UI.ALPHA_0
     private val originalAlpha = UI.ALPHA_10
 
     private lateinit var searchModeObserver: Observer<Boolean>
@@ -209,6 +210,7 @@ class ToolListFragment(
                 } else {
                     // 恢复 RecyclerView 的不透明度
                     expandableRecyclerView.alpha = originalAlpha
+                    expandableRecyclerView.updateSearchMode(true)
                 }
                 refreshToolList()
             },
@@ -337,6 +339,9 @@ class ToolListFragment(
 
         // 恢复 RecyclerView 不透明
         expandableRecyclerView.alpha = originalAlpha
+        expandableRecyclerView.updateSearchMode(false)
+//        Toast.makeText(context, "退出搜索模式", Toast.LENGTH_SHORT).show()+
+        refreshToolList()
     }
 
 

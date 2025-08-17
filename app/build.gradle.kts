@@ -25,10 +25,11 @@ android {
 
         var testSuffix = ""
 
+        // 版本号
+        val versionCodeList = listOf(2, 0, 1)
+
         // 测试的后缀
 //        testSuffix = "-alpha.5"
-        // 版本号
-        val versionCodeList = listOf(2, 0, 0)
 
         var versionCodeCombined = 0
         for(x in versionCodeList) {

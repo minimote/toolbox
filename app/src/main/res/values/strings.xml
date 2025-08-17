@@ -218,6 +218,7 @@
     <string name="scheme_list">Scheme 列表</string>
     <string name="long_press_can_copy_scheme">长按可复制 Scheme</string>
     <string name="scheme">Scheme</string>
+    <string name="some_scheme">的 Scheme</string>
     <string name="scheme_not_found">Scheme 未配置</string>
     <string name="setting_title_page_setting">页面设置</string>
     <string name="restore_default_success">已恢复默认，请注意保存</string>

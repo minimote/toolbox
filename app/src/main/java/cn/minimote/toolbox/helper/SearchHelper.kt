@@ -55,15 +55,22 @@ object SearchHelper {
         highlightColorId: Int = R.color.primary,
     ): SpannableString {
         val actualQuery = query.trim()
-        if (actualQuery.isEmpty()) return SpannableString(text)
+        if(actualQuery.isEmpty()) return SpannableString(text)
 
         val spannableString = SpannableString(text)
 
-        // 查找普通匹配
-        highlightDirectMatches(viewModel, spannableString, text, actualQuery, highlightColorId)
-
-        // 查找拼音匹配
-        highlightPinyinMatches(viewModel, spannableString, text, actualQuery, highlightColorId)
+        // 查找所有匹配项并高亮
+        val matches = findAllMatches(text, actualQuery)
+        for(match in matches) {
+            spannableString.setSpan(
+                ForegroundColorSpan(
+                    ContextCompat.getColor(viewModel.myContext, highlightColorId)
+                ),
+                match.start,
+                match.end,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
 
         return spannableString
     }
@@ -82,19 +89,9 @@ object SearchHelper {
         query: String = viewModel.searchQuery.value.orEmpty(),
     ): Boolean {
         val actualQuery = query.trim()
-        if (actualQuery.isEmpty()) return true
+        if(actualQuery.isEmpty()) return true
 
-        val lowerCaseText = text.lowercase(Locale.getDefault())
-        val lowerCaseQuery = actualQuery.lowercase(Locale.getDefault())
-
-        // 直接文本匹配
-        if (lowerCaseText.contains(lowerCaseQuery)) {
-            return true
-        }
-
-        // 拼音匹配（检查文本中任何部分的拼音是否匹配查询词）
-        val pinyinString = Pinyin.toPinyin(text, "").lowercase(Locale.getDefault())
-        return pinyinString.contains(lowerCaseQuery)
+        return findAllMatches(text, actualQuery).isNotEmpty()
     }
 
     /**
@@ -115,113 +112,160 @@ object SearchHelper {
     }
 
     /**
-     * 高亮显示直接匹配项
+     * 查找文本中所有匹配项的位置
      *
-     * @param viewModel MyViewModel 实例，用于获取 Context
-     * @param spannableString SpannableString 对象
      * @param text 原始文本
      * @param query 搜索关键词
-     * @param highlightColorId 高亮颜色资源 ID
+     * @return 匹配项位置列表
      */
-    private fun highlightDirectMatches(
-        viewModel: MyViewModel,
-        spannableString: SpannableString,
-        text: String,
-        query: String,
-        highlightColorId: Int
-    ) {
-        if (query.isEmpty()) return
+    private fun findAllMatches(text: String, query: String): List<TextMatch> {
+        if(query.isEmpty()) return emptyList()
 
+        val matches = mutableSetOf<TextMatch>()
+
+        // 1. 直接文本匹配
+        addDirectMatches(matches, text, query)
+
+        // 2. 拼音匹配
+        addPinyinMatches(matches, text, query)
+
+        // 3. 拼音首字母匹配
+        addPinyinFirstLetterMatches(matches, text, query)
+
+        // 合并重叠的匹配项
+        return mergeOverlappingMatches(matches.toList())
+    }
+
+    /**
+     * 添加直接文本匹配项
+     */
+    private fun addDirectMatches(matches: MutableSet<TextMatch>, text: String, query: String) {
         val lowerCaseText = text.lowercase(Locale.getDefault())
         val lowerCaseQuery = query.lowercase(Locale.getDefault())
 
         var index = lowerCaseText.indexOf(lowerCaseQuery)
         while(index >= 0) {
-            spannableString.setSpan(
-                ForegroundColorSpan(
-                    ContextCompat.getColor(viewModel.myContext, highlightColorId)
-                ),
-                index,
-                index + query.length,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-            index = lowerCaseText.indexOf(lowerCaseQuery, index + query.length)
+            matches.add(TextMatch(index, index + query.length))
+            index = lowerCaseText.indexOf(lowerCaseQuery, index + 1)
         }
     }
 
     /**
-     * 高亮显示拼音匹配项
-     *
-     * @param viewModel MyViewModel 实例，用于获取 Context
-     * @param spannableString SpannableString 对象
-     * @param text 原始文本
-     * @param query 搜索关键词
-     * @param highlightColorId 高亮颜色资源 ID
+     * 添加拼音匹配项
      */
-    private fun highlightPinyinMatches(
-        viewModel: MyViewModel,
-        spannableString: SpannableString,
-        text: String,
-        query: String,
-        highlightColorId: Int
-    ) {
-        if (query.isEmpty()) return
-
-        // 生成每个字符的拼音映射
+    private fun addPinyinMatches(matches: MutableSet<TextMatch>, text: String, query: String) {
         val pinyinChars = generatePinyinChars(text)
+        val lowerCaseQuery = query.lowercase(Locale.getDefault())
 
         // 查找连续拼音组合的前缀匹配
-        for (i in pinyinChars.indices) {
+        for(i in pinyinChars.indices) {
             val combinedPinyin = StringBuilder()
-            for (j in i until pinyinChars.size) {
+            for(j in i until pinyinChars.size) {
                 combinedPinyin.append(pinyinChars[j].pinyin)
                 val combinedPinyinStr = combinedPinyin.toString().lowercase(Locale.getDefault())
-                val queryLower = query.lowercase(Locale.getDefault())
 
                 // 如果查询词是组合拼音的前缀，则高亮对应的字符范围
-                if (combinedPinyinStr.startsWith(queryLower)) {
-                    spannableString.setSpan(
-                        ForegroundColorSpan(
-                            ContextCompat.getColor(viewModel.myContext, highlightColorId)
-                        ),
-                        pinyinChars[i].originalIndex,
-                        pinyinChars[j].originalIndex + 1,
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                if(combinedPinyinStr.startsWith(lowerCaseQuery)) {
+                    matches.add(
+                        TextMatch(
+                            pinyinChars[i].originalIndex,
+                            pinyinChars[j].originalIndex + 1
+                        )
                     )
                     break // 找到匹配后跳出内层循环
                 }
 
                 // 如果组合拼音已经比查询词长且不匹配，则跳出内层循环
-                if (combinedPinyinStr.length >= queryLower.length) {
+                if(combinedPinyinStr.length >= lowerCaseQuery.length) {
                     break
                 }
             }
         }
 
         // 查找单个字符的拼音前缀匹配
-        for (pinyinChar in pinyinChars) {
-            if (pinyinChar.pinyin.lowercase(Locale.getDefault()).startsWith(query.lowercase(Locale.getDefault()))) {
-                // 检查该位置是否已经被高亮过
-                val spans = spannableString.getSpans(
-                    pinyinChar.originalIndex,
-                    pinyinChar.originalIndex + 1,
-                    ForegroundColorSpan::class.java
-                )
-
-                // 如果还没有被高亮，则添加拼音匹配的高亮
-                if (spans.isEmpty()) {
-                    // 高亮匹配的中文字符
-                    spannableString.setSpan(
-                        ForegroundColorSpan(
-                            ContextCompat.getColor(viewModel.myContext, highlightColorId)
-                        ),
-                        pinyinChar.originalIndex,
-                        pinyinChar.originalIndex + 1,
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                }
+        for(pinyinChar in pinyinChars) {
+            if(pinyinChar.pinyin.lowercase(Locale.getDefault()).startsWith(lowerCaseQuery)) {
+                matches.add(TextMatch(pinyinChar.originalIndex, pinyinChar.originalIndex + 1))
             }
         }
+    }
+
+    /**
+     * 添加拼音首字母匹配项
+     */
+    private fun addPinyinFirstLetterMatches(
+        matches: MutableSet<TextMatch>,
+        text: String,
+        query: String
+    ) {
+        val pinyinFirstLetters = generatePinyinFirstLetters(text)
+        val lowerCaseQuery = query.lowercase(Locale.getDefault())
+        val lowerCasePinyinFirstLetters = pinyinFirstLetters.lowercase(Locale.getDefault())
+
+        // 查找拼音首字母匹配
+        var index = lowerCasePinyinFirstLetters.indexOf(lowerCaseQuery)
+        while(index >= 0) {
+            // 计算在原始文本中的实际位置
+            var textStartIndex = 0
+            var firstLetterCount = 0
+
+            for(i in text.indices) {
+                val char = text[i]
+                if(Pinyin.isChinese(char) || char.isLetter()) {
+                    if(firstLetterCount == index) {
+                        textStartIndex = i
+                        break
+                    }
+                    firstLetterCount++
+                }
+            }
+
+            // 计算结束位置
+            var textEndIndex = textStartIndex
+            var matchedLetterCount = 0
+
+            for(i in textStartIndex until text.length) {
+                val char = text[i]
+                if(Pinyin.isChinese(char) || char.isLetter()) {
+                    matchedLetterCount++
+                    textEndIndex = i + 1
+                    if(matchedLetterCount == query.length) {
+                        break
+                    }
+                }
+            }
+
+            matches.add(TextMatch(textStartIndex, textEndIndex))
+
+            index = lowerCasePinyinFirstLetters.indexOf(lowerCaseQuery, index + 1)
+        }
+    }
+
+    /**
+     * 合并重叠的匹配项
+     */
+    private fun mergeOverlappingMatches(matches: List<TextMatch>): List<TextMatch> {
+        if(matches.isEmpty()) return emptyList()
+
+        // 按起始位置排序
+        val sortedMatches = matches.sortedBy { it.start }
+        val mergedMatches = mutableListOf<TextMatch>()
+        var currentMatch = sortedMatches[0]
+
+        for(i in 1 until sortedMatches.size) {
+            val nextMatch = sortedMatches[i]
+            if(currentMatch.end >= nextMatch.start) {
+                // 重叠，合并区间
+                currentMatch = TextMatch(currentMatch.start, maxOf(currentMatch.end, nextMatch.end))
+            } else {
+                // 不重叠，添加当前区间，更新当前区间
+                mergedMatches.add(currentMatch)
+                currentMatch = nextMatch
+            }
+        }
+
+        mergedMatches.add(currentMatch)
+        return mergedMatches
     }
 
     /**
@@ -233,9 +277,9 @@ object SearchHelper {
     private fun generatePinyinChars(text: String): List<PinyinChar> {
         val pinyinChars = mutableListOf<PinyinChar>()
 
-        for (i in text.indices) {
+        for(i in text.indices) {
             val char = text[i]
-            if (Pinyin.isChinese(char)) {
+            if(Pinyin.isChinese(char)) {
                 // 对于中文字符，获取拼音（不带声调）
                 val pinyin = Pinyin.toPinyin(char)
                 pinyinChars.add(PinyinChar(char, pinyin, i))
@@ -247,6 +291,40 @@ object SearchHelper {
 
         return pinyinChars
     }
+
+    /**
+     * 生成拼音首字母字符串
+     *
+     * @param text 原始文本
+     * @return 拼音首字母字符串
+     */
+    private fun generatePinyinFirstLetters(text: String): String {
+        val firstLetters = StringBuilder()
+
+        for(i in text.indices) {
+            val char = text[i]
+            if(Pinyin.isChinese(char)) {
+                // 对于中文字符，获取拼音首字母
+                val pinyin = Pinyin.toPinyin(char)
+                if(pinyin.isNotEmpty()) {
+                    firstLetters.append(pinyin[0])
+                }
+            } else if(char.isLetter()) {
+                // 对于非中文字符，直接添加字符本身
+                firstLetters.append(char)
+            }
+        }
+
+        return firstLetters.toString()
+    }
+
+    /**
+     * 文本匹配项数据类
+     *
+     * @param start 匹配项起始位置
+     * @param end 匹配项结束位置
+     */
+    private data class TextMatch(val start: Int, val end: Int)
 
     /**
      * 拼音字符类

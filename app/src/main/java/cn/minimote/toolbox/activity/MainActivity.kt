@@ -429,6 +429,11 @@ class MainActivity : AppCompatActivity() {
                         VibrationHelper.vibrateOnClick(viewModel)
                     }
                 }
+
+                // 手动切换页面，不使用切换动画
+                if (currentPosition != position) {
+                    viewPager.setCurrentItem(position, false)
+                }
             }
 
             // 拦截 Tab 的选择事件，阻止默认切换

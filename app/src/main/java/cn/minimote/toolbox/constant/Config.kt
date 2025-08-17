@@ -75,6 +75,14 @@ object Config {
             // 显示不可用的工具
             const val SHOW_UNAVAILABLE_TOOLS = "show_unavailable_tools"
         }
+
+
+        object CollapsedGroups {
+            const val PREFIX = "collapsed_groups_"
+
+            const val TOOL_LIST = PREFIX + "tool_list"
+            const val SCHEME_LIST = PREFIX + "scheme_list"
+        }
     }
 
 
@@ -179,13 +187,17 @@ object Config {
             ConfigKeys.Launch.EXIT_AFTER_LAUNCH to false,
 
             // 启动的主页
-            ConfigKeys.Launch.HOME_PAGE to FragmentName.WIDGET_LIST_FRAGMENT,
+            ConfigKeys.Launch.HOME_PAGE to WIDGET_LIST_FRAGMENT,
 
             // 显示收藏标志
             ConfigKeys.Display.SHOW_LIKE_ICON to true,
 
             // 显示不可用的工具
             ConfigKeys.Display.SHOW_UNAVAILABLE_TOOLS to false,
+
+            // 折叠的组(使用列表是因为 Json 没有 Set 类型)
+            ConfigKeys.CollapsedGroups.TOOL_LIST to listOf<String>(),
+            ConfigKeys.CollapsedGroups.SCHEME_LIST to listOf<String>(),
         )
     }
 }
