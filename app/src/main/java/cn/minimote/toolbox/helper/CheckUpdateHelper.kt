@@ -28,6 +28,7 @@ import cn.minimote.toolbox.helper.ConfigHelper.deleteConfigValue
 import cn.minimote.toolbox.helper.ConfigHelper.getConfigValue
 import cn.minimote.toolbox.helper.ConfigHelper.saveUserConfig
 import cn.minimote.toolbox.helper.ConfigHelper.updateConfigValue
+import cn.minimote.toolbox.helper.DialogHelper.showMyDialog
 import cn.minimote.toolbox.helper.NetworkHelper.getNetworkAccessMode
 import cn.minimote.toolbox.viewModel.MyViewModel
 import com.google.android.material.progressindicator.LinearProgressIndicator
@@ -168,10 +169,10 @@ object CheckUpdateHelper {
 
         when(viewModel.getNetworkAccessMode(networkType)) {
             NetworkAccessModeValues.ALERT -> {
-                DialogHelper.showConfirmDialog(
+                DialogHelper.setAndShowDefaultDialog(
                     context = context,
                     viewModel = viewModel,
-                    titleText = context.getString(
+                    messageText = context.getString(
                         R.string.dialog_message_network_check_update,
                         networkTypeString,
                     ),
@@ -366,14 +367,14 @@ object CheckUpdateHelper {
         val maxLength = maxOf(remoteVersionList.size, localVersionList.size)
 
         // 逐个比较版本号的每个部分
-        for (i in 0 until maxLength) {
+        for(i in 0 until maxLength) {
             // 如果一个列表已经没有元素，则默认值为 -1
-            val remoteCode = if (i < remoteVersionList.size) remoteVersionList[i] else -1
-            val localCode = if (i < localVersionList.size) localVersionList[i] else -1
+            val remoteCode = if(i < remoteVersionList.size) remoteVersionList[i] else -1
+            val localCode = if(i < localVersionList.size) localVersionList[i] else -1
 
-            if (remoteCode > localCode) {
+            if(remoteCode > localCode) {
                 return true
-            } else if (remoteCode < localCode) {
+            } else if(remoteCode < localCode) {
                 return false
             }
             // 如果相等，继续比较下一个部分
@@ -410,14 +411,14 @@ object CheckUpdateHelper {
     ) {
         checkingUpdateToast?.cancel()
 
-        DialogHelper.showConfirmDialog(
+        DialogHelper.setAndShowDefaultDialog(
             context = context,
             viewModel = viewModel,
-            titleText = context.getString(
-                R.string.new_version_available,
-                remoteVersion,
-            ),
+            titleText = context.getString(R.string.find_new_version),
             messageText = context.getString(
+                R.string.latest_version,
+                remoteVersion,
+            ) + "\n\n" + context.getString(
                 R.string.whether_download_now,
                 releaseNotes.trim() + "\n\n",
             ),
@@ -520,7 +521,6 @@ object CheckUpdateHelper {
 
 
     // 轮询查询下载状态
-    // 轮询查询下载状态
     private fun monitorDownloadStatus(
         context: Context,
         downloadId: Long,
@@ -596,10 +596,10 @@ object CheckUpdateHelper {
                 VibrationHelper.vibrateOnClick(viewModel)
                 VibrationHelper.vibrateOnDangerousOperation(viewModel)
                 // 显示确认对话框
-                DialogHelper.showConfirmDialog(
+                DialogHelper.setAndShowDefaultDialog(
                     context = context,
                     viewModel = viewModel,
-                    titleText = context.getString(R.string.confirm_cancel_download),
+                    messageText = context.getString(R.string.confirm_cancel_download),
                     positiveAction = {
                         // 确认取消下载
                         val downloadManager =
@@ -625,7 +625,7 @@ object CheckUpdateHelper {
                 context = context,
                 view = progressView,
             )
-            progressDialog.show()
+            progressDialog.showMyDialog(viewModel)
         }
 
 

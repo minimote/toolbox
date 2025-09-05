@@ -10,20 +10,24 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.constant.Config
+import cn.minimote.toolbox.constant.SeekBarValueList
 import cn.minimote.toolbox.constant.ViewList
 import cn.minimote.toolbox.constant.ViewTypes
 import cn.minimote.toolbox.constant.ViewTypes.Setting.radioViewSet
+import cn.minimote.toolbox.constant.ViewTypes.Setting.seekBarSet
 import cn.minimote.toolbox.constant.ViewTypes.Setting.switchViewSet
 import cn.minimote.toolbox.constant.ViewTypes.Setting.titleViewSet
 import cn.minimote.toolbox.helper.ConfigHelper.clearUserConfig
 import cn.minimote.toolbox.helper.ConfigHelper.getConfigValue
 import cn.minimote.toolbox.helper.ConfigHelper.updateConfigValue
 import cn.minimote.toolbox.helper.ConfigHelper.updateSettingWasModified
+import cn.minimote.toolbox.helper.SeekBarHelper
 import cn.minimote.toolbox.helper.TimeHelper.getFormatTimeString
 import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.ui.widget.RadioRecyclerView
@@ -59,6 +63,14 @@ class SettingAdapter(
 
                 in radioViewSet -> {
                     R.layout.item_edit_radio_recyclerview
+                }
+
+                in seekBarSet -> {
+                    if(viewModel.isWatch) {
+                        R.layout.item_seekbar_watch
+                    } else {
+                        R.layout.item_seekbar
+                    }
                 }
 
                 viewTypes.UPDATE_CHECK_FREQUENCY -> {
@@ -231,6 +243,24 @@ class SettingAdapter(
                     }
                 }
             }
+
+            viewTypes.SEARCH_HISTORY_MAX_COUNT -> {
+                setSeekBar(
+                    holder = holder,
+                    valueList = SeekBarValueList.searchHistoryMaxCount,
+                    titleId = R.string.search_history_max_count,
+                    configKey = Config.ConfigKeys.SearchHistory.MAX_COUNT,
+                )
+            }
+
+            viewTypes.SEARCH_SUGGESTION_MAX_COUNT -> {
+                setSeekBar(
+                    holder = holder,
+                    valueList = SeekBarValueList.searchSuggestionMaxCount,
+                    titleId = R.string.search_suggestion_max_count,
+                    configKey = Config.ConfigKeys.SearchSuggestion.MAX_COUNT,
+                )
+            }
         }
     }
 
@@ -303,6 +333,45 @@ class SettingAdapter(
                 )
                 viewModel.updateSettingWasModified()
                 onCheckedChangeListener(selectedId)
+            },
+        )
+    }
+
+
+    // 设置滑动条
+    private fun setSeekBar(
+        holder: ViewHolder,
+        valueList: List<String>,
+        titleId: Int,
+        configKey: String,
+    ) {
+        val textViewTitle: TextView = holder.itemView.findViewById(R.id.textView_name)
+        textViewTitle.text = context.getString(titleId)
+
+        val textViewContent: TextView = holder.itemView.findViewById(R.id.textView_content)
+//        textViewContent.minWidth = context.resources.getDimension(R.dimen.layout_size_1_large).toInt()
+//        textViewContent.width = context.resources.getDimension(R.dimen.layout_size_2_Large).toInt()
+
+        val seekBar: SeekBar = holder.itemView.findViewById(R.id.seekBar)
+        SeekBarHelper.setSeekBar(
+            seekBar = seekBar,
+            valueList = valueList,
+            initPosition = valueList.indexOf(viewModel.getConfigValue(configKey).toString()),
+            viewModel = viewModel,
+            textViewDecrease = holder.itemView.findViewById(R.id.textView_decrease),
+            textViewIncrease = holder.itemView.findViewById(R.id.textView_increase),
+            callback = object : SeekBarHelper.SeekBarCallback {
+                override fun updateConfigValue(value: String) {
+                    viewModel.updateConfigValue(
+                        key = configKey,
+                        value = value.toInt(),
+                    )
+                    viewModel.updateSettingWasModified()
+                }
+
+                override fun setupTextView(value: String) {
+                    textViewContent.text = value
+                }
             },
         )
     }

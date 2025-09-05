@@ -14,14 +14,13 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.activity.MainActivity
+import cn.minimote.toolbox.constant.Egg
 import cn.minimote.toolbox.constant.FragmentName
 import cn.minimote.toolbox.constant.ViewList
 import cn.minimote.toolbox.constant.ViewTypes
-import cn.minimote.toolbox.fragment.MyListFragment
 import cn.minimote.toolbox.helper.CheckUpdateHelper
 import cn.minimote.toolbox.helper.ClipboardHelper
 import cn.minimote.toolbox.helper.DataCleanHelper
@@ -36,8 +35,6 @@ import cn.minimote.toolbox.viewModel.MyViewModel
 class MyListAdapter(
     private val myActivity: MainActivity,
     val viewModel: MyViewModel,
-    private val fragment: MyListFragment,
-    private val fragmentManager: FragmentManager,
 ) : RecyclerView.Adapter<MyListAdapter.MyViewHolder>() {
 
     private val viewList = ViewList.myList
@@ -229,8 +226,7 @@ class MyListAdapter(
             imageView = holder.imageViewAppIcon,
             fileName = viewModel.myAppName,
             viewModel = viewModel,
-            context = myActivity,
-            viewPager = fragment.viewPager,
+            activity = myActivity,
         )
 
         holder.textViewAppName.text = viewModel.myAppName
@@ -273,6 +269,36 @@ class MyListAdapter(
             true
         }
 
+        // 添加连续点击计数器和上次点击时间
+        var clickCount = 0
+        var lastClickTime = 0L
+        holder.textViewAppVersion.setOnClickListener {
+            val currentTime = System.currentTimeMillis()
+            if(currentTime - lastClickTime < Egg.CLICK_GAP) {
+                clickCount++
+                if(clickCount >= Egg.CLICK_COUNT) {
+                    // 连续点击8次的处理逻辑
+                    VibrationHelper.vibrateOnClick(viewModel)
+                    // 在这里添加你想要执行的代码
+                    Toast.makeText(
+                        myActivity,
+                        myActivity.getString(R.string.congratulations_you_found_the_easter_egg),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    clickCount = 0
+                    // 显示彩蛋 Fragment
+                    FragmentHelper.switchFragment(
+                        fragmentName = FragmentName.EASTER_EGG_FRAGMENT,
+                        viewModel = viewModel,
+                        activity = myActivity,
+                    )
+                }
+            } else {
+                clickCount = 1
+            }
+            lastClickTime = currentTime
+        }
+
         holder.textViewAppAuthor.text =
             myActivity.getString(R.string.app_author, viewModel.myAuthorName)
         // 禁用振动反馈
@@ -295,10 +321,10 @@ class MyListAdapter(
         updateCacheSize(holder)
         holder.itemView.setOnClickListener {
             VibrationHelper.vibrateOnClick(viewModel)
-            DialogHelper.showConfirmDialog(
+            DialogHelper.setAndShowDefaultDialog(
                 context = myActivity,
                 viewModel = viewModel,
-                titleText = myActivity.getString(R.string.clear_cache_confirmation),
+                messageText = myActivity.getString(R.string.clear_cache_confirmation),
                 positiveAction = {
                     DataCleanHelper.clearCache(viewModel)
                     updateCacheSize(holder)
@@ -325,10 +351,10 @@ class MyListAdapter(
         holder.itemView.setOnClickListener {
             VibrationHelper.vibrateOnClick(viewModel)
             VibrationHelper.vibrateOnDangerousOperation(viewModel)
-            DialogHelper.showConfirmDialog(
+            DialogHelper.setAndShowDefaultDialog(
                 context = myActivity,
                 viewModel = viewModel,
-                titleText = myActivity.getString(R.string.clear_data_confirmation),
+                messageText = myActivity.getString(R.string.clear_data_confirmation),
                 positiveAction = {
                     DataCleanHelper.clearData(viewModel)
                     updateDataSize(holder)
@@ -355,10 +381,8 @@ class MyListAdapter(
             VibrationHelper.vibrateOnClick(viewModel)
             FragmentHelper.switchFragment(
                 fragmentName = FragmentName.SUPPORT_AUTHOR_FRAGMENT,
-                fragmentManager = fragmentManager,
                 viewModel = viewModel,
-                viewPager = fragment.viewPager,
-                constraintLayoutOrigin = fragment.constraintLayoutOrigin,
+                activity = myActivity,
             )
         }
     }
@@ -371,10 +395,8 @@ class MyListAdapter(
             VibrationHelper.vibrateOnClick(viewModel)
             FragmentHelper.switchFragment(
                 fragmentName = FragmentName.ABOUT_PROJECT_FRAGMENT,
-                fragmentManager = fragmentManager,
                 viewModel = viewModel,
-                viewPager = fragment.viewPager,
-                constraintLayoutOrigin = fragment.constraintLayoutOrigin,
+                activity = myActivity,
             )
         }
     }
@@ -405,10 +427,8 @@ class MyListAdapter(
             VibrationHelper.vibrateOnClick(viewModel)
             FragmentHelper.switchFragment(
                 fragmentName = FragmentName.SETTING_FRAGMENT,
-                fragmentManager = fragmentManager,
                 viewModel = viewModel,
-                viewPager = fragment.viewPager,
-                constraintLayoutOrigin = fragment.constraintLayoutOrigin,
+                activity = myActivity,
             )
         }
     }
@@ -426,11 +446,8 @@ class MyListAdapter(
             viewModel.webViewUrl = url
             FragmentHelper.switchFragment(
                 fragmentName = FragmentName.WEB_VIEW_FRAGMENT,
-                fragmentManager = fragmentManager,
                 viewModel = viewModel,
-                context = myActivity,
-                viewPager = fragment.viewPager,
-                constraintLayoutOrigin = fragment.constraintLayoutOrigin,
+                activity = myActivity,
             )
         }
     }
@@ -441,11 +458,8 @@ class MyListAdapter(
             VibrationHelper.vibrateOnClick(viewModel)
             FragmentHelper.switchFragment(
                 fragmentName = FragmentName.SCHEME_LIST_FRAGMENT,
-                fragmentManager = fragmentManager,
                 viewModel = viewModel,
-                context = myActivity,
-                viewPager = fragment.viewPager,
-                constraintLayoutOrigin = fragment.constraintLayoutOrigin,
+                activity = myActivity,
             )
         }
     }
@@ -456,14 +470,25 @@ class MyListAdapter(
         holder.textViewName.text = myActivity.getString(R.string.app_detail)
         holder.itemView.setOnClickListener {
             VibrationHelper.vibrateOnClick(viewModel)
-            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-            val uri = Uri.fromParts("package", myActivity.packageName, null)
-            intent.data = uri
-            LaunchHelper.launch(
-                myActivity = myActivity,
-                viewModel = viewModel,
-                intent = intent,
-            )
+            try {
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                val uri = Uri.fromParts("package", myActivity.packageName, null)
+                intent.data = uri
+                LaunchHelper.launch(
+                    myActivity = myActivity,
+                    viewModel = viewModel,
+                    intent = intent,
+                )
+            } catch(e: Exception) {
+                Toast.makeText(
+                    myActivity,
+                    myActivity.getString(
+                        R.string.app_error,
+                        e.message,
+                    ),
+                    Toast.LENGTH_SHORT,
+                ).show()
+            }
 
         }
     }

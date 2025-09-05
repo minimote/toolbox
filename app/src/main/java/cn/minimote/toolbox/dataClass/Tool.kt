@@ -49,7 +49,7 @@ open class Tool(
 
     // 转换为存储类型
     fun toStoredTool(
-        width: Int = ToolConstants.MAX_WIDGET_SIZE,
+        width: Int = ToolConstants.MAX_WIDGET_WIDTH,
     ): StoredTool {
         return StoredTool(
             id = id,

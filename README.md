@@ -5,7 +5,7 @@ Copyright (c) 2024-2025 minimote(微尘). All rights reserved.
 
 ## 介绍
 
-&emsp;&emsp;一款专为安卓手表设计的 APP，**最低支持安卓 8**，主要适配方形表盘，**同时支持手机使用**。
+&emsp;&emsp;一款专为安卓手表设计的 APP，**同时支持手机使用**，**最低支持安卓 8**，主要适配方形表盘。
 
 <div align="center">
 
@@ -50,8 +50,6 @@ Copyright (c) 2024-2025 minimote(微尘). All rights reserved.
 - 功能：
   - 组件高度设置(根据最小宽度调整？)
   - 添加自定义活动
-  - 搜索：历史和建议
-  - 记住折叠状态
 - 工具：
   - 木鱼
   - 振动器
@@ -62,6 +60,7 @@ Copyright (c) 2024-2025 minimote(微尘). All rights reserved.
 - 待定：
   - 功能
     - 手表滑动返回上一级
+    - SeekBar 从原地开始滑动
   - 工具
     - 手持弹幕
     - 阅读电子书

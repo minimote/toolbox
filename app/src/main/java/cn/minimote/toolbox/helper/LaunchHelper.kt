@@ -51,12 +51,12 @@ object LaunchHelper {
 
         if(!tool.warningMessage.isNullOrBlank()) {
             VibrationHelper.vibrateOnDangerousOperation(viewModel)
-            DialogHelper.showConfirmDialog(
+            DialogHelper.setAndShowDefaultDialog(
                 context = myActivity,
                 viewModel = viewModel,
                 titleText = myActivity.getString(R.string.warning),
                 titleTextColor = myActivity.getColor(R.color.red),
-                messageText = tool.warningMessage,
+                messageText = tool.warningMessage.trim(),
                 positiveAction = {
                     getIntentAndLaunch(
                         myActivity = myActivity,
@@ -120,11 +120,8 @@ object LaunchHelper {
             ToolID.Other.WOODEN_FISH -> {
                 FragmentHelper.switchFragment(
                     fragmentName = FragmentName.WOODEN_FISH_FRAGMENT,
-                    fragmentManager = myActivity.supportFragmentManager,
                     viewModel = viewModel,
-                    context = myActivity,
-                    viewPager = myActivity.viewPager,
-                    constraintLayoutOrigin = myActivity.constraintLayoutOrigin,
+                    activity = myActivity,
                 )
             }
         }
@@ -144,7 +141,7 @@ object LaunchHelper {
             startActivity(myActivity, intent!!, null)
             // 使用计数器加 1
             if(tool is StoredTool) {
-                tool.useCount += 1u
+                tool.useCount += 1
                 tool.lastUsedTime = System.currentTimeMillis()
                 viewModel.saveWidgetList()
             }

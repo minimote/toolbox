@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_height="match_parent"
-    style="@style/ConstraintLayout.Toolbox.RecyclerView.Dark">
+    style="@style/ConstraintLayout.Toolbox.RecyclerView.Dark"
+    android:layout_height="match_parent">
 
     <com.scwang.smart.refresh.layout.SmartRefreshLayout
         android:id="@+id/refreshLayout"
@@ -17,7 +17,7 @@
 
         <cn.minimote.toolbox.ui.widget.ExpandableRecyclerView
             android:id="@+id/expandableRecyclerView"
-            style="@style/ConstraintLayout.Toolbox.Dark"
+            style="@style/RecyclerView.Toolbox.Dark"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
@@ -28,10 +28,10 @@
         android:id="@+id/constraintLayout_add_app"
         style="@style/ConstraintLayout.Toolbox.Clickable.Dark"
         android:layout_width="0dp"
+        android:layout_marginStart="@dimen/layout_size_3_script"
         android:background="@drawable/background_widget_full"
         android:paddingHorizontal="@dimen/layout_size_1_small"
         android:paddingVertical="10dp"
-        android:layout_marginStart="@dimen/layout_size_3_script"
         app:layout_constraintEnd_toStartOf="@id/constraintLayout_searchBox"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -72,8 +72,8 @@
         style="@style/ConstraintLayout.Toolbox.Clickable.Dark"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:background="@drawable/background_widget_full"
         android:layout_marginHorizontal="@dimen/layout_size_3_script"
+        android:background="@drawable/background_widget_full"
         app:layout_constraintBottom_toBottomOf="@+id/constraintLayout_add_app"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/constraintLayout_add_app"

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/ConstraintLayout.Toolbox.Dark"
+    android:clipToPadding="false">
+
+    <TextView
+        android:id="@+id/textView_name"
+        style="@style/TextView.Toolbox.Dark"
+        android:layout_width="0dp"
+        android:layout_marginTop="@dimen/layout_size_1_small"
+        android:layout_marginBottom="@dimen/layout_size_2_footnote"
+        android:gravity="start"
+        android:paddingStart="@dimen/layout_size_2.5_script"
+        android:text="@string/app_name"
+        android:textSize="@dimen/text_size_0_normal"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/imageButton_clear"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/imageButton_clear"
+        style="@style/ImageButton.Toolbox.Dark"
+        android:layout_width="@dimen/layout_size_1_large"
+        android:layout_height="@dimen/layout_size_1_large"
+        android:layout_marginEnd="@dimen/layout_size_1.5_footnote"
+        android:contentDescription="@string/clear_button"
+        android:padding="@dimen/layout_size_2_footnote"
+        android:src="@drawable/ic_trash_can"
+        app:layout_constraintBottom_toBottomOf="@id/textView_name"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -12,8 +12,8 @@ import android.media.MediaScannerConnection
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.graphics.drawable.toBitmap
-import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.activity.MainActivity
 import cn.minimote.toolbox.constant.MenuList
 import cn.minimote.toolbox.constant.MenuType
 import cn.minimote.toolbox.viewModel.MyViewModel
@@ -28,10 +28,9 @@ object ImageSaveHelper {
         imageView: ImageView,
         fileName: String,
         viewModel: MyViewModel,
-        context: Context,
+        activity: MainActivity,
         quality: Int = 100,
         imagePath: File = viewModel.savePath,
-        viewPager: ViewPager2? = null,
     ) {
 
         // 禁用振动反馈
@@ -42,10 +41,9 @@ object ImageSaveHelper {
                 imageView = imageView,
                 fileName = fileName,
                 viewModel = viewModel,
-                context = context,
+                activity = activity,
                 quality = quality,
                 imagePath = imagePath,
-                viewPager = viewPager,
             )
             true
         }
@@ -57,16 +55,14 @@ object ImageSaveHelper {
         imageView: ImageView,
         fileName: String,
         viewModel: MyViewModel,
-        context: Context,
+        activity: MainActivity,
         quality: Int = 100,
         imagePath: File = viewModel.savePath,
-        viewPager: ViewPager2? = null,
     ) {
         BottomSheetDialogHelper.setAndShowBottomSheetDialog(
-            context = context,
             viewModel = viewModel,
+            activity = activity,
             menuList = MenuList.saveImage,
-            viewPager = viewPager,
             onMenuItemClick = { menuItemId ->
                 when(menuItemId) {
                     MenuType.SAVE_IMAGE -> {
@@ -74,7 +70,7 @@ object ImageSaveHelper {
                             imageView = imageView,
                             fileName = fileName,
                             viewModel = viewModel,
-                            context = context,
+                            context = activity,
                             quality = quality,
                             imagePath = imagePath,
                         )

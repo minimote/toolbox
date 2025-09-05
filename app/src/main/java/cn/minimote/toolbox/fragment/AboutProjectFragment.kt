@@ -14,6 +14,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.activity.MainActivity
 import cn.minimote.toolbox.adapter.AboutProjectAdapter
 import cn.minimote.toolbox.viewModel.MyViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -23,6 +24,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class AboutProjectFragment : Fragment() {
 
     private val viewModel: MyViewModel by activityViewModels()
+    private val myActivity get() = requireActivity() as MainActivity
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: AboutProjectAdapter
 
@@ -36,8 +38,8 @@ class AboutProjectFragment : Fragment() {
         recyclerView = view.findViewById(R.id.recyclerView_about_project)
         recyclerView.layoutManager = LinearLayoutManager(context)
         adapter = AboutProjectAdapter(
-            context = requireContext(),
             viewModel = viewModel,
+            activity = myActivity,
         )
         recyclerView.adapter = adapter
 

@@ -26,7 +26,7 @@ android {
         var testSuffix = ""
 
         // 版本号
-        val versionCodeList = listOf(2, 0, 1)
+        val versionCodeList = listOf(2, 1, 0)
 
         // 测试的后缀
 //        testSuffix = "-alpha.5"
@@ -80,11 +80,11 @@ android {
         }
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
         compose = true

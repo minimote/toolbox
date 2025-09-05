@@ -12,14 +12,17 @@ import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.constant.UI
 import cn.minimote.toolbox.constant.ViewTypes
 import cn.minimote.toolbox.dataClass.InstalledApp
 import cn.minimote.toolbox.fragment.InstalledAppListFragment
+import cn.minimote.toolbox.helper.DialogHelper
 import cn.minimote.toolbox.helper.SearchHelper.highlightSearchTermForDevice
 import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.viewModel.MyViewModel
@@ -30,162 +33,193 @@ class InstalledAppListAdapter(
     private val context: Context,
     private val fragment: InstalledAppListFragment,
     private val viewModel: MyViewModel,
-) : RecyclerView.Adapter<InstalledAppListAdapter.AppViewHolder>() {
+) : RecyclerView.Adapter<ViewHolder>() {
 
 
-    private var installedAppList: List<InstalledApp> =
-        viewModel.installedAppList.value ?: getNoResultList()
+    private var dataList: List<Any> =
+        viewModel.installedAppList.value ?: emptyList()
 
 
-    inner class AppViewHolder(itemView: View, val viewType: Int) :
-        RecyclerView.ViewHolder(itemView) {
-        lateinit var appName: TextView
-        lateinit var appIcon: ImageView
-        lateinit var activityName: TextView
-        lateinit var switch: SwitchMaterial
-
-
-        init {
-            when(viewType) {
-                ViewTypes.InstalledAppList.NORMAL -> {
-                    appName = itemView.findViewById(R.id.textView_app_name)
-                    appIcon = itemView.findViewById(R.id.imageView_app_icon)
-                    activityName = itemView.findViewById(R.id.textView_activity_name)
-                    switch = itemView.findViewById(R.id.switch_whether_show_in_home)
-                }
-
-                ViewTypes.InstalledAppList.TITLE -> {
-                    appName = itemView.findViewById(R.id.textView_name)
-                }
-            }
-        }
+    inner class AppViewHolder(itemView: View, val viewType: Int) : ViewHolder(itemView) {
+        var appName: TextView = itemView.findViewById(R.id.textView_app_name)
+        var appIcon: ImageView = itemView.findViewById(R.id.imageView_app_icon)
+        var activityName: TextView = itemView.findViewById(R.id.textView_activity_name)
+        var switch: SwitchMaterial = itemView.findViewById(R.id.switch_whether_show_in_home)
 
 
         fun highlightAppNameAndActivityName(activity: InstalledApp) {
-            appName.text = highlightSearchTermForDevice(
-                viewModel = viewModel,
-                text = activity.name,
-            )
-            activityName.text = highlightSearchTermForDevice(
-                viewModel = viewModel,
-                text = activity.activityName,
-            )
-        }
-    }
-
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppViewHolder {
-        val layoutId = when(viewType) {
-            ViewTypes.InstalledAppList.NORMAL -> R.layout.item_installed_app
-            ViewTypes.InstalledAppList.TITLE -> R.layout.item_setting_title
-            else -> -1
-        }
-        val view = LayoutInflater.from(parent.context).inflate(layoutId, parent, false)
-        return AppViewHolder(view, viewType)
-    }
-
-
-    override fun onBindViewHolder(holder: AppViewHolder, position: Int) {
-        val installedApp = installedAppList[position]
-
-        if(holder.viewType == ViewTypes.InstalledAppList.TITLE) {
-            holder.appName.text = installedApp.name
-            // 标题都不可点击
-//            holder.itemView.isClickable = false
-            // 需要手动设置线条颜色，不然可能会受到无名称项的影响而变成空
-//            setLineBackground(holder)
-//            Log.e("title", installedActivity.appName)
-
-            when(installedApp.name) {
-                // 无名称则不显示
-                "" -> {
-//                    Log.e("title", "无内容")
-//                    setLineBackground(holder, null)
-                }
-
-                // 无结果提示为灰色正常字体
-                context.getString(R.string.no_result) -> {
-                    // 设置字体样式为正常
-                    holder.appName.setTypeface(null, Typeface.NORMAL)
-                    // 设置字体颜色为灰色
-                    holder.appName.setTextColor(context.getColor(R.color.mid_gray))
-                }
-
-                else -> {
-                    // 设置字体样式为粗体
-                    holder.appName.setTypeface(null, Typeface.BOLD)
-                    // 设置字体颜色为白色
-                    holder.appName.setTextColor(context.getColor(R.color.white))
-                }
-
-            }
-            return
-        }
-
-        holder.appIcon.setImageDrawable(
-            viewModel.iconCacheHelper.getCircularDrawable(installedApp)
-        )
-
-//        if(viewModel.isWatch) {
-//            holder.appName.text = installedApp.name
-//            // 手表活动名仅显示最后一个点后面的部分
-//            holder.activityName.text = installedApp.activityName.substringAfterLast('.')
-//        } else {
-            // 高亮显示搜索结果
-            holder.highlightAppNameAndActivityName(installedApp)
-//        }
-
-//        holder.switch.isChecked = viewModel.isStoredActivity(installedActivity.activityName)
-        holder.switch.isChecked = viewModel.inSizeChangeMap(installedApp.activityName)
-        // 设置暗淡效果的滤镜
-        setDimmingEffect(holder, !holder.switch.isChecked)
-
-//        Log.i(
-//            "ActivityListAdapter",
-//            " ${installedActivity.appName} ${holder.switch.isChecked}"
-//        )
-
-        // 项目被点到时切换开关状态
-        fun toggleSwitch() {
-//            val searchBoxText = fragment.editTextSearchBox.text.toString().trim()
-//            if(viewModel.searchMode.value == true && searchBoxText.isEmpty()) {
-            if(fragment.recyclerView.alpha != fragment.originalAlpha) {
-                // 直接退出模式，而不是通过取消按钮退出，避免振动
-                viewModel.searchMode.value = false
-//                fragment.exitSearchMode()
+            if(fragment.searchQuery.isNotEmpty()) {
+                appName.text = highlightSearchTermForDevice(
+                    viewModel = viewModel,
+                    text = activity.name,
+                    query = fragment.searchQuery,
+                )
+                activityName.text = highlightSearchTermForDevice(
+                    viewModel = viewModel,
+                    text = activity.activityName,
+                    query = fragment.searchQuery,
+                )
             } else {
-                if(holder.viewType == ViewTypes.InstalledAppList.NORMAL) {
-                    holder.switch.isChecked = !holder.switch.isChecked
-
-                    // 触发设备振动
-                    VibrationHelper.vibrateOnClick(viewModel)
-
-                    // 设置暗淡效果的滤镜
-                    setDimmingEffect(holder, !holder.switch.isChecked)
-
-                    // 根据开关状态更新字典
-                    if(holder.switch.isChecked) {
-                        viewModel.addToSizeChangeMap(installedApp)
-                    } else {
-                        viewModel.removeFromSizeChangeMap(installedApp.id)
-                    }
-                    // 如果修改后的关键字集合与原来的一样，复制映射
-                    viewModel.syncSizeChangeMapIfSameKeys()
-                }
+                appName.text = activity.name
+                activityName.text = activity.activityName
             }
         }
 
-        holder.itemView.setOnClickListener {
-            toggleSwitch()
+        fun bind(activity: InstalledApp) {
+
+            appIcon.setImageDrawable(
+                viewModel.iconCacheHelper.getCircularDrawable(activity)
+            )
+
+            // 高亮显示搜索结果
+            highlightAppNameAndActivityName(activity)
+
+            switch.isChecked = viewModel.inSizeChangeMap(activity.activityName)
+            // 设置暗淡效果的滤镜
+            setDimmingEffect(this, !switch.isChecked)
+
+
+            itemView.setOnClickListener {
+                switch.isChecked = !switch.isChecked
+
+                // 触发设备振动
+                VibrationHelper.vibrateOnClick(viewModel)
+
+                // 设置暗淡效果的滤镜
+                setDimmingEffect(this, !switch.isChecked)
+
+                // 根据开关状态更新字典
+                if(switch.isChecked) {
+                    viewModel.addToSizeChangeMap(activity)
+                } else {
+                    viewModel.removeFromSizeChangeMap(activity.id)
+                }
+                // 如果修改后的关键字集合与原来的一样，复制映射
+                viewModel.syncSizeChangeMapIfSameKeys()
+                if(viewModel.searchMode.value == true) {
+                    fragment.updateSearchHistoryAndSuggestion(activity.name.trim())
+                }
+            }
         }
+    }
+
+
+    inner class NoResultViewHolder(itemView: View) : ViewHolder(itemView) {
+        var name: TextView = itemView.findViewById(R.id.textView_name)
+
+        fun bind(text: String) {
+            name.text = text
+            name.setTypeface(null, Typeface.NORMAL)
+            // 设置字体颜色为灰色
+            name.setTextColor(context.getColor(R.color.mid_gray))
+
+            itemView.setOnClickListener {
+                fragment.hideKeyboardAndClearFocus()
+            }
+        }
+    }
+
+
+    inner class HistoryOrSuggestionViewHolder(itemView: View) : ViewHolder(itemView) {
+        private val textView: TextView = itemView.findViewById(R.id.textView_name)
+
+        fun bind(text: String) {
+            textView.text = text
+            itemView.setOnClickListener {
+                VibrationHelper.vibrateOnClick(viewModel)
+                fragment.setSearchBoxText(text)
+                fragment.updateSearchHistoryAndSuggestion(text)
+            }
+        }
+    }
+
+
+    inner class SearchTitleViewHolder(itemView: View) : ViewHolder(itemView) {
+        private val textView: TextView = itemView.findViewById(R.id.textView_name)
+        private val imageButtonClear: ImageButton = itemView.findViewById(R.id.imageButton_clear)
+
+        fun bind(text: String) {
+            textView.text = text
+            itemView.setOnClickListener {
+                fragment.hideKeyboardAndClearFocus()
+            }
+
+            imageButtonClear.setOnClickListener {
+                VibrationHelper.vibrateOnClick(viewModel)
+                DialogHelper.setAndShowDefaultDialog(
+                    context = context,
+                    viewModel = viewModel,
+                    messageText = context.getString(
+                        R.string.confirm_clear_something,
+                        text,
+                    ),
+                    positiveAction = {
+                        fragment.clearSearchHistoryOrSuggestion(text)
+                    },
+                )
+            }
+        }
+    }
+
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        return when(viewType) {
+            ViewTypes.InstalledAppList.APP -> AppViewHolder(
+                LayoutInflater.from(parent.context)
+                    .inflate(R.layout.item_installed_app, parent, false),
+                viewType,
+            )
+
+            ViewTypes.InstalledAppList.NO_RESULT -> NoResultViewHolder(
+                LayoutInflater.from(parent.context)
+                    .inflate(R.layout.item_setting_title, parent, false),
+            )
+
+            ViewTypes.InstalledAppList.HISTORY_OR_SUGGESTION -> HistoryOrSuggestionViewHolder(
+                LayoutInflater.from(parent.context)
+                    .inflate(R.layout.item_search_history_or_suggestion, parent, false),
+            )
+
+            ViewTypes.InstalledAppList.SEARCH_TITLE -> SearchTitleViewHolder(
+                LayoutInflater.from(parent.context)
+                    .inflate(R.layout.item_search_title, parent, false),
+            )
+
+            else -> throw IllegalArgumentException("非法视图类型：$viewType")
+        }
+    }
+
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+
+        val data = dataList[position]
+
+        when(holder) {
+            is AppViewHolder -> {
+                holder.bind(data as InstalledApp)
+            }
+
+            is NoResultViewHolder -> {
+                holder.bind(data as String)
+            }
+
+            is HistoryOrSuggestionViewHolder -> {
+                holder.bind(data as String)
+            }
+
+            is SearchTitleViewHolder -> {
+                holder.bind(data as String)
+            }
+        }
+
     }
 
 
     // 设置透明度
     private fun setDimmingEffect(holder: AppViewHolder, shouldDim: Boolean) {
         // 调整亮度为原来的比例(透明度)
-        val alpha = UI.ALPHA_7
-        val originAlpha = UI.ALPHA_10
+        val alpha = UI.Alpha.ALPHA_7
+        val originAlpha = UI.Alpha.ALPHA_10
 
         if(shouldDim) {
             holder.itemView.alpha = alpha
@@ -205,36 +239,48 @@ class InstalledAppListAdapter(
 //    }
 
 
-    override fun getItemCount(): Int = installedAppList.size
+    override fun getItemCount(): Int = dataList.size
 
 
     override fun getItemViewType(position: Int): Int {
-        return if(installedAppList[position].packageName.isEmpty()) {
-            ViewTypes.InstalledAppList.TITLE
-        } else {
-            ViewTypes.InstalledAppList.NORMAL
+        val data = dataList[position]
+//        LogHelper.e("数据类型", "position: $position, data: $data, type: ${data::class.java}")
+        return when(data) {
+            is InstalledApp -> {
+                ViewTypes.InstalledAppList.APP
+            }
+
+            is String -> {
+                when(data) {
+                    context.getString(R.string.no_result) -> {
+                        ViewTypes.InstalledAppList.NO_RESULT
+                    }
+
+                    context.getString(R.string.search_history),
+                    context.getString(R.string.search_suggestion),
+                        -> {
+                        ViewTypes.InstalledAppList.SEARCH_TITLE
+                    }
+
+                    else -> {
+                        ViewTypes.InstalledAppList.HISTORY_OR_SUGGESTION
+                    }
+                }
+            }
+
+            else -> {
+                -1
+            }
         }
     }
 
 
     @SuppressLint("NotifyDataSetChanged")
-    fun submitList(newInstalledAppList: List<InstalledApp> = loadActivityList()) {
-        installedAppList = newInstalledAppList.ifEmpty {
-            getNoResultList()
-        }
+    fun submitList(newInstalledAppList: List<Any> = loadActivityList()) {
+        dataList = newInstalledAppList
         notifyDataSetChanged()
     }
 
-
-    private fun getNoResultList(): List<InstalledApp> {
-        return mutableListOf(
-            InstalledApp(
-                name = context.getString(R.string.no_result),
-                packageName = "",
-                activityName = "",
-            )
-        )
-    }
 
     private fun loadActivityList(): List<InstalledApp> {
         return viewModel.installedAppList.value ?: mutableListOf()

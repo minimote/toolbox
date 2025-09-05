@@ -45,8 +45,6 @@ class WidgetListFragment() : Fragment() {
 
     val viewPager: ViewPager2
         get() = activity.viewPager
-    val constraintLayoutOrigin: ConstraintLayout
-        get() = activity.constraintLayoutOrigin
 
 
     private lateinit var context: Context
@@ -175,7 +173,7 @@ class WidgetListFragment() : Fragment() {
         imageViewBackground.visibility = View.INVISIBLE
 //        imageViewBackground.layoutParams.width = imageViewSize
 //        imageViewBackground.layoutParams.height = imageViewSize
-        imageViewBackground.alpha = UI.ALPHA_3
+        imageViewBackground.alpha = UI.Alpha.ALPHA_3
     }
 
 
@@ -201,12 +199,9 @@ class WidgetListFragment() : Fragment() {
         buttonSortMode.setOnClickListener {
             VibrationHelper.vibrateOnClick(viewModel)
             BottomSheetDialogHelper.setAndShowBottomSheetDialog(
-                context = context,
                 viewModel = viewModel,
+                activity = activity,
                 menuList = MenuList.sort,
-                viewPager = viewPager,
-                fragmentManager = requireActivity().supportFragmentManager,
-                constraintLayoutOrigin = constraintLayoutOrigin,
                 onMenuItemClick = { menuItemId ->
                     when(menuItemId) {
                         else -> {
@@ -230,8 +225,6 @@ class WidgetListFragment() : Fragment() {
             myActivity = activity,
             viewModel = viewModel,
             fragment = this,
-            fragmentManager = requireActivity().supportFragmentManager,
-            viewPager = viewPager,
         )
         recyclerView.adapter = adapter
 
@@ -338,7 +331,7 @@ class WidgetListFragment() : Fragment() {
                 buttonReverseSelect.visibility = View.VISIBLE
 
                 textViewNoWidget.text = getString(context, R.string.multi_select)
-                textViewNoWidget.alpha = UI.ALPHA_5
+                textViewNoWidget.alpha = UI.Alpha.ALPHA_5
                 if(!viewModel.isWatch) {
                     textViewNoWidget.visibility = View.VISIBLE
                 }
@@ -382,7 +375,7 @@ class WidgetListFragment() : Fragment() {
                     textViewNoWidget.text = viewModel.sortModeString
                 }
 
-                textViewNoWidget.alpha = UI.ALPHA_5
+                textViewNoWidget.alpha = UI.Alpha.ALPHA_5
 
                 if(!viewModel.isWatch) {
                     textViewNoWidget.visibility = View.VISIBLE
@@ -442,7 +435,7 @@ class WidgetListFragment() : Fragment() {
         }
         if(viewModel.storedToolList.value?.isEmpty() == true) {
             textViewNoWidget.text = getString(context, R.string.textView_no_widget)
-            textViewNoWidget.alpha = UI.ALPHA_10
+            textViewNoWidget.alpha = UI.Alpha.ALPHA_10
             textViewNoWidget.visibility = View.VISIBLE
 
             imageViewBackground.visibility = View.VISIBLE

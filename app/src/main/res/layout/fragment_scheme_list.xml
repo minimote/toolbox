@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    style="@style/ConstraintLayout.Toolbox.RecyclerView.Dark">
+    style="@style/ConstraintLayout.Toolbox.RecyclerView.Dark"
+    android:layout_height="match_parent">
 
     <com.scwang.smart.refresh.layout.SmartRefreshLayout
         android:id="@+id/refreshLayout"
         style="@style/SmartRefreshLayout.Toolbox.Dark"
-        android:layout_marginTop="51dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/layout_size_4_tiny"
+        android:minHeight="@dimen/layout_size_1_large"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/constraintLayout_searchBox">
 
         <cn.minimote.toolbox.ui.widget.ExpandableRecyclerView
             android:id="@+id/expandableRecyclerView"
-            style="@style/ConstraintLayout.Toolbox.Dark"
+            style="@style/RecyclerView.Toolbox.Dark"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 

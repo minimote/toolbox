@@ -5,7 +5,6 @@
 
 package cn.minimote.toolbox.adapter
 
-import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +15,7 @@ import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.activity.MainActivity
 import cn.minimote.toolbox.constant.ViewList
 import cn.minimote.toolbox.constant.ViewTypes
 import cn.minimote.toolbox.helper.ClipboardHelper
@@ -25,12 +25,13 @@ import cn.minimote.toolbox.viewModel.MyViewModel
 
 
 class AboutProjectAdapter(
-    private val context: Context,
     val viewModel: MyViewModel,
+    private val activity: MainActivity,
 ) : RecyclerView.Adapter<AboutProjectAdapter.SupportAuthorViewHolder>() {
 
     private val viewList = ViewList.aboutProjectViewList
     private val viewTypes = ViewTypes.AboutProject
+    val context = activity
 
     inner class SupportAuthorViewHolder(
         itemView: View,
@@ -109,10 +110,10 @@ class AboutProjectAdapter(
                 holder.imageViewQRCode.layoutParams.width = imageSize
                 holder.imageViewQRCode.layoutParams.height = imageSize
                 ImageSaveHelper.setPopupMenu(
-                    holder.imageViewQRCode,
-                    context.getString(R.string.qr_gitee_file_name),
-                    viewModel,
-                    context,
+                    imageView = holder.imageViewQRCode,
+                   fileName =  context.getString(R.string.qr_gitee_file_name),
+                    viewModel = viewModel,
+                    activity = activity,
                 )
             }
 
@@ -129,10 +130,10 @@ class AboutProjectAdapter(
                 holder.imageViewQRCode.layoutParams.width = imageSize
                 holder.imageViewQRCode.layoutParams.height = imageSize
                 ImageSaveHelper.setPopupMenu(
-                    holder.imageViewQRCode,
-                    context.getString(R.string.qr_github_file_name),
-                    viewModel,
-                    context,
+                    imageView = holder.imageViewQRCode,
+                    fileName =  context.getString(R.string.qr_github_file_name),
+                    viewModel = viewModel,
+                    activity = activity,
                 )
             }
 

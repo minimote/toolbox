@@ -14,10 +14,8 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.activity.MainActivity
 import cn.minimote.toolbox.constant.MenuList
@@ -36,8 +34,6 @@ class WidgetListAdapter(
     private val myActivity: MainActivity,
     private val viewModel: MyViewModel,
     private val fragment: WidgetListFragment,
-    private val fragmentManager: FragmentManager,
-    private val viewPager: ViewPager2,
 ) : RecyclerView.Adapter<WidgetListAdapter.WidgetViewHolder>() {
 
     private lateinit var itemTouchHelper: ItemTouchHelper
@@ -155,13 +151,10 @@ class WidgetListAdapter(
             if(viewModel.multiselectMode.value != true && viewModel.sortMode.value != true) {
                 VibrationHelper.vibrateOnLongPress(viewModel)
                 BottomSheetDialogHelper.setAndShowBottomSheetDialog(
-                    context = myActivity,
                     viewModel = viewModel,
+                    activity = myActivity,
                     tool = tool,
                     menuList = if(viewModel.isWatch) MenuList.widget_watch else MenuList.widget,
-                    viewPager = viewPager,
-                    fragmentManager = fragmentManager,
-                    constraintLayoutOrigin = fragment.constraintLayoutOrigin,
                     onMenuItemClick = { menuItemId ->
                         when(menuItemId) {
                             MenuType.MULTI_SELECT -> {
@@ -202,7 +195,7 @@ class WidgetListAdapter(
 //                packageName = appInfo.packageName,
 //                name = "",
 //                intentUri = "toolbox://",
-//                description = "kjhsdkjhksd",
+//                description = "1",
 //            )
         )
 //        if(flag) {

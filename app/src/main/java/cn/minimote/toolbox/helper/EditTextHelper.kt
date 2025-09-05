@@ -30,7 +30,10 @@ object EditTextHelper {
         afterTextChanged: (s: Editable?) -> Unit = { s: Editable? -> },
         onFocusGained: () -> Unit = {}, // 当获得焦点时执行的逻辑
         onFocusLost: () -> Unit = {}, // 当失去焦点时执行的逻辑
+        onClick: () -> Unit = {}, // 点击时执行的逻辑
+        onEditorAction: () -> Unit = {}, // 回车键被按下时执行的逻辑
         imageButtonClear: ImageButton,
+        onClickClearButton: () -> Unit = {},
     ) {
         setEditText(
             editText = editText,
@@ -42,12 +45,15 @@ object EditTextHelper {
             afterTextChanged = afterTextChanged,
             onFocusGained = onFocusGained,
             onFocusLost = onFocusLost,
+            onClick = onClick,
+            onEditorAction = onEditorAction,
             imageButtonClear = imageButtonClear,
         )
         setClearButton(
             editText = editText,
             viewModel = viewModel,
             imageButtonClear = imageButtonClear,
+            onClickClearButton = onClickClearButton,
         )
     }
 
@@ -65,6 +71,8 @@ object EditTextHelper {
         afterTextChanged: (s: Editable?) -> Unit = { s: Editable? -> },
         onFocusGained: () -> Unit = {}, // 当获得焦点时执行的逻辑
         onFocusLost: () -> Unit = {}, // 当失去焦点时执行的逻辑
+        onClick: () -> Unit = {}, // 点击时执行的逻辑
+        onEditorAction: () -> Unit = {}, // 回车键被按下时执行的逻辑
         imageButtonClear: ImageButton,
     ) {
         if(stringText.isNotEmpty()) {
@@ -85,30 +93,47 @@ object EditTextHelper {
         // 禁用振动反馈
         editText.isHapticFeedbackEnabled = false
 
+        // 点击时执行的逻辑
+        editText.setOnClickListener {
+            onClick()
+        }
+
+        // 回车键显示为完成
+        val action = android.view.inputmethod.EditorInfo.IME_ACTION_DONE
+        editText.setImeOptions(action)
+
+        // 处理键盘回车键事件
+        editText.setOnEditorActionListener { _, actionId, event ->
+            var handled = false
+            // 回车键被按下
+            if(actionId == action) {
+                // 隐藏键盘
+                val imm =
+                    editText.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(editText.windowToken, 0)
+                onEditorAction()
+                handled = true
+            }
+            handled
+        }
+
+
         // 手动请求输入法，避免第一次点击出现闪烁
         editText.onFocusChangeListener = View.OnFocusChangeListener { v, hasFocus ->
+            val imm =
+                v.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+
             if(hasFocus) {
-//                LogHelper.e("获得焦点的振动", "获得焦点的振动")
-                val imm =
-                    v.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+//                LogHelper.e("获得焦点", "获得焦点")
                 imm.showSoftInput(v, InputMethodManager.SHOW_IMPLICIT)
                 onFocusGained()
             } else {
-                // 隐藏软键盘
-                val imm =
-                    v.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+//                LogHelper.e("失去焦点", "失去焦点")
                 imm.hideSoftInputFromWindow(v.windowToken, 0)
                 onFocusLost()
             }
         }
 
-        // 点击输入框时触发振动
-        editText.setOnClickListener {
-//            if(editText.hasFocus()) {
-//                LogHelper.e("点击输入框的振动", "点击输入框的振动")
-                VibrationHelper.vibrateOnClick(viewModel)
-//            }
-        }
 
         // 添加 TextWatcher 监听文本变化
         editText.addTextChangedListener(object : TextWatcher {
@@ -167,12 +192,13 @@ object EditTextHelper {
         editText: EditText,
         viewModel: MyViewModel,
         imageButtonClear: ImageButton,
+        onClickClearButton: () -> Unit = {},
     ) {
         if(canShowClearButton(viewModel)) {
             // 设置清空按钮点击事件
             imageButtonClear.setOnClickListener {
-                VibrationHelper.vibrateOnClick(viewModel)
                 editText.setText("")
+                onClickClearButton()
             }
         } else {
             imageButtonClear.visibility = View.GONE

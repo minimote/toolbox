@@ -9,6 +9,7 @@ import cn.minimote.toolbox.R
 import cn.minimote.toolbox.constant.FragmentName.MY_LIST_FRAGMENT
 import cn.minimote.toolbox.constant.FragmentName.TOOL_LIST_FRAGMENT
 import cn.minimote.toolbox.constant.FragmentName.WIDGET_LIST_FRAGMENT
+import org.json.JSONObject
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 
@@ -83,6 +84,25 @@ object Config {
             const val TOOL_LIST = PREFIX + "tool_list"
             const val SCHEME_LIST = PREFIX + "scheme_list"
         }
+
+
+        object SearchHistory {
+            const val PREFIX = "search_history_"
+            const val MAX_COUNT = PREFIX + "max_count"
+            const val TOOL_LIST = PREFIX + "tool_list"
+            const val SCHEME_LIST = PREFIX + "scheme_list"
+            const val INSTALLED_APP_LIST = PREFIX + "installed_app_list"
+        }
+
+
+        // 搜索建议
+        object SearchSuggestion {
+            const val PREFIX = "search_suggestion_"
+            const val MAX_COUNT = PREFIX + "max_count"
+            const val TOOL_LIST = PREFIX + "tool_list"
+            const val SCHEME_LIST = PREFIX + "scheme_list"
+            const val INSTALLED_APP_LIST = PREFIX + "installed_app_list"
+        }
     }
 
 
@@ -151,7 +171,7 @@ object Config {
 
     // 默认配置
     val defaultConfig by lazy {
-        sortedMapOf(
+        mapOf(
 //            // 版本
 //            ConfigKeys.VERSION to Version.CONFIG,
 
@@ -198,6 +218,20 @@ object Config {
             // 折叠的组(使用列表是因为 Json 没有 Set 类型)
             ConfigKeys.CollapsedGroups.TOOL_LIST to listOf<String>(),
             ConfigKeys.CollapsedGroups.SCHEME_LIST to listOf<String>(),
+
+
+            // 搜索历史
+            ConfigKeys.SearchHistory.MAX_COUNT to 10,
+            ConfigKeys.SearchHistory.TOOL_LIST to listOf<String>(),
+            ConfigKeys.SearchHistory.SCHEME_LIST to listOf<String>(),
+            ConfigKeys.SearchHistory.INSTALLED_APP_LIST to listOf<String>(),
+
+
+            // 搜索建议
+            ConfigKeys.SearchSuggestion.MAX_COUNT to 10,
+            ConfigKeys.SearchSuggestion.TOOL_LIST to JSONObject(),
+            ConfigKeys.SearchSuggestion.SCHEME_LIST to JSONObject(),
+            ConfigKeys.SearchSuggestion.INSTALLED_APP_LIST to JSONObject(),
         )
     }
 }

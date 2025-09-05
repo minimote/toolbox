@@ -33,6 +33,7 @@ import cn.minimote.toolbox.dataClass.StoredTool
 import cn.minimote.toolbox.dataClass.Tool
 import cn.minimote.toolbox.helper.CheckUpdateHelper
 import cn.minimote.toolbox.helper.ConfigHelper.getConfigValue
+import cn.minimote.toolbox.helper.FragmentHelper.getStartFragmentPos
 import cn.minimote.toolbox.helper.IconCacheHelper
 import cn.minimote.toolbox.helper.SchemeHelper
 import cn.minimote.toolbox.helper.SortHelper
@@ -118,7 +119,7 @@ class MyViewModel
 
     //    // 最小最大组件大小
 //    val minWidgetSize = MIN_WIDGET_SIZE
-    val maxWidgetSize = ToolConstants.MAX_WIDGET_SIZE
+    val maxWidgetSize = ToolConstants.MAX_WIDGET_WIDTH
 
 
     // 屏幕尺寸
@@ -162,7 +163,7 @@ class MyViewModel
 
 
     // 配置文件
-    var defaultConfig: Map<String, Any> = Config.defaultConfig
+    val defaultConfig: Map<String, Any> = Config.defaultConfig
     var userConfig: MutableMap<String, Any> = mutableMapOf()
     var userConfigBackup: MutableMap<String, Any> = mutableMapOf()
     // 配置更改
@@ -249,6 +250,12 @@ class MyViewModel
     private val _detailList = MutableLiveData<List<Int>>()
 
 
+    // 最后选中的 ViewPager 位置
+    private var _lastSelectedPosition = MutableLiveData(getStartFragmentPos())
+//    val lastSelectedPosition: LiveData<Int> = _lastSelectedPosition
+
+
+
 //    // 将 dp 转换为 px
 //    fun dpToPx(dp: Float): Int {
 //        val density = myContext.resources.displayMetrics.density
@@ -263,6 +270,17 @@ class MyViewModel
 
     fun getFragmentName(): String {
         return _fragmentName.value ?: FragmentName.NO_FRAGMENT
+    }
+
+
+    fun updateLastSelectedPosition(position: Int) {
+        if(position != _lastSelectedPosition.value) {
+            _lastSelectedPosition.value = position
+        }
+    }
+
+    fun getLastSelectedPosition(): Int {
+        return _lastSelectedPosition.value ?: getStartFragmentPos()
     }
 
 
@@ -551,11 +569,13 @@ class MyViewModel
                 MenuType.SortOrder.RESTORE_SORT -> {
                     restoreStoredToolList()
                 }
+
                 MenuType.SortOrder.FREE_SORT -> {
 
                 }
+
                 else -> {
-        //            Log.e("排序", "进入排序")
+                    //            Log.e("排序", "进入排序")
                     _storedToolList.value = SortHelper.sort(activities, sortType)
                 }
             }

@@ -27,7 +27,7 @@
         android:roundIcon="@drawable/ic_toolbox"
         android:supportsRtl="true"
         android:theme="@style/Theme.Toolbox.Dark"
-        tools:targetApi="33">
+        tools:targetApi="36">
         <!--        <activity-->
         <!--            android:name=".SplashActivity"-->
         <!--            android:exported="true"-->
@@ -59,7 +59,9 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="toolbox" android:host="open" />
+                <data
+                    android:host="open"
+                    android:scheme="toolbox" />
             </intent-filter>
         </activity>
 

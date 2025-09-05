@@ -36,7 +36,8 @@ object ShortcutHelper {
             return
         }
 
-        val icon = viewModel.iconCacheHelper.getIcon(tool)
+        // 获取高清图标
+        val icon = viewModel.iconCacheHelper.getHighResIcon(tool)
         // 生成唯一 ID
         val uniqueId = UUID.randomUUID().toString()
         val shortcutInfo = ShortcutInfo.Builder(context, uniqueId)

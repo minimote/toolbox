@@ -11,8 +11,8 @@ object ToolConstants {
 
     const val STORED_FILE_NAME = "stored_tools.json"
 
-    const val MIN_WIDGET_SIZE = 1
-    const val MAX_WIDGET_SIZE = 12
+    const val MIN_WIDGET_WIDTH = 1
+    const val MAX_WIDGET_WIDTH = 12
 
     object DisplayMode {
 

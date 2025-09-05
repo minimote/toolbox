@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/ConstraintLayout.Toolbox.Dark"
+    android:layout_width="wrap_content"
+    android:clipToPadding="false">
+
+    <TextView
+        android:id="@+id/textView_name"
+        style="@style/TextView.Toolbox.Dark"
+        android:layout_margin="@dimen/layout_size_3_script"
+        android:background="@drawable/background_widget_full"
+        android:padding="@dimen/layout_size_2_footnote"
+        android:paddingStart="@dimen/layout_size_1.5_footnote"
+        android:paddingEnd="@dimen/layout_size_1.5_footnote"
+        android:text="@string/app_name"
+        android:textSize="@dimen/text_size_2_footnote"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

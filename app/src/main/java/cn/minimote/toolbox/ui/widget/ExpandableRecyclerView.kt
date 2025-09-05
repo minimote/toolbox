@@ -10,11 +10,15 @@ import android.content.Context
 import android.graphics.Typeface
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
+import android.view.ViewConfiguration
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
@@ -23,6 +27,7 @@ import cn.minimote.toolbox.constant.Config
 import cn.minimote.toolbox.constant.MenuList
 import cn.minimote.toolbox.constant.MenuType
 import cn.minimote.toolbox.constant.ToolID
+import cn.minimote.toolbox.constant.ViewTypes
 import cn.minimote.toolbox.dataClass.ExpandableGroup
 import cn.minimote.toolbox.dataClass.Tool
 import cn.minimote.toolbox.helper.BottomSheetDialogHelper
@@ -30,6 +35,7 @@ import cn.minimote.toolbox.helper.ClipboardHelper
 import cn.minimote.toolbox.helper.ConfigHelper.getConfigValue
 import cn.minimote.toolbox.helper.ConfigHelper.saveUserConfig
 import cn.minimote.toolbox.helper.ConfigHelper.updateConfigValue
+import cn.minimote.toolbox.helper.DialogHelper
 import cn.minimote.toolbox.helper.LaunchHelper
 import cn.minimote.toolbox.helper.SchemeHelper
 import cn.minimote.toolbox.helper.SearchHelper
@@ -40,6 +46,8 @@ import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
+import org.json.JSONArray
+import kotlin.math.abs
 
 class ExpandableRecyclerView @JvmOverloads constructor(
     context: Context,
@@ -48,29 +56,39 @@ class ExpandableRecyclerView @JvmOverloads constructor(
 ) : RecyclerView(context, attrs, defStyleAttr) {
 
 
-    companion object {
-        private const val VIEW_TYPE_GROUP = 0
-        private const val VIEW_TYPE_CHILD = 1
-        private const val VIEW_TYPE_SEPARATOR = 2
-        private const val VIEW_TYPE_NO_RESULT = 3
-    }
-
-
     private lateinit var adapter: ExpandableAdapter
     private lateinit var viewModel: MyViewModel
     private lateinit var myActivity: MainActivity
+    private lateinit var fragment: Fragment
     private var isSchemeList: Boolean = false
     private lateinit var configKey: String
-    var searchMode: Boolean = false
+    private var emptyAreaClickAction: () -> Unit = {}
+    private var getQuery: () -> String = {""}
+    private var updateSearchHistoryAndSuggestion: (String) -> Unit = {}
+    private var clearSearchHistoryOrSuggestion: (String) -> Unit = {}
+    private var setSearchBoxText: (String) -> Unit = {}
+
 
     fun setParameters(
         viewModel: MyViewModel,
         myActivity: MainActivity,
         isSchemeList: Boolean,
+        fragment: Fragment,
+        emptyAreaClickListener: () -> Unit,
+        getQuery: () -> String,
+        updateSearchHistoryAndSuggestion: (String) -> Unit,
+        clearSearchHistoryOrSuggestion: (String) -> Unit,
+        setSearchBoxText: (String) -> Unit,
     ) {
         this.viewModel = viewModel
         this.myActivity = myActivity
         this.isSchemeList = isSchemeList
+        this.fragment = fragment
+        this.emptyAreaClickAction = emptyAreaClickListener
+        this.getQuery = getQuery
+        this.updateSearchHistoryAndSuggestion = updateSearchHistoryAndSuggestion
+        this.clearSearchHistoryOrSuggestion = clearSearchHistoryOrSuggestion
+        this.setSearchBoxText = setSearchBoxText
 
         configKey = if(isSchemeList) {
             Config.ConfigKeys.CollapsedGroups.SCHEME_LIST
@@ -88,7 +106,7 @@ class ExpandableRecyclerView @JvmOverloads constructor(
             // 使用 FlexboxLayoutManager 实现自适应列数
             val flexboxLayoutManager = FlexboxLayoutManager(context)
             flexboxLayoutManager.flexDirection = FlexDirection.ROW
-            flexboxLayoutManager.justifyContent = JustifyContent.CENTER
+            flexboxLayoutManager.justifyContent = JustifyContent.FLEX_START
             flexboxLayoutManager.alignItems = AlignItems.CENTER
             flexboxLayoutManager.flexWrap = FlexWrap.WRAP  // 确保可以换行
 
@@ -101,7 +119,69 @@ class ExpandableRecyclerView @JvmOverloads constructor(
         itemAnimator = null
 
         setAdapter(adapter)
+
+        // 添加点击监听器到 RecyclerView 本身
+//        this.addOnItemTouchListener(object : SimpleOnItemTouchListener() {
+//            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
+//                val childView = rv.findChildViewUnder(e.x, e.y)
+//                if(childView == null) {
+//                    emptyAreaClickListener()
+//                    return true
+//                }
+//                return false
+//            }
+//        })
+
+        this.addOnItemTouchListener(object : SimpleOnItemTouchListener() {
+            private var startX = 0f
+            private var startY = 0f
+            private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
+
+            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
+                when(e.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        startX = e.x
+                        startY = e.y
+                        // 不拦截 ACTION_DOWN 事件
+                        return false
+                    }
+
+                    MotionEvent.ACTION_UP -> {
+                        val endX = e.x
+                        val endY = e.y
+                        val deltaX = abs(endX - startX)
+                        val deltaY = abs(endY - startY)
+
+                        // 只有当是点击事件（移动距离小于 touchSlop）并且点击在空白区域时才处理
+                        if(deltaX < touchSlop && deltaY < touchSlop) {
+                            val childView = rv.findChildViewUnder(e.x, e.y)
+                            if(childView == null) {
+                                // 在 post 中执行回调，避免阻塞触摸事件处理
+                                rv.post {
+                                    emptyAreaClickListener()
+                                }
+                                return true
+                            }
+                        }
+                        return false
+                    }
+
+                    else -> return false // 不拦截其他事件，保证滚动和越界回弹正常工作
+                }
+            }
+        })
+
+//        this.setOnClickListener {
+//            // 检查当前是否正在触摸 RecyclerView 本身而不是子项
+//            if(this.isEmpty() ||
+//                (this.getChildAt(0).y >= this.height) ||
+//                (this.getChildAt(this.childCount - 1).y + this.getChildAt(this.childCount - 1).height <= 0)
+//            ) {
+//                emptyAreaClickListener()
+//            }
+//        }
     }
+
 
     fun setGroups(groups: List<ExpandableGroup>) {
         adapter.setGroups(groups)
@@ -112,13 +192,14 @@ class ExpandableRecyclerView @JvmOverloads constructor(
 //        return viewModel.searchMode.value == true
 //        Toast.makeText(context, "inSearchMode: ${this@ExpandableRecyclerView.alpha}", Toast.LENGTH_SHORT).show()
 //        return viewModel.searchMode.value == true && this@ExpandableRecyclerView.alpha != 1f
-        return searchMode
+//        return searchMode
+        return viewModel.searchMode.value == true
     }
 
 
-    fun updateSearchMode(searchMode: Boolean) {
-        this.searchMode = searchMode
-    }
+//    fun updateSearchMode(searchMode: Boolean) {
+//        this.searchMode = searchMode
+//    }
 
 //    fun setOnItemClickListener(listener: (Tool) -> Unit) {
 //        adapter.setOnItemClickListener(listener)
@@ -331,6 +412,7 @@ class ExpandableRecyclerView @JvmOverloads constructor(
             // 初始化展开状态
 //            collapsedGroups = configValue.toMutableSet()
             collapsedGroups.clear()
+//            Toast.makeText(context, "获取${!inSearchMode()}", Toast.LENGTH_SHORT).show()
             if(!inSearchMode()) {
                 getSavedCollapsedGroups()
             }
@@ -354,7 +436,7 @@ class ExpandableRecyclerView @JvmOverloads constructor(
             val configValue = viewModel.getConfigValue(
                 key = configKey,
             )
-            if(configValue is org.json.JSONArray) {
+            if(configValue is JSONArray) {
                 // 如果是JSONArray类型，逐个提取字符串
                 for(i in 0 until configValue.length()) {
                     val item = configValue.opt(i)
@@ -373,51 +455,77 @@ class ExpandableRecyclerView @JvmOverloads constructor(
             val (item, _) = getItemWithGroupIndex(position)
             return when(item) {
                 is ExpandableGroup -> {
-                    if(item.titleString == context.getString(R.string.no_result)) {
-                        VIEW_TYPE_NO_RESULT
-                    } else {
-                        VIEW_TYPE_GROUP
+                    when(item.titleString) {
+                        context.getString(R.string.no_result) -> {
+                            ViewTypes.ToolList.NO_RESULT
+                        }
+
+                        context.getString(R.string.search_history),
+                        context.getString(R.string.search_suggestion),
+                            -> {
+                            ViewTypes.ToolList.SEARCH_TITLE
+                        }
+
+                        else -> {
+                            ViewTypes.ToolList.GROUP
+                        }
                     }
                 }
 
                 is Tool -> {
                     if(item.id != ToolID.BLANK) {
-                        VIEW_TYPE_CHILD
+                        ViewTypes.ToolList.CHILD
                     } else {
-                        VIEW_TYPE_SEPARATOR
+                        ViewTypes.ToolList.SEPARATOR
                     }
                 }
 
+                is String -> {
+                    ViewTypes.ToolList.HISTORY_OR_SUGGESTION
+                }
+
                 else -> {
-                    VIEW_TYPE_SEPARATOR
+                    ViewTypes.ToolList.SEPARATOR
                 }
             }
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             return when(viewType) {
-                VIEW_TYPE_GROUP -> {
+                ViewTypes.ToolList.GROUP -> {
                     val view = LayoutInflater.from(parent.context)
                         .inflate(R.layout.item_tool_title, parent, false)
                     GroupViewHolder(view)
                 }
 
-                VIEW_TYPE_CHILD -> {
+                ViewTypes.ToolList.CHILD -> {
                     val view = LayoutInflater.from(parent.context)
                         .inflate(R.layout.item_tool, parent, false)
                     ChildViewHolder(view)
                 }
 
-                VIEW_TYPE_SEPARATOR -> {
+                ViewTypes.ToolList.SEPARATOR -> {
                     val view = LayoutInflater.from(parent.context)
                         .inflate(R.layout.item_tool_separator, parent, false)
                     SeparatorViewHolder(view)
                 }
 
-                VIEW_TYPE_NO_RESULT -> {
+                ViewTypes.ToolList.NO_RESULT -> {
                     val view = LayoutInflater.from(parent.context)
                         .inflate(R.layout.item_setting_title, parent, false)
                     NoResultViewHolder(view)
+                }
+
+                ViewTypes.ToolList.HISTORY_OR_SUGGESTION -> {
+                    val view = LayoutInflater.from(parent.context)
+                        .inflate(R.layout.item_search_history_or_suggestion, parent, false)
+                    HistoryOrSuggestionViewHolder(view)
+                }
+
+                ViewTypes.ToolList.SEARCH_TITLE -> {
+                    val view = LayoutInflater.from(parent.context)
+                        .inflate(R.layout.item_search_title, parent, false)
+                    SearchTitleViewHolder(view)
                 }
 
                 else -> throw IllegalArgumentException("未知的类型 type: $viewType")
@@ -450,31 +558,73 @@ class ExpandableRecyclerView @JvmOverloads constructor(
 //                    holder.bind(separator)
                 }
 
-
                 is NoResultViewHolder -> {
                     holder.bind()
+                }
+
+                is HistoryOrSuggestionViewHolder -> {
+                    holder.bind(item as String)
+                }
+
+                is SearchTitleViewHolder -> {
+                    holder.bind((item as ExpandableGroup).titleString)
                 }
             }
         }
 
+
         override fun getItemCount(): Int {
             var count = 0
             groups.forEachIndexed { index, group ->
-                // Always count the group header
-                count++
+                // 只有当组内有元素或组名需要显示时才计算
+                if(shouldShowGroup(group)) {
+                    // Always count the group header if it should be shown
+                    count++
 
-                // Count children if group is expanded
-                if(!collapsedGroups.contains(group.titleString)) {
-                    count += group.dataList.size
+                    // Count children if group is expanded
+                    if(!collapsedGroups.contains(group.titleString)) {
+                        // 使用限制后的子项数量
+                        count += getDisplayedItemCount(group)
+                    }
                 }
             }
             return count
         }
 
+
+        private fun getDisplayedItemCount(group: ExpandableGroup): Int {
+            // 如果设置了最大显示数量且数据量超过最大显示数量，则返回最大显示数量，否则返回实际数据量
+            val maxDisplayedItems = group.maxDisplayedCount
+            return if (maxDisplayedItems != null && group.getSize() > maxDisplayedItems) {
+                maxDisplayedItems
+            } else {
+                group.getSize()
+            }
+        }
+
+
+        private fun shouldShowGroup(group: ExpandableGroup): Boolean {
+            // 如果设置了最大显示数量且为0，则不显示该组
+            if(group.maxDisplayedCount != null && group.maxDisplayedCount == 0) {
+                return false
+            }
+
+            // 对于没有子元素的组，不显示组标题，除非是特殊组
+            return group.dataList.isNotEmpty() ||
+                    group.titleString == context.getString(R.string.no_result)
+        }
+
+
+
         private fun getItemWithGroupIndex(position: Int): Pair<Any, Int> {
             var currentPosition = 0
 
             for((groupIndex, group) in groups.withIndex()) {
+                // 只处理应该显示的组
+                if(!shouldShowGroup(group)) {
+                    continue
+                }
+
                 // Check if current position is the group header
                 if(currentPosition == position) {
                     return Pair(group, groupIndex)
@@ -484,7 +634,8 @@ class ExpandableRecyclerView @JvmOverloads constructor(
 
                 // If group is expanded, check children
                 if(!collapsedGroups.contains(group.titleString)) {
-                    val childrenCount = group.dataList.size
+                    // 使用限制后的子项数量
+                    val childrenCount = getDisplayedItemCount(group)
                     if(position < currentPosition + childrenCount) {
                         val childIndex = position - currentPosition
                         return Pair(group.dataList[childIndex], groupIndex)
@@ -493,12 +644,13 @@ class ExpandableRecyclerView @JvmOverloads constructor(
                 }
             }
 
-            throw IndexOutOfBoundsException("Position $position is out of bounds")
+            throw IndexOutOfBoundsException("位置 $position 越界")
         }
 
 
         private fun toggleGroup(groupIndex: Int) {
             val startPosition = getGroupStartPosition(groupIndex)
+            val displayedItemCount = getDisplayedItemCount(groups[groupIndex])
 //            Toast.makeText(
 //                context,
 //                "startPosition: $startPosition, cnt=${groups[groupIndex].dataList.size}",
@@ -509,7 +661,7 @@ class ExpandableRecyclerView @JvmOverloads constructor(
                 collapsedGroups.add(groups[groupIndex].titleString)
                 notifyItemRangeInserted(
                     startPosition + 1,
-                    groups[groupIndex].dataList.size,
+                    displayedItemCount,
                 )
                 // 只通知该组范围内的项目变化
             } else {
@@ -517,7 +669,7 @@ class ExpandableRecyclerView @JvmOverloads constructor(
                 // 只通知该组范围内的项目变化
                 notifyItemRangeRemoved(
                     startPosition + 1,
-                    groups[groupIndex].dataList.size,
+                    displayedItemCount,
                 )
             }
 
@@ -525,6 +677,7 @@ class ExpandableRecyclerView @JvmOverloads constructor(
 //            adapter.notifyDataSetChanged()
             // 更新组标题本身
             notifyItemChanged(startPosition)
+//            Toast.makeText(context, "保存:${!inSearchMode()}", Toast.LENGTH_SHORT).show()
             if(!inSearchMode()) {
                 saveCollapsedGroups()
             }
@@ -542,16 +695,29 @@ class ExpandableRecyclerView @JvmOverloads constructor(
         }
 
 
+        // 更新搜索历史
+        private fun updateSearchHistory(text: String) {
+            if(inSearchMode()) {
+                updateSearchHistoryAndSuggestion(text)
+            }
+        }
+
+
         private fun getGroupStartPosition(groupIndex: Int): Int {
             var position = 0
             for(i in 0 until groupIndex) {
-                position++ // Group header
-                if(!collapsedGroups.contains(groups[i].titleString)) {
-                    position += groups[i].dataList.size // Expanded children
+                // 只计算应该显示的组
+                if(shouldShowGroup(groups[i])) {
+                    position++ // Group header
+                    if(!collapsedGroups.contains(groups[i].titleString)) {
+                        // 使用限制后的子项数量
+                        position += getDisplayedItemCount(groups[i]) // Expanded children
+                    }
                 }
             }
             return position
         }
+
 
         inner class GroupViewHolder(itemView: View) : ViewHolder(itemView) {
             private val textViewName: TextView = itemView.findViewById(R.id.textView_name)
@@ -563,6 +729,14 @@ class ExpandableRecyclerView @JvmOverloads constructor(
                 groupIndex: Int,
                 onGroupClick: () -> Unit,
             ) {
+                // 如果组内没有元素，隐藏组标题
+                if(!shouldShowGroup(group)) {
+                    itemView.visibility = GONE
+                    return
+                } else {
+                    itemView.visibility = VISIBLE
+                }
+
                 textViewName.text = group.titleString
 //                if(group.titleString == context.getString(ToolList.GroupNameId.addLocalApp)) {
 //                    // 如果是添加本机软件，将图标设置为加号
@@ -586,14 +760,10 @@ class ExpandableRecyclerView @JvmOverloads constructor(
                 imageViewGroupIndicator.rotation = if(isExpanded) 90f else 0f
 
                 itemView.setOnClickListener {
-                    if(this@ExpandableRecyclerView.alpha != 1f) {
-                        viewModel.searchMode.value = false
-                    } else {
-                        VibrationHelper.vibrateOnClick(viewModel)
-                        // 执行指示器旋转动画
-//                        animateIndicator(!isExpanded)
-                        onGroupClick()
-                    }
+                    VibrationHelper.vibrateOnClick(viewModel)
+                    // 执行指示器旋转动画
+//                    animateIndicator(!isExpanded)
+                    onGroupClick()
                 }
 //                }
             }
@@ -645,6 +815,7 @@ class ExpandableRecyclerView @JvmOverloads constructor(
                 textViewName.text = SearchHelper.highlightSearchTermForDevice(
                     viewModel = viewModel,
                     text = tool.name,
+                    query = getQuery(),
                 )
 
                 val descriptionText = if(isSchemeList) {
@@ -656,6 +827,7 @@ class ExpandableRecyclerView @JvmOverloads constructor(
                     textViewDescription.text = SearchHelper.highlightSearchTermForDevice(
                         viewModel = viewModel,
                         text = descriptionText,
+                        query = getQuery(),
                     )
                     textViewDescription.visibility = VISIBLE
                 } else {
@@ -665,31 +837,27 @@ class ExpandableRecyclerView @JvmOverloads constructor(
                 updateLikeIcon(tool = tool, imageViewLikeIcon = imageViewLikeIcon)
 
                 itemView.setOnClickListener {
-                    if(this@ExpandableRecyclerView.alpha != 1f) {
-                        viewModel.searchMode.value = false
+                    VibrationHelper.vibrateOnClick(viewModel)
+                    updateSearchHistory(tool.name)
+                    if(isSchemeList) {
+                        Toast.makeText(
+                            myActivity,
+                            myActivity.getString(R.string.long_press_can_copy_scheme),
+                            Toast.LENGTH_SHORT,
+                        ).show()
                     } else {
-                        VibrationHelper.vibrateOnClick(viewModel)
-                        if(isSchemeList) {
-                            Toast.makeText(
-                                myActivity,
-                                myActivity.getString(R.string.long_press_can_copy_scheme),
-                                Toast.LENGTH_SHORT,
-                            ).show()
-                        } else {
-                            LaunchHelper.launch(myActivity, viewModel, tool)
-                        }
-                        onItemClick()
+                        LaunchHelper.launch(myActivity, viewModel, tool)
                     }
+                    onItemClick()
                 }
+
 
                 // 取消长按震动
                 itemView.isHapticFeedbackEnabled = false
                 itemView.setOnLongClickListener { _ ->
-                    if(this@ExpandableRecyclerView.alpha != 1f) {
-                        return@setOnLongClickListener true
-                    }
 
                     VibrationHelper.vibrateOnLongPress(viewModel)
+                    updateSearchHistory(tool.name)
                     if(isSchemeList) {
                         ClipboardHelper.copyToClipboard(
                             context = myActivity,
@@ -698,13 +866,10 @@ class ExpandableRecyclerView @JvmOverloads constructor(
                         )
                     } else {
                         BottomSheetDialogHelper.setAndShowBottomSheetDialog(
-                            context = myActivity,
                             viewModel = viewModel,
+                            activity = myActivity,
                             tool = tool,
                             menuList = if(viewModel.isWatch) MenuList.tool_watch else MenuList.tool,
-                            viewPager = myActivity.viewPager,
-                            fragmentManager = myActivity.supportFragmentManager,
-                            constraintLayoutOrigin = myActivity.constraintLayoutOrigin,
                             onMenuItemClick = {
                                 when(it) {
                                     MenuType.ADD_TO_HOME_OR_REMOVE_FROM_HOME -> {
@@ -759,9 +924,53 @@ class ExpandableRecyclerView @JvmOverloads constructor(
                 textViewNoResult.setTypeface(null, Typeface.NORMAL)
                 // 设置字体颜色为灰色
                 textViewNoResult.setTextColor(context.getColor(R.color.mid_gray))
+
+                itemView.setOnClickListener {
+                    emptyAreaClickAction()
+                }
             }
         }
 
+
+        inner class HistoryOrSuggestionViewHolder(itemView: View) : ViewHolder(itemView) {
+            private val textView: TextView = itemView.findViewById(R.id.textView_name)
+
+            fun bind(text: String) {
+                textView.text = text
+                itemView.setOnClickListener {
+                    VibrationHelper.vibrateOnClick(viewModel)
+                    setSearchBoxText(text)
+                    updateSearchHistoryAndSuggestion(text)
+                }
+            }
+        }
+
+
+        inner class SearchTitleViewHolder(itemView: View) : ViewHolder(itemView) {
+            private val textView: TextView = itemView.findViewById(R.id.textView_name)
+            private val imageButtonClear: ImageButton = itemView.findViewById(R.id.imageButton_clear)
+
+            fun bind(text: String) {
+                textView.text = text
+                itemView.setOnClickListener {
+                    emptyAreaClickAction()
+                }
+                imageButtonClear.setOnClickListener {
+                    VibrationHelper.vibrateOnClick(viewModel)
+                    DialogHelper.setAndShowDefaultDialog(
+                        context = context,
+                        viewModel = viewModel,
+                        messageText = context.getString(
+                            R.string.confirm_clear_something,
+                            text,
+                        ),
+                        positiveAction = {
+                            clearSearchHistoryOrSuggestion(text)
+                        },
+                    )
+                }
+            }
+        }
 
     }
 

@@ -74,15 +74,16 @@ class IconCacheHelper(
 
 
     // 定义 LruCache
-    private val iconCache: LruCache<String, Drawable> = object : LruCache<String, Drawable>(getMaxMemoryCacheSize()) {
-        override fun sizeOf(key: String, value: Drawable): Int {
-            return if(value is BitmapDrawable) {
-                value.bitmap.byteCount / 1024
-            } else {
-                1
+    private val iconCache: LruCache<String, Drawable> =
+        object : LruCache<String, Drawable>(getMaxMemoryCacheSize()) {
+            override fun sizeOf(key: String, value: Drawable): Int {
+                return if(value is BitmapDrawable) {
+                    value.bitmap.byteCount / 1024
+                } else {
+                    1
+                }
             }
         }
-    }
 
 
     // 放置图标到内存
@@ -139,26 +140,26 @@ class IconCacheHelper(
     }
 
 
-    // 从 packageManager 中获取图标
-    private fun getDrawableFromPackageManager(
-        packageName: String,
-        activityName: String?,
-    ): Drawable? {
-        if(activityName != null) {
-            val componentName = ComponentName(packageName, activityName)
-            try {
-                return packageManager.getActivityIcon(componentName)
-            } catch(_: Exception) {
-                // 忽略异常
-            }
-        }
-
-        return try {
-            packageManager.getApplicationIcon(packageName)
-        } catch(_: Exception) {
-            getDefaultDrawable()
-        }
-    }
+//    // 从 packageManager 中获取图标
+//    private fun getDrawableFromPackageManager(
+//        packageName: String,
+//        activityName: String?,
+//    ): Drawable? {
+//        if(activityName != null) {
+//            val componentName = ComponentName(packageName, activityName)
+//            try {
+//                return packageManager.getActivityIcon(componentName)
+//            } catch(_: Exception) {
+//                // 忽略异常
+//            }
+//        }
+//
+//        return try {
+//            packageManager.getApplicationIcon(packageName)
+//        } catch(_: Exception) {
+//            getDefaultDrawable()
+//        }
+//    }
 
 
     // 从 packageManager 中获取高清图标
@@ -238,6 +239,19 @@ class IconCacheHelper(
         tool: Tool,
     ): android.graphics.drawable.Icon {
         return getDrawable(tool).toIcon(context)
+    }
+    // 获取高清 Icon 图标
+    fun getHighResIcon(
+        tool: Tool,
+    ): android.graphics.drawable.Icon {
+        // 优先从 drawable 中获取图标
+        // 然后从 packageManager 中获取高清图标
+        // 最后采用默认策略
+        return getDrawableFromDrawable(tool.iconKey)?.toIcon(context)
+            ?: getHighResDrawableFromPackageManager(
+                packageName = tool.packageName,
+                activityName = tool.activityName,
+            )?.toIcon(context) ?: getIcon(tool)
     }
 
 
@@ -379,7 +393,7 @@ class IconCacheHelper(
     // 辅助方法：缩放 Drawable 到指定大小
     private fun Drawable.resize(width: Int, height: Int): Drawable {
         val resizedBitmap =
-            this.toBitmap().scale(width, height)
+            this.toBitmap().scale(width, height, filter = true)
         return resizedBitmap.toDrawable(context.resources)
     }
 

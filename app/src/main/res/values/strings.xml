@@ -99,7 +99,8 @@
     <string name="can_be_empty">（当前为空）</string>
     <string name="package_name_debug">cn.minimote.toolbox.debug</string>
     <string name="check_update">检查更新</string>
-    <string name="new_version_available">检测到新版本「%s」</string>
+    <string name="find_new_version">发现新版本</string>
+    <string name="latest_version">%s</string>
     <string name="whether_download_now">%s是否立即下载？</string>
     <string name="latest_version_installed">已经是最新版本了</string>
     <string name="failed_to_check_update">检查更新失败，请检查网络连接</string>
@@ -270,4 +271,11 @@
     <string name="confirm_cancel_download">确定要取消下载吗？</string>
     <string name="restore_sort">恢复上次保存</string>
     <string name="restore_sort_finished">恢复完成</string>
+    <string name="search_history">搜索历史</string>
+    <string name="search_suggestion">搜索建议</string>
+    <string name="congratulations_you_found_the_easter_egg">恭喜你发现了彩蛋！</string>
+    <string name="confirm_clear_something">确定要清空「%s」吗？</string>
+    <string name="search_history_max_count">搜索历史最大数量</string>
+    <string name="search_suggestion_max_count">搜索建议最大数量</string>
+    <string name="app_error">程序出错%s</string>
 </resources>

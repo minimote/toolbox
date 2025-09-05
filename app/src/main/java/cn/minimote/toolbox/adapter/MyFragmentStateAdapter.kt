@@ -5,9 +5,9 @@
 
 package cn.minimote.toolbox.adapter
 
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentContainerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.constant.FragmentName
@@ -21,7 +21,7 @@ import cn.minimote.toolbox.viewModel.MyViewModel
 class MyFragmentStateAdapter(
     fragmentActivity: FragmentActivity,
     val viewPager: ViewPager2,
-    val constraintLayoutOrigin: ConstraintLayout,
+    val constraintLayoutOrigin: FragmentContainerView,
     val viewModel: MyViewModel,
 ) : FragmentStateAdapter(fragmentActivity) {
 

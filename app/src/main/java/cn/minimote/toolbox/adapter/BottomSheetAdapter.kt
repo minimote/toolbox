@@ -14,11 +14,9 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.activity.MainActivity
 import cn.minimote.toolbox.constant.FragmentName
 import cn.minimote.toolbox.constant.MenuType
 import cn.minimote.toolbox.constant.ViewList.toolDetailList
@@ -26,6 +24,7 @@ import cn.minimote.toolbox.constant.ViewList.widgetDetailList
 import cn.minimote.toolbox.dataClass.StoredTool
 import cn.minimote.toolbox.dataClass.Tool
 import cn.minimote.toolbox.helper.DialogHelper
+import cn.minimote.toolbox.helper.DialogHelper.showMyDialog
 import cn.minimote.toolbox.helper.EditTextHelper
 import cn.minimote.toolbox.helper.FragmentHelper
 import cn.minimote.toolbox.helper.ShortcutHelper
@@ -37,14 +36,14 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 class BottomSheetAdapter(
     private val context: Context,
     private val viewModel: MyViewModel,
+    private val activity: MainActivity,
     private val tool: Tool? = null,
     private val bottomSheetDialog: BottomSheetDialog,
     private val menuList: List<Int>,
-    private val fragmentManager: FragmentManager? = null,
-    private val viewPager: ViewPager2? = null,
-    private val constraintLayoutOrigin: ConstraintLayout? = null,
     private val onMenuItemClick: (Int) -> Unit = {}// 回调函数
 ) : RecyclerView.Adapter<BottomSheetAdapter.BottomSheetHolder>() {
+
+    val viewPager = activity.viewPager
 
     inner class BottomSheetHolder(itemView: View, val viewType: Int) :
         RecyclerView.ViewHolder(itemView) {
@@ -133,7 +132,7 @@ class BottomSheetAdapter(
                 VibrationHelper.vibrateOnClick(viewModel)
             }
             bottomSheetDialog.dismiss()
-            viewPager?.isUserInputEnabled = true
+            viewPager.isUserInputEnabled = true
 
             when(holder.viewType) {
                 MenuType.CREATE_SHORTCUT -> {
@@ -153,15 +152,13 @@ class BottomSheetAdapter(
 
                     FragmentHelper.switchFragment(
                         fragmentName = FragmentName.EDIT_LIST_FRAGMENT,
-                        fragmentManager = fragmentManager!!,
                         viewModel = viewModel,
-                        viewPager = viewPager,
-                        constraintLayoutOrigin = constraintLayoutOrigin,
+                        activity = activity,
                     )
                 }
 
                 MenuType.MULTI_SELECT -> {
-                    viewPager!!.isUserInputEnabled = false
+                    viewPager.isUserInputEnabled = false
                 }
 
                 MenuType.SORT -> {}
@@ -173,10 +170,8 @@ class BottomSheetAdapter(
                     viewModel.updateDetailList(toolDetailList)
                     FragmentHelper.switchFragment(
                         fragmentName = FragmentName.DETAIL_LIST_FRAGMENT,
-                        fragmentManager = fragmentManager!!,
                         viewModel = viewModel,
-                        viewPager = viewPager,
-                        constraintLayoutOrigin = constraintLayoutOrigin,
+                        activity = activity,
                     )
                 }
 
@@ -185,10 +180,8 @@ class BottomSheetAdapter(
                     viewModel.updateDetailList(widgetDetailList)
                     FragmentHelper.switchFragment(
                         fragmentName = FragmentName.DETAIL_LIST_FRAGMENT,
-                        fragmentManager = fragmentManager!!,
                         viewModel = viewModel,
-                        viewPager = viewPager,
-                        constraintLayoutOrigin = constraintLayoutOrigin,
+                        activity = activity,
                     )
                 }
 
@@ -197,7 +190,7 @@ class BottomSheetAdapter(
                     if(holder.viewType in MenuType.SortOrderSet) {
                         viewModel.sortModeString = holder.textViewMenuItem.text.toString()
 
-                        viewPager!!.isUserInputEnabled = false
+                        viewPager.isUserInputEnabled = false
                         if(holder.viewType == MenuType.SortOrder.FREE_SORT) {
                             viewModel.freeSort = true
                             // 自由排序
@@ -334,7 +327,7 @@ class BottomSheetAdapter(
 
         }
 
-        dialog.show()
+        dialog.showMyDialog(viewModel)
     }
 
 
@@ -346,10 +339,10 @@ class BottomSheetAdapter(
     ) {
         // 已经在主页：显示从主页移除
         if(viewModel.inSizeChangeMap(tool.id)) {
-            DialogHelper.showConfirmDialog(
+            DialogHelper.setAndShowDefaultDialog(
                 context = context,
                 viewModel = viewModel,
-                titleText = context.getString(
+                messageText = context.getString(
                     R.string.confirm_cancel_collection_single_tool,
                     tool.nickname,
                 ),

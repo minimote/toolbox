@@ -7,6 +7,11 @@ package cn.minimote.toolbox.dataClass
 
 data class ExpandableGroup(
     val titleString: String,
-    var dataList: List<Tool>,
+    var dataList: List<Any>,
     var isExpanded: Boolean = true,
-)
+    var maxDisplayedCount: Int? = null,
+) {
+    fun getSize(): Int {
+        return this.dataList.size
+    }
+}

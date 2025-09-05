@@ -8,13 +8,12 @@ package cn.minimote.toolbox.helper
 import android.content.Context
 import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat.getString
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentContainerView
 import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.activity.MainActivity
 import cn.minimote.toolbox.constant.Config
 import cn.minimote.toolbox.constant.Config.ConfigValues.NetworkAccessModeValues
 import cn.minimote.toolbox.constant.FragmentName
@@ -23,11 +22,12 @@ import cn.minimote.toolbox.constant.ViewPaper.FragmentList
 import cn.minimote.toolbox.constant.ViewPaper.START_VIEW_POS
 import cn.minimote.toolbox.fragment.AboutProjectFragment
 import cn.minimote.toolbox.fragment.DetailListFragment
+import cn.minimote.toolbox.fragment.EasterEggFragment
 import cn.minimote.toolbox.fragment.EditListFragment
 import cn.minimote.toolbox.fragment.InstalledAppListFragment
+import cn.minimote.toolbox.fragment.SchemeListFragment
 import cn.minimote.toolbox.fragment.SettingFragment
 import cn.minimote.toolbox.fragment.SupportAuthorFragment
-import cn.minimote.toolbox.fragment.ToolListFragment
 import cn.minimote.toolbox.fragment.WebViewFragment
 import cn.minimote.toolbox.fragment.WoodenFishFragment
 import cn.minimote.toolbox.helper.ConfigHelper.getConfigValue
@@ -44,13 +44,10 @@ object FragmentHelper {
 
     fun switchFragment(
         fragmentName: String,
-        fragmentManager: FragmentManager,
         viewModel: MyViewModel,
-        context: Context = viewModel.myContext,
-        viewPager: ViewPager2? = null,
-        constraintLayoutOrigin: ConstraintLayout? = null,
-        containerId: Int = R.id.constraintLayout_origin,
+        activity: MainActivity,
     ) {
+        val context = activity
         if(fragmentName !in nonCreatableFragments) {
 
             val fragment = when(fragmentName) {
@@ -94,10 +91,10 @@ object FragmentHelper {
 
                     when(viewModel.getNetworkAccessMode(networkType)) {
                         NetworkAccessModeValues.ALERT -> {
-                            DialogHelper.showConfirmDialog(
+                            DialogHelper.setAndShowDefaultDialog(
                                 context = context,
                                 viewModel = viewModel,
-                                titleText = context.getString(
+                                messageText = context.getString(
                                     R.string.dialog_message_network,
                                     networkTypeString,
                                 ),
@@ -105,11 +102,8 @@ object FragmentHelper {
                                     showFragment(
                                         fragment = WebViewFragment(),
                                         fragmentName = fragmentName,
-                                        fragmentManager = fragmentManager,
                                         viewModel = viewModel,
-                                        viewPager = viewPager,
-                                        constraintLayoutOrigin = constraintLayoutOrigin,
-                                        containerId = containerId,
+                                        activity = activity,
                                     )
                                 }
                             )
@@ -136,7 +130,7 @@ object FragmentHelper {
 
 
                 FragmentName.SCHEME_LIST_FRAGMENT -> {
-                    ToolListFragment(isSchemeList = true)
+                    SchemeListFragment()
                 }
 
                 FragmentName.DETAIL_LIST_FRAGMENT -> {
@@ -147,6 +141,10 @@ object FragmentHelper {
                     WoodenFishFragment()
                 }
 
+                FragmentName.EASTER_EGG_FRAGMENT -> {
+                    EasterEggFragment()
+                }
+
                 else -> {
                     throw IllegalArgumentException("非法的 Fragment: $fragmentName")
                 }
@@ -155,11 +153,8 @@ object FragmentHelper {
             showFragment(
                 fragment = fragment,
                 fragmentName = fragmentName,
-                fragmentManager = fragmentManager,
                 viewModel = viewModel,
-                viewPager = viewPager,
-                constraintLayoutOrigin = constraintLayoutOrigin,
-                containerId = containerId,
+                activity = activity,
             )
         }
     }
@@ -169,21 +164,18 @@ object FragmentHelper {
     fun showFragment(
         fragment: Fragment,
         fragmentName: String,
-        fragmentManager: FragmentManager,
         viewModel: MyViewModel,
-        viewPager: ViewPager2? = null,
-        constraintLayoutOrigin: ConstraintLayout? = null,
-        containerId: Int = R.id.constraintLayout_origin,
+        activity: MainActivity,
     ) {
-        val transaction = fragmentManager.beginTransaction()
-        transaction.replace(containerId, fragment, fragmentName)
+        val transaction = activity.supportFragmentManager.beginTransaction()
+        transaction.replace(activity.containerId, fragment, fragmentName)
         transaction.addToBackStack(fragmentName)
         // 使用 commitAllowingStateLoss 避免状态丢失问题
         transaction.commitAllowingStateLoss()
 
         showViewPager(
-            viewPager = viewPager!!,
-            constraintLayoutOrigin = constraintLayoutOrigin!!,
+            viewPager = activity.viewPager,
+            constraintLayoutOrigin = activity.constraintLayoutOrigin,
             showViewPager = false,
         )
 
@@ -193,13 +185,11 @@ object FragmentHelper {
 
     // 返回 Fragment
     fun returnFragment(
-        fragmentManager: FragmentManager,
         viewModel: MyViewModel,
-        activity: AppCompatActivity,
-        viewPager: ViewPager2? = null,
-        constraintLayoutOrigin: ConstraintLayout? = null,
+        activity: MainActivity,
     ) {
         val fragmentName = viewModel.getFragmentName()
+        val fragmentManager = activity.supportFragmentManager
 //        Log.e("returnFragment", fragmentName)
         when(fragmentName) {
             FragmentName.WIDGET_LIST_FRAGMENT -> {
@@ -249,8 +239,8 @@ object FragmentHelper {
             fragmentManager.popBackStack()
 
             showViewPager(
-                viewPager = viewPager!!,
-                constraintLayoutOrigin = constraintLayoutOrigin!!,
+                viewPager = activity.viewPager,
+                constraintLayoutOrigin = activity.constraintLayoutOrigin,
                 showViewPager = true,
             )
 //            Log.e("FragmentHelper", fragmentName)
@@ -265,7 +255,7 @@ object FragmentHelper {
     // 显示 ViewPager
     private fun showViewPager(
         viewPager: ViewPager2,
-        constraintLayoutOrigin: ConstraintLayout,
+        constraintLayoutOrigin: FragmentContainerView,
         showViewPager: Boolean,
     ) {
         if(showViewPager) {

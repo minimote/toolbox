@@ -106,7 +106,7 @@ class SupportAuthorAdapter(
                     imageView = holder.imageViewQRAlipay,
                     fileName = myActivity.getString(R.string.qr_alipay_file_name),
                     viewModel = viewModel,
-                    context = myActivity,
+                    activity = myActivity,
                 )
             }
 
@@ -121,7 +121,7 @@ class SupportAuthorAdapter(
                     imageView = holder.imageViewQRWechat,
                     fileName = myActivity.getString(R.string.qr_wechat_file_name),
                     viewModel = viewModel,
-                    context = myActivity,
+                    activity = myActivity,
                 )
             }
 

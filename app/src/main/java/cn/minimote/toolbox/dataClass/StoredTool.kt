@@ -30,7 +30,7 @@ class StoredTool(
 
     // 图标的标识符
     iconKey: String = activityName ?: intentUri ?: id,
-    var width: Int = ToolConstants.MAX_WIDGET_SIZE, // 宽度
+    var width: Int = ToolConstants.MAX_WIDGET_WIDTH, // 宽度
     var height: Int = 1, // 高度
     var displayMode: String = ToolConstants.DisplayMode.String.ICON_AND_NAME,
     var alignment: String = ToolConstants.Alignment.CENTER,
@@ -45,7 +45,7 @@ class StoredTool(
     // 最后一次使用时间
     var lastUsedTime: Long = -1,
     // 使用次数
-    var useCount: ULong = 0u,
+    var useCount: Int = 0,
 ) : Tool(
     id = id,
     intentType = intentType,

@@ -8,6 +8,7 @@ package cn.minimote.toolbox.helper
 import cn.minimote.toolbox.constant.Config
 import cn.minimote.toolbox.constant.Config.ConfigFileName
 import cn.minimote.toolbox.constant.Config.ENCODING
+import cn.minimote.toolbox.helper.TypeConversionHelper.toMutableMap
 import cn.minimote.toolbox.viewModel.MyViewModel
 import org.json.JSONObject
 import java.io.File
@@ -85,7 +86,6 @@ object ConfigHelper {
 
     // 加载全部配置文件
     fun MyViewModel.loadAllConfig() {
-        this.defaultConfig = Config.defaultConfig
         this.userConfig = loadUserConfig()
         checkConfigFile()
         this.userConfigBackup = this.userConfig.toMutableMap()
@@ -207,19 +207,4 @@ object ConfigHelper {
 //        }
     }
 
-
-    // 将 JSONObject 转换为 MutableMap
-    private fun JSONObject.toMutableMap(): MutableMap<String, Any> {
-        val map = mutableMapOf<String, Any>()
-        val keysItr = this.keys()
-        while(keysItr.hasNext()) {
-            val key = keysItr.next()
-            val value = when(val value = this[key]) {
-                is JSONObject -> value.toMutableMap()
-                else -> value
-            }
-            map[key] = value
-        }
-        return map
-    }
 }

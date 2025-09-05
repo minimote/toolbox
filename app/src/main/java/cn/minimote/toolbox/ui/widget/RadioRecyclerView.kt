@@ -92,7 +92,7 @@ class RadioRecyclerView @JvmOverloads constructor(
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val (id, text) = items[position]
             holder.textViewName.text = text
-            holder.itemView.alpha = UI.ALPHA_5
+            holder.itemView.alpha = UI.Alpha.ALPHA_5
 
             // 将 ViewHolder 保存到 map 中，以便直接更新
             viewHolderMap[id] = holder
@@ -141,10 +141,10 @@ class RadioRecyclerView @JvmOverloads constructor(
             val oldId = selectedId
             // 直接更新 RadioButton 的选中状态
             viewHolderMap[oldId]?.radioButton?.isChecked = false
-            viewHolderMap[oldId]?.itemView?.alpha = UI.ALPHA_5
+            viewHolderMap[oldId]?.itemView?.alpha = UI.Alpha.ALPHA_5
 
             viewHolderMap[newId]?.radioButton?.isChecked = true
-            viewHolderMap[newId]?.itemView?.alpha = UI.ALPHA_10
+            viewHolderMap[newId]?.itemView?.alpha = UI.Alpha.ALPHA_10
         }
     }
 }

@@ -19,7 +19,7 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
-import cn.minimote.toolbox.constant.SeekBarValueList.columnCountList
+import cn.minimote.toolbox.constant.SeekBarValueList
 import cn.minimote.toolbox.constant.ToolConstants
 import cn.minimote.toolbox.constant.ToolConstants.Alignment
 import cn.minimote.toolbox.constant.ViewList
@@ -30,7 +30,6 @@ import cn.minimote.toolbox.helper.SeekBarHelper
 import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.ui.widget.RadioRecyclerView
 import cn.minimote.toolbox.viewModel.MyViewModel
-import java.util.concurrent.atomic.AtomicInteger
 
 
 class EditListAdapter(
@@ -92,7 +91,11 @@ class EditListAdapter(
 
                 viewTypes.NICKNAME -> R.layout.item_edit_edittext
                 viewTypes.DISPLAY_MODE -> R.layout.item_edit_radio_recyclerview
-                viewTypes.WIDTH -> R.layout.item_edit_seekbar
+                viewTypes.WIDTH -> if(viewModel.isWatch) {
+                    R.layout.item_seekbar_watch
+                } else {
+                    R.layout.item_seekbar
+                }
                 viewTypes.ALIGNMENT -> R.layout.item_edit_radio_recyclerview
                 viewTypes.DELETE -> R.layout.item_my_check_update
                 else -> -1
@@ -131,18 +134,23 @@ class EditListAdapter(
             viewTypes.WIDTH -> {
                 val textViewToolWidthFraction =
                     holder.itemView.findViewById<TextView>(R.id.textView_content)
-                setSeekBar(
-                    holder = holder,
-                    valueList = columnCountList,
-                    initPosition = editedTool.value!!.width,
+                val valueList = SeekBarValueList.widgetWidth
+
+                SeekBarHelper.setSeekBar(
+                    seekBar = holder.itemView.findViewById(R.id.seekBar),
+                    textViewDecrease = holder.itemView.findViewById(R.id.textView_decrease),
+                    textViewIncrease = holder.itemView.findViewById(R.id.textView_increase),
+                    valueList = valueList,
+                    initPosition = valueList.indexOf(editedTool.value!!.width.toString()),
+                    viewModel = viewModel,
                     callback = object : SeekBarHelper.SeekBarCallback {
-                        override fun updateConfigValue(key: String, value: String) {
+                        override fun updateConfigValue(value: String) {
                             editedTool.value?.width = value.toInt()
                             viewModel.updateToolWidthChanged()
                             updatePreview()
                         }
 
-                        override fun setupTextView() {
+                        override fun setupTextView(value: String) {
                             // 组件宽度
                             textViewToolWidthFraction.text = context.getString(
                                 R.string.widgetSize_fraction,
@@ -303,25 +311,6 @@ class EditListAdapter(
     }
 
 
-    // 设置 SeekBar
-    private fun setSeekBar(
-        holder: EditViewHolder,
-        valueList: List<String>,
-        initPosition: Int,
-        callback: SeekBarHelper.SeekBarCallback,
-    ) {
-        SeekBarHelper.setSeekBar(
-            seekBar = holder.itemView.findViewById(R.id.seekBar),
-            valueList = valueList,
-            initPosition = initPosition,
-            lastPosition = AtomicInteger(-1),
-            viewModel = viewModel,
-            callback = callback,
-        )
-
-    }
-
-
     // 删除组件
     private fun setDeleteTool(holder: EditViewHolder) {
         val textViewText = holder.itemView.findViewById<TextView>(R.id.textView_name)
@@ -333,11 +322,14 @@ class EditListAdapter(
 //        clickableContainer.setOnClickListener {
         holder.itemView.setOnClickListener {
             VibrationHelper.vibrateOnClick(viewModel)
-            DialogHelper.showConfirmDialog(
-                context = context, viewModel = viewModel, titleText = context.getString(
+            DialogHelper.setAndShowDefaultDialog(
+                context = context,
+                viewModel = viewModel,
+                messageText = context.getString(
                     R.string.confirm_cancel_collection_single_tool,
                     editedTool.value?.nickname,
-                ), positiveAction = {
+                ),
+                positiveAction = {
                     viewModel.removeFromSizeChangeMap(editedTool.value!!.id)
                     viewModel.saveWidgetList()
                     Toast.makeText(

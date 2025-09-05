@@ -18,8 +18,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.Guideline
+import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
@@ -31,7 +31,6 @@ import cn.minimote.toolbox.helper.ConfigHelper.loadAllConfig
 import cn.minimote.toolbox.helper.ConfigHelper.saveUserConfig
 import cn.minimote.toolbox.helper.DialogHelper
 import cn.minimote.toolbox.helper.FragmentHelper
-import cn.minimote.toolbox.helper.FragmentHelper.getStartFragmentPos
 import cn.minimote.toolbox.helper.SchemeHelper
 import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.pageTransformer.ViewPager2Transformer
@@ -56,7 +55,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var viewPager: ViewPager2
     private lateinit var tabLayout: TabLayout
 
-    lateinit var constraintLayoutOrigin: ConstraintLayout
+    lateinit var constraintLayoutOrigin: FragmentContainerView
 
     // 用于更新时间
 //    private val handler = android.os.Handler(Looper.getMainLooper())
@@ -85,6 +84,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var selectedIdsObserver: Observer<MutableSet<String>>
 
+    val containerId: Int = R.id.constraintLayout_origin
+
 
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -100,7 +101,7 @@ class MainActivity : AppCompatActivity() {
         // 加载配置文件
         viewModel.loadAllConfig()
 
-        constraintLayoutOrigin = findViewById(R.id.constraintLayout_origin)
+        constraintLayoutOrigin = findViewById(containerId)
 
         // 适配系统返回手势和按钮
         setupBackPressedCallback()
@@ -157,6 +158,12 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    override fun onResume() {
+        super.onResume()
+        viewPager.setCurrentItem(viewModel.getLastSelectedPosition(), false)
+    }
+
+
 //    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
 //        super.onRestoreInstanceState(savedInstanceState)
 //        // 恢复保存的状态
@@ -167,14 +174,12 @@ class MainActivity : AppCompatActivity() {
 
     // 适配系统返回手势和按钮
     private fun setupBackPressedCallback() {
+        //TODO: 能触发系统动画吗
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 FragmentHelper.returnFragment(
-                    fragmentManager = supportFragmentManager,
                     viewModel = viewModel,
                     activity = this@MainActivity,
-                    viewPager = viewPager,
-                    constraintLayoutOrigin = constraintLayoutOrigin,
                 )
             }
         }
@@ -203,11 +208,8 @@ class MainActivity : AppCompatActivity() {
             VibrationHelper.vibrateOnClick(viewModel)
 //            returnOrExit()
             FragmentHelper.returnFragment(
-                fragmentManager = supportFragmentManager,
                 viewModel = viewModel,
                 activity = this@MainActivity,
-                viewPager = viewPager,
-                constraintLayoutOrigin = constraintLayoutOrigin,
             )
         }
 
@@ -220,10 +222,10 @@ class MainActivity : AppCompatActivity() {
             when(viewModel.getFragmentName()) {
                 FragmentName.WIDGET_LIST_FRAGMENT -> {
                     if(viewModel.multiselectMode.value == true) {
-                        DialogHelper.showConfirmDialog(
+                        DialogHelper.setAndShowDefaultDialog(
                             context = this,
                             viewModel = viewModel,
-                            titleText = if(viewModel.getSelectedSize() == 1) {
+                            messageText = if(viewModel.getSelectedSize() == 1) {
                                 getString(
                                     R.string.confirm_remove_single_tool,
                                     viewModel.getSelectedWidgetName(),
@@ -235,7 +237,7 @@ class MainActivity : AppCompatActivity() {
                                 )
                             },
                             positiveAction = {
-                                val toastString =  if(viewModel.getSelectedSize() == 1) {
+                                val toastString = if(viewModel.getSelectedSize() == 1) {
                                     getString(
                                         R.string.remove_success_single_tool,
                                         viewModel.getSelectedWidgetName(),
@@ -387,7 +389,6 @@ class MainActivity : AppCompatActivity() {
 
     // 设置 ViewPager
     private fun setupViewPager() {
-        val startViewPos = viewModel.getStartFragmentPos()
 
         viewPager = findViewById(R.id.viewPager_origin)
         tabLayout = findViewById(R.id.tabLayout)
@@ -399,9 +400,6 @@ class MainActivity : AppCompatActivity() {
             viewModel = viewModel,
         )
         viewPager.adapter = adapter
-
-        // 设置 ViewPager 默认显示第二个页面
-        viewPager.setCurrentItem(startViewPos, false)
 
         // 关联 ViewPager2 和 TabLayout
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
@@ -430,8 +428,18 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
 
+                // 检查是否需要关闭搜索模式
+                if(viewModel.searchMode.value == true &&
+                    position != viewModel.getLastSelectedPosition()
+                ) {
+                    exitSearchMode()
+                }
+                // 更新上一次选中的位置
+                viewModel.updateLastSelectedPosition(position)
+
+
                 // 手动切换页面，不使用切换动画
-                if (currentPosition != position) {
+                if(currentPosition != position) {
                     viewPager.setCurrentItem(position, false)
                 }
             }
@@ -484,13 +492,13 @@ class MainActivity : AppCompatActivity() {
             }
 
             if(viewModel.isWatch) {
-                tab.customView = if(position == startViewPos) {
+                tab.customView = if(position == viewModel.getLastSelectedPosition()) {
                     layoutInflater.inflate(R.layout.layout_tab_selected_watch, tabLayout, false)
                 } else {
                     layoutInflater.inflate(R.layout.layout_tab_unselected_watch, tabLayout, false)
                 }
             } else {
-                tab.customView = if(position == startViewPos) {
+                tab.customView = if(position == viewModel.getLastSelectedPosition()) {
                     layoutInflater.inflate(R.layout.layout_tab_selected_phone, tabLayout, false)
                 } else {
                     layoutInflater.inflate(R.layout.layout_tab_unselected_phone, tabLayout, false)
@@ -501,6 +509,9 @@ class MainActivity : AppCompatActivity() {
                 textViewName?.text = tab.text
             }
         }.attach()
+
+        // 设置 ViewPager 默认显示页面(必须在 TabLayoutMediator.attach() 之后)
+        viewPager.setCurrentItem(viewModel.getLastSelectedPosition(), false)
 
         // 设置手表
         if(viewModel.isWatch) {
@@ -575,6 +586,33 @@ class MainActivity : AppCompatActivity() {
                 }
             })
         }
+
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+//            override fun onPageSelected(position: Int) {
+//                super.onPageSelected(position)
+//                // 更新上一次选中的位置
+////                lastSelectedPosition = position
+//            }
+
+            override fun onPageScrollStateChanged(state: Int) {
+                super.onPageScrollStateChanged(state)
+                // 当滚动结束时检查是否需要关闭搜索模式
+                if(state == ViewPager2.SCROLL_STATE_IDLE) {
+                    if(viewModel.searchMode.value == true &&
+                        viewPager.currentItem != viewModel.getLastSelectedPosition()
+                    ) {
+                        exitSearchMode()
+                    }
+                    // 更新上一次选中的位置
+                    viewModel.updateLastSelectedPosition(viewPager.currentItem)
+                }
+            }
+        })
+    }
+
+
+    fun exitSearchMode() {
+        viewModel.searchMode.value = false
     }
 
 

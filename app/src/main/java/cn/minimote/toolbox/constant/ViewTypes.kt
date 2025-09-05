@@ -9,8 +9,10 @@ package cn.minimote.toolbox.constant
 object ViewTypes {
     // 安装应用列表
     object InstalledAppList {
-        const val NORMAL = 0
-        const val TITLE = 1
+        const val APP = 0
+        const val NO_RESULT = 1
+        const val HISTORY_OR_SUGGESTION = 2
+        const val SEARCH_TITLE = 3
     }
 
     // 编辑视图类型
@@ -89,6 +91,11 @@ object ViewTypes {
         const val SHOW_LIKE_ICON = 15
         const val SHOW_UNAVAILABLE_TOOLS = 16
 
+
+        const val SEARCH_HISTORY_MAX_COUNT = 17
+        const val SEARCH_SUGGESTION_MAX_COUNT = 18
+
+
         val titleViewSet by lazy {
             setOf(
                 TITLE_CHECK_UPDATE,
@@ -118,6 +125,13 @@ object ViewTypes {
                 HOME_PAGE,
             )
         }
+
+        val seekBarSet by lazy {
+            setOf(
+                SEARCH_HISTORY_MAX_COUNT,
+                SEARCH_SUGGESTION_MAX_COUNT,
+            )
+        }
     }
 
 
@@ -144,6 +158,16 @@ object ViewTypes {
         const val LAST_USED_TIME = 13
         const val USE_COUNT = 14
 
+    }
+
+
+    object ToolList {
+        const val GROUP = 0
+        const val CHILD = 1
+        const val SEPARATOR = 2
+        const val NO_RESULT = 3
+        const val HISTORY_OR_SUGGESTION = 4
+        const val SEARCH_TITLE = 5
     }
 
 }

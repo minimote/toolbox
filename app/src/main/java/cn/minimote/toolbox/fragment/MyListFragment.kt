@@ -10,7 +10,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -34,8 +33,6 @@ class MyListFragment() : Fragment() {
 
     val viewPager: ViewPager2
         get() = myActivity.viewPager
-    val constraintLayoutOrigin: ConstraintLayout
-        get() = myActivity.constraintLayoutOrigin
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: MyListAdapter
@@ -70,8 +67,6 @@ class MyListFragment() : Fragment() {
         adapter = MyListAdapter(
             myActivity = myActivity,
             viewModel = viewModel,
-            fragment = this,
-            fragmentManager = myActivity.supportFragmentManager,
         )
         recyclerView.adapter = adapter
 //

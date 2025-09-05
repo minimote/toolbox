@@ -55,8 +55,8 @@ import org.json.JSONObject
 
 
 @AndroidEntryPoint
-class ToolListFragment(
-    val isSchemeList: Boolean = false,
+class SchemeListFragment(
+    val isSchemeList: Boolean = true,
 ) : Fragment() {
 
     private val viewModel: MyViewModel by activityViewModels()
@@ -309,7 +309,7 @@ class ToolListFragment(
 //                refreshToolList()
             },
             onFocusGained = {
-                LogHelper.e("获取焦点", "获取焦点")
+                LogHelper.e("获取焦点", "searchMode:${viewModel.searchMode.value}")
                 VibrationHelper.vibrateOnClick(viewModel)
                 if(isSchemeList) {
                     if(viewModel.searchMode.value != true) {
@@ -665,8 +665,8 @@ class ToolListFragment(
         searchModeObserver = Observer { isSearchMode ->
 //            Toast.makeText(myActivity, "$isSearchMode", Toast.LENGTH_SHORT).show()
             when(viewModel.getFragmentName()) {
-                FragmentName.WIDGET_LIST_FRAGMENT,
-//                FragmentName.SCHEME_LIST_FRAGMENT,
+//                FragmentName.WIDGET_LIST_FRAGMENT,
+                FragmentName.SCHEME_LIST_FRAGMENT,
                     -> {
                     // 忽略搜索模式变化
                     if(ignoreSearchModeChange) {

@@ -71,6 +71,8 @@ object ViewList {
             ViewTypes.Setting.TITLE_DISPLAY, // 显示设置标题
             ViewTypes.Setting.SHOW_UNAVAILABLE_TOOLS, // 显示不可用工具
             ViewTypes.Setting.SHOW_LIKE_ICON, // 显示收藏标志
+            ViewTypes.Setting.SEARCH_HISTORY_MAX_COUNT, // 搜索历史最大数量
+            ViewTypes.Setting.SEARCH_SUGGESTION_MAX_COUNT, // 搜索建议最大数量
 
             ViewTypes.Setting.TITLE_LAUNCH, // 启动设置标题
             ViewTypes.Setting.EXIT_AFTER_LAUNCH, // 启动后退出
