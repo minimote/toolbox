@@ -6,7 +6,7 @@
 
     <TextView
         style="@style/TextView.Toolbox.Dark"
-        android:paddingHorizontal="@dimen/layout_size_3_script"
+        android:paddingHorizontal="@dimen/layout_size_3_small"
         android:text="@string/supportAuthor_notice"
         android:textColor="@color/light_gray"
         android:gravity="start"

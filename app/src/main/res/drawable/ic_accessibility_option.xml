@@ -1,15 +1,15 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="200dp"
     android:height="200dp"
-    android:viewportWidth="1424"
-    android:viewportHeight="1424">
-<!--     添加黑色背景 -->
+    android:viewportWidth="1224"
+    android:viewportHeight="1224">
+    <!--     添加黑色背景 -->
     <path
-        android:fillColor="@color/black"
+        android:fillColor="@color/background_tool_ic"
         android:pathData="M0,0h1824v1824H0z" />
     <group
-        android:translateX="200"
-        android:translateY="300">
+        android:translateX="100"
+        android:translateY="150">
         <!-- 放大后需要向左右移动 -->
         <path
             android:fillColor="@color/ic_color_accessibility_option"

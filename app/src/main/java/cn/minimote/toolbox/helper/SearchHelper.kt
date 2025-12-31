@@ -8,20 +8,23 @@ package cn.minimote.toolbox.helper
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
-import androidx.core.content.ContextCompat
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.constant.Config
-import cn.minimote.toolbox.constant.SeekBarValueList.SEARCH_HISTORY_MAX_COUNT_LIMIT
-import cn.minimote.toolbox.constant.SeekBarValueList.SEARCH_SUGGESTION_MAX_COUNT_LIMIT
+import cn.minimote.toolbox.constant.SeekBarConstants.SEARCH_HISTORY_MAX_COUNT_LIMIT
+import cn.minimote.toolbox.constant.SeekBarConstants.SEARCH_SUGGESTION_MAX_COUNT_LIMIT
 import cn.minimote.toolbox.dataClass.ExpandableGroup
-import cn.minimote.toolbox.helper.ConfigHelper.deleteConfigValue
 import cn.minimote.toolbox.helper.ConfigHelper.getConfigValue
-import cn.minimote.toolbox.helper.ConfigHelper.saveUserConfig
-import cn.minimote.toolbox.helper.ConfigHelper.updateConfigValue
+import cn.minimote.toolbox.helper.OtherConfigHelper.deleteSearchHistoryConfigValue
+import cn.minimote.toolbox.helper.OtherConfigHelper.deleteSearchSuggestionConfigValue
+import cn.minimote.toolbox.helper.OtherConfigHelper.getSearchHistoryConfigValue
+import cn.minimote.toolbox.helper.OtherConfigHelper.getSearchSuggestionConfigValue
+import cn.minimote.toolbox.helper.OtherConfigHelper.saveSearchHistoryConfig
+import cn.minimote.toolbox.helper.OtherConfigHelper.saveSearchSuggestionConfig
+import cn.minimote.toolbox.helper.OtherConfigHelper.updateSearchHistoryConfigValue
+import cn.minimote.toolbox.helper.OtherConfigHelper.updateSearchSuggestionConfigValue
 import cn.minimote.toolbox.helper.TypeConversionHelper.toStringList
 import cn.minimote.toolbox.viewModel.MyViewModel
 import com.github.promeg.pinyinhelper.Pinyin
-import org.json.JSONArray
 import org.json.JSONObject
 import java.util.Locale
 
@@ -80,7 +83,7 @@ object SearchHelper {
         for(match in matches) {
             spannableString.setSpan(
                 ForegroundColorSpan(
-                    ContextCompat.getColor(viewModel.myContext, highlightColorId)
+                    viewModel.myContext.getColor(highlightColorId)
                 ),
                 match.start,
                 match.end,
@@ -383,12 +386,7 @@ object SearchHelper {
         viewModel: MyViewModel,
         configKey: String,
     ): List<String> {
-        val result = viewModel.getConfigValue(configKey)
-        val historyList = when(result) {
-            is JSONArray -> result.toStringList()
-            is List<*> -> result.toStringList()
-            else -> emptyList()
-        }
+        val historyList = viewModel.getSearchHistoryConfigValue(configKey).toStringList()
         // 截取前 n 个元素
         return historyList.take(SEARCH_HISTORY_MAX_COUNT_LIMIT)
     }
@@ -405,7 +403,9 @@ object SearchHelper {
         viewModel: MyViewModel,
         configKey: String,
     ): ExpandableGroup {
-        val maxDisplayedCount = viewModel.getConfigValue(HISTORY_MAX_COUNT_KEY) as Int
+        val maxDisplayedCount = viewModel.getConfigValue(
+            HISTORY_MAX_COUNT_KEY
+        ) as? Int? ?: SEARCH_HISTORY_MAX_COUNT_LIMIT
 
         return ExpandableGroup(
             titleString = viewModel.myContext.getString(R.string.search_history),
@@ -451,9 +451,11 @@ object SearchHelper {
 
         // 如果超过最大数量，只保留前面的部分
 //        LogHelper.e("更新搜索历史", "新列表:${newList}")
-        searchHistoryExpandableGroup.dataList = newList.take(SEARCH_HISTORY_MAX_COUNT_LIMIT)
+        searchHistoryExpandableGroup.dataList = newList.take(
+            SEARCH_HISTORY_MAX_COUNT_LIMIT
+        )
         // 更新配置
-        viewModel.updateConfigValue(
+        viewModel.updateSearchHistoryConfigValue(
             key = configKey,
             value = searchHistoryExpandableGroup.dataList,
         )
@@ -472,7 +474,13 @@ object SearchHelper {
         viewModel: MyViewModel,
         configKey: String,
     ): JSONObject {
-        return JSONObject(viewModel.getConfigValue(configKey).toString())
+        val configValue = viewModel.getSearchSuggestionConfigValue(configKey)
+        return if(configValue != null) {
+            JSONObject(configValue.toString())
+        } else {
+            // 如果配置值为空，返回一个空的JSONObject
+            JSONObject()
+        }
     }
 
 
@@ -547,7 +555,7 @@ object SearchHelper {
         searchSuggestionExpandableGroup.dataList = searchSuggestionList
 
         // 更新配置
-        viewModel.updateConfigValue(
+        viewModel.updateSearchSuggestionConfigValue(
             key = configKey,
             value = searchSuggestionJSONObject,
         )
@@ -568,7 +576,9 @@ object SearchHelper {
         viewModel: MyViewModel,
         searchSuggestionJSONObject: JSONObject,
     ): ExpandableGroup {
-        val maxDisplayedCount = viewModel.getConfigValue(SUGGESTION_MAX_COUNT_KEY) as Int
+        val maxDisplayedCount = viewModel.getConfigValue(
+            SUGGESTION_MAX_COUNT_KEY
+        ) as? Int ?: SEARCH_SUGGESTION_MAX_COUNT_LIMIT
         return ExpandableGroup(
             titleString = viewModel.myContext.getString(R.string.search_suggestion),
             dataList = getSearchSuggestionListFromJSONObject(
@@ -603,6 +613,8 @@ object SearchHelper {
             searchHistoryExpandableGroup = searchHistoryExpandableGroup,
             newWord = newWord,
         )
+        viewModel.saveSearchHistoryConfig()
+
         updateSearchSuggestion(
             viewModel = viewModel,
             configKey = searchSuggestionConfigKey,
@@ -610,7 +622,7 @@ object SearchHelper {
             searchSuggestionExpandableGroup = searchSuggestionExpandableGroup,
             newWord = newWord,
         )
-        viewModel.saveUserConfig()
+        viewModel.saveSearchSuggestionConfig()
     }
 
 
@@ -626,10 +638,14 @@ object SearchHelper {
         historyExpandableGroup: ExpandableGroup,
         suggestionExpandableGroup: ExpandableGroup,
     ) {
-        val historyMaxCount = viewModel.getConfigValue(HISTORY_MAX_COUNT_KEY) as Int
+        val historyMaxCount = viewModel.getConfigValue(
+            HISTORY_MAX_COUNT_KEY
+        ) as? Int ?: SEARCH_HISTORY_MAX_COUNT_LIMIT
         historyExpandableGroup.maxDisplayedCount = historyMaxCount
 
-        val suggestionMaxCount = viewModel.getConfigValue(SUGGESTION_MAX_COUNT_KEY) as Int
+        val suggestionMaxCount = viewModel.getConfigValue(
+            SUGGESTION_MAX_COUNT_KEY
+        ) as? Int ?: SEARCH_SUGGESTION_MAX_COUNT_LIMIT
         suggestionExpandableGroup.maxDisplayedCount = suggestionMaxCount
     }
 
@@ -650,8 +666,8 @@ object SearchHelper {
         searchHistoryExpandableGroup.dataList = emptyList()
 
         // 更新配置
-        viewModel.deleteConfigValue(configKey)
-        viewModel.saveUserConfig()
+        viewModel.deleteSearchHistoryConfigValue(configKey)
+        viewModel.saveSearchHistoryConfig()
     }
 
 
@@ -681,8 +697,8 @@ object SearchHelper {
         searchSuggestionExpandableGroup.dataList = emptyList()
 
         // 更新配置
-        viewModel.deleteConfigValue(configKey)
-        viewModel.saveUserConfig()
+        viewModel.deleteSearchSuggestionConfigValue(configKey)
+        viewModel.saveSearchSuggestionConfig()
     }
 
 

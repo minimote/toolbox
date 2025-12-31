@@ -5,22 +5,32 @@
     android:layout_width="wrap_content"
     android:background="@drawable/background_ripple_round"
     android:clipToPadding="false"
-    android:paddingHorizontal="@dimen/layout_size_3_script"
-    android:paddingVertical="@dimen/layout_size_1.5_footnote">
+    android:paddingHorizontal="@dimen/layout_size_3_small"
+    android:paddingVertical="@dimen/layout_size_1_75_small">
 
     <ImageView
         android:id="@+id/imageView_app_icon"
         style="@style/ImageView.Toolbox.AppIcon.Dark"
         android:contentDescription="@string/app_icon"
-        android:src="@drawable/ic_toolbox"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="@style/ProgressBar.Icon.Toolbox.Dark"
+        app:layout_constraintBottom_toBottomOf="@id/imageView_app_icon"
+        app:layout_constraintEnd_toEndOf="@id/imageView_app_icon"
+        app:layout_constraintStart_toStartOf="@id/imageView_app_icon"
+        app:layout_constraintTop_toTopOf="@id/imageView_app_icon" />
+
 
     <ImageView
         android:id="@+id/imageView_heart"
         style="@style/ImageView.Toolbox.LikeIcon.Dark"
         android:importantForAccessibility="no"
+        android:visibility="invisible"
         android:src="@drawable/ic_heart"
         app:layout_constraintEnd_toEndOf="@id/imageView_app_icon"
         app:layout_constraintTop_toTopOf="@id/imageView_app_icon" />
@@ -30,8 +40,8 @@
         style="@style/TextView.Toolbox.AppName.Dark"
         android:layout_width="wrap_content"
         android:text="@string/app_name"
-        app:layout_constraintStart_toEndOf="@id/imageView_app_icon"
         app:layout_constraintBottom_toTopOf="@id/textView_activity_name"
+        app:layout_constraintStart_toEndOf="@id/imageView_app_icon"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView

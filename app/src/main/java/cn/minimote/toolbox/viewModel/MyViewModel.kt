@@ -10,8 +10,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
-import android.content.res.Configuration
-import android.os.Environment
 import androidx.core.content.ContextCompat.getString
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -26,6 +24,8 @@ import cn.minimote.toolbox.constant.Config.ConfigKeys
 import cn.minimote.toolbox.constant.FragmentName
 import cn.minimote.toolbox.constant.MenuType
 import cn.minimote.toolbox.constant.ToolConstants
+import cn.minimote.toolbox.constant.ToolID
+import cn.minimote.toolbox.constant.ToolMap
 import cn.minimote.toolbox.constant.UI
 import cn.minimote.toolbox.constant.ViewTypes
 import cn.minimote.toolbox.dataClass.InstalledApp
@@ -33,23 +33,28 @@ import cn.minimote.toolbox.dataClass.StoredTool
 import cn.minimote.toolbox.dataClass.Tool
 import cn.minimote.toolbox.helper.CheckUpdateHelper
 import cn.minimote.toolbox.helper.ConfigHelper.getConfigValue
+import cn.minimote.toolbox.helper.DeviceHelper
+import cn.minimote.toolbox.helper.FileHelper
 import cn.minimote.toolbox.helper.FragmentHelper.getStartFragmentPos
-import cn.minimote.toolbox.helper.IconCacheHelper
+import cn.minimote.toolbox.helper.IconHelper.getCircularDrawable
+import cn.minimote.toolbox.helper.LogHelper
+import cn.minimote.toolbox.helper.PathHelper
+import cn.minimote.toolbox.helper.PathHelper.getDynamicShortcutIdListFile
 import cn.minimote.toolbox.helper.SchemeHelper
+import cn.minimote.toolbox.helper.ShortcutHelper.setDynamicShortcuts
 import cn.minimote.toolbox.helper.SortHelper
-import cn.minimote.toolbox.helper.StoredToolHelper
-import dagger.hilt.android.lifecycle.HiltViewModel
+import cn.minimote.toolbox.helper.StoredToolHelper.loadStoredToolList
+import cn.minimote.toolbox.helper.StoredToolHelper.saveStoredActivityList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import javax.inject.Inject
+import java.util.Collections.emptyList
+import java.util.Stack
 import kotlin.math.min
 
 
-@HiltViewModel
-class MyViewModel
-@Inject constructor(
+class MyViewModel(
     private val application: Application,
 ) : AndroidViewModel(application) {
 
@@ -75,46 +80,20 @@ class MyViewModel
 
 
     // 判断设备是否为手表
-    val isWatch: Boolean
-        get() {
-            val uiMode = myContext.resources.configuration.uiMode
-            return uiMode and Configuration.UI_MODE_TYPE_MASK == Configuration.UI_MODE_TYPE_WATCH
-        }
+    val isWatch: Boolean get() = DeviceHelper.isWatch(myContext)
 
 
     // 保存路径
-    val savePath: File
-        get() = File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-            myContext.getString(R.string.app_name_en),
-        ).apply {
-            if(!exists()) {
-                mkdirs()
-            }
-        }
+    val savePath: File get() = PathHelper.getSavePath(myContext)
     // 数据路径
-    val dataPath: File
-        get() = File(
-            myContext.filesDir,
-            myContext.getString(R.string.app_name_en),
-        ).apply {
-            if(!exists()) {
-                mkdirs()
-            }
-        }
+    val dataPath: File get() = PathHelper.getDataPath(myContext)
     // 缓存路径
-    val cachePath: File
-        get() = File(
-            myContext.cacheDir,
-            myContext.getString(R.string.app_name_en),
-        ).apply {
-            if(!exists()) {
-                mkdirs()
-            }
-        }
+    val cachePath: File get() = PathHelper.getCachePath(myContext)
+    // 配置路径
+    val configPath: File get() = PathHelper.getConfigPath(myContext)
 
 
-    val iconCacheHelper: IconCacheHelper = IconCacheHelper(this)
+//    val iconCacheHelper: IconCacheHelper = IconCacheHelper(this)
 
 
     //    // 最小最大组件大小
@@ -133,10 +112,6 @@ class MyViewModel
     // 多选时选中的组件 id
     private val _selectedIds = MutableLiveData<MutableSet<String>>(mutableSetOf())
     val selectedIds: LiveData<MutableSet<String>> = _selectedIds
-
-
-    // 搜索词(用于高亮显示结果)
-    val searchQuery = MutableLiveData("")
 
 
     // WebView 网址
@@ -159,7 +134,11 @@ class MyViewModel
 
     // 下次更新检查时间
     val nextUpdateCheckTime: Long
-        get() = lastUpdateCheckTime + updateCheckGapLong
+        get() = if(updateCheckGapLong >= 0) {
+            lastUpdateCheckTime + updateCheckGapLong
+        } else {
+            -1
+        }
 
 
     // 配置文件
@@ -171,8 +150,15 @@ class MyViewModel
 
 
     // fragment 名称
-    private var _fragmentName = MutableLiveData(FragmentName.WIDGET_LIST_FRAGMENT)
+    private val _fragmentName = MutableLiveData(FragmentName.WIDGET_LIST_FRAGMENT)
     val fragmentName: LiveData<String> = _fragmentName
+
+
+    // 使用栈来维护 Fragment 名称历史
+    private val _fragmentNameStack = Stack<String>().apply {
+        push(FragmentName.WIDGET_LIST_FRAGMENT)
+    }
+    val fragmentNameStack: Stack<String> = _fragmentNameStack
 
 
     // 本地软件列表大小
@@ -185,6 +171,12 @@ class MyViewModel
     // 存储的工具字典 (用 LinkedHashMap 保持插入顺序)
     private var _storedToolMap = LinkedHashMap<String, StoredTool>()
     val storedToolMap: LinkedHashMap<String, StoredTool> = _storedToolMap
+
+
+    // 弹出菜单快捷方式列表
+    private val _originDynamicShortcutIdList = MutableLiveData<MutableList<String>>()
+    private val _dynamicShortcutIdList = MutableLiveData<MutableList<String>>()
+    val dynamicShortcutIdListWasChanged: MutableLiveData<Boolean> = MutableLiveData()
 
 
     // 本地软件列表
@@ -240,9 +232,14 @@ class MyViewModel
 
 
     // 多选模式、排序模式、搜索模式
-    var multiselectMode: MutableLiveData<Boolean> = MutableLiveData(false)
-    var sortMode: MutableLiveData<Boolean> = MutableLiveData(false)
-    var searchMode: MutableLiveData<Boolean> = MutableLiveData(false)
+    val multiselectMode: MutableLiveData<Boolean> = MutableLiveData(false)
+    val sortMode: MutableLiveData<Boolean> = MutableLiveData(false)
+
+    val searchModeToolList: MutableLiveData<Boolean> = MutableLiveData(false)
+    val searchModeSchemeList: MutableLiveData<Boolean> = MutableLiveData(false)
+    val searchModeInstalledAppList: MutableLiveData<Boolean> = MutableLiveData(false)
+
+    val enableBackPressedCallback: MutableLiveData<Boolean> = MutableLiveData(false)
 
     var freeSort = false
     var sortModeString = ""
@@ -251,16 +248,49 @@ class MyViewModel
 
 
     // 最后选中的 ViewPager 位置
-    private var _lastSelectedPosition = MutableLiveData(getStartFragmentPos())
+    private var _lastSelectedPosition = MutableLiveData<Int>()
 //    val lastSelectedPosition: LiveData<Int> = _lastSelectedPosition
 
 
+    lateinit var searchHistoryConfig: MutableMap<String, Any>
+    lateinit var searchSuggestionsConfig: MutableMap<String, Any>
+    lateinit var uiStateConfig: MutableMap<String, Any>
 
-//    // 将 dp 转换为 px
+
+    //    // 将 dp 转换为 px
 //    fun dpToPx(dp: Float): Int {
 //        val density = myContext.resources.displayMetrics.density
 //        return (dp * density).toInt()
 //    }
+
+
+    // 查看哈希值
+    fun checkHashCode() {
+        LogHelper.e("查看哈希值1", "viewModel instance hash: ${this.hashCode()}")
+        LogHelper.e("查看哈希值2", "viewModel identity hash: ${System.identityHashCode(this)}")
+    }
+
+
+    fun pushFragmentName(fragmentName: String) {
+        _fragmentNameStack.push(fragmentName)
+        updateFragmentName(fragmentName)
+    }
+
+
+    fun popFragmentName(): String {
+        updateFragmentName(
+            if(_fragmentNameStack.isNotEmpty()) {
+                _fragmentNameStack.pop()
+                _fragmentNameStack.peek()
+            } else {
+                FragmentName.NO_FRAGMENT
+            }
+        )
+        return getFragmentName()
+    }
+
+
+    val fragmentNameStackSize: Int get() = _fragmentNameStack.size
 
 
     fun updateFragmentName(fragmentName: String?) {
@@ -422,7 +452,7 @@ class MyViewModel
     // 加载存储的活动信息
     fun loadStorageActivities() {
 
-        val storedToolList = StoredToolHelper.loadStoredToolList(this)
+        val storedToolList = loadStoredToolList()
         _storedToolList.value = storedToolList
 
         // 建立字典
@@ -473,6 +503,7 @@ class MyViewModel
 
     // 保存组件列表到存储中
     fun saveWidgetList() {
+//        LogHelper.e("保存${getFragmentName()}", "")
 
         when(getFragmentName()) {
             FragmentName.WIDGET_LIST_FRAGMENT -> {
@@ -498,8 +529,8 @@ class MyViewModel
                 updateStoredToolListSize()
             }
         }
-        StoredToolHelper.saveStoredActivityList(
-            this, _storedToolList.value!!
+        saveStoredActivityList(
+            _storedToolList.value!!
         )
 //        updateStoredToolListSize()
 //        if(getFragmentName() == FragmentName.WIDGET_LIST_FRAGMENT) {
@@ -601,7 +632,7 @@ class MyViewModel
             installedAppList.value?.forEach { app ->
                 try {
                     // 获取并缓存图标
-                    iconCacheHelper.getCircularDrawable(app)
+                    getCircularDrawable(app)
                 } catch(_: Exception) {
                     // 忽略单个图标加载失败的情况
                 }
@@ -611,7 +642,7 @@ class MyViewModel
 
 
     // 获取可启动的活动列表
-    private fun getInstalledApp() {
+    fun getInstalledApp() {
 
         val intent = Intent(Intent.ACTION_MAIN, null)
         intent.addCategory(Intent.CATEGORY_LAUNCHER)
@@ -674,7 +705,7 @@ class MyViewModel
     fun addToSizeChangeMap(tool: Tool) {
         val storedActivity = tool.toStoredTool(width = maxWidgetSize)
         _toolListSizeChangeMap[storedActivity.id] = storedActivity
-        updateToolListSizeChanged()
+//        updateToolListSizeChanged()
     }
 
 
@@ -686,9 +717,15 @@ class MyViewModel
 
 
     // 多选时调用的方法
+    // 获取选中的条目集合
+    private fun getSelectedIds(): MutableSet<String> {
+        return (_selectedIds.value ?: mutableSetOf()).toMutableSet()
+    }
+
+
     // 选中一个条目
     fun selectedItem(id: String) {
-        val currentSet = _selectedIds.value ?: mutableSetOf()
+        val currentSet = getSelectedIds()
         currentSet.add(id)
         _selectedIds.value = currentSet
 //        LogHelper.e("多选", "选中 $id, 共选 ${currentSet.size} 项")
@@ -697,7 +734,7 @@ class MyViewModel
 
     // 删除一个条目
     fun deselectItem(id: String) {
-        val currentSet = _selectedIds.value ?: mutableSetOf()
+        val currentSet = getSelectedIds()
         currentSet.remove(id)
         _selectedIds.value = currentSet
     }
@@ -711,23 +748,25 @@ class MyViewModel
 
     // 全选
     fun selectAllItems() {
-        val currentSet = _selectedIds.value ?: mutableSetOf()
-        currentSet.addAll(_storedToolMap.keys)
-        _selectedIds.value = currentSet
+        val currentSet = getSelectedIds()
+        if(currentSet.size != _storedToolMap.size) {
+            currentSet.addAll(_storedToolMap.keys)
+            _selectedIds.value = currentSet
+        }
     }
 
 
     // 反选
     fun invertSelection() {
-        val currentSet = _selectedIds.value ?: mutableSetOf()
+        val currentSet = getSelectedIds()
         val allKeys = _storedToolMap.keys
 
         // 创建一个新的集合，包含所有不在当前选中集合中的项
         val newSelection = if(currentSet.isEmpty()) {
             allKeys
         } else {
-            allKeys.subtract(currentSet).toMutableSet()
-        }
+            allKeys.subtract(currentSet)
+        }.toMutableSet()
 
         _selectedIds.value = newSelection
     }
@@ -757,7 +796,7 @@ class MyViewModel
 
     // 删除选中集合中的所有项并保存
     fun deleteSelectedItemAndSave() {
-        val currentSet = _selectedIds.value ?: mutableSetOf()
+        val currentSet = getSelectedIds()
         for(id in currentSet) {
             removeFromSizeChangeMap(id)
         }
@@ -769,4 +808,159 @@ class MyViewModel
         toolListSizeChanged.value = false
     }
 
+
+    // 加载动态快捷方式工具列表
+    fun loadDynamicShortcutList() {
+        val dynamicShortcutToolIdList = FileHelper.readJsonFileAsMutableStringList(
+            getDynamicShortcutIdListFile()
+        ) ?: mutableListOf()
+
+//            getConfigValue(
+//            ConfigKeys.DYNAMIC_SHORTCUT_TOOL_IDS
+//        ).toStringList().filter {
+//            it in ToolMap.idToTool
+//        }.take(getMaxShortcutCount()).toMutableList()
+
+        _dynamicShortcutIdList.value = dynamicShortcutToolIdList
+
+        buildDynamicShortcutList()
+    }
+
+
+    fun saveDynamicShortcutList() {
+        val dynamicShortcutToolIds = getDynamicShortcutIdList()
+        FileHelper.writeDataToJsonFile(
+            data = dynamicShortcutToolIds,
+            file = getDynamicShortcutIdListFile(),
+        )
+//        updateConfigValue(
+//            key = ConfigKeys.DYNAMIC_SHORTCUT_TOOL_IDS,
+//            value = dynamicShortcutToolIds,
+//        )
+//        saveUserConfig()
+        buildDynamicShortcutList()
+        setDynamicShortcuts()
+    }
+
+
+    // 建立
+    fun buildDynamicShortcutList() {
+        _originDynamicShortcutIdList.value = _dynamicShortcutIdList.value?.toMutableList()
+        updateDynamicShortcutListWasChanged()
+    }
+
+
+    // 恢复
+    fun restoreDynamicShortcutList() {
+        _dynamicShortcutIdList.value = _originDynamicShortcutIdList.value?.toMutableList()
+        updateDynamicShortcutListWasChanged()
+    }
+
+
+    // 获取动态快捷方式工具ID列表
+    fun getDynamicShortcutIdList(): MutableList<String> {
+        return _dynamicShortcutIdList.value ?: mutableListOf()
+    }
+
+
+    // 获取实际的动态快捷方式工具列表
+    fun getDynamicShortcutActualList(): MutableList<StoredTool> {
+        updateDynamicShortcutListWasChanged()
+        return _dynamicShortcutIdList.value?.mapNotNull {
+            ToolMap.idToTool[it]?.toStoredTool(
+                alignment = ToolConstants.Alignment.LEFT,
+            )
+        }?.toMutableList() ?: mutableListOf()
+    }
+
+
+    // 获取用于显示的动态快捷方式工具列表
+    fun getDynamicShortcutDisplayList(): MutableList<StoredTool> {
+        return buildList {
+            add(
+                StoredTool(
+                    id = ToolID.DYNAMIC_SHORTCUT_TITLE,
+                    name = ToolID.DYNAMIC_SHORTCUT_TITLE,
+                    packageName = ToolID.DYNAMIC_SHORTCUT_TITLE,
+                )
+            )
+            val dynamicShortcutToolList = getDynamicShortcutActualList()
+            if(dynamicShortcutToolList.isNotEmpty()) {
+                addAll(dynamicShortcutToolList)
+            } else {
+                add(
+                    StoredTool(
+                        id = ToolID.NO_DYNAMIC_SHORTCUT,
+                        name = ToolID.NO_DYNAMIC_SHORTCUT,
+                        packageName = ToolID.NO_DYNAMIC_SHORTCUT,
+                    )
+                )
+            }
+        }.toMutableList()
+    }
+
+
+    // 获取动态快捷方式工具列表的大小
+    fun getDynamicShortcutListSize(): Int {
+        return _dynamicShortcutIdList.value?.size ?: 0
+    }
+
+
+    // 移除某个动态快捷方式工具
+    fun removeDynamicShortcutTool(id: String) {
+        _dynamicShortcutIdList.value?.remove(id)
+        updateDynamicShortcutListWasChanged()
+    }
+
+
+    // 将某个动态快捷方式工具添加到列表中
+    fun addDynamicShortcutTool(id: String) {
+        _dynamicShortcutIdList.value?.add(id)
+        updateDynamicShortcutListWasChanged()
+    }
+
+
+    // 将动态快捷方式移到最前
+    fun moveDynamicShortcutToolToTop(id: String) {
+        val currentList = _dynamicShortcutIdList.value ?: return
+        if(id !in currentList) return
+
+        val newList = buildList {
+            add(id)  // 添加目标到最前
+            addAll(currentList.filter { it != id })  // 添加其余元素
+        }.toMutableList()
+
+        _dynamicShortcutIdList.value = newList
+        updateDynamicShortcutListWasChanged()
+    }
+
+
+    // 将动态快捷方式移到最后
+    fun moveDynamicShortcutToolToBottom(id: String) {
+        val currentList = _dynamicShortcutIdList.value ?: return
+        if(id !in currentList) return
+
+        val newList = buildList {
+            addAll(currentList.filter { it != id })  // 添加其余元素
+            add(id)  // 添加目标到最后
+        }.toMutableList()
+
+        _dynamicShortcutIdList.value = newList
+        updateDynamicShortcutListWasChanged()
+    }
+
+
+    fun updateDynamicShortcutListWasChanged() {
+        dynamicShortcutIdListWasChanged.value =
+            _dynamicShortcutIdList.value != _originDynamicShortcutIdList.value
+//        LogHelper.e(
+//            "集合对比${dynamicShortcutIdListWasChanged.value}",
+//            "<${_originDynamicShortcutIdList.value}>, <${_dynamicShortcutIdList.value}>"
+//        )
+    }
+
+
+    fun inToolInDynamicShortcutList(id: String): Boolean {
+        return _dynamicShortcutIdList.value?.contains(id) ?: false
+    }
 }

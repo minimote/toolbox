@@ -10,7 +10,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -22,7 +21,6 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.activity.MainActivity
 import cn.minimote.toolbox.adapter.WidgetListAdapter
@@ -30,31 +28,30 @@ import cn.minimote.toolbox.constant.FragmentName
 import cn.minimote.toolbox.constant.MenuList
 import cn.minimote.toolbox.constant.MenuType
 import cn.minimote.toolbox.constant.UI
+import cn.minimote.toolbox.helper.BackgroundHelper.setBackgroundImage
+import cn.minimote.toolbox.helper.BackgroundHelper.setBackgroundText
 import cn.minimote.toolbox.helper.BottomSheetDialogHelper
 import cn.minimote.toolbox.helper.VibrationHelper
+import cn.minimote.toolbox.ui.widget.ShadowConstraintLayout
 import cn.minimote.toolbox.viewModel.MyViewModel
-import dagger.hilt.android.AndroidEntryPoint
 
 
-@AndroidEntryPoint
 class WidgetListFragment() : Fragment() {
 
     private val viewModel: MyViewModel by activityViewModels()
 
-    private val activity get() = requireActivity() as MainActivity
+    private val myActivity get() = requireActivity() as MainActivity
 
-    val viewPager: ViewPager2
-        get() = activity.viewPager
-
+    private val viewPager get() = myActivity.viewPager
 
     private lateinit var context: Context
     private lateinit var imageViewBackground: ImageView
     private lateinit var textViewNoWidget: TextView
     private lateinit var constraintLayoutBackground: ConstraintLayout
 
-    private lateinit var buttonSelectAll: Button
-    private lateinit var buttonReverseSelect: Button
-    lateinit var buttonSortMode: Button
+    private lateinit var buttonSelectAll: TextView
+    private lateinit var buttonReverseSelect: TextView
+    lateinit var buttonSortMode: TextView
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: WidgetListAdapter
@@ -133,20 +130,19 @@ class WidgetListFragment() : Fragment() {
     // 设置无组件提示
     private fun setNoWidgetShow(view: View) {
         textViewNoWidget = view.findViewById(R.id.textView_no_widget)
-        if(viewModel.isWatch) {
-//            textViewNoWidget.textSize = resources.getDimension(R.dimen.text_size_2_footnote)
-//            val paddingSize = resources.getDimensionPixelSize(R.dimen.layout_size_3_script)
-//            textViewNoWidget.setPadding(
-//                paddingSize, paddingSize, paddingSize, paddingSize,
-//            )
-            textViewNoWidget.visibility = View.GONE
-        }
+        setBackgroundText(
+            viewModel = viewModel,
+            textViewBackground = textViewNoWidget,
+            alpha = UI.Alpha.ALPHA_10,
+        )
+
+
         constraintLayoutBackground = view.findViewById(R.id.constraintLayout_background)
         constraintLayoutBackground.setOnClickListener {
-            // 手表没有切换振动，所以需要点击振动
-            if(viewModel.isWatch) {
-                VibrationHelper.vibrateOnClick(viewModel)
-            }
+//            // 手表没有切换振动，所以需要点击振动
+//            if(viewModel.isWatch) {
+//                VibrationHelper.vibrateOnClick(viewModel)
+//            }
             // 手机已经有切换振动了，所以这里不需要再振动
             viewPager.setCurrentItem(0, true) // 切换到第一页（左边页面）
         }
@@ -155,25 +151,14 @@ class WidgetListFragment() : Fragment() {
 
     // 设置编辑模式的背景
     private fun setEditModeBackground(view: View) {
-//        val imageViewSize = viewModel.imageSize
         imageViewBackground = view.findViewById(R.id.imageView_background)
 
-        if(viewModel.isWatch) {
-            val layoutParams = imageViewBackground.layoutParams as ConstraintLayout.LayoutParams
-
-            // 修改高度百分比
-            layoutParams.matchConstraintPercentHeight = 0.5f
-            // 修改宽度百分比
-            layoutParams.matchConstraintPercentWidth = 0.5f
-
-            // 应用更改
-            imageViewBackground.layoutParams = layoutParams
-        }
-
         imageViewBackground.visibility = View.INVISIBLE
-//        imageViewBackground.layoutParams.width = imageViewSize
-//        imageViewBackground.layoutParams.height = imageViewSize
-        imageViewBackground.alpha = UI.Alpha.ALPHA_3
+
+        setBackgroundImage(
+            imageViewBackground = imageViewBackground,
+            viewModel = viewModel,
+        )
     }
 
 
@@ -200,7 +185,7 @@ class WidgetListFragment() : Fragment() {
             VibrationHelper.vibrateOnClick(viewModel)
             BottomSheetDialogHelper.setAndShowBottomSheetDialog(
                 viewModel = viewModel,
-                activity = activity,
+                activity = myActivity,
                 menuList = MenuList.sort,
                 onMenuItemClick = { menuItemId ->
                     when(menuItemId) {
@@ -217,12 +202,19 @@ class WidgetListFragment() : Fragment() {
 
 
     // 设置 RecyclerView
+//    @SuppressLint("CutPasteId")
     private fun setRecyclerView(view: View) {
-        viewModel.loadStorageActivities()
-        recyclerView = view.findViewById(R.id.recyclerView_widget_list)
+
+//        val shadowRecyclerViewLayout = view.findViewById<ShadowRecyclerViewLayout>(R.id.shadowRecyclerViewLayout)
+//        recyclerView = shadowRecyclerViewLayout.recyclerView
+
+
+        val shadowConstraintLayout = view.findViewById<ShadowConstraintLayout>(R.id.include_constraintLayout_shadow_recyclerView)
+        recyclerView = shadowConstraintLayout.recyclerView
+
 
         adapter = WidgetListAdapter(
-            myActivity = activity,
+            myActivity = myActivity,
             viewModel = viewModel,
             fragment = this,
         )
@@ -238,6 +230,7 @@ class WidgetListFragment() : Fragment() {
         }
         recyclerView.layoutManager = gridLayoutManager
 
+        shadowConstraintLayout.setShadow(viewModel = viewModel, addBottomPadding = false)
     }
 
 
@@ -255,13 +248,15 @@ class WidgetListFragment() : Fragment() {
             ): Boolean {
                 VibrationHelper.vibrateOnClick(viewModel)
 
-                val fromPosition = viewHolder.adapterPosition
-                val toPosition = target.adapterPosition
+                val fromPosition = viewHolder.bindingAdapterPosition
+                val toPosition = target.bindingAdapterPosition
                 val fromItem = adapter.toolList[fromPosition]
 
                 adapter.toolList.removeAt(fromPosition)
                 adapter.toolList.add(toPosition, fromItem)
                 adapter.notifyItemMoved(fromPosition, toPosition)
+
+
                 viewModel.updateStoredToolListOrder()
 
                 return true
@@ -328,6 +323,7 @@ class WidgetListFragment() : Fragment() {
                 constraintLayoutBackground.isClickable = false
 
                 buttonSelectAll.visibility = View.VISIBLE
+
                 buttonReverseSelect.visibility = View.VISIBLE
 
                 textViewNoWidget.text = getString(context, R.string.multi_select)

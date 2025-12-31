@@ -5,44 +5,20 @@
 
 package cn.minimote.toolbox.fragment
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import cn.minimote.toolbox.R
 import cn.minimote.toolbox.activity.MainActivity
 import cn.minimote.toolbox.adapter.SupportAuthorAdapter
-import cn.minimote.toolbox.viewModel.MyViewModel
-import dagger.hilt.android.AndroidEntryPoint
 
 
-@AndroidEntryPoint
-class SupportAuthorFragment : Fragment() {
+class SupportAuthorFragment : BaseShadowListFragment() {
 
-    private val myActivity: MainActivity get() = requireActivity() as MainActivity
-    private val viewModel: MyViewModel by activityViewModels()
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: SupportAuthorAdapter
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        val view = inflater.inflate(R.layout.fragment_support_author, container, false)
-
-        // 初始化 RecyclerView
-        recyclerView = view.findViewById(R.id.recyclerView_supportAuthor)
-        recyclerView.layoutManager = LinearLayoutManager(context)
-        adapter = SupportAuthorAdapter(
-            myActivity = myActivity,
+    override fun getAdapter(): RecyclerView.Adapter<*> {
+        return SupportAuthorAdapter(
+            myActivity = requireActivity() as MainActivity,
             viewModel = viewModel,
         )
-        recyclerView.adapter = adapter
-
-        return view
     }
+
+
 }

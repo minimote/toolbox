@@ -6,6 +6,7 @@
 package cn.minimote.toolbox.adapter
 
 import android.content.Intent
+import android.text.Layout
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,7 +20,7 @@ import cn.minimote.toolbox.activity.MainActivity
 import cn.minimote.toolbox.constant.ViewList
 import cn.minimote.toolbox.constant.ViewTypes
 import cn.minimote.toolbox.helper.ClipboardHelper
-import cn.minimote.toolbox.helper.ImageSaveHelper
+import cn.minimote.toolbox.helper.ImageSaveHelper.setSavePopupMenuListener
 import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.viewModel.MyViewModel
 
@@ -44,6 +45,11 @@ class AboutProjectAdapter(
 
         init {
             when(viewType) {
+                viewTypes.NOTICE -> {
+                    textViewContent = itemView.findViewById(R.id.textView_content)
+                }
+
+
                 viewTypes.PROJECT_PATH_GITEE -> {
                     imageViewQRCode = itemView.findViewById(R.id.imageView_qr_code)
                     textViewTitle = itemView.findViewById(R.id.textView_title)
@@ -54,6 +60,10 @@ class AboutProjectAdapter(
                     imageViewQRCode = itemView.findViewById(R.id.imageView_qr_code)
                     textViewTitle = itemView.findViewById(R.id.textView_title)
                     textViewContent = itemView.findViewById(R.id.textView_content)
+                }
+
+                viewTypes.NOTICE_TITLE -> {
+                    textViewTitle = itemView.findViewById(R.id.textView_title)
                 }
 
                 viewTypes.LICENSE_TITLE -> {
@@ -80,9 +90,10 @@ class AboutProjectAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SupportAuthorViewHolder {
         val layoutId = when(viewType) {
             viewTypes.NOTICE -> R.layout.item_about_project_notice
-            viewTypes.PROJECT_PATH_NAME -> R.layout.item_about_project_title
+            viewTypes.PROJECT_PATH_TITLE -> R.layout.item_about_project_title
             viewTypes.PROJECT_PATH_GITEE -> R.layout.item_about_project_project_path
             viewTypes.PROJECT_PATH_GITHUB -> R.layout.item_about_project_project_path
+            viewTypes.NOTICE_TITLE -> R.layout.item_about_project_title
             viewTypes.LICENSE_TITLE -> R.layout.item_about_project_title
             viewTypes.LICENSE -> R.layout.item_about_project_notice
             else -> -1
@@ -97,6 +108,11 @@ class AboutProjectAdapter(
         val imageSize = viewModel.imageSize
 
         when(holder.itemViewType) {
+            viewTypes.NOTICE -> {
+                holder.textViewContent.text = //LogHelper.readLogFile(viewModel) +
+                        context.getString(R.string.about_project_notice)
+            }
+
             viewTypes.PROJECT_PATH_GITEE -> {
                 holder.textViewTitle.text = context.getString(R.string.gitee)
 
@@ -109,11 +125,10 @@ class AboutProjectAdapter(
                 holder.imageViewQRCode.setImageResource(R.drawable.qr_gitee)
                 holder.imageViewQRCode.layoutParams.width = imageSize
                 holder.imageViewQRCode.layoutParams.height = imageSize
-                ImageSaveHelper.setPopupMenu(
-                    imageView = holder.imageViewQRCode,
-                   fileName =  context.getString(R.string.qr_gitee_file_name),
+                holder.imageViewQRCode.setSavePopupMenuListener(
+                    fileName = context.getString(R.string.qr_gitee_file_name),
                     viewModel = viewModel,
-                    activity = activity,
+                    myActivity = activity,
                 )
             }
 
@@ -129,13 +144,18 @@ class AboutProjectAdapter(
                 holder.imageViewQRCode.setImageResource(R.drawable.qr_github)
                 holder.imageViewQRCode.layoutParams.width = imageSize
                 holder.imageViewQRCode.layoutParams.height = imageSize
-                ImageSaveHelper.setPopupMenu(
-                    imageView = holder.imageViewQRCode,
-                    fileName =  context.getString(R.string.qr_github_file_name),
+                holder.imageViewQRCode.setSavePopupMenuListener(
+                    fileName = context.getString(R.string.qr_github_file_name),
                     viewModel = viewModel,
-                    activity = activity,
+                    myActivity = activity,
                 )
             }
+
+
+            viewTypes.NOTICE_TITLE -> {
+                holder.textViewTitle.text = context.getString(R.string.notice_title)
+            }
+
 
             viewTypes.LICENSE_TITLE -> {
                 holder.textViewTitle.text = context.getString(R.string.license_title)
@@ -146,6 +166,8 @@ class AboutProjectAdapter(
                     context.assets.open("license.txt").use { inputStream ->
                         inputStream.readBytes().decodeToString()
                     }
+
+                holder.textViewContent.justificationMode = Layout.JUSTIFICATION_MODE_NONE
 
             }
 

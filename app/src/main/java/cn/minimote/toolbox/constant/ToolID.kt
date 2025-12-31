@@ -9,6 +9,9 @@ object ToolID {
 
     const val BLANK = ""
 
+    const val DYNAMIC_SHORTCUT_TITLE = "dynamic_shortcut_title"
+    const val NO_DYNAMIC_SHORTCUT = "no_dynamic_shortcut"
+
     // 应用工具
     object AppTool {
         // 微信
@@ -170,6 +173,8 @@ object ToolID {
             const val PLAY_HOT_SONG = URL_NAME + "play_hot_song"
 
             const val POINT_CENTER = URL_NAME + "point_center"
+
+            const val RECOGNIZE = URL_NAME + "recognize"
         }
 
         // 抖音
@@ -180,8 +185,8 @@ object ToolID {
         }
 
         // 京东
-        object JD {
-            private const val URL_NAME = "jd/"
+        object Jingdong {
+            private const val URL_NAME = "jingdong/"
 
             const val ORDER = URL_NAME + "order"
 
@@ -193,6 +198,28 @@ object ToolID {
             private const val URL_NAME = "amap/"
 
             const val REAL_TIME_BUS = URL_NAME + "real_time_bus"
+        }
+
+        // 美团
+        object Meituan {
+            private const val URL_NAME = "meituan/"
+
+            const val SCAN = URL_NAME + "scan"
+            const val PAY_CODE = URL_NAME + "pay_code"
+            const val BIKE = URL_NAME + "bike"
+            const val SEARCH = URL_NAME + "search"
+            const val ORDER = URL_NAME + "order"
+            const val COLLECTION = URL_NAME + "collection"
+            const val FOOD = URL_NAME + "food"
+            const val TAKEOUT = URL_NAME + "takeout"
+            const val HOME = URL_NAME + "home"
+            const val HOTEL = URL_NAME + "hotel"
+        }
+
+        object HelloBike {
+            private const val URL_NAME = "hello_bike/"
+
+            const val SCAN = URL_NAME + "scan"
         }
     }
 

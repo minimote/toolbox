@@ -5,44 +5,20 @@
 
 package cn.minimote.toolbox.fragment
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import cn.minimote.toolbox.R
 import cn.minimote.toolbox.activity.MainActivity
 import cn.minimote.toolbox.adapter.AboutProjectAdapter
-import cn.minimote.toolbox.viewModel.MyViewModel
-import dagger.hilt.android.AndroidEntryPoint
 
 
-@AndroidEntryPoint
-class AboutProjectFragment : Fragment() {
+class AboutProjectFragment : BaseShadowListFragment() {
 
-    private val viewModel: MyViewModel by activityViewModels()
-    private val myActivity get() = requireActivity() as MainActivity
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: AboutProjectAdapter
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        val view = inflater.inflate(R.layout.fragment_about_project, container, false)
-
-        // 初始化 RecyclerView
-        recyclerView = view.findViewById(R.id.recyclerView_about_project)
-        recyclerView.layoutManager = LinearLayoutManager(context)
-        adapter = AboutProjectAdapter(
+    override fun getAdapter(): RecyclerView.Adapter<*> {
+        return AboutProjectAdapter(
             viewModel = viewModel,
-            activity = myActivity,
+            activity = requireActivity() as MainActivity,
         )
-        recyclerView.adapter = adapter
-
-        return view
     }
+
+
 }

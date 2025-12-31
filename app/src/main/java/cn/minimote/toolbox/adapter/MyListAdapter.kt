@@ -26,7 +26,7 @@ import cn.minimote.toolbox.helper.ClipboardHelper
 import cn.minimote.toolbox.helper.DataCleanHelper
 import cn.minimote.toolbox.helper.DialogHelper
 import cn.minimote.toolbox.helper.FragmentHelper
-import cn.minimote.toolbox.helper.ImageSaveHelper
+import cn.minimote.toolbox.helper.ImageSaveHelper.setSavePopupMenuListener
 import cn.minimote.toolbox.helper.LaunchHelper
 import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.viewModel.MyViewModel
@@ -82,39 +82,11 @@ class MyListAdapter(
                     textViewDataSize = itemView.findViewById(R.id.textView_dataSize)
                 }
 
-                viewTypes.SETTING -> {
-                    textViewName = itemView.findViewById(R.id.textView_name)
-                }
-
-                viewTypes.SUPPORT_AUTHOR -> {
-                    textViewName = itemView.findViewById(R.id.textView_name)
-                }
-
-                viewTypes.ABOUT_PROJECT -> {
-                    textViewName = itemView.findViewById(R.id.textView_name)
-                }
-
-                viewTypes.INSTRUCTION -> {
-                    textViewName = itemView.findViewById(R.id.textView_name)
-                }
-
-                viewTypes.UPDATE_LOG -> {
-                    textViewName = itemView.findViewById(R.id.textView_name)
-                }
-
-                viewTypes.PROBLEM_FEEDBACK -> {
-                    textViewName = itemView.findViewById(R.id.textView_name)
-                }
-
-                viewTypes.SCHEME_LIST -> {
-                    textViewName = itemView.findViewById(R.id.textView_name)
-                }
-
-                viewTypes.APP_DETAIL -> {
-                    textViewName = itemView.findViewById(R.id.textView_name)
-                }
-
                 viewTypes.CHECK_UPDATE -> {
+                    textViewName = itemView.findViewById(R.id.textView_name)
+                }
+
+                in viewTypes.normalSet -> {
                     textViewName = itemView.findViewById(R.id.textView_name)
                 }
             }
@@ -136,15 +108,8 @@ class MyListAdapter(
             viewTypes.APP_INFO -> R.layout.item_my_app_info
             viewTypes.CLEAR_CACHE -> R.layout.item_my_clear_data
             viewTypes.CLEAR_DATA -> R.layout.item_my_clear_data
-            viewTypes.SUPPORT_AUTHOR -> R.layout.item_my_setting
-            viewTypes.ABOUT_PROJECT -> R.layout.item_my_setting
             viewTypes.CHECK_UPDATE -> R.layout.item_my_check_update
-            viewTypes.SETTING -> R.layout.item_my_setting
-            viewTypes.INSTRUCTION -> R.layout.item_my_setting
-            viewTypes.UPDATE_LOG -> R.layout.item_my_setting
-            viewTypes.PROBLEM_FEEDBACK -> R.layout.item_my_setting
-            viewTypes.SCHEME_LIST -> R.layout.item_my_setting
-            viewTypes.APP_DETAIL -> R.layout.item_my_setting
+            in viewTypes.normalSet -> R.layout.item_my_setting
             else -> -1
         }
         val view = LayoutInflater.from(myActivity).inflate(layoutId, parent, false)
@@ -168,11 +133,19 @@ class MyListAdapter(
             }
 
             viewTypes.SUPPORT_AUTHOR -> {
-                setupSupportAuthor(holder)
+                setFragmentItem(
+                    holder = holder,
+                    text = myActivity.getString(R.string.support_author),
+                    fragmentName = FragmentName.SUPPORT_AUTHOR_FRAGMENT,
+                )
             }
 
             viewTypes.ABOUT_PROJECT -> {
-                setupAboutProject(holder)
+                setFragmentItem(
+                    holder = holder,
+                    text = myActivity.getString(R.string.about_project),
+                    fragmentName = FragmentName.ABOUT_PROJECT_FRAGMENT,
+                )
             }
 
             viewTypes.CHECK_UPDATE -> {
@@ -180,11 +153,15 @@ class MyListAdapter(
             }
 
             viewTypes.SETTING -> {
-                setupSetting(holder)
+                setFragmentItem(
+                    holder = holder,
+                    text = myActivity.getString(R.string.setting),
+                    fragmentName = FragmentName.SETTING_FRAGMENT,
+                )
             }
 
             viewTypes.INSTRUCTION -> {
-                setupWebView(
+                setWebView(
                     holder = holder,
                     textViewText = myActivity.getString(R.string.instruction),
                     url = myActivity.getString(R.string.instruction_url),
@@ -192,7 +169,7 @@ class MyListAdapter(
             }
 
             viewTypes.UPDATE_LOG -> {
-                setupWebView(
+                setWebView(
                     holder = holder,
                     textViewText = myActivity.getString(R.string.update_log),
                     url = myActivity.getString(R.string.update_log_url),
@@ -200,7 +177,7 @@ class MyListAdapter(
             }
 
             viewTypes.PROBLEM_FEEDBACK -> {
-                setupWebView(
+                setWebView(
                     holder = holder,
                     textViewText = myActivity.getString(R.string.problem_feedback),
                     url = myActivity.getString(R.string.problem_feedback_url),
@@ -208,11 +185,31 @@ class MyListAdapter(
             }
 
             viewTypes.SCHEME_LIST -> {
-                setupSchemeList(holder = holder)
+                setFragmentItem(
+                    holder = holder,
+                    text = myActivity.getString(R.string.scheme_list),
+                    fragmentName = FragmentName.SCHEME_LIST_FRAGMENT,
+                )
             }
 
             viewTypes.APP_DETAIL -> {
                 setupAppDetail(holder = holder)
+            }
+
+            viewTypes.BACKUP_AND_RESTORE -> {
+                setFragmentItem(
+                    holder = holder,
+                    text = myActivity.getString(R.string.backup_and_recovery),
+                    fragmentName = FragmentName.BACKUP_AND_RECOVERY_FRAGMENT,
+                )
+            }
+
+            viewTypes.LONG_PRESS_MENU -> {
+                setFragmentItem(
+                    holder = holder,
+                    text = myActivity.getString(R.string.long_press_menu),
+                    fragmentName = FragmentName.SCHEME_LIST_FRAGMENT,
+                )
             }
         }
 
@@ -222,11 +219,10 @@ class MyListAdapter(
     // 设置应用信息
     private fun setupAppInfo(holder: MyViewHolder) {
         // 长按弹出保存图片的选项
-        ImageSaveHelper.setPopupMenu(
-            imageView = holder.imageViewAppIcon,
+        holder.imageViewAppIcon.setSavePopupMenuListener(
             fileName = viewModel.myAppName,
             viewModel = viewModel,
-            activity = myActivity,
+            myActivity = myActivity,
         )
 
         holder.textViewAppName.text = viewModel.myAppName
@@ -279,18 +275,12 @@ class MyListAdapter(
                 if(clickCount >= Egg.CLICK_COUNT) {
                     // 连续点击8次的处理逻辑
                     VibrationHelper.vibrateOnClick(viewModel)
-                    // 在这里添加你想要执行的代码
-                    Toast.makeText(
-                        myActivity,
-                        myActivity.getString(R.string.congratulations_you_found_the_easter_egg),
-                        Toast.LENGTH_SHORT
-                    ).show()
                     clickCount = 0
                     // 显示彩蛋 Fragment
                     FragmentHelper.switchFragment(
                         fragmentName = FragmentName.EASTER_EGG_FRAGMENT,
-                        viewModel = viewModel,
                         activity = myActivity,
+                        viewModel = viewModel,
                     )
                 }
             } else {
@@ -374,29 +364,19 @@ class MyListAdapter(
     }
 
 
-    // 支持作者
-    private fun setupSupportAuthor(holder: MyViewHolder) {
-        holder.textViewName.text = myActivity.getString(R.string.supportAuthor)
+    // 设置进入新页面的条目
+    private fun setFragmentItem(
+        holder: MyViewHolder,
+        text: String,
+        fragmentName: String,
+    ) {
+        holder.textViewName.text = text
         holder.itemView.setOnClickListener {
             VibrationHelper.vibrateOnClick(viewModel)
             FragmentHelper.switchFragment(
-                fragmentName = FragmentName.SUPPORT_AUTHOR_FRAGMENT,
-                viewModel = viewModel,
+                fragmentName = fragmentName,
                 activity = myActivity,
-            )
-        }
-    }
-
-
-    // 关于项目
-    private fun setupAboutProject(holder: MyViewHolder) {
-        holder.textViewName.text = myActivity.getString(R.string.about_project)
-        holder.itemView.setOnClickListener {
-            VibrationHelper.vibrateOnClick(viewModel)
-            FragmentHelper.switchFragment(
-                fragmentName = FragmentName.ABOUT_PROJECT_FRAGMENT,
                 viewModel = viewModel,
-                activity = myActivity,
             )
         }
     }
@@ -420,22 +400,7 @@ class MyListAdapter(
     }
 
 
-    // 设置
-    private fun setupSetting(holder: MyViewHolder) {
-        holder.textViewName.text = myActivity.getString(R.string.setting)
-        holder.itemView.setOnClickListener {
-            VibrationHelper.vibrateOnClick(viewModel)
-            FragmentHelper.switchFragment(
-                fragmentName = FragmentName.SETTING_FRAGMENT,
-                viewModel = viewModel,
-                activity = myActivity,
-            )
-        }
-    }
-
-
-    // 使用说明
-    private fun setupWebView(
+    private fun setWebView(
         holder: MyViewHolder,
         textViewText: String,
         url: String,
@@ -446,20 +411,8 @@ class MyListAdapter(
             viewModel.webViewUrl = url
             FragmentHelper.switchFragment(
                 fragmentName = FragmentName.WEB_VIEW_FRAGMENT,
-                viewModel = viewModel,
                 activity = myActivity,
-            )
-        }
-    }
-
-    private fun setupSchemeList(holder: MyViewHolder) {
-        holder.textViewName.text = myActivity.getString(R.string.scheme_list)
-        holder.itemView.setOnClickListener {
-            VibrationHelper.vibrateOnClick(viewModel)
-            FragmentHelper.switchFragment(
-                fragmentName = FragmentName.SCHEME_LIST_FRAGMENT,
                 viewModel = viewModel,
-                activity = myActivity,
             )
         }
     }
@@ -492,4 +445,6 @@ class MyListAdapter(
 
         }
     }
+
+
 }

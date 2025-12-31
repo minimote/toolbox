@@ -24,10 +24,14 @@ object CheckUpdate {
     // 版本号分隔符
     const val VERSION_NAME_SPLIT_CHAR = "."
     // 匹配版本号其他分隔符的正则表达式
-    val VERSION_NAME_SEPARATOR_REGEX = "[\\s_-]".toRegex()
+    val VERSION_NAME_SEPARATOR_REGEX = Regex("[\\s_-]")
+    // 匹配非数字和非点
+    val DIGITS_AND_DOT_REGEX = Regex("[^\\d.]")
+    // 匹配版本号
+    val VERSION_NAME_REGEX = Regex("##\\s*(v[\\d.]+[_\\-]\\d{4}\\.\\d{2}\\.\\d{2}(?:-[a-zA-Z\\d.]+)?)")
 
     // 轮询查询下载状态的间隔时间
-    const val MONITOR_DOWNLOAD_STATUS_GAP_RIME = 100L
+    const val MONITOR_DOWNLOAD_STATUS_GAP_TIME = 100L
 
     const val GITEE_API_URL = "https://gitee.com/api/v5/repos/{owner}/{repo}/releases/latest"
     const val GITEE_API_OWNER = "{owner}"
@@ -37,4 +41,6 @@ object CheckUpdate {
     const val GITEE_API_ASSETS_KEY = "assets"
     const val GITEE_API_FILENAME_KEY = "name"
     const val GITEE_API_DOWNLOAD_URL_KEY = "browser_download_url"
+
+    const val SIMPLE_VERSION_PREFIX = "v"
 }

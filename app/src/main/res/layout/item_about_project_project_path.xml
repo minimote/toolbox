@@ -6,8 +6,8 @@
     <TextView
         android:id="@+id/textView_title"
         style="@style/TextView.Toolbox.Dark"
-        android:layout_marginTop="@dimen/layout_size_2_footnote"
-        android:padding="@dimen/layout_size_3_script"
+        android:layout_marginTop="@dimen/layout_size_2_small"
+        android:padding="@dimen/layout_size_3_small"
         android:text="@string/gitee"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

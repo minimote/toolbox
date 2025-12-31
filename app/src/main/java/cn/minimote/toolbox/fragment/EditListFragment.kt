@@ -6,26 +6,22 @@
 package cn.minimote.toolbox.fragment
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import cn.minimote.toolbox.R
+import cn.minimote.toolbox.activity.MainActivity
 import cn.minimote.toolbox.adapter.EditListAdapter
-import cn.minimote.toolbox.ui.widget.MyDividerItemDecoration
-import cn.minimote.toolbox.viewModel.MyViewModel
-import dagger.hilt.android.AndroidEntryPoint
 
 
-@AndroidEntryPoint
-class EditListFragment : Fragment() {
+class EditListFragment : BaseShadowListFragment() {
 
-    private val viewModel: MyViewModel by activityViewModels()
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: EditListAdapter
+
+    override fun getAdapter(): RecyclerView.Adapter<*> {
+        return EditListAdapter(
+            context = requireActivity(),
+            viewModel = viewModel,
+            lifecycleOwner = viewLifecycleOwner,
+            myActivity = requireActivity() as MainActivity,
+        )
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,52 +41,5 @@ class EditListFragment : Fragment() {
         viewModel.toolListSizeChanged.value = false
     }
 
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_edit_list, container, false)
-//        this::class.simpleName?.let { viewModel.updateFragmentName(it) }
-//        Log.i("${this::class.simpleName}", "当前：${viewModel.fragmentName.value}")
-
-        // 初始化 RecyclerView
-        recyclerView = view.findViewById(R.id.recyclerView_edit_list)
-        recyclerView.layoutManager = LinearLayoutManager(context)
-        adapter = EditListAdapter(
-            context = requireActivity(),
-            viewModel = viewModel,
-            lifecycleOwner = viewLifecycleOwner,
-        )
-        recyclerView.adapter = adapter
-
-        val context = requireContext()
-        // 添加分割线
-        recyclerView.addItemDecoration(
-            MyDividerItemDecoration(
-                context = context,
-                dividerColor = context.getColor(R.color.transparent),
-                width = resources.getDimension(R.dimen.layout_size_3_script).toInt(),
-            )
-        )
-
-        return view
-    }
-
-
-//    override fun onDestroyView() {
-//        super.onDestroyView()
-//    }
-
-
-//    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-//        super.onViewCreated(view, savedInstanceState)
-//    }
-
-//    override fun onDestroyView() {
-//        super.onDestroyView()
-//        removeObserver()
-//    }
 
 }

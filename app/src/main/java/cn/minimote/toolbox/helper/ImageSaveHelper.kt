@@ -11,11 +11,11 @@ import android.graphics.drawable.Drawable
 import android.media.MediaScannerConnection
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.core.graphics.drawable.toBitmap
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.activity.MainActivity
 import cn.minimote.toolbox.constant.MenuList
 import cn.minimote.toolbox.constant.MenuType
+import cn.minimote.toolbox.helper.IconHelper.toBitmap
 import cn.minimote.toolbox.viewModel.MyViewModel
 import java.io.File
 import java.io.FileOutputStream
@@ -24,24 +24,24 @@ import java.io.FileOutputStream
 object ImageSaveHelper {
 
 
-    fun setPopupMenu(
-        imageView: ImageView,
+    fun ImageView.setSavePopupMenuListener(
         fileName: String,
         viewModel: MyViewModel,
-        activity: MainActivity,
+        myActivity: MainActivity,
+        drawable: Drawable = this.drawable,
         quality: Int = 100,
         imagePath: File = viewModel.savePath,
     ) {
 
         // 禁用振动反馈
-        imageView.isHapticFeedbackEnabled = false
-        imageView.setOnLongClickListener {
+        this.isHapticFeedbackEnabled = false
+        this.setOnLongClickListener {
             VibrationHelper.vibrateOnLongPress(viewModel)
-            showMenu(
-                imageView = imageView,
+            setMenu(
+                drawable = drawable,
                 fileName = fileName,
                 viewModel = viewModel,
-                activity = activity,
+                activity = myActivity,
                 quality = quality,
                 imagePath = imagePath,
             )
@@ -51,23 +51,24 @@ object ImageSaveHelper {
 
 
     // 显示弹窗
-    private fun showMenu(
-        imageView: ImageView,
+    private fun setMenu(
+        drawable: Drawable,
         fileName: String,
         viewModel: MyViewModel,
         activity: MainActivity,
+        menuList: List<Int> = MenuList.saveImage,
         quality: Int = 100,
         imagePath: File = viewModel.savePath,
     ) {
         BottomSheetDialogHelper.setAndShowBottomSheetDialog(
             viewModel = viewModel,
             activity = activity,
-            menuList = MenuList.saveImage,
+            menuList = menuList,
             onMenuItemClick = { menuItemId ->
                 when(menuItemId) {
-                    MenuType.SAVE_IMAGE -> {
+                    MenuType.SAVE_IMAGE, MenuType.SAVE_ICON -> {
                         saveImage(
-                            imageView = imageView,
+                            drawable = drawable,
                             fileName = fileName,
                             viewModel = viewModel,
                             context = activity,
@@ -123,15 +124,13 @@ object ImageSaveHelper {
 
 
     fun saveImage(
-        drawable: Drawable? = null,
-        imageView: ImageView? = null,
+        drawable: Drawable,
         fileName: String,
         viewModel: MyViewModel,
         context: Context,
         quality: Int = 100,
         imagePath: File = viewModel.savePath,
     ) {
-        val actualDrawable = drawable ?: imageView?.drawable ?: return
 
         // 检查文件夹是否存在，如果不存在则创建
         if(!imagePath.exists()) {
@@ -158,11 +157,15 @@ object ImageSaveHelper {
         // 将 bitmap 保存为文件
         try {
             FileOutputStream(file).use { out ->
-                actualDrawable.toBitmap().compress(Bitmap.CompressFormat.PNG, quality, out)
+                drawable.toBitmap().compress(
+                    Bitmap.CompressFormat.PNG, quality, out
+                )
 
                 Toast.makeText(
                     context,
-                    context.getString(R.string.has_been_saved_to, imagePath),
+                    context.getString(
+                        R.string.has_been_saved_to, file,
+                    ),
                     Toast.LENGTH_LONG,
                 ).show()
             }
@@ -180,8 +183,11 @@ object ImageSaveHelper {
             e.printStackTrace()
             Toast.makeText(
                 context,
-                context.getString(R.string.image_save_failed),
-                Toast.LENGTH_SHORT,
+                context.getString(
+                    R.string.image_save_failed,
+                    e.message,
+                ),
+                Toast.LENGTH_LONG,
             ).show()
         }
     }

@@ -1,6 +1,6 @@
 <resources>
     <string name="add_button">＋</string>
-    <string name="activity_name">alipays://showpage=codepay</string>
+    <string name="activity_name">cn.minimote.toolbox.activity.MainActivity</string>
     <string name="app_icon">应用图标</string>
     <string name="app_name">工具箱</string>
     <string name="toast_package_name">包名</string>
@@ -11,9 +11,10 @@
     <string name="app_version">版本：%s</string>
     <string name="app_author">作者：%s</string>
     <string name="author_name">微尘 (minimote)</string>
+    <string name="author_name_cn">微尘</string>
     <string name="author_name_en">minimote</string>
-    <string name="textView_package_name">包名</string>
-    <string name="textView_activity_name">活动名</string>
+    <string name="textView_package_name">Package Name</string>
+    <string name="textView_activity_name">Activity Name</string>
     <string name="exit_button">＜ 退出</string>
     <string name="have_reset">已经重置了</string>
     <string name="loading_text">加载中，请稍后…</string>
@@ -54,10 +55,10 @@
     <string name="clear_data">清除数据</string>
     <string name="confirm">确定</string>
     <string name="clear_cache_confirmation">确定要清除缓存吗？</string>
-    <string name="clear_cache_success">缓存清理成功</string>
+    <string name="clear_cache_success">缓存清除成功</string>
     <string name="clear_data_confirmation">确定要清除数据吗？</string>
     <string name="clear_data_success">数据清除成功</string>
-    <string name="supportAuthor">支持作者</string>
+    <string name="support_author">支持作者</string>
     <string name="right">＞</string>
     <string name="supportAuthor_welcome">感谢你的支持！</string>
     <string name="supportAuthor_notice">注：只接受成年朋友的打赏，如果你是未成年的朋友，欢迎你给项目点点 Star，和他人分享一下本项目，这就是对作者最大的支持。</string>
@@ -77,7 +78,7 @@
     <string name="wechat_not_installed">未安装微信</string>
     <string name="unable_to_create_folder">无法创建文件夹</string>
     <string name="has_been_saved_to">已保存到 %s</string>
-    <string name="image_save_failed">保存失败，请手动截图</string>
+    <string name="image_save_failed">保存失败「%s」</string>
     <string name="about_project">关于项目</string>
     <string name="blank">\u3000</string>
     <string name="about_project_notice">\u3000\u3000该项目由微尘 (minimote) 独立开发，遵循 MIT 许可协议，改版请务必保留此声明和署名。</string>
@@ -90,7 +91,7 @@
     <string name="qr_gitee">Gitee 网站二维码</string>
     <string name="qr_github">GitHub 网站二维码</string>
     <string name="openUrlError">无法打开「%s」</string>
-    <string name="clipboard_copy_success">「%s」已复制到剪贴板</string>
+    <string name="clipboard_copy_success">「%1$s」%2$s已复制</string>
     <string name="save_image">保存图片</string>
     <string name="qr_alipay_file_name">工具箱-支付宝收款码.png</string>
     <string name="qr_wechat_file_name">工具箱-微信收款码.png</string>
@@ -101,7 +102,7 @@
     <string name="check_update">检查更新</string>
     <string name="find_new_version">发现新版本</string>
     <string name="latest_version">%s</string>
-    <string name="whether_download_now">%s是否立即下载？</string>
+    <string name="whether_download_now">是否立即下载？</string>
     <string name="latest_version_installed">已经是最新版本了</string>
     <string name="failed_to_check_update">检查更新失败，请检查网络连接</string>
     <string name="error_occurred_while_check_update">检查更新失败</string>
@@ -116,7 +117,7 @@
     <string name="downloading_please_wait">下载中，请稍后…</string>
     <string name="download_failed">下载失败</string>
     <string name="unable_get_download_status">无法获取下载状态，需要手动点击安装</string>
-    <string name="setting_title_update">更新设置</string>
+    <string name="setting_title_update">更新</string>
     <string name="title_check_update_frequency">更新检查频率</string>
     <string name="check_update_frequency_daily">每天</string>
     <string name="check_update_frequency_weekly">每周</string>
@@ -128,14 +129,15 @@
     <string name="last_check_update_time_en">last_check_update_time</string>
     <string name="none">无</string>
     <string name="title_vibration_mode">振动模式</string>
-    <string name="setting_title_vibration">振动设置</string>
+    <string name="setting_title_vibration">振动</string>
     <string name="vibration_mode_on">开启</string>
     <string name="vibration_mode_off">关闭</string>
     <string name="vibration_mode_auto">跟随系统</string>
     <string name="instruction">使用说明</string>
-    <string name="instruction_url">https://gitee.com/minimote/toolbox/blob/master/instruction/%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E.md</string>
+    <string name="instruction_url">https://gitee.com/minimote/toolbox/blob/master/instruction/instruction.md</string>
     <string name="update_log">更新日志</string>
-    <string name="update_log_url">https://gitee.com/minimote/toolbox/blob/master/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97.md</string>
+    <string name="update_log_url">https://gitee.com/minimote/toolbox/blob/master/update_log.md</string>
+    <string name="update_log_content_url">https://gitee.com/minimote/toolbox/raw/master/update_log.md</string>
     <string name="problem_feedback">问题反馈</string>
     <string name="problem_feedback_url">https://gitee.com/minimote/toolbox/issues</string>
     <string name="toast_shortcut_not_supported">设备不支持创建快捷方式</string>
@@ -154,8 +156,7 @@
     <string name="dialog_message_network">当前使用的是「%s」，确定要继续吗？</string>
     <string name="toast_network_access_denied">你设置了不允许使用「%s」</string>
     <string name="dialog_message_network_check_update">当前使用的是「%s」，确定要检查更新吗？</string>
-    <string name="title_network_access_mode">%s：%s</string>
-    <string name="setting_title_network">网络设置</string>
+    <string name="setting_title_network">网络</string>
     <string name="network_access_mode_alert">每次提醒</string>
     <string name="network_access_mode_deny">不允许</string>
     <string name="network_access_mode_allow">允许</string>
@@ -168,9 +169,9 @@
     <string name="group_indicator">分组指示器</string>
     <string name="enter_arrow">进入箭头</string>
     <string name="license_title">开放源代码许可</string>
-    <string name="data_error_and_delete_file">数据出现异常，已经删除</string>
+    <string name="data_error_and_delete_file">数据异常，已删除</string>
     <string name="add_local_app">添加软件</string>
-    <string name="create_shortcut">创建桌面快捷方式</string>
+    <string name="create_shortcut">创建快捷方式</string>
     <string name="add_to_home">收藏</string>
     <string name="already_on_home">已经收藏了</string>
     <string name="collection_success">「%s」收藏成功</string>
@@ -216,13 +217,13 @@
     <string name="only_name">仅名称</string>
     <string name="icon_and_name">图标和名称</string>
     <string name="shortcut_create_failed">创建失败</string>
-    <string name="scheme_list">Scheme 列表</string>
-    <string name="long_press_can_copy_scheme">长按可复制 Scheme</string>
+    <string name="scheme_list">深度链接</string>
+    <string name="link">链接</string>
+    <string name="long_press_can_copy_scheme">长按可复制链接</string>
     <string name="scheme">Scheme</string>
-    <string name="some_scheme">的 Scheme</string>
+    <string name="some_scheme">链接</string>
     <string name="scheme_not_found">Scheme 未配置</string>
-    <string name="setting_title_page_setting">页面设置</string>
-    <string name="restore_default_success">已恢复默认，请注意保存</string>
+    <string name="setting_title_page_setting">页面</string>
     <string name="tool_list_column_count">工具列表的列数</string>
     <string name="scheme_list_column_count">Scheme 列表的列数</string>
     <string name="already_default">已经是默认设置了，无需恢复</string>
@@ -239,7 +240,7 @@
     <string name="single_space">\u3000</string>
     <string name="app_detail">应用详情</string>
     <string name="exit_after_launch">打开工具后退出本软件</string>
-    <string name="setting_title_launch">启动设置</string>
+    <string name="setting_title_launch">启动</string>
     <string name="tool_detail">工具信息</string>
     <string name="default_name">默认名称</string>
     <string name="intent_extras">Intent Extras</string>
@@ -254,7 +255,7 @@
     <string name="tool_name">工具名</string>
     <string name="wooden_fish">木鱼</string>
     <string name="other_tools">其他工具</string>
-    <string name="setting_title_display">显示设置</string>
+    <string name="setting_title_display">显示</string>
     <string name="switch_">开关</string>
     <string name="show_like_icon">显示工具的收藏标志</string>
     <string name="show_unavailable_tools">显示不可用的工具</string>
@@ -262,7 +263,7 @@
     <string name="search_icon">搜索图标</string>
     <string name="hint_search">搜索</string>
     <string name="add_local_app_watch">添加</string>
-    <string name="percent">%d %%</string>
+    <string name="percent">%.2f %%</string>
     <string name="downloading">下载中…</string>
     <string name="cancel_download">取消下载</string>
     <string name="background_download">后台下载</string>
@@ -278,4 +279,55 @@
     <string name="search_history_max_count">搜索历史最大数量</string>
     <string name="search_suggestion_max_count">搜索建议最大数量</string>
     <string name="app_error">程序出错%s</string>
+    <string name="check_update_ignore_network_restrictions">检查更新时忽略网络限制</string>
+    <string name="shortcut_icon">快捷方式图标</string>
+    <string name="search_mode">搜索模式</string>
+    <string name="save_icon">保存图标</string>
+    <string name="backup_and_recovery">备份与恢复</string>
+    <string name="collection_management">收藏管理</string>
+    <string name="setting_management">设置管理</string>
+    <string name="import_collection">导入收藏</string>
+    <string name="export_collection">导出收藏</string>
+    <string name="clear_collection">清空收藏</string>
+    <string name="import_setting">导入设置</string>
+    <string name="export_setting">导出设置</string>
+    <string name="restore_setting">恢复默认设置</string>
+    <string name="release_notes_file_name">更新日志.md</string>
+    <string name="update_path">%1$s → %2$s\n\n</string>
+
+    <string name="download_progress">下载进度条</string>
+    <string name="recommend_setting">使用推荐设置</string>
+
+    <string name="unknown_file">未知文件</string>
+
+    <string name="export_success">导出成功</string>
+    <string name="export_success_with_filename">「%s」导出成功</string>
+    <string name="export_failed">导出失败</string>
+    <string name="export_cancel">导出取消</string>
+
+    <string name="import_success">导入成功</string>
+    <string name="import_cancel">导入取消</string>
+    <string name="import_failed">导入失败</string>
+
+    <string name="confirm_clear_collection">确定要清空收藏吗？</string>
+    <string name="clear_collection_success">收藏清空成功</string>
+
+    <string name="unknown_error">未知错误</string>
+    <string name="collection">收藏</string>
+    <string name="confirm_restore_default_setting">确定要恢复默认设置吗？</string>
+    <string name="restore_default_setting_success">已恢复默认设置</string>
+    <string name="confirm_import_collection">确定要导入收藏吗？导入后会覆盖当前收藏</string>
+    <string name="confirm_import_setting">确定要导入设置吗？导入后会覆盖当前设置</string>
+    <string name="confirm_use_recommend_setting">确定要使用推荐设置吗？使用后会覆盖当前设置</string>
+    <string name="use_recommended_setting_success">已覆盖为推荐设置</string>
+    <string name="notice_title">声明</string>
+    <string name="long_press_menu">长按菜单管理</string>
+    <string name="remove">移除</string>
+    <string name="move_to_top">移到最前</string>
+    <string name="move_to_bottom">移到最后</string>
+    <string name="dynamic_shortcut_title">长按菜单 (%1$d/%2$d)</string>
+    <string name="no_dynamic_shortcut">暂未添加</string>
+    <string name="some_error">出错「%s」</string>
+    <string name="reach_max_shortcut_count">已达到最大数量「%d」</string>
+
 </resources>

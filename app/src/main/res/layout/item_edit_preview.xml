@@ -6,18 +6,19 @@
 
     <TextView
         android:id="@+id/textView_name"
-        style="@style/TextView.Toolbox.EditName.Dark"
+        style="@style/TextView.Toolbox.Dark"
+        android:textStyle="bold"
         android:gravity="center"
-        android:textSize="@dimen/text_size_1_large"
         android:text="@string/widgetPreview"
-        app:layout_constraintStart_toStartOf="parent"
+        android:textSize="@dimen/text_size_1_large"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         style="@style/RecyclerView.Toolbox.Dark"
-        android:layout_marginVertical="@dimen/layout_size_2_footnote"
+        android:layout_marginVertical="@dimen/layout_size_2_small"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

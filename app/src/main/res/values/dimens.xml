@@ -1,33 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 字体大小 -->
-    <dimen name="text_size_4_tiny">10sp</dimen>
-    <dimen name="text_size_3_script">12sp</dimen>
-    <dimen name="text_size_2_footnote">14sp</dimen>
+    <dimen name="text_size_4_small">10sp</dimen>
+    <dimen name="text_size_3_small">12sp</dimen>
+    <dimen name="text_size_2_small">14sp</dimen>
     <dimen name="text_size_1_small">16sp</dimen>
     <dimen name="text_size_0_normal">18sp</dimen>
     <dimen name="text_size_1_large">20sp</dimen>
-    <dimen name="text_size_2_Large">22sp</dimen>
-    <dimen name="text_size_3_LARGE">24sp</dimen>
-    <dimen name="text_size_4_huge">28sp</dimen>
-    <dimen name="text_size_5_Huge">32sp</dimen>
+    <dimen name="text_size_2_large">22sp</dimen>
+    <dimen name="text_size_3_large">24sp</dimen>
+    <dimen name="text_size_4_large">28sp</dimen>
+    <dimen name="text_size_5_large">32sp</dimen>
 
     <!-- 布局大小 -->
-    <dimen name="layout_size_5_very_tiny">1dp</dimen>
-    <dimen name="layout_size_4_tiny">2dp</dimen>
-    <dimen name="layout_size_3_script">4dp</dimen>
-    <dimen name="layout_size_2.5_script">6dp</dimen>
-    <dimen name="layout_size_2_footnote">8dp</dimen>
-    <dimen name="layout_size_1.5_footnote">12dp</dimen>
+    <dimen name="layout_size_5_small">1dp</dimen>
+    <dimen name="layout_size_4_small">2dp</dimen>
+    <dimen name="layout_size_3_small">4dp</dimen>
+    <dimen name="layout_size_2_5_small">6dp</dimen>
+    <dimen name="layout_size_2_small">8dp</dimen>
+    <dimen name="layout_size_1_75_small">10dp</dimen>
+    <dimen name="layout_size_1_5_small">12dp</dimen>
+    <dimen name="layout_size_1_25_small">14dp</dimen>
     <dimen name="layout_size_1_small">16dp</dimen>
+    <dimen name="layout_size_0_5_small">20dp</dimen>
     <dimen name="layout_size_0_normal">24dp</dimen>
     <dimen name="layout_size_1_large">32dp</dimen>
-    <dimen name="layout_size_1.5_large">48dp</dimen>
-    <dimen name="layout_size_2_Large">64dp</dimen>
-    <dimen name="layout_size_2.5_Large">96dp</dimen>
-    <dimen name="layout_size_3_LARGE">128dp</dimen>
-    <dimen name="layout_size_4_huge">256dp</dimen>
-    <dimen name="layout_size_5_Huge">512dp</dimen>
+    <dimen name="layout_size_1_5_large">48dp</dimen>
+    <dimen name="layout_size_2_large">64dp</dimen>
+    <dimen name="layout_size_2_5_large">96dp</dimen>
+    <dimen name="layout_size_3_large">128dp</dimen>
+    <dimen name="layout_size_4_large">256dp</dimen>
+    <dimen name="layout_size_5_large">512dp</dimen>
+
+    <!-- 页面间距 -->
+    <dimen name="layout_size_fragment_gapSize">@dimen/layout_size_4_small</dimen>
+    <!-- 工具标题垂直 padding -->
+    <dimen name="layout_size_toolTile_vertical_padding">10dp</dimen>
+    <!-- Tab 底部 Padding -->
+    <dimen name="tabPaddingBottom">0dp</dimen>
     <!-- 弹窗最大宽度 -->
     <dimen name="layout_size_dialog_maxWidth">450dp</dimen>
     <!-- 弹窗最大高度 -->
@@ -36,8 +46,38 @@
     <dimen name="layout_size_image_ratio">0.7</dimen>
     <!-- 图片比例(手表) -->
     <dimen name="layout_size_image_ratio_watch">0.5</dimen>
+    <!-- 底部菜单顶部横条 -->
+    <dimen name="layout_size_bottom_sheet_top_width_ratio">0.1</dimen>
+    <!-- 长按菜单分隔线 -->
+    <dimen name="layout_size_long_press_menu_divide_width_ratio">0.3</dimen>
+
+    <dimen name="layout_size_icon_size">32dp</dimen>
+    <dimen name="layout_size_icon_padding">0dp</dimen>
 
     <!-- 圆角 -->
-    <dimen name="layout_size_radius_size">12dp</dimen>
+    <dimen name="layout_size_radius_size_1_small">8dp</dimen>
+    <dimen name="layout_size_radius_size_0_normal">12dp</dimen>
+    <dimen name="layout_size_radius_size_1_large">16dp</dimen>
+    <dimen name="layout_size_radius_size_2_large">24dp</dimen>
+
+
     <dimen name="layout_size_shadow_width">24dp</dimen>
+
+    <!-- 渐变阴影高度 -->
+    <dimen name="layout_size_gradient_height">32dp</dimen>
+
+
+    <!-- 底部弹窗padding -->
+    <dimen name="layout_size_bottom_sheet_padding">@dimen/layout_size_2_small</dimen>
+    <!-- 底部弹窗取消按钮margin -->
+    <dimen name="layout_size_bottom_sheet_cancel_margin">@dimen/layout_size_1_5_small</dimen>
+    <!-- 底部弹窗取消按钮padding -->
+    <dimen name="layout_size_bottom_sheet_cancel_padding">@dimen/layout_size_3_small</dimen>
+
+
+    <!-- Dialog 的垂直 padding -->
+    <dimen name="layout_size_dialog_paddingVertical">@dimen/layout_size_3_small</dimen>
+
+
+    <dimen name="layout_size_save_button_gapSize">42dp</dimen>
 </resources>

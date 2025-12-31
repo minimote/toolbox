@@ -19,8 +19,10 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -28,20 +30,23 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.SimpleOnItemTouchListener
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.activity.MainActivity
 import cn.minimote.toolbox.adapter.InstalledAppListAdapter
 import cn.minimote.toolbox.constant.Config
+import cn.minimote.toolbox.constant.UI
 import cn.minimote.toolbox.dataClass.ExpandableGroup
+import cn.minimote.toolbox.helper.BackgroundHelper.setBackgroundImageAndTextSearchMode
 import cn.minimote.toolbox.helper.EditTextHelper
-import cn.minimote.toolbox.helper.LogHelper
+import cn.minimote.toolbox.helper.FragmentHelper
 import cn.minimote.toolbox.helper.SearchHelper
 import cn.minimote.toolbox.helper.VibrationHelper
+import cn.minimote.toolbox.ui.widget.ShadowConstraintLayout
 import cn.minimote.toolbox.viewModel.MyViewModel
 import com.google.android.flexbox.AlignItems
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -50,10 +55,11 @@ import org.json.JSONObject
 import kotlin.math.abs
 
 
-@AndroidEntryPoint
 class InstalledAppListFragment : Fragment() {
 
     private val viewModel: MyViewModel by activityViewModels()
+
+    val myActivity: MainActivity get() = requireActivity() as MainActivity
 
     lateinit var recyclerView: RecyclerView
     private lateinit var adapter: InstalledAppListAdapter
@@ -62,6 +68,10 @@ class InstalledAppListFragment : Fragment() {
     lateinit var editTextSearchBox: EditText
     lateinit var imageButtonClear: ImageButton
     lateinit var buttonCancel: Button
+
+    private lateinit var constraintLayoutBackground: ConstraintLayout
+    private lateinit var imageViewBackground: ImageView
+    private lateinit var textViewSearchMode: TextView
 
 //    private val alpha = UI.ALPHA_3
 //    val originalAlpha = UI.ALPHA_10
@@ -124,13 +134,20 @@ class InstalledAppListFragment : Fragment() {
         progressBar.visibility = View.VISIBLE
         loadingTextView.visibility = View.VISIBLE
 
+        val shadowConstraintLayout =
+            view.findViewById<ShadowConstraintLayout>(R.id.include_shadow_constraintLayout_recyclerView)
+
+        // 初始化 RecyclerView
+        recyclerView = shadowConstraintLayout.recyclerView
+        // 先隐藏 RecyclerView
+        recyclerView.visibility = View.INVISIBLE
+
+        recyclerView.layoutManager = LinearLayoutManager(context)
+
         // 在后台线程获取应用列表
         uiScope.launch {
             viewModel.getInstalledAppCoroutine()
-
-            // 初始化 RecyclerView
-            recyclerView = view.findViewById(R.id.recyclerView_activity_list)
-            recyclerView.layoutManager = LinearLayoutManager(context)
+//            viewModel.getInstalledApp()
 
             // 设置 Adapter
             adapter = InstalledAppListAdapter(
@@ -174,7 +191,10 @@ class InstalledAppListFragment : Fragment() {
                             return false
                         }
 
-                        else -> return false // 不拦截其他事件，保证滚动和越界回弹正常工作
+                        else -> {
+                            // 不拦截其他事件，保证滚动和越界回弹正常工作
+                            return false
+                        }
                     }
                 }
             })
@@ -191,6 +211,8 @@ class InstalledAppListFragment : Fragment() {
                 }
             })
 
+            shadowConstraintLayout.setShadow(viewModel = viewModel)
+
             // 获取搜索历史和建议
             getSearchHistoryAndSuggestion()
 
@@ -201,13 +223,80 @@ class InstalledAppListFragment : Fragment() {
 //            val dividerItemDecoration = DividerItemDecoration(requireContext(), viewModel)
 //            recyclerView.addItemDecoration(dividerItemDecoration)
 
-            // 隐藏加载信息
-            progressBar.visibility = View.GONE
-            loadingTextView.visibility = View.GONE
+
+            // 设置背景
+            setBackground(view)
+
+
+            // 隐藏加载信息时添加淡出动画
+            progressBar.animate()
+                .alpha(0f)
+                .setDuration(UI.ANIMATION_DURATION)
+                .setInterpolator(UI.Interpolator.LINEAR)
+                .withEndAction {
+                    progressBar.visibility = View.INVISIBLE
+                    progressBar.alpha = 1f // 重置透明度以便下次使用
+                }
+                .start()
+
+            loadingTextView.animate()
+                .alpha(0f)
+                .setDuration(UI.ANIMATION_DURATION)
+                .setInterpolator(UI.Interpolator.LINEAR)
+                .withEndAction {
+                    loadingTextView.visibility = View.INVISIBLE
+                    loadingTextView.alpha = 1f // 重置透明度以便下次使用
+                }
+                .start()
+
+            // 显示 RecyclerView
+            recyclerView.animate()
+               .alpha(1f)
+               .setDuration(UI.ANIMATION_DURATION)
+                .setInterpolator(UI.Interpolator.LINEAR)
+               .withEndAction {
+                    recyclerView.visibility = View.VISIBLE
+                }
+               .start()
         }
 
 
         return view
+    }
+
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+//        removeObservers()
+        // 重建 _toolListSizeChangeMap 以确保数据一致性
+        viewModel.builtChangeSizeMap()
+        viewModel.updateToolListSizeChanged()
+    }
+
+
+    private fun setBackground(view: View) {
+
+        constraintLayoutBackground = view.findViewById(R.id.constraintLayout_background)
+        imageViewBackground = view.findViewById(R.id.imageView_background)
+        textViewSearchMode = view.findViewById(R.id.textView_searchMode)
+
+        setBackgroundImageAndTextSearchMode(
+            imageViewBackground = imageViewBackground,
+            textViewBackground = textViewSearchMode,
+            viewModel = viewModel,
+        )
+
+        hideBackground()
+    }
+
+
+    private  fun showBackground() {
+        constraintLayoutBackground.visibility = View.VISIBLE
+    }
+
+
+    private fun hideBackground() {
+        constraintLayoutBackground.visibility = View.INVISIBLE
     }
 
 
@@ -272,7 +361,16 @@ class InstalledAppListFragment : Fragment() {
         searchQuery = ""
 
         editTextSearchBox = view.findViewById(R.id.editText_searchBox)
-        editTextSearchBox.visibility = View.VISIBLE
+
+        // 显示 editTextSearchBox
+        editTextSearchBox.animate()
+            .alpha(1f)
+            .setDuration(UI.ANIMATION_DURATION)
+            .setInterpolator(UI.Interpolator.LINEAR)
+            .withEndAction {
+                editTextSearchBox.visibility = View.VISIBLE
+            }
+            .start()
 
         imageButtonClear = view.findViewById(R.id.imageButton_clear)
         imageButtonClear.visibility = View.GONE
@@ -300,7 +398,7 @@ class InstalledAppListFragment : Fragment() {
             },
             onFocusGained = {
                 VibrationHelper.vibrateOnClick(viewModel)
-                if(viewModel.searchMode.value != true) {
+                if(viewModel.searchModeInstalledAppList.value != true) {
 //                        updateSearchModeWithoutNotify(true)
 //                    } else {
                     enterSearchMode()
@@ -310,7 +408,7 @@ class InstalledAppListFragment : Fragment() {
 //                viewModel.searchMode.value = false
             },
             onClick = {
-                LogHelper.e("点击搜索框", "点击搜索框")
+//                LogHelper.e("点击搜索框", "点击搜索框")
                 VibrationHelper.vibrateOnClick(viewModel)
             },
             onEditorAction = {
@@ -329,7 +427,7 @@ class InstalledAppListFragment : Fragment() {
         buttonCancel.visibility = View.GONE
         // 设置取消按钮点击事件
         buttonCancel.setOnClickListener {
-            LogHelper.e("取消按钮点击", "取消按钮点击")
+//            LogHelper.e("取消按钮点击", "取消按钮点击")
             VibrationHelper.vibrateOnClick(viewModel)
 //            isSearchMode = false
             exitSearchMode()
@@ -357,6 +455,7 @@ class InstalledAppListFragment : Fragment() {
 
         updateSearchHistoryAndSuggestionList()
         refreshToolList(searchHistoryAndSuggestionList)
+        showBackground()
 //        Toast.makeText(context, "显示搜索历史", Toast.LENGTH_SHORT).show()
     }
     // 显示搜索结果
@@ -364,6 +463,7 @@ class InstalledAppListFragment : Fragment() {
 //        expandableRecyclerView.visibility = View.VISIBLE
         recyclerView.layoutManager = LinearLayoutManager(context)
         refreshToolList()
+        showBackground()
 //        Toast.makeText(context, "显示搜索结果", Toast.LENGTH_SHORT).show()
     }
     // 显示原始列表
@@ -371,6 +471,7 @@ class InstalledAppListFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(context)
         refreshToolList()
         restoreScrollState()
+        hideBackground()
 //        Toast.makeText(context, "显示原始列表", Toast.LENGTH_SHORT).show()
     }
 
@@ -509,13 +610,15 @@ class InstalledAppListFragment : Fragment() {
     // 更新搜索模式但不触发观察者
     fun updateSearchModeWithoutNotify(value: Boolean) {
         ignoreSearchModeChange = true
-        viewModel.searchMode.value = value
+        viewModel.searchModeInstalledAppList.value = value
     }
 
 
     // 设置观察者
     private fun setupObservers() {
         searchModeObserver = Observer { isSearchMode ->
+            FragmentHelper.updateEnableBackPressedCallback(viewModel)
+
             // 忽略搜索模式变化
             if(ignoreSearchModeChange) {
                 ignoreSearchModeChange = false
@@ -527,21 +630,13 @@ class InstalledAppListFragment : Fragment() {
                 exitSearchMode()
             }
         }
-        viewModel.searchMode.observe(viewLifecycleOwner, searchModeObserver)
+        viewModel.searchModeInstalledAppList.observe(viewLifecycleOwner, searchModeObserver)
     }
 
 
     // 移除观察者
     private fun removeObservers() {
-        viewModel.searchMode.removeObserver(searchModeObserver)
+        viewModel.searchModeInstalledAppList.removeObserver(searchModeObserver)
     }
 
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        removeObservers()
-        // 重建 _toolListSizeChangeMap 以确保数据一致性
-        viewModel.builtChangeSizeMap()
-        viewModel.updateToolListSizeChanged()
-    }
 }

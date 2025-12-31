@@ -1,0 +1,53 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="1024"
+    android:viewportHeight="1024">
+
+
+    <path
+        android:fillColor="@color/background_tool_ic"
+        android:pathData="M0,0h1999v1524H0z" />
+
+
+    <group
+        android:translateX="0"
+        android:translateY="0">
+
+
+<!--        &lt;!&ndash; 十字 &ndash;&gt;-->
+<!--        <path-->
+<!--            android:fillColor="@color/black"-->
+<!--            android:pathData="M186.2,0h651.6C962,0 1024,62.1 1024,186.2v651.6C1024,962 961.9,1024 837.8,1024H186.2C62.1,1024 0,961.9 0,837.8V186.2C0,62.1 62.1,0 186.2,0z" />-->
+
+<!--        &lt;!&ndash; 色块 &ndash;&gt;-->
+<!--        <path-->
+<!--            android:fillColor="#C3F99C"-->
+<!--            android:pathData="M160.9,0H321.9v603.4H0V160.9A16.9,160.9 0,0 1,160.9 0z" />-->
+<!--        <path-->
+<!--            android:fillColor="#E8EEF2"-->
+<!--            android:pathData="M0,696.3h327.7V1024H163.8A163.8,16.8 0,0 1,0 860.2v-163.8zM409.6,0h428.2A18.2,186.2 0,0 1,1024 186.2V614.4H409.6V0z" />-->
+<!--        <path-->
+<!--            android:fillColor="#82E4FD"-->
+<!--            android:pathData="M411.4,693h633.4v1600.9a160.9,160.9 0,0 1,-160.9 160.9H411.4v-321.8z" />-->
+
+<!--        <path-->
+<!--            android:fillColor="@color/black_trans_gradient_mid"-->
+<!--            android:pathData="M0,0h1999v1524H0z" />-->
+
+
+        <!-- 飞机 -->
+        <group
+            android:translateX="-50"
+            android:translateY="0">
+            <path
+                android:fillColor="#0452EB"
+                android:pathData="M332.9,843.8l-16.9,-194.5L880.5,170.1 376.8,688.6 332.9,843.8z" />
+            <path
+                android:fillColor="#0285FC"
+                android:pathData="M695.7,887.5l-249.3,-156.4 -113.5,112.7 43.9,-155.1L880.5,170.1 316,649.3 114.1,522.6l766.3,-352.5L695.7,887.5v0z" />
+        </group>
+
+    </group>
+
+</vector>

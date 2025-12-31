@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/ConstraintLayout.Toolbox.Dark"
+    android:layout_marginHorizontal="0px"
+    android:background="@color/transparent">
+
+    <TextView
+        android:id="@+id/textView_menuItem"
+        style="@style/TextView.Toolbox.BottomSheetItem.Dark"
+        android:layout_marginHorizontal="@dimen/layout_size_bottom_sheet_cancel_margin"
+        android:layout_marginTop="@dimen/layout_size_2_small"
+        android:layout_marginBottom="@dimen/layout_size_bottom_sheet_cancel_margin"
+        android:background="@drawable/background_bottom_sheet_cancel"
+        android:padding="@dimen/layout_size_bottom_sheet_cancel_padding"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

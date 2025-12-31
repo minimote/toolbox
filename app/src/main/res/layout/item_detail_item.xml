@@ -14,8 +14,8 @@
         android:id="@+id/textView_name"
         style="@style/TextView.Toolbox.EditName.Dark"
         android:layout_width="wrap_content"
-        android:layout_margin="@dimen/layout_size_3_script"
-        android:layout_marginStart="@dimen/layout_size_2_footnote"
+        android:layout_margin="@dimen/layout_size_3_small"
+        android:layout_marginStart="@dimen/layout_size_2_small"
         android:text="@string/textView_package_name"
         app:layout_constraintStart_toEndOf="@id/point"
         app:layout_constraintTop_toTopOf="parent" />

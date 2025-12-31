@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    style="@style/ConstraintLayout.Toolbox.RecyclerView.Dark">
+    style="@style/ConstraintLayout.Toolbox.RecyclerView.Dark"
+    android:background="@color/transparent">
 
 
     <ImageView
         android:id="@+id/imageView_appIcon"
         style="@style/ImageView.Toolbox.AppIcon.MyList.Dark"
         android:contentDescription="@string/app_icon"
-        android:src="@drawable/ic_toolbox"
+        android:src="@mipmap/ic_launcher"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

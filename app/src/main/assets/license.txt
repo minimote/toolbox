@@ -20,6 +20,8 @@
 ─ Gson (com.google.code.gson:gson)
 ─ SmartRefreshLayout (io.github.scwang90:refresh-layout-kernel)
 ─ TinyPinyin (com.github.promeg:tinypinyin)
+─ Coil (io.coil-kt.coil3:coil-compose)
+─ Document File(androidx.documentfile)
 
 　　使用 MIT 的组件：
 ─ Hilt (com.google.dagger:hilt-android, hilt-android-compiler)

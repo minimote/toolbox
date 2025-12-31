@@ -1,19 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/constraintLayout_container"
     style="@style/ConstraintLayout.Toolbox.Clickable.Dark"
     android:background="@drawable/background_ripple_round"
-    android:paddingVertical="@dimen/layout_size_2_footnote"
-    android:paddingStart="@dimen/layout_size_2.5_script">
+    android:paddingVertical="@dimen/layout_size_2_small"
+    android:paddingStart="@dimen/layout_size_2_5_small">
+
+
+    <!--    <include-->
+    <!--        android:id="@+id/layout_shadow_image_view"-->
+    <!--        layout="@layout/layout_shadow_image_view"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toTopOf="parent" />-->
+
 
     <ImageView
         android:id="@+id/imageView_app_icon"
         style="@style/ImageView.Toolbox.AppIcon.Dark"
         android:contentDescription="@string/app_icon"
-        android:src="@drawable/ic_toolbox"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="@style/ProgressBar.Icon.Toolbox.Dark"
+        app:layout_constraintBottom_toBottomOf="@id/imageView_app_icon"
+        app:layout_constraintEnd_toEndOf="@id/imageView_app_icon"
+        app:layout_constraintStart_toStartOf="@id/imageView_app_icon"
+        app:layout_constraintTop_toTopOf="@id/imageView_app_icon" />
+
 
     <TextView
         android:id="@+id/textView_app_name"
@@ -38,7 +59,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_end="42dp" />
+        app:layout_constraintGuide_end="45dp" />
 
     <com.google.android.material.switchmaterial.SwitchMaterial
         android:id="@+id/switch_whether_show_in_home"

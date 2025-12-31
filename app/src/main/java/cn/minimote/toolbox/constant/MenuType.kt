@@ -19,6 +19,8 @@ import cn.minimote.toolbox.constant.MenuType.SortOrder.USE_CNT_LESS_TO_MORE
 import cn.minimote.toolbox.constant.MenuType.SortOrder.USE_CNT_MORE_TO_LESS
 
 object MenuType {
+    // 顶部标识
+    const val TOP = -1
     // 创建快捷方式
     const val CREATE_SHORTCUT = 0
     // 添加到主页或从移除
@@ -81,4 +83,15 @@ object MenuType {
     // 工具信息
     const val TOOL_DETAIL = 19
     const val WIDGET_DETAIL = 20
+
+
+    // 保存图标
+    const val SAVE_ICON = 21
+
+
+    object LongPress {
+        const val MOVE_TO_TOP = 22
+        const val MOVE_TO_BOTTOM = 23
+        const val REMOVE = 24
+    }
 }

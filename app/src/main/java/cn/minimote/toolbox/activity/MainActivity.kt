@@ -6,102 +6,123 @@
 package cn.minimote.toolbox.activity
 
 import android.content.Intent
-import android.content.res.Configuration
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.constraintlayout.widget.Guideline
-import androidx.fragment.app.FragmentContainerView
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Observer
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
-import cn.minimote.toolbox.adapter.MyFragmentStateAdapter
+import cn.minimote.toolbox.constant.File.FileOperationResult
 import cn.minimote.toolbox.constant.FragmentName
-import cn.minimote.toolbox.constant.ViewPaper
 import cn.minimote.toolbox.helper.CheckUpdateHelper
 import cn.minimote.toolbox.helper.ConfigHelper.loadAllConfig
 import cn.minimote.toolbox.helper.ConfigHelper.saveUserConfig
 import cn.minimote.toolbox.helper.DialogHelper
+import cn.minimote.toolbox.helper.FileHelper
 import cn.minimote.toolbox.helper.FragmentHelper
+import cn.minimote.toolbox.helper.LogHelper
 import cn.minimote.toolbox.helper.SchemeHelper
 import cn.minimote.toolbox.helper.VibrationHelper
-import cn.minimote.toolbox.pageTransformer.ViewPager2Transformer
 import cn.minimote.toolbox.ui.widget.DraggableTextView
 import cn.minimote.toolbox.viewModel.MyViewModel
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
-import dagger.hilt.android.AndroidEntryPoint
+import java.io.File
 
 
-@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-    private val viewModel: MyViewModel by viewModels()
+    val viewModel: MyViewModel by viewModels()
 
 
-    //    private lateinit var buttonTime: Button
-    private lateinit var buttonExit: Button
-    private lateinit var buttonSave: Button
+    private lateinit var buttonExit: TextView
+    private lateinit var buttonSave: TextView
     private lateinit var draggableTextView: DraggableTextView
-
-    lateinit var viewPager: ViewPager2
-    private lateinit var tabLayout: TabLayout
-
-    lateinit var constraintLayoutOrigin: FragmentContainerView
-
-    // 用于更新时间
-//    private val handler = android.os.Handler(Looper.getMainLooper())
-//    private var shouldUpdateTime = true
-//    private val runnable = object : Runnable {
-//        override fun run() {
-//            // 1 秒更新一次
-//            handler.postDelayed(this, 1000)
-//            // 编辑模式下显示的是排序，所以不更新时间
-//            if(shouldUpdateTime) {
-//                updateTime()
-//            }
-//        }
-//    }
 
     // 观察者
     private lateinit var widgetListOrderWasModifiedObserver: Observer<Boolean>
     private lateinit var widgetListSizeWasModifiedObserver: Observer<Boolean>
     private lateinit var widgetWasModifiedObserver: Observer<Boolean>
+    private lateinit var dynamicShortcutListWasChangedObserver: Observer<Boolean>
 
     private lateinit var multiSelectModeObserver: Observer<Boolean>
     private lateinit var sortModeObserver: Observer<Boolean>
     private lateinit var fragmentNameObserver: Observer<String>
+    private lateinit var enableBackPressedCallbackObserver: Observer<Boolean>
 
     private lateinit var settingWasModifiedObserver: Observer<Boolean>
 
     private lateinit var selectedIdsObserver: Observer<MutableSet<String>>
 
-    val containerId: Int = R.id.constraintLayout_origin
+    private lateinit var backPressedCallback: OnBackPressedCallback
+
+    // Navigation Component
+    lateinit var navController: NavController
+
+    lateinit var viewPager: ViewPager2
 
 
-    @RequiresApi(Build.VERSION_CODES.R)
+    private lateinit var importFileLauncher: ActivityResultLauncher<Array<String>>
+    private lateinit var exportFileLauncher: ActivityResultLauncher<Intent>
+
+    // 用于存储回调的变量
+    private var importCallback: ((Int) -> Unit)? = null
+    private var exportCallback: ((Int, Uri?) -> Unit)? = null
+    private var importDestinationFile: File? = null
+    private var exportSourceFile: File? = null
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        // 安卓12及以下的启动页
+        installSplashScreen()
+
         super.onCreate(savedInstanceState)
 //        Log.d("MainActivity", "onCreate")
-//        Log.d("MainActivity", "ViewModel initialized: ${System.identityHashCode(viewModel)}")
 
-        // 默认暗色模式(使用后会出现亮色模式无法打开的问题)
-//        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-        enableEdgeToEdge()
-        setContentView(R.layout.layout_main)
+        // 默认暗色模式
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        enableEdgeToEdge(
+//            statusBarStyle = SystemBarStyle.dark(Color.YELLOW),
+//            navigationBarStyle = SystemBarStyle.dark(Color.YELLOW)
+        )
+//        // 状态栏和导航栏颜色
+//        window.statusBarColor = Color.BLACK
+//        window.navigationBarColor = Color.BLACK
+
+
+        setContentView(R.layout.activity_main)
+//// 获取屏幕最小宽度
+//        val metrics = resources.displayMetrics
+//        val smallestWidth = metrics.widthPixels.coerceAtMost(metrics.heightPixels) / metrics.density
+//        LogHelper.e("最小宽度: ${smallestWidth}dp", "最小宽度: ${smallestWidth}dp")
+
 
         // 加载配置文件
         viewModel.loadAllConfig()
+//        viewModel.checkHashCode()
+        // 加载保存的数据
+        viewModel.loadStorageActivities()
 
-        constraintLayoutOrigin = findViewById(containerId)
+
+        // 设置文件操作
+        setFileOperationLaunchers()
+
+        // 启动日志捕获
+        LogHelper.startDebugLogCapture(viewModel)
+
+//        constraintLayoutOrigin = findViewById(containerId)
 
         // 适配系统返回手势和按钮
         setupBackPressedCallback()
@@ -112,8 +133,9 @@ class MainActivity : AppCompatActivity() {
         // 设置按钮
         setupButtons()
 
-        // 设置 ViewPager
-        setupViewPager()
+        // 设置 Navigation Component
+        setupNavigation()
+
 
         val uri: Uri? = intent.data
         if(uri != null) {
@@ -129,14 +151,13 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
-
     }
 
 
     // 后台已经有该软件的实例也能处理 Scheme
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        if(intent != null && intent.data != null) {
+        if(intent.data != null) {
             SchemeHelper.handleScheme(
                 uri = intent.data!!,
                 myActivity = this,
@@ -146,44 +167,59 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    override fun onDestroy() {
-        super.onDestroy()
-//        Log.i("MainActivity", "onDestroy")
-        // 移除更新时间的任务
-//        handler.removeCallbacks(runnable)
-//        unregisterReceiver(timeChangeReceiver)
-//        backgroundThread.quitSafely()
-        // 移除观察者
-        removeObservers()
+    override fun onPause() {
+//        LogHelper.e("主活动", "onPause")
+//        viewModel.updateLastSelectedPosition(viewPager.currentItem)
+        setLiveDates()
+        super.onPause()
     }
 
 
     override fun onResume() {
         super.onResume()
-        viewPager.setCurrentItem(viewModel.getLastSelectedPosition(), false)
+        setLiveDates()
     }
 
 
-//    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-//        super.onRestoreInstanceState(savedInstanceState)
-//        // 恢复保存的状态
-//        Log.i("MainActivity", "onRestoreInstanceState")
-////        printBackStackEntries()
-//    }
+    override fun onDestroy() {
+        super.onDestroy()
+        // 移除观察者
+        removeObservers()
+    }
+
+
+    private fun setLiveDates() {
+        viewModel.multiselectMode.value = false
+        viewModel.sortMode.value = false
+        viewModel.searchModeToolList.value = false
+        viewModel.searchModeInstalledAppList.value = false
+        viewModel.searchModeSchemeList.value = false
+    }
 
 
     // 适配系统返回手势和按钮
     private fun setupBackPressedCallback() {
-        //TODO: 能触发系统动画吗
-        val callback = object : OnBackPressedCallback(true) {
+        backPressedCallback = object : OnBackPressedCallback(false) {
             override fun handleOnBackPressed() {
-                FragmentHelper.returnFragment(
-                    viewModel = viewModel,
+                FragmentHelper.myHandleOnBackPressed(
                     activity = this@MainActivity,
+                    viewModel = viewModel,
                 )
+//                if(!navController.navigateUp()) {
+//                    finish()
+//                }
             }
         }
-        onBackPressedDispatcher.addCallback(this, callback)
+        onBackPressedDispatcher.addCallback(
+            this,
+            backPressedCallback,
+        )
+    }
+
+
+    // 默认返回
+    fun defaultReturn() {
+        onBackPressedDispatcher.onBackPressed()
     }
 
 
@@ -194,6 +230,7 @@ class MainActivity : AppCompatActivity() {
             draggableTextView = findViewById(R.id.draggableTextView)
             draggableTextView.visibility = View.INVISIBLE
             draggableTextView.viewModel = viewModel
+
             // 将手机顶部的顶部按钮间距设为 0px
             val guideline = findViewById<Guideline>(R.id.guideline4)
             guideline.setGuidelineBegin(0)
@@ -206,11 +243,7 @@ class MainActivity : AppCompatActivity() {
         buttonExit = findViewById(R.id.button_exit)
         buttonExit.setOnClickListener {
             VibrationHelper.vibrateOnClick(viewModel)
-//            returnOrExit()
-            FragmentHelper.returnFragment(
-                viewModel = viewModel,
-                activity = this@MainActivity,
-            )
+            defaultReturn()
         }
 
 
@@ -285,6 +318,16 @@ class MainActivity : AppCompatActivity() {
                     return@setOnClickListener
                 }
 
+                FragmentName.SCHEME_LIST_FRAGMENT -> {
+                    viewModel.saveDynamicShortcutList()
+                    Toast.makeText(
+                        this@MainActivity,
+                        getString(R.string.save_success),
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                    return@setOnClickListener
+                }
+
             }
 
             viewModel.editedTool.value?.lastModifiedTime = System.currentTimeMillis()
@@ -299,28 +342,6 @@ class MainActivity : AppCompatActivity() {
             hideSaveButton()
         }
 
-        // 第一次更新时间
-//        updateTime()
-//        handler.post(runnable)
-//        timeChangeReceiver = TimeChangeReceiver(
-//            shouldUpdateTime = {
-//                return@TimeChangeReceiver true
-//            },
-//            updateAction = {
-//                updateTime()
-//            }
-//        )
-
-//        val filter = IntentFilter().apply {
-//            addAction(Intent.ACTION_TIME_CHANGED)
-//            addAction(Intent.ACTION_TIMEZONE_CHANGED)
-//        }
-//
-//        registerReceiver(timeChangeReceiver, filter)
-
-
-        // 设置时间
-//        setupTimeButton()
     }
 
 
@@ -336,6 +357,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
     // 隐藏保存按钮
     private fun hideSaveButton(text: String = getString(R.string.save)) {
         if(viewModel.isWatch) {
@@ -348,282 +370,23 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    // 设置时间
-//    private fun setupTimeButton() {
-//        buttonTime = findViewById(R.id.button_time)
-////        buttonTime.setOnClickListener {
-//////            Log.e(viewModel.getFragmentName(), viewModel.editMode.value.toString())
-////            if(viewModel.editMode.value == true && viewModel.getFragmentName() == FragmentName.WIDGET_LIST_FRAGMENT) {
-////                // 组件排序
-////                VibrationHelper.vibrateOnClick(this, viewModel)
-////                viewModel.sortStoredActivityList()
-////            }
-////        }
-//        // 第一次更新时间
-//        updateTime()
-//        handler.post(runnable)
-//        // 启动后台任务
-////        backgroundHandler.post(runnable)
-//    }
-
-
-//    fun updateTime() {
-//        // 从资源文件中获取时间格式字符串
-//        val timeFormat = getString(R.string.time_format)
-//        // 使用 SimpleDateFormat 格式化当前时间
-//        buttonSave.text = SimpleDateFormat(timeFormat, Locale.getDefault()).format(Date())
-//        buttonSave.isClickable = false
-//        shouldUpdateTime = true
-////        handler.post(runnable)
-//    }
-//
-//
-//    private fun hideTimeAndRestoreClick(text: String = getString(R.string.save)) {
-//        buttonSave.text = text
-//        buttonSave.isClickable = true
-//        shouldUpdateTime = false
-//        // 移除更新时间的任务
-////        handler.removeCallbacks(runnable)
-//    }
-
-
-    // 设置 ViewPager
-    private fun setupViewPager() {
-
-        viewPager = findViewById(R.id.viewPager_origin)
-        tabLayout = findViewById(R.id.tabLayout)
-
-        val adapter = MyFragmentStateAdapter(
-            fragmentActivity = this,
-            viewPager = viewPager,
-            constraintLayoutOrigin = constraintLayoutOrigin,
-            viewModel = viewModel,
-        )
-        viewPager.adapter = adapter
-
-        // 关联 ViewPager2 和 TabLayout
-        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            // 设置每个 Tab 的标题或图标
-            tab.text = FragmentHelper.getFragmentNameString(
-                context = this,
-                fragmentName = ViewPaper.FragmentList[position],
-            )
-
-            // 设置点击事件
-            tab.view.setOnClickListener {
-                val currentPosition = tabLayout.selectedTabPosition
-                if(viewModel.isWatch) {
-                    // 手表没有页面切换振动，所以点击都会振动
-                    VibrationHelper.vibrateOnClick(viewModel)
-                    Toast.makeText(
-                        this@MainActivity,
-                        tab.text,
-                        Toast.LENGTH_SHORT,
-                    ).show()
-                } else {
-                    // 手机有页面切换振动，所以点击时只有点击当前页面才振动
-                    if(currentPosition == position) {
-                        // 点击当前页面 tab 的振动
-                        VibrationHelper.vibrateOnClick(viewModel)
-                    }
-                }
-
-                // 检查是否需要关闭搜索模式
-                if(viewModel.searchMode.value == true &&
-                    position != viewModel.getLastSelectedPosition()
-                ) {
-                    exitSearchMode()
-                }
-                // 更新上一次选中的位置
-                viewModel.updateLastSelectedPosition(position)
-
-
-                // 手动切换页面，不使用切换动画
-                if(currentPosition != position) {
-                    viewPager.setCurrentItem(position, false)
-                }
-            }
-
-            // 拦截 Tab 的选择事件，阻止默认切换
-            tab.view.setOnTouchListener { _, event ->
-                when(event.action) {
-                    android.view.MotionEvent.ACTION_DOWN -> {
-                        // 模拟按下状态，触发涟漪动画
-                        tab.view.isPressed = true
-                        tab.view.refreshDrawableState()
-                        true
-                    }
-
-                    android.view.MotionEvent.ACTION_UP -> {
-                        // 模拟抬起状态，触发涟漪动画
-                        tab.view.isPressed = false
-                        tab.view.refreshDrawableState()
-
-                        // 编辑模式下不允许切换页面
-                        if(viewModel.multiselectMode.value == true) {
-                            VibrationHelper.vibrateOnClick(viewModel)
-                            Toast.makeText(
-                                this@MainActivity,
-                                getString(R.string.multiselect_mode_dont_allow_page_switch),
-                                Toast.LENGTH_SHORT,
-                            ).show()
-                        } else if(viewModel.sortMode.value == true) {
-                            VibrationHelper.vibrateOnClick(viewModel)
-                            Toast.makeText(
-                                this@MainActivity,
-                                getString(R.string.sort_mode_dont_allow_page_switch),
-                                Toast.LENGTH_SHORT,
-                            ).show()
-                        } else {
-                            tab.view.performClick()
-                        }
-                        true
-                    }
-
-                    android.view.MotionEvent.ACTION_CANCEL -> {
-                        // 模拟取消状态，触发涟漪动画
-                        tab.view.isPressed = false
-                        tab.view.refreshDrawableState()
-                        true
-                    }
-
-                    else -> false
-                }
-            }
-
-            if(viewModel.isWatch) {
-                tab.customView = if(position == viewModel.getLastSelectedPosition()) {
-                    layoutInflater.inflate(R.layout.layout_tab_selected_watch, tabLayout, false)
-                } else {
-                    layoutInflater.inflate(R.layout.layout_tab_unselected_watch, tabLayout, false)
-                }
-            } else {
-                tab.customView = if(position == viewModel.getLastSelectedPosition()) {
-                    layoutInflater.inflate(R.layout.layout_tab_selected_phone, tabLayout, false)
-                } else {
-                    layoutInflater.inflate(R.layout.layout_tab_unselected_phone, tabLayout, false)
-                }
-
-                val textViewName =
-                    tab.customView?.findViewById<android.widget.TextView>(R.id.textView_name)
-                textViewName?.text = tab.text
-            }
-        }.attach()
-
-        // 设置 ViewPager 默认显示页面(必须在 TabLayoutMediator.attach() 之后)
-        viewPager.setCurrentItem(viewModel.getLastSelectedPosition(), false)
-
-        // 设置手表
-        if(viewModel.isWatch) {
-            // 手表使用小圆点，并且居中
-            tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-                // 选中时
-                override fun onTabSelected(tab: TabLayout.Tab) {
-                    tab.customView = layoutInflater.inflate(
-                        R.layout.layout_tab_selected_watch, tabLayout, false
-                    )
-                }
-
-                // 未选中时
-                override fun onTabUnselected(tab: TabLayout.Tab) {
-                    tab.customView =
-                        layoutInflater.inflate(
-                            R.layout.layout_tab_unselected_watch,
-                            tabLayout,
-                            false
-                        )
-                }
-
-                // 重新选中时
-                override fun onTabReselected(tab: TabLayout.Tab) {
-                    tab.customView = layoutInflater.inflate(
-                        R.layout.layout_tab_selected_watch, tabLayout, false
-                    )
-                }
-            })
-
-            tabLayout.tabGravity = TabLayout.GRAVITY_CENTER
-            // 设置 TabLayout 的高度
-            tabLayout.layoutParams.height =
-                resources.getDimensionPixelSize(R.dimen.layout_size_1_small)
-        } else { // 非手表设备
-            // 设置页面切换动画
-            viewPager.setPageTransformer(ViewPager2Transformer())
-            tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-                // 选中时
-                override fun onTabSelected(tab: TabLayout.Tab) {
-                    // 页面切换的振动
-                    VibrationHelper.vibrateOnClick(viewModel)
-                    tab.customView = layoutInflater.inflate(
-                        R.layout.layout_tab_selected_phone, tabLayout, false
-                    )
-                    val textViewName =
-                        tab.customView?.findViewById<android.widget.TextView>(R.id.textView_name)
-                    textViewName?.text = tab.text
-                }
-
-                // 未选中时
-                override fun onTabUnselected(tab: TabLayout.Tab) {
-                    tab.customView =
-                        layoutInflater.inflate(
-                            R.layout.layout_tab_unselected_phone,
-                            tabLayout,
-                            false
-                        )
-                    val textViewName =
-                        tab.customView?.findViewById<android.widget.TextView>(R.id.textView_name)
-                    textViewName?.text = tab.text
-                }
-
-                // 重新选中时
-                override fun onTabReselected(tab: TabLayout.Tab) {
-                    tab.customView = layoutInflater.inflate(
-                        R.layout.layout_tab_selected_phone, tabLayout, false
-                    )
-                    val textViewName =
-                        tab.customView?.findViewById<android.widget.TextView>(R.id.textView_name)
-                    textViewName?.text = tab.text
-                }
-            })
-        }
-
-        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-//            override fun onPageSelected(position: Int) {
-//                super.onPageSelected(position)
-//                // 更新上一次选中的位置
-////                lastSelectedPosition = position
-//            }
-
-            override fun onPageScrollStateChanged(state: Int) {
-                super.onPageScrollStateChanged(state)
-                // 当滚动结束时检查是否需要关闭搜索模式
-                if(state == ViewPager2.SCROLL_STATE_IDLE) {
-                    if(viewModel.searchMode.value == true &&
-                        viewPager.currentItem != viewModel.getLastSelectedPosition()
-                    ) {
-                        exitSearchMode()
-                    }
-                    // 更新上一次选中的位置
-                    viewModel.updateLastSelectedPosition(viewPager.currentItem)
-                }
-            }
-        })
+    // 显示退出按钮
+    fun showExitButton() {
+        buttonExit.visibility = View.VISIBLE
     }
 
 
-    fun exitSearchMode() {
-        viewModel.searchMode.value = false
+    // 隐藏退出按钮
+    fun hideExitButton() {
+        buttonExit.visibility = View.INVISIBLE
     }
 
 
-    // 更新 viewPager.isUserInputEnabled
-    private fun updateViewPagerUserInputEnabled(enable: Boolean) {
-        viewPager.isUserInputEnabled = enable
-//        // 同步更新 TabLayout 的点击行为
-//        for(i in 0 until tabLayout.tabCount) {
-//            val tab = tabLayout.getTabAt(i)
-//            tab?.view?.isClickable = enable
-//        }
+    // 设置 Navigation Component
+    private fun setupNavigation() {
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.constraintLayout_origin) as NavHostFragment
+        navController = navHostFragment.navController
     }
 
 
@@ -711,14 +474,12 @@ class MainActivity : AppCompatActivity() {
 
         multiSelectModeObserver = Observer { multiSelectMode ->
 //             LogHelper.e(
-//                 "isEditModeObserver",
-//                 "fragmentName: ${viewModel.getFragmentName()}, isEditMode: $isEditMode"
+//                 "多选观察者",
+//                 "multiSelectMode: $multiSelectMode"
 //             )
-            // 非多选模式才允许滑动
-            updateViewPagerUserInputEnabled(!multiSelectMode)
             if(multiSelectMode) {
 //                buttonAdd.text = getString(R.string.save_button)
-                buttonExit.text = getString(R.string.return_button)
+//                buttonExit.text = getString(R.string.return_button)
 //                hideTimeAndRestoreClick(getString(R.string.delete))
                 // 进入多选模式后，必然选中了一个条目
 //                buttonSave.visibility = View.VISIBLE
@@ -730,34 +491,37 @@ class MainActivity : AppCompatActivity() {
 //                viewModel.widgetListOrderWasModified.value = false
 ////                buttonAdd.text = getString(R.string.add_button)
 //                buttonSave.visibility = View.INVISIBLE
-                buttonExit.text = getString(R.string.exit_button)
+//                buttonExit.text = getString(R.string.exit_button)
 //                buttonSave.text = getString(R.string.save_button)
                 hideSaveButton()
 //                updateTime()
 //                buttonTime.isClickable = false
             }
 //            viewModel.selectedIds.value?.clear()
+            FragmentHelper.updateEnableBackPressedCallback(viewModel)
         }
         viewModel.multiselectMode.observe(this, multiSelectModeObserver)
 
 
         sortModeObserver = Observer { sortMode ->
-            // 非排序模式才允许滑动
-            updateViewPagerUserInputEnabled(!sortMode)
             if(sortMode) {
 //                buttonAdd.visibility = View.INVISIBLE
-                buttonExit.text = getString(R.string.return_button)
+//                buttonExit.text = getString(R.string.return_button)
             } else {
 //                viewModel.widgetListOrderWasModified.value = false
 //                buttonSave.visibility = View.INVISIBLE
                 hideSaveButton()
-                buttonExit.text = getString(R.string.exit_button)
+//                buttonExit.text = getString(R.string.exit_button)
             }
+            FragmentHelper.updateEnableBackPressedCallback(viewModel)
         }
         viewModel.sortMode.observe(this, sortModeObserver)
 
 
         fragmentNameObserver = Observer { fragmentName ->
+
+            FragmentHelper.updateEnableBackPressedCallback(viewModel)
+
 //             Log.e(
 //                 "fragmentNameObserver",
 //                 "fragmentName: $fragmentName, isEditMode: ${viewModel.editMode.value}"
@@ -823,17 +587,17 @@ class MainActivity : AppCompatActivity() {
                     hideSaveButton()
                 }
             }
-            if(fragmentName == FragmentName.WIDGET_LIST_FRAGMENT && viewModel.multiselectMode.value != true && viewModel.sortMode.value != true) {
-                buttonExit.text = getString(R.string.exit_button)
-            } else {
-                buttonExit.text = getString(R.string.return_button)
-            }
+//            if(fragmentName == FragmentName.WIDGET_LIST_FRAGMENT && viewModel.multiselectMode.value != true && viewModel.sortMode.value != true) {
+//                buttonExit.text = getString(R.string.exit_button)
+//            } else {
+//                buttonExit.text = getString(R.string.return_button)
+//            }
 
-            if(fragmentName == FragmentName.WIDGET_LIST_FRAGMENT) {
-                tabLayout.visibility = View.VISIBLE
-            } else {
-                tabLayout.visibility = View.INVISIBLE
-            }
+//            if(fragmentName == FragmentName.WIDGET_LIST_FRAGMENT) {
+//                tabLayout.visibility = View.VISIBLE
+//            } else {
+//                tabLayout.visibility = View.INVISIBLE
+//            }
 
         }
         viewModel.fragmentName.observe(this, fragmentNameObserver)
@@ -874,7 +638,32 @@ class MainActivity : AppCompatActivity() {
             }
         }
         viewModel.selectedIds.observe(this, selectedIdsObserver)
+
+
+        enableBackPressedCallbackObserver = Observer { enableBackPressedCallback ->
+            backPressedCallback.isEnabled = enableBackPressedCallback
+            if(enableBackPressedCallback) {
+                buttonExit.text = getString(R.string.return_button)
+            } else {
+                buttonExit.text = getString(R.string.exit_button)
+            }
+        }
+        viewModel.enableBackPressedCallback.observe(this, enableBackPressedCallbackObserver)
+
+
+        dynamicShortcutListWasChangedObserver = Observer { wasChanged ->
+            if(wasChanged) {
+                showSaveButton()
+            } else {
+                hideSaveButton()
+            }
+        }
+        viewModel.dynamicShortcutIdListWasChanged.observe(
+            this,
+            dynamicShortcutListWasChangedObserver
+        )
     }
+
 
     // 移除观察者
     private fun removeObservers() {
@@ -886,14 +675,129 @@ class MainActivity : AppCompatActivity() {
         viewModel.configChanged.removeObserver(settingWasModifiedObserver)
         viewModel.sortMode.removeObserver(sortModeObserver)
         viewModel.selectedIds.removeObserver(selectedIdsObserver)
+        viewModel.enableBackPressedCallback.removeObserver(enableBackPressedCallbackObserver)
+        viewModel.dynamicShortcutIdListWasChanged.removeObserver(
+            dynamicShortcutListWasChangedObserver
+        )
     }
 
 
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-//        Toast.makeText(this, "横屏：${resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE}", Toast.LENGTH_SHORT).show()
-//        // 屏幕旋转后重新设置 DraggableTextView 的位置
-//        draggableTextView.setInitialPosition()
+    // 设置文件操作 launcher
+    private fun setFileOperationLaunchers() {
+        // 初始化导入文件 launcher
+        importFileLauncher = registerForActivityResult(
+            ActivityResultContracts.OpenDocument()
+        ) { uri ->
+            val destinationFile = importDestinationFile
+            val callback = importCallback
+
+            when {
+                uri != null && destinationFile != null -> {
+                    try {
+                        contentResolver.openInputStream(uri)?.use { inputStream ->
+                            destinationFile.outputStream().use { outputStream ->
+                                inputStream.copyTo(outputStream)
+                            }
+                        }
+                        callback?.invoke(FileOperationResult.SUCCESS)
+                    } catch(e: Exception) {
+                        e.printStackTrace()
+                        callback?.invoke(FileOperationResult.FAIL)
+                    }
+                }
+
+                uri == null -> {
+                    callback?.invoke(FileOperationResult.CANCEL)
+                }
+
+                else -> {
+                    callback?.invoke(FileOperationResult.FAIL)
+                }
+            }
+
+            // 清理临时变量
+            importCallback = null
+            importDestinationFile = null
+        }
+
+
+        // 初始化导出文件 launcher
+        exportFileLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            val sourceFile = exportSourceFile
+            val callback = exportCallback
+
+            when(result.resultCode) {
+                RESULT_OK -> {
+                    if(sourceFile != null) {
+                        val uri = result.data?.data
+                        if(uri != null) {
+                            try {
+                                contentResolver.openOutputStream(uri)?.use { outputStream ->
+                                    sourceFile.inputStream().use { inputStream ->
+                                        inputStream.copyTo(outputStream)
+                                    }
+                                }
+                                callback?.invoke(FileOperationResult.SUCCESS, uri)
+                            } catch(e: Exception) {
+                                e.printStackTrace()
+                                callback?.invoke(FileOperationResult.FAIL, null)
+                            }
+                        } else {
+                            callback?.invoke(FileOperationResult.FAIL, null)
+                        }
+                    } else {
+                        callback?.invoke(FileOperationResult.FAIL, null)
+                    }
+
+                }
+
+                RESULT_CANCELED -> {
+                    callback?.invoke(FileOperationResult.CANCEL, null)
+                }
+
+                else -> {
+                    callback?.invoke(FileOperationResult.FAIL, null)
+                }
+            }
+
+            // 清理临时变量
+            exportCallback = null
+            exportSourceFile = null
+        }
+    }
+
+
+    fun exportFile(
+        sourceFile: File,
+        fileName: String = sourceFile.name ?: getString(R.string.unknown_file),
+        mimeType: String = FileHelper.getMimeType(sourceFile.absolutePath),
+        onResult: (Int, Uri?) -> Unit,
+    ) {
+        exportSourceFile = sourceFile
+        exportCallback = onResult
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            type = mimeType
+            putExtra(Intent.EXTRA_TITLE, fileName)
+
+            addFlags(
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            )
+        }
+        exportFileLauncher.launch(intent)
+    }
+
+
+    fun importFile(
+        destinationFile: File,
+        mimeTypes: Array<String> = arrayOf("*/*"),
+        onResult: (Int) -> Unit,
+    ) {
+        importDestinationFile = destinationFile
+        importCallback = onResult
+        importFileLauncher.launch(mimeTypes)
     }
 
 }

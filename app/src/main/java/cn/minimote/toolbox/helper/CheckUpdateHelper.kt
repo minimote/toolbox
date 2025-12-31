@@ -11,7 +11,6 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import android.view.LayoutInflater
-import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -68,13 +67,6 @@ object CheckUpdateHelper {
             )
         } else
             if(System.currentTimeMillis() >= viewModel.nextUpdateCheckTime) {
-//            Toast.makeText(
-//                context,
-//                getFormatTimeString(System.currentTimeMillis()) + "\n" + getFormatTimeString(
-//                    viewModel.nextUpdateCheckTime.value!!
-//                ),
-//                Toast.LENGTH_SHORT
-//            ).show()
                 checkNetworkAccessModeAndCheckUpdate(
                     context = context,
                     viewModel = viewModel,
@@ -94,35 +86,6 @@ object CheckUpdateHelper {
         )
         viewModel.saveUserConfig()
     }
-
-
-//    // 获取更新频率的字符串
-//    fun getUpdateFrequencyString(
-//        context: Context,
-//        frequency: String,
-//    ): String {
-//        return when(frequency) {
-//            CheckUpdateFrequency.DAILY -> {
-//                context.getString(R.string.check_update_frequency_daily)
-//            }
-//
-//            CheckUpdateFrequency.WEEKLY -> {
-//                context.getString(R.string.check_update_frequency_weekly)
-//            }
-//
-//            CheckUpdateFrequency.MONTHLY -> {
-//                context.getString(R.string.check_update_frequency_monthly)
-//            }
-//
-//            CheckUpdateFrequency.NEVER -> {
-//                context.getString(R.string.check_update_frequency_never)
-//            }
-//
-//            else -> {
-//                throw IllegalArgumentException("非法的频率：$frequency")
-//            }
-//        }
-//    }
 
 
     // 获取更新间隔
@@ -148,6 +111,19 @@ object CheckUpdateHelper {
         viewModel: MyViewModel,
         silence: Boolean, // 是否静默检查
     ) {
+        // 检查更新时是否忽略网络限制
+        val checkUpdateIgnoreNetworkRestrictions = viewModel.getConfigValue(
+            key = ConfigKeys.CheckUpdate.CHECK_UPDATE_IGNORE_NETWORK_RESTRICTIONS,
+        )
+        if(checkUpdateIgnoreNetworkRestrictions == true) {
+            checkUpdate(
+                context = context,
+                viewModel = viewModel,
+                silence = silence,
+            )
+            return
+        }
+
         // 获取网络类型
         val networkType = NetworkHelper.getNetworkType(viewModel.myContext)
         // 网络未连接
@@ -258,18 +234,36 @@ object CheckUpdateHelper {
                 val inputStream = connection.inputStream
                 val json = inputStream.bufferedReader().use { it.readText() }
                 val jsonObject = JSONObject(json)
-                val releaseNotes = jsonObject.getString(CheckUpdate.GITEE_API_RELEASE_NOTES_KEY)
 
                 val remoteVersion = getRemoteVersion(jsonObject)
                 val localVersion = getLocalVersion(viewModel)
+                val simpleLocalVersion = getSimpleVersion(localVersion)
+                val simpleRemoteVersion = getSimpleVersion(remoteVersion)
                 val downloadUrl = getDownloadUrl(jsonObject)
 
-                if(hasNewVersion(remoteVersion, localVersion) and downloadUrl.isNotBlank()) {
+                if(
+                    hasNewVersion(remoteVersion, localVersion) && downloadUrl.isNotBlank()
+                ) {
+
+//                val releaseNotes = jsonObject.getString(CheckUpdate.GITEE_API_RELEASE_NOTES_KEY)
+                    val releaseNotes = getUpdateLogsBetweenVersions(
+                        context = context,
+                        simpleLocalVersion = simpleLocalVersion,
+                        simpleRemoteVersion = simpleRemoteVersion,
+                    )
+
+//                LogHelper.e(
+//                    "新旧版本号",
+//                    "旧<${localVersion}>,新<${remoteVersion}>",
+//                )
+
+
                     withContext(Dispatchers.Main) {
                         showUpdateDialog(
                             context = context,
                             viewModel = viewModel,
-                            remoteVersion = remoteVersion,
+                            simpleLocalVersion = simpleLocalVersion,
+                            simpleRemoteVersion = simpleRemoteVersion,
                             releaseNotes = releaseNotes,
                             downloadUrl = downloadUrl,
                             checkingUpdateToast = checkingUpdateToast,
@@ -302,6 +296,18 @@ object CheckUpdateHelper {
     }
 
 
+    private fun getSimpleVersion(
+        version: String,
+    ): String {
+        val versionNameSeparatorRegex = CheckUpdate.VERSION_NAME_SEPARATOR_REGEX
+        val versionNameSplit = version.split(versionNameSeparatorRegex)
+        return CheckUpdate.SIMPLE_VERSION_PREFIX +
+                versionNameSplit[0].replace(
+                    CheckUpdate.DIGITS_AND_DOT_REGEX, ""
+                )
+    }
+
+
     // 获取远端版本号
     private fun getRemoteVersion(
         jsonObject: JSONObject,
@@ -328,6 +334,9 @@ object CheckUpdateHelper {
     private fun getLocalVersion(
         viewModel: MyViewModel,
     ): String {
+//        return "2.1.0-250905.183545"
+
+//        return "2.1.0-240905.183545"
         return viewModel.myVersionName.removeSuffix(CheckUpdate.LOCAL_VERSION_SUFFIX)
     }
 
@@ -361,7 +370,7 @@ object CheckUpdateHelper {
         val remoteVersionList = getVersionIntList(remoteVersion)
         val localVersionList = getVersionIntList(localVersion)
 
-//        LogHelper.e("检查更新", "远端：$remoteVersionList, 本地：$localVersionList")
+//        LogHelper.e("检查更新版本号", "远端：$remoteVersionList, 本地：$localVersionList")
 
         // 获取两个列表的最大长度
         val maxLength = maxOf(remoteVersionList.size, localVersionList.size)
@@ -404,7 +413,8 @@ object CheckUpdateHelper {
     private fun showUpdateDialog(
         context: Context,
         viewModel: MyViewModel,
-        remoteVersion: String,
+        simpleLocalVersion: String,
+        simpleRemoteVersion: String,
         releaseNotes: String,
         downloadUrl: String,
         checkingUpdateToast: Toast? = null,
@@ -415,12 +425,21 @@ object CheckUpdateHelper {
             context = context,
             viewModel = viewModel,
             titleText = context.getString(R.string.find_new_version),
-            messageText = context.getString(
-                R.string.latest_version,
-                remoteVersion,
-            ) + "\n\n" + context.getString(
-                R.string.whether_download_now,
-                releaseNotes.trim() + "\n\n",
+//            messageText = context.getString(
+//                R.string.latest_version,
+//                remoteVersion,
+//            ) + "\n\n" + context.getString(
+//                R.string.whether_download_now,
+//                releaseNotes.trim() + "\n\n",
+//            ),
+            messageTextList = listOf(
+                context.getString(
+                    R.string.update_path,
+                    simpleLocalVersion,
+                    simpleRemoteVersion,
+                ) + releaseNotes + context.getString(
+                    R.string.whether_download_now,
+                ),
             ),
             positiveButtonText = context.getString(R.string.download_now),
             positiveButtonTextColor = context.getColor(R.color.primary),
@@ -486,8 +505,6 @@ object CheckUpdateHelper {
 
         // 创建 DownloadManager 请求
         val request = DownloadManager.Request(downloadUrl.toUri())
-        // 允许的网络类型
-//        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
         request.setTitle(context.getString(R.string.downloading_update_title))
         request.setDescription(context.getString(R.string.downloading_update_description))
         request.setNotificationVisibility(
@@ -525,7 +542,7 @@ object CheckUpdateHelper {
         context: Context,
         downloadId: Long,
         viewModel: MyViewModel,
-        gapTime: Long = CheckUpdate.MONITOR_DOWNLOAD_STATUS_GAP_RIME,
+        gapTime: Long = CheckUpdate.MONITOR_DOWNLOAD_STATUS_GAP_TIME,
     ) {
 
         var progressDialog: AlertDialog? = null
@@ -534,14 +551,14 @@ object CheckUpdateHelper {
 //        var textViewSpeed: TextView? = null
 //        var lastBytes: Long = 0
 //        var lastTime: Long = System.currentTimeMillis()
-        var lastProgress = 0
-        var buttonNegative: Button?
-        var buttonPositive: Button?
+        var lastProgress = 0f
+        var buttonNegative: TextView?
+        var buttonPositive: TextView?
 
 
-        fun updateProgress(progress: Int) {
+        fun updateProgress(progress: Float) {
 
-            progressBar?.progress = progress
+            progressBar?.progress = (progress * 100).toInt()
             textViewProgress?.text = context.getString(
                 R.string.percent,
                 progress,
@@ -577,10 +594,12 @@ object CheckUpdateHelper {
             val progressView =
                 LayoutInflater.from(context).inflate(R.layout.layout_dialog_download, null)
             progressBar = progressView.findViewById(R.id.linearProgressIndicator)
+            progressBar.max = 10000
             textViewProgress = progressView.findViewById(R.id.textView_progress)
 //            textViewSpeed = progressView.findViewById(R.id.textView_speed)
 
             buttonNegative = progressView.findViewById(R.id.button_negative)
+            buttonNegative?.text = context.getString(R.string.background_download)
             buttonNegative?.setOnClickListener {
                 VibrationHelper.vibrateOnClick(viewModel)
                 progressDialog?.dismiss()
@@ -592,6 +611,7 @@ object CheckUpdateHelper {
             }
 
             buttonPositive = progressView.findViewById(R.id.button_positive)
+            buttonPositive?.text = context.getString(R.string.cancel_download)
             buttonPositive?.setOnClickListener {
                 VibrationHelper.vibrateOnClick(viewModel)
                 VibrationHelper.vibrateOnDangerousOperation(viewModel)
@@ -692,7 +712,7 @@ object CheckUpdateHelper {
                                 val total = cursor.getLong(totalIndex)
 
                                 if(total > 0) {
-                                    val progress = ((sofar * 100) / total).toInt()
+                                    val progress = (sofar * 100f) / total
 //                                    val currentTime = System.currentTimeMillis()
 //
 //                                    // 计算下载速度
@@ -780,6 +800,7 @@ object CheckUpdateHelper {
 
     }
 
+
 //    // 将应用带到前台
 //    private fun bringAppToForeground(context: Context) {
 //        val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
@@ -797,5 +818,107 @@ object CheckUpdateHelper {
         ctx.startActivity(installIntent)
     }
 
+
+    // 获取更新日志
+    private fun getUpdateLog(context: Context): String {
+        return try {
+            val url = URL(context.getString(R.string.update_log_content_url))
+//            val url = URL("https://gitee.com/minimote/toolbox/raw/master/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97.md")
+
+            val connection = url.openConnection() as HttpURLConnection
+
+            connection.requestMethod = "GET"
+            connection.connectTimeout = CheckUpdate.TIMEOUT
+            connection.readTimeout = CheckUpdate.TIMEOUT
+
+            if(connection.responseCode == HttpURLConnection.HTTP_OK) {
+                connection.inputStream.bufferedReader().use { it.readText() }
+            } else {
+                ""
+            }
+        } catch(e: Exception) {
+            e.printStackTrace()
+            ""
+        }
+    }
+
+
+    fun splitUpdateLogByVersions(updateLog: String): List<Pair<String, String>> {
+        val versionAndLog = mutableListOf<Pair<String, String>>()
+
+        // 匹配版本标题的正则表达式
+        val versionRegex = CheckUpdate.VERSION_NAME_REGEX
+
+        // 查找所有匹配项
+        val matches = versionRegex.findAll(updateLog)
+        val matchList = matches.toList()
+
+        // 遍历每个匹配项，提取版本号和内容
+        for(i in matchList.indices) {
+            val currentMatch = matchList[i]
+            val versionName = currentMatch.groupValues[1]
+//            val simpleVersion = getSimpleVersion(versionName)
+
+            // 获取当前版本内容的起始位置
+            val contentStart = currentMatch.range.last + 1
+
+            // 获取下一个版本的起始位置，如果没有下一个版本，则到字符串末尾
+            val contentEnd = if(i < matchList.size - 1) {
+                matchList[i + 1].range.first
+            } else {
+                updateLog.length
+            }
+
+            // 提取内容并去除首尾空白
+            val versionContent = updateLog.substring(contentStart, contentEnd).trim()
+
+            versionAndLog.add(Pair(versionName, versionContent))
+        }
+
+        return versionAndLog
+    }
+
+
+    private fun getUpdateLogsBetweenVersions(
+        context: Context,
+        simpleLocalVersion: String,
+        simpleRemoteVersion: String,
+    ): String {
+        val updateLog = getUpdateLog(context)
+        val versionAndLogList = splitUpdateLogByVersions(updateLog)
+
+        var releaseLog = ""
+
+        val gapCharInVersionAndLog = "\n"
+        val gapCharInLog = "\n\n"
+
+        var started = false
+
+//        LogHelper.e("两个版本号", "本地：<${simpleLocalVersion}>,远端：<${simpleRemoteVersion}>")
+        for((versionString, logString) in versionAndLogList) {
+//            LogHelper.e("versionString: $versionString", "")
+            // 当前版本是远程版本，开始收集日志
+            if(simpleRemoteVersion in versionString) {
+                started = true
+            }
+
+            // 当前版本是本地版本，结束循环
+            if(simpleLocalVersion in versionString) {
+                // 本地和远程的简单版本号相同，则显示一段日志再退出
+                if(simpleLocalVersion == simpleRemoteVersion) {
+                    releaseLog += "$versionString$gapCharInVersionAndLog$logString$gapCharInLog"
+                }
+                break
+            }
+
+            // 如果已经开始收集，并且当前版本不是本地版本，则添加到日志中
+            if(started) {
+                releaseLog += "$versionString$gapCharInVersionAndLog$logString$gapCharInLog"
+            }
+        }
+
+        return releaseLog
+
+    }
 
 }

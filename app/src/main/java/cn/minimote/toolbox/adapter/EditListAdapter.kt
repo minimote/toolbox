@@ -9,7 +9,6 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
@@ -19,7 +18,8 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
-import cn.minimote.toolbox.constant.SeekBarValueList
+import cn.minimote.toolbox.activity.MainActivity
+import cn.minimote.toolbox.constant.SeekBarConstants
 import cn.minimote.toolbox.constant.ToolConstants
 import cn.minimote.toolbox.constant.ToolConstants.Alignment
 import cn.minimote.toolbox.constant.ViewList
@@ -36,6 +36,7 @@ class EditListAdapter(
     private val context: Context,
     val viewModel: MyViewModel,
     private val lifecycleOwner: androidx.lifecycle.LifecycleOwner,
+    private val myActivity: MainActivity,
 ) : RecyclerView.Adapter<EditListAdapter.EditViewHolder>() {
 
     private val editList = ViewList.editList
@@ -57,7 +58,7 @@ class EditListAdapter(
     ) : RecyclerView.ViewHolder(itemView) {
 
         lateinit var editTextNickname: EditText
-        lateinit var buttonResetNickname: Button
+        lateinit var buttonResetNickname: TextView
         lateinit var imageButtonClear: ImageButton
 
         init {
@@ -134,7 +135,7 @@ class EditListAdapter(
             viewTypes.WIDTH -> {
                 val textViewToolWidthFraction =
                     holder.itemView.findViewById<TextView>(R.id.textView_content)
-                val valueList = SeekBarValueList.widgetWidth
+                val valueList = SeekBarConstants.widgetWidth
 
                 SeekBarHelper.setSeekBar(
                     seekBar = holder.itemView.findViewById(R.id.seekBar),
@@ -196,7 +197,7 @@ class EditListAdapter(
         val recyclerView = holder.itemView.findViewById<RecyclerView>(R.id.recyclerView)
 
         previewAdapter = WidgetPreviewAdapter(
-            context = context,
+            myActivity = myActivity,
             viewModel = viewModel,
         )
         recyclerView.adapter = previewAdapter
@@ -216,6 +217,7 @@ class EditListAdapter(
     private fun updatePreview() {
 //        notifyItemChanged(0)
         previewAdapter.submit()
+//        previewAdapter.submitList(getToolList())
     }
 
 
@@ -283,9 +285,15 @@ class EditListAdapter(
                 updatePreview()
             },
             imageButtonClear = holder.imageButtonClear,
+            onClick = {
+                VibrationHelper.vibrateOnClick(viewModel)
+            },
             onFocusGained = {
                 VibrationHelper.vibrateOnClick(viewModel)
-            }
+            },
+            onClickClearButton = {
+                VibrationHelper.vibrateOnClick(viewModel)
+            },
         )
     }
 
@@ -339,7 +347,7 @@ class EditListAdapter(
                         ), Toast.LENGTH_SHORT
                     ).show()
                     // 触发返回键行为
-                    (context as? androidx.appcompat.app.AppCompatActivity)?.onBackPressedDispatcher?.onBackPressed()
+                    myActivity.defaultReturn()
                 })
         }
 

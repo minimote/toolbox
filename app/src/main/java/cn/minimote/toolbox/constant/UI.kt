@@ -5,6 +5,8 @@
 
 package cn.minimote.toolbox.constant
 
+import android.view.animation.LinearInterpolator
+
 object UI {
 
     object Alpha {
@@ -17,19 +19,60 @@ object UI {
         const val ALPHA_10 = 1f
     }
 
+
     // 全屏图片比例
     const val FULL_SCREEN_IMAGE_RATE = 0.7f
 
 
     // 动画时长(ms)
     const val ANIMATION_DURATION = 300L
+    const val ANIMATION_DURATION_SEARCH_MODE = ANIMATION_DURATION / 2
+
+
+    // 插值器
+    object Interpolator {
+        val LINEAR = LinearInterpolator()
+    }
+
 
     // 状态栏高度(dp)
     const val STATUS_BAR_HEIGHT = 40
+
 
     // 对话框宽度比例
     const val DIALOG_WIDTH_RATE = 0.85
     // 对话框高度比例
     const val DIALOG_HEIGHT_RATE = 0.5f
+
+
+    object BackgroundImage {
+        // 背景图片透明度
+        const val ALPHA = Alpha.ALPHA_3
+
+        // 背景图片大小比例
+        object SizeRate {
+            object Normal {
+                const val WIDTH_RATE = 0.7f
+                const val HEIGHT_RATE = WIDTH_RATE
+
+                const val WIDTH_RATE_WATCH = 0.5f
+                const val HEIGHT_RATE_WATCH = WIDTH_RATE_WATCH
+            }
+
+            object Search {
+                const val WIDTH_RATE = 0.6f
+                const val HEIGHT_RATE = WIDTH_RATE
+
+                const val WIDTH_RATE_WATCH = 0.5f
+                const val HEIGHT_RATE_WATCH = WIDTH_RATE_WATCH
+            }
+        }
+    }
+
+
+    // 背景图片文字
+    object BackgroundText {
+        const val ALPHA = BackgroundImage.ALPHA
+    }
 
 }

@@ -33,14 +33,16 @@ object DataCleanHelper {
     }
     // 清除缓存
     fun clearCache(viewModel: MyViewModel) {
+        IconHelper.printCoilCacheInfo(viewModel.myContext)
         val pathList = getCachePathList(viewModel)
         for(path in pathList) {
             if(path != null) {
-                deleteDirectory(path)
+                FileHelper.deleteFile(path)
             }
         }
         // 清除内存缓存
-        viewModel.iconCacheHelper.clearMemoryCache()
+//        viewModel.iconCacheHelper.clearMemoryCache()
+        IconHelper.clearCoilCache(viewModel.myContext)
     }
 
 
@@ -70,7 +72,7 @@ object DataCleanHelper {
         val pathList = getDataPathList(viewModel)
         for(path in pathList) {
             if(path != null) {
-                deleteDirectory(path)
+                FileHelper.deleteFile(path)
             }
         }
         // 重新加载数据
@@ -112,21 +114,4 @@ object DataCleanHelper {
         }
     }
 
-
-    // 删除文件夹
-    private fun deleteDirectory(directory: File) {
-        if(directory.exists()) {
-            val files = directory.listFiles()
-            if(files != null) {
-                for(file in files) {
-                    if(file.isDirectory) {
-                        deleteDirectory(file)
-                    } else {
-                        file.delete()
-                    }
-                }
-            }
-            directory.delete()
-        }
-    }
 }

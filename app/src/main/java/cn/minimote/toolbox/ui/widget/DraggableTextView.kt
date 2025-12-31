@@ -12,12 +12,16 @@ import android.os.Build
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewConfiguration
 import androidx.annotation.RequiresApi
+import cn.minimote.toolbox.R
 import cn.minimote.toolbox.constant.Config
 import cn.minimote.toolbox.constant.UI
-import cn.minimote.toolbox.helper.ConfigHelper.getConfigValue
-import cn.minimote.toolbox.helper.ConfigHelper.hasUserConfigKey
-import cn.minimote.toolbox.helper.ConfigHelper.saveButtonPosition
+import cn.minimote.toolbox.helper.DimensionHelper.getLayoutSize
+import cn.minimote.toolbox.helper.OtherConfigHelper.getUiStateConfigValue
+import cn.minimote.toolbox.helper.OtherConfigHelper.saveUiStateConfig
+import cn.minimote.toolbox.helper.OtherConfigHelper.updateUiStateConfigValue
+import cn.minimote.toolbox.helper.TypeConversionHelper.toFloatList
 import cn.minimote.toolbox.viewModel.MyViewModel
 import kotlin.math.abs
 
@@ -33,7 +37,21 @@ class DraggableTextView @JvmOverloads constructor(
     private var initialTouchX: Float = 0f
     private var initialTouchY: Float = 0f
 
+    private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
+
+    private val gapSize = if(getStatusBarHeight() > 0) {
+        getStatusBarHeight()
+    } else {
+        getLayoutSize(
+            context,
+            R.dimen.layout_size_save_button_gapSize,
+        ).toFloat()
+    }
+
+
     lateinit var viewModel: MyViewModel
+
+    private val buttonPositionConfigKey = Config.ConfigKeys.SAVE_BUTTON_POSITION
 
     // 判断是否为横屏
 //    private fun isLandscape(): Boolean {
@@ -60,6 +78,46 @@ class DraggableTextView @JvmOverloads constructor(
 //        }
     }
 
+
+    private fun getMinX(): Float {
+        return gapSize
+    }
+
+    private fun getMaxX(): Float {
+        return getParentWidth().toFloat() - gapSize - this.width.toFloat()
+    }
+
+    private fun getLegalX(x: Float): Float {
+        val leftDistance = abs(getMinX() - x)
+        val rightDistance = abs(getMaxX() - x)
+        return when {
+            getMinX() <= x && x <= getMaxX() -> x
+            leftDistance <= rightDistance -> getMinX()
+            rightDistance < leftDistance -> getMaxX()
+            else -> getMaxX()
+        }
+    }
+
+    private fun getMinY(): Float {
+        return gapSize
+    }
+
+    private fun getMaxY(): Float {
+        return getParentHeight().toFloat() - gapSize - this.height.toFloat()
+    }
+
+    private fun getLegalY(y: Float): Float {
+        val topDistance = abs(getMinY() - y)
+        val bottomDistance = abs(getMaxY() - y)
+        return when {
+            getMinY() <= y && y <= getMaxY() -> y
+            topDistance <= bottomDistance -> getMinY()
+            bottomDistance < topDistance -> getMaxY()
+            else -> getMinY()
+        }
+    }
+
+
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when(event.action) {
@@ -74,10 +132,24 @@ class DraggableTextView @JvmOverloads constructor(
 
             MotionEvent.ACTION_MOVE -> {
                 // 更新 TextView 的位置
-                val dx = event.rawX - initialTouchX
-                val dy = event.rawY - initialTouchY
-                this.x = initialX + dx
-                this.y = initialY + dy
+                val newX = initialX + event.rawX - initialTouchX
+                val newY = initialY + event.rawY - initialTouchY
+
+                this.x = maxOf(
+                    gapSize,
+                    minOf(
+                        newX,
+                        getParentWidth().toFloat() - this.width - gapSize
+                    ),
+                )
+                this.y = maxOf(
+                    gapSize,
+                    minOf(
+                        newY,
+                        getParentHeight().toFloat() - this.height - gapSize
+                    ),
+                )
+
             }
 
             MotionEvent.ACTION_UP -> {
@@ -102,17 +174,18 @@ class DraggableTextView @JvmOverloads constructor(
                 // 判断是否是点击操作（移动距离小于阈值）
                 val dx = abs(event.rawX - initialTouchX)
                 val dy = abs(event.rawY - initialTouchY)
-                if(dx < 1 && dy < 1) {
+                if(dx < touchSlop && dy < touchSlop) {
                     performClick()
                 } else {
                     // 保存按钮位置
-                    viewModel.saveButtonPosition(targetPos)
+                    saveButtonPosition(targetPos)
                 }
 
             }
         }
         return super.onTouchEvent(event)
     }
+
 
     override fun performClick(): Boolean {
         // 触发点击事件（用于无障碍服务）
@@ -122,49 +195,38 @@ class DraggableTextView @JvmOverloads constructor(
 
 
     // 获取最近位置
-    fun getNearestPosition(pos: List<Float> = listOf(this.x, this.y)): List<Float> {
-        val x = pos[0]
-        val y = pos[1]
+    private fun getNearestPosition(pos: List<Float> = listOf(this.x, this.y)): List<Float> {
+        var targetX = getLegalX(pos[0])
+        var targetY = getLegalY(pos[1])
         // 调整位置到最近的边缘
-        val parentWidth = getParentWidth()
-        val parentHeight = getParentHeight()
+//        val parentWidth = getParentWidth()
+//        val parentHeight = getParentHeight()
+//        Toast.makeText(context, "宽度${parentWidth},高度${parentHeight}", Toast.LENGTH_SHORT).show()
 
-        // 获取状态栏高度
-        val statusBarHeight = getStatusBarHeight()
+//        // 获取状态栏高度
+//        val statusBarHeight = getStatusBarHeight()
 
         // 判断距离哪边更近
-        val leftDistance = abs(0 - x)
-        val rightDistance = abs(parentWidth - (x + this.width))
+        val leftDistance = abs(getMinX() - targetX)
+        val rightDistance = abs(getMaxX() - targetX)
 
-        val topDistance = abs(0 - y)
-        val bottomDistance = abs(parentHeight - (y + this.height))
+        val topDistance = abs(getMinY() - targetY)
+        val bottomDistance = abs(getMaxY() - targetY)
 
         // 找出最小的距离
         val minDistance = listOf(
-            leftDistance, rightDistance, topDistance, bottomDistance,
+            leftDistance, rightDistance,
+            topDistance, bottomDistance,
         ).min()
 
-        // 目标坐标
-        var targetX = this.x
-        var targetY = this.y
 
         // 根据最小距离调整位置
         when(minDistance) {
-            leftDistance -> targetX = 0f
-            rightDistance -> targetX = parentWidth - this.width.toFloat()
-            topDistance -> targetY = statusBarHeight
-            bottomDistance -> targetY = parentHeight - this.height.toFloat()
+            leftDistance -> targetX = getMinX()
+            rightDistance -> targetX = getMaxX()
+            topDistance -> targetY = getMinY()
+            bottomDistance -> targetY = getMaxY()
         }
-
-        targetX = maxOf(
-            0f,
-            minOf(targetX, parentWidth - this.width.toFloat()),
-        )
-        // 横屏时上下边界限制
-        targetY = maxOf(
-            0f,
-            minOf(targetY, parentHeight - this.height.toFloat()),
-        )
 
         return listOf(targetX, targetY)
     }
@@ -178,7 +240,9 @@ class DraggableTextView @JvmOverloads constructor(
         )
 
         val statusBarHeight = if(resourceId > 0) {
-            resources.getDimensionPixelSize(resourceId)
+            getLayoutSize(
+                context, resourceId,
+            )
         } else {
             UI.STATUS_BAR_HEIGHT * resources.displayMetrics.density
         }
@@ -189,43 +253,58 @@ class DraggableTextView @JvmOverloads constructor(
 
     // 设置初始位置
     fun setInitialPosition() {
-        if(viewModel.hasUserConfigKey(Config.ConfigKeys.SAVE_BUTTON_POSITION)) {
-            val pos =
-                viewModel.getConfigValue(Config.ConfigKeys.SAVE_BUTTON_POSITION).toFloatList()
-            val targetPos = getNearestPosition(pos)
-            setPosition(targetPos)
-            viewModel.saveButtonPosition(targetPos)
-        } else {
-            val parentHeight = getParentHeight()
+//        if(viewModel.hasUserConfigKey(Config.ConfigKeys.SAVE_BUTTON_POSITION)) {
+//            val pos = viewModel.getConfigValue(
+//                Config.ConfigKeys.SAVE_BUTTON_POSITION
+//            ).toFloatList()
+//            val targetPos = getNearestPosition(pos)
+//            setPosition(targetPos)
+//            saveButtonPosition(targetPos)
+//        } else {
+//            val parentWidth = getParentWidth()
+//            val pos = listOf(parentWidth.toFloat(), 0f)
+//            val targetPos = getNearestPosition(pos)
+////            Toast.makeText(
+////                context,
+////                "[${pos[0]},${pos[1]}],[${targetPos[0]},${targetPos[1]}]",
+////                Toast.LENGTH_SHORT
+////            ).show()
+//            setPosition(targetPos)
+//        }
 
-            setPosition(listOf(0f, (parentHeight - this.height) / 2f))
+        val pos = getButtonPosition()
+        val targetPos = getNearestPosition(pos)
+        setPosition(targetPos)
+        saveButtonPosition(targetPos)
+
+    }
+
+
+    private fun getButtonPosition(): List<Float> {
+        return viewModel.getUiStateConfigValue(
+            key = buttonPositionConfigKey,
+        ).toFloatList().takeIf { it.size == 2 } ?: run {
+            val parentWidth = getParentWidth()
+            listOf(parentWidth.toFloat(), 0f)
         }
     }
 
 
-    fun Any?.toFloatList(): List<Float> {
-        return when(this) {
-            is List<*> -> filterIsInstance<Float>()
+    // 保存按钮的位置
+    private fun saveButtonPosition(
+        targetPos: List<Float>,
+    ) {
+        viewModel.updateUiStateConfigValue(
+            key = buttonPositionConfigKey,
+            value = targetPos,
+        )
 
-            is org.json.JSONArray -> {
-                val list = mutableListOf<Float>()
-                for(i in 0 until length()) {
-                    try {
-                        list.add(opt(i).toString().toFloat())
-                    } catch(_: Exception) {
-                        list.add(0f)
-                    }
-                }
-                list
-            }
-
-            else -> emptyList()
-        }
+        viewModel.saveUiStateConfig()
     }
 
 
     // 设置位置
-    fun setPosition(pos: List<Float>) {
+    private fun setPosition(pos: List<Float>) {
         this.x = pos[0]
         this.y = pos[1]
     }

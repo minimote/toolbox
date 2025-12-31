@@ -20,9 +20,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.viewModel.MyViewModel
-import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint
+
 class WebViewFragment : Fragment() {
 
     private val viewModel: MyViewModel by activityViewModels()

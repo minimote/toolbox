@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/constraintLayout_root"
+    style="@style/ConstraintLayout.Toolbox.Dark"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -8,45 +10,78 @@
     <FrameLayout
         android:id="@+id/meteorContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+
+    </FrameLayout>
 
 
-    <com.scwang.smart.refresh.layout.SmartRefreshLayout
-        style="@style/SmartRefreshLayout.Toolbox.Dark"
-        android:background="@color/transparent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+    <!--    <com.scwang.smart.refresh.layout.SmartRefreshLayout-->
+    <!--        android:id="@+id/refreshLayout_easterEggContent"-->
+    <!--        style="@style/SmartRefreshLayout.Toolbox.Dark"-->
+    <!--        android:background="@color/transparent"-->
+    <!--        android:visibility="invisible"-->
+    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toTopOf="parent">-->
 
 
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/transparent">
+    <!--        <androidx.recyclerview.widget.RecyclerView-->
+    <!--            android:id="@+id/recyclerView_easterEggContent"-->
+    <!--            style="@style/RecyclerView.Toolbox.Dark" />-->
 
-            <TextView
-                android:id="@+id/textView_content"
-                style="@style/TextView.Toolbox.Dark"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="彩蛋还没做好哈哈哈" />
+    <!--        &lt;!&ndash;        <ScrollView&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:layout_width="match_parent"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:layout_height="match_parent"&ndash;&gt;-->
+    <!--        &lt;!&ndash;            android:background="@color/transparent">&ndash;&gt;-->
 
-        </ScrollView>
+    <!--        &lt;!&ndash;            <TextView&ndash;&gt;-->
+    <!--        &lt;!&ndash;                android:id="@+id/textView_content"&ndash;&gt;-->
+    <!--        &lt;!&ndash;                style="@style/TextView.Toolbox.Dark"&ndash;&gt;-->
+    <!--        &lt;!&ndash;                android:layout_width="match_parent"&ndash;&gt;-->
+    <!--        &lt;!&ndash;                android:layout_height="wrap_content"&ndash;&gt;-->
+    <!--        &lt;!&ndash;                android:text="彩蛋还没做好哈哈哈" />&ndash;&gt;-->
 
-    </com.scwang.smart.refresh.layout.SmartRefreshLayout>
+    <!--        &lt;!&ndash;        </ScrollView>&ndash;&gt;-->
+
+    <!--    </com.scwang.smart.refresh.layout.SmartRefreshLayout>-->
 
 
-    <ImageView
-        android:id="@+id/easterEggImage"
-        style="@style/ImageView.Toolbox.Dark"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:src="@drawable/ic_toolbox_background_transparent"
+    <include
+        android:id="@+id/include_shadow_constraintLayout_recyclerView"
+        style="@style/IncludeConstraintLayout.Toolbox.RecyclerView.Dark"
+        layout="@layout/layout_shadow_constraintlayout_recyclerview"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
+    <FrameLayout
+        android:id="@+id/frameLayoutImageContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/transparent">
+        <!--弄一个放大一些的图标，作为彩蛋背景和启动页背景-->
+        <ImageView
+            android:id="@+id/easterEggImage"
+            style="@style/ImageView.Toolbox.Dark"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_toolbox_splash"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </FrameLayout>
+
+    <!-- 手势轨迹容器 -->
+    <FrameLayout
+        android:id="@+id/trailContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/transparent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

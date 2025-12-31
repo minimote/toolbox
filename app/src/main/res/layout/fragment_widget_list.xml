@@ -2,25 +2,46 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/fragment_widget_list"
-    style="@style/ConstraintLayout.Toolbox.RecyclerView.Dark"
+    style="@style/ConstraintLayout.Toolbox.Fragment.Dark"
     android:layout_height="match_parent">
 
-    <com.scwang.smart.refresh.layout.SmartRefreshLayout
-        android:id="@+id/refreshLayout"
-        style="@style/SmartRefreshLayout.Toolbox.Dark"
-        android:layout_height="0px"
+    <!--    <com.scwang.smart.refresh.layout.SmartRefreshLayout-->
+    <!--        android:id="@+id/refreshLayout"-->
+    <!--        style="@style/SmartRefreshLayout.Toolbox.Dark"-->
+    <!--        android:layout_height="0px"-->
+    <!--        app:layout_constraintBottom_toTopOf="@id/constraintLayout_bottomButton"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toTopOf="parent">-->
+
+    <!--        <cn.minimote.toolbox.ui.widget.FixedSizeRecyclerView-->
+    <!--            android:id="@+id/recyclerView_widget_list"-->
+    <!--            style="@style/RecyclerView.Toolbox.Dark"-->
+    <!--            app:layout_constraintEnd_toEndOf="parent"-->
+    <!--            app:layout_constraintStart_toStartOf="parent"-->
+    <!--            app:layout_constraintTop_toTopOf="parent" />-->
+    <!--    </com.scwang.smart.refresh.layout.SmartRefreshLayout>-->
+
+
+    <!--    <cn.minimote.toolbox.ui.widget.ShadowRecyclerViewLayout-->
+    <!--        android:id="@+id/shadowRecyclerViewLayout"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent"-->
+    <!--        android:background="@color/light_blue"-->
+    <!--        app:layout_constraintBottom_toTopOf="@id/constraintLayout_bottomButton"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toTopOf="parent" />-->
+
+
+    <include
+        android:id="@+id/include_constraintLayout_shadow_recyclerView"
+        style="@style/IncludeConstraintLayout.Toolbox.RecyclerView.Dark"
+        layout="@layout/layout_shadow_constraintlayout_recyclerview"
         app:layout_constraintBottom_toTopOf="@id/constraintLayout_bottomButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView_widget_list"
-            style="@style/RecyclerView.Toolbox.Dark"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </com.scwang.smart.refresh.layout.SmartRefreshLayout>
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <!-- 背景图片和文字 -->
@@ -52,9 +73,9 @@
             android:id="@+id/textView_no_widget"
             style="@style/TextView.Toolbox.Dark"
             android:layout_width="match_parent"
-            android:padding="@dimen/layout_size_2_footnote"
+            android:padding="@dimen/layout_size_2_small"
             android:text="@string/textView_no_widget"
-            android:textSize="@dimen/text_size_3_LARGE"
+            android:textSize="@dimen/text_size_3_large"
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -72,9 +93,9 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <!-- 全选 -->
-        <Button
+        <TextView
             android:id="@+id/button_select_all"
-            style="@style/Button.Toolbox.SelectAll.Dark"
+            style="@style/TextView.Toolbox.SelectAll.Dark"
             android:text="@string/select_all"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -82,9 +103,9 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
         <!-- 反选 -->
-        <Button
+        <TextView
             android:id="@+id/button_reverse_select"
-            style="@style/Button.Toolbox.SelectAll.Dark"
+            style="@style/TextView.Toolbox.SelectAll.Dark"
             android:text="@string/reverse_select"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -93,9 +114,9 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <!-- 排序方式 -->
-        <Button
+        <TextView
             android:id="@+id/button_sort_mode"
-            style="@style/Button.Toolbox.SelectAll.Dark"
+            style="@style/TextView.Toolbox.SelectAll.Dark"
             android:text="@string/sort_mode"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -104,6 +125,24 @@
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <!--    <View-->
+    <!--        android:id="@+id/view_shadow_top"-->
+    <!--        style="@style/View.Toolbox.MaskTop.Dark"-->
+    <!--        android:background="@drawable/background_mask_top"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toTopOf="@id/refreshLayout" />-->
+
+
+    <!--    <View-->
+    <!--        android:id="@+id/view_shadow_bottom"-->
+    <!--        style="@style/View.Toolbox.MaskBottom.Dark"-->
+    <!--        app:layout_constraintBottom_toBottomOf="@id/refreshLayout"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent" />-->
+
 
     <!--    </com.scwang.smart.refresh.layout.SmartRefreshLayout>-->
 

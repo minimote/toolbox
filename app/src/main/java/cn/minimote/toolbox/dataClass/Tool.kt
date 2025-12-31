@@ -19,7 +19,7 @@ open class Tool(
     val intentType: String = PACKAGE_AND_ACTIVITY,
     val intentAction: String = Intent.ACTION_VIEW,
     val intentCategory: String = Intent.CATEGORY_DEFAULT,
-    val intentFlag: Int = Intent.FLAG_ACTIVITY_NEW_TASK,
+    val intentFlag: Int = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP,
     val intentExtras: Map<String, Any>? = null,
     val intentUri: String? = null,
 
@@ -50,6 +50,7 @@ open class Tool(
     // 转换为存储类型
     fun toStoredTool(
         width: Int = ToolConstants.MAX_WIDGET_WIDTH,
+        alignment: String = ToolConstants.Alignment.CENTER,
     ): StoredTool {
         return StoredTool(
             id = id,
@@ -57,6 +58,7 @@ open class Tool(
             packageName = packageName,
             activityName = activityName,
             iconKey = iconKey,
+            alignment = alignment,
             description = description,
             warningMessage = warningMessage,
             intentType = intentType,

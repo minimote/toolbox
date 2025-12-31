@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="?attr/colorControlHighlight">
+
+    <!--    <item>-->
+    <!--        <shape android:shape="oval">-->
+    <!--            <solid android:color="@color/very_deep_gray" />-->
+    <!--        </shape>-->
+    <!--    </item>-->
+
+
+    <item>
+        <shape android:shape="oval">
+            <gradient
+                android:centerX="0.5"
+                android:centerY="0.5"
+                android:endColor="@color/light_gray"
+                android:gradientRadius="150%"
+                android:startColor="@color/deep_gray"
+                android:type="radial" />
+        </shape>
+
+        <!--        <shape-->
+        <!--            android:innerRadiusRatio="3"-->
+        <!--            android:shape="ring"-->
+        <!--            android:thicknessRatio="6"-->
+        <!--            android:useLevel="false">-->
+        <!--            &lt;!&ndash;    <solid android:color="@color/transparent" />&ndash;&gt;-->
+
+        <!--            <gradient-->
+        <!--                android:endColor="@color/yellow"-->
+        <!--                android:gradientRadius="0%"-->
+        <!--                android:startColor="@color/transparent"-->
+        <!--                android:type="radial" />-->
+        <!--        </shape>-->
+    </item>
+
+    <item android:id="@android:id/mask">
+        <shape android:shape="oval">
+            <solid android:color="@android:color/white" />
+        </shape>
+    </item>
+
+</ripple>
+

@@ -7,28 +7,19 @@ package cn.minimote.toolbox.adapter
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.FragmentContainerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.constant.FragmentName
 import cn.minimote.toolbox.constant.ViewPaper
 import cn.minimote.toolbox.fragment.MyListFragment
 import cn.minimote.toolbox.fragment.ToolListFragment
 import cn.minimote.toolbox.fragment.WidgetListFragment
-import cn.minimote.toolbox.viewModel.MyViewModel
 
 
 class MyFragmentStateAdapter(
     fragmentActivity: FragmentActivity,
-    val viewPager: ViewPager2,
-    val constraintLayoutOrigin: FragmentContainerView,
-    val viewModel: MyViewModel,
 ) : FragmentStateAdapter(fragmentActivity) {
 
-    private val fragmentList = ViewPaper.FragmentList
-
-//    val viewModel: ToolboxViewModel =
-//        ViewModelProvider(fragmentActivity)[ToolboxViewModel::class.java]
+    private val fragmentList = ViewPaper.fragmentList
 
     override fun getItemCount(): Int = fragmentList.size
 

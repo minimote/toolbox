@@ -5,11 +5,12 @@
 
 package cn.minimote.toolbox.helper
 
+import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.widget.Toast
-import androidx.core.content.ContextCompat.startActivity
 import androidx.core.net.toUri
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.activity.MainActivity
@@ -56,7 +57,7 @@ object LaunchHelper {
                 viewModel = viewModel,
                 titleText = myActivity.getString(R.string.warning),
                 titleTextColor = myActivity.getColor(R.color.red),
-                messageText = tool.warningMessage.trim(),
+                messageTextList = listOf(tool.warningMessage.trim()),
                 positiveAction = {
                     getIntentAndLaunch(
                         myActivity = myActivity,
@@ -74,6 +75,7 @@ object LaunchHelper {
             )
         }
     }
+
 
     fun launch(
         myActivity: MainActivity,
@@ -110,6 +112,7 @@ object LaunchHelper {
         }
     }
 
+
     // 运行 Fragment
     fun launchFragment(
         myActivity: MainActivity,
@@ -120,8 +123,8 @@ object LaunchHelper {
             ToolID.Other.WOODEN_FISH -> {
                 FragmentHelper.switchFragment(
                     fragmentName = FragmentName.WOODEN_FISH_FRAGMENT,
-                    viewModel = viewModel,
                     activity = myActivity,
+                    viewModel = viewModel,
                 )
             }
         }
@@ -137,8 +140,13 @@ object LaunchHelper {
         val intent = getIntent(context = myActivity, tool = tool)
 
         try {
+
+//            // 创建实时活动显示"点击返回工具箱"
+//            createLiveActivityForReturn(myActivity, tool)
+
 //            if(intent != null && isIntentAvailable(context, intent)) {
-            startActivity(myActivity, intent!!, null)
+            myActivity.startActivity(intent)
+
             // 使用计数器加 1
             if(tool is StoredTool) {
                 tool.useCount += 1
@@ -165,10 +173,40 @@ object LaunchHelper {
                     R.string.start_fail,
                     e.javaClass.simpleName,
                 ),
-                Toast.LENGTH_SHORT,
+                Toast.LENGTH_LONG,
             ).show()
+
+            LogHelper.e(
+                "启动失败",
+                e.toString(),
+            )
+
             return false
         }
+    }
+
+
+    private fun createLiveActivityForReturn(context: Context, tool: Tool) {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+            // 在应用启动时或需要发送通知前初始化
+            val notificationManager =
+                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            SnackbarNotificationManager.initialize(context.applicationContext, notificationManager)
+            // 调用start方法开始发送通知序列
+            SnackbarNotificationManager.start()
+
+        }
+//        try {
+//            showLiveActivityNotification(context, tool)
+//        } catch(e: Exception) {
+//            // 实时活动创建失败，可以记录日志
+//            e.printStackTrace()
+//        }
+    }
+
+
+    private fun showLiveActivityNotification(context: Context, tool: Tool) {
+
     }
 
 
@@ -176,7 +214,9 @@ object LaunchHelper {
     fun exitAfterLaunch(
         viewModel: MyViewModel,
     ): Boolean {
-        return viewModel.getConfigValue(Config.ConfigKeys.Launch.EXIT_AFTER_LAUNCH) as Boolean
+        return viewModel.getConfigValue(
+            Config.ConfigKeys.Launch.EXIT_AFTER_LAUNCH
+        ) as? Boolean ?: false
     }
 
 
@@ -249,11 +289,11 @@ object LaunchHelper {
         tool.intentExtras?.forEach { (key, value) ->
             when(value) {
                 is Int -> putExtra(key, value)
+                is Long -> putExtra(key, value)
+                is Float -> putExtra(key, value)
+                is Double -> putExtra(key, value)
                 is String -> putExtra(key, value)
                 is Boolean -> putExtra(key, value)
-                is Double -> putExtra(key, value)
-                is Float -> putExtra(key, value)
-                is Long -> putExtra(key, value)
                 is Serializable -> putExtra(key, value)
                 else -> Unit // 可记录日志或抛出异常
             }

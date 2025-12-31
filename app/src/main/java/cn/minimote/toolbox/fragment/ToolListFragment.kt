@@ -19,15 +19,15 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.graphics.drawable.toDrawable
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.widget.ViewPager2
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.activity.MainActivity
+import cn.minimote.toolbox.adapter.WidgetListAdapter
 import cn.minimote.toolbox.constant.Config
 import cn.minimote.toolbox.constant.DeviceType
 import cn.minimote.toolbox.constant.FragmentName
@@ -35,39 +35,43 @@ import cn.minimote.toolbox.constant.Icon
 import cn.minimote.toolbox.constant.ToolID
 import cn.minimote.toolbox.constant.ToolList
 import cn.minimote.toolbox.constant.Tools
+import cn.minimote.toolbox.constant.UI
 import cn.minimote.toolbox.dataClass.ExpandableGroup
 import cn.minimote.toolbox.dataClass.Tool
+import cn.minimote.toolbox.helper.BackgroundHelper.setBackgroundImageAndTextSearchMode
 import cn.minimote.toolbox.helper.ConfigHelper.getConfigValue
 import cn.minimote.toolbox.helper.EditTextHelper
 import cn.minimote.toolbox.helper.FragmentHelper
+import cn.minimote.toolbox.helper.IconHelper.getDrawable
 import cn.minimote.toolbox.helper.LaunchHelper
-import cn.minimote.toolbox.helper.LogHelper
 import cn.minimote.toolbox.helper.SchemeHelper
 import cn.minimote.toolbox.helper.SearchHelper
 import cn.minimote.toolbox.helper.SearchHelper.updateSearchHistoryAndSuggestionMaxDisplayedCount
+import cn.minimote.toolbox.helper.ToolHelper.getToolListByDeviceType
 import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.ui.widget.ExpandableRecyclerView
+import cn.minimote.toolbox.ui.widget.FixedSizeRecyclerView
+import cn.minimote.toolbox.ui.widget.ShadowConstraintLayout
+import cn.minimote.toolbox.ui.widget.SplitView
 import cn.minimote.toolbox.viewModel.MyViewModel
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
 
-@AndroidEntryPoint
-class ToolListFragment(
-    val isSchemeList: Boolean = false,
-) : Fragment() {
+open class ToolListFragment() : Fragment() {
+
+    var isSchemeList: Boolean = false
 
     private val viewModel: MyViewModel by activityViewModels()
 
     private val myActivity get() = requireActivity() as MainActivity
 
-    val viewPager: ViewPager2 get() = myActivity.viewPager
-
     private lateinit var dataList: List<ExpandableGroup>
 
     private lateinit var expandableRecyclerView: ExpandableRecyclerView
+    private lateinit var dynamicShortcutRecyclerView: FixedSizeRecyclerView
+    private lateinit var dynamicShortcutAdapter: WidgetListAdapter
 
     private var expandableRecyclerViewScrollState: Parcelable? = null
 
@@ -82,20 +86,27 @@ class ToolListFragment(
     private lateinit var imageViewSearchIcon: ImageView
     private lateinit var textViewName: TextView
 
+    private lateinit var constraintLayoutBackground: ConstraintLayout
+    private lateinit var imageViewBackground: ImageView
+    private lateinit var textViewSearchMode: TextView
+
     private lateinit var searchModeObserver: Observer<Boolean>
+    private lateinit var dynamicShortcutIdListWasChangedObserver: Observer<Boolean>
     private var ignoreSearchModeChange = false
     var searchQuery = ""
 
-    val searchHistoryConfigKey = if(isSchemeList) {
-        Config.ConfigKeys.SearchHistory.SCHEME_LIST
-    } else {
-        Config.ConfigKeys.SearchHistory.TOOL_LIST
-    }
-    val searchSuggestionConfigKey = if(isSchemeList) {
-        Config.ConfigKeys.SearchSuggestion.SCHEME_LIST
-    } else {
-        Config.ConfigKeys.SearchSuggestion.TOOL_LIST
-    }
+    val searchHistoryConfigKey
+        get() = if(isSchemeList) {
+            Config.ConfigKeys.SearchHistory.SCHEME_LIST
+        } else {
+            Config.ConfigKeys.SearchHistory.TOOL_LIST
+        }
+    val searchSuggestionConfigKey
+        get() = if(isSchemeList) {
+            Config.ConfigKeys.SearchSuggestion.SCHEME_LIST
+        } else {
+            Config.ConfigKeys.SearchSuggestion.TOOL_LIST
+        }
 
     private lateinit var searchHistoryExpandableGroup: ExpandableGroup
 
@@ -120,48 +131,8 @@ class ToolListFragment(
             container, false
         )
 
-        expandableRecyclerView = fragmentView.findViewById(R.id.expandableRecyclerView)
-//        refreshLayout = fragmentView.findViewById(R.id.refreshLayout)
-//        refreshLayout.setOnClickListener {
-//            Toast.makeText(myActivity, "点击", Toast.LENGTH_SHORT).show()
-//        }
 
-        expandableRecyclerView.setParameters(
-            viewModel = viewModel,
-            myActivity = myActivity,
-            isSchemeList = isSchemeList,
-            fragment = this,
-            emptyAreaClickListener = {
-                hideKeyboardAndClearFocus()
-            },
-            getQuery = {
-                searchQuery
-            },
-            updateSearchHistoryAndSuggestion = {
-                updateSearchHistoryAndSuggestion(it)
-            },
-            clearSearchHistoryOrSuggestion = {
-                clearSearchHistoryOrSuggestion(it)
-            },
-            setSearchBoxText = {
-                setSearchBoxText(it)
-            },
-        )
-
-        // 设置数据
-        expandableRecyclerView.setGroups(getGroupList())
-
-        // 添加滚动监听器来自动隐藏键盘
-        expandableRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-
-                // 当列表开始滚动时，隐藏键盘并清除焦点
-                if(newState == RecyclerView.SCROLL_STATE_DRAGGING) {
-                    hideKeyboardAndClearFocus()
-                }
-            }
-        })
+        setRecyclerView(fragmentView)
 
 
         // 初始化 configList
@@ -188,8 +159,8 @@ class ToolListFragment(
                 VibrationHelper.vibrateOnClick(viewModel)
                 FragmentHelper.switchFragment(
                     fragmentName = FragmentName.INSTALLED_APP_LIST_FRAGMENT,
-                    viewModel = viewModel,
                     activity = myActivity,
+                    viewModel = viewModel,
                 )
                 exitSearchMode()
             }
@@ -209,9 +180,190 @@ class ToolListFragment(
 
 
         // 预加载应用图标
-        preloadAppIcons()
+//        preloadAppIcons()
+
+
+        // 设置背景
+        setBackground(fragmentView)
+//        Toast.makeText(myActivity, "isSchemeList=${isSchemeList}", Toast.LENGTH_SHORT).show()
+
 
         return fragmentView
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+//        LogHelper.e("onResume", "onResume")
+        setSearchModeValue(false)
+        val newConfigList = getConfigList()
+        if(newConfigList != configList) {
+            configList = newConfigList
+            refreshToolList()
+        }
+//        preloadAppIcons()
+    }
+
+//    override fun onPause() {
+//        super.onPause()
+////        isSearchMode = false
+////        exitSearchMode()
+//    }
+
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+//        LogHelper.e("onDestroyView", "onDestroyView")
+//        setSearchModeValue(false)
+        removeObservers()
+    }
+
+
+    private fun setSearchModeValue(flag: Boolean = false) {
+        if(isSchemeList) {
+            viewModel.restoreDynamicShortcutList()
+            refreshDynamicShortcutList()
+        }
+
+        if(isSchemeList) {
+            viewModel.searchModeSchemeList.value = flag
+        } else {
+            viewModel.searchModeToolList.value = flag
+        }
+    }
+
+
+    private fun isSearchMode(): Boolean {
+        return if(isSchemeList) {
+            viewModel.searchModeSchemeList.value != true
+        } else {
+            viewModel.searchModeToolList.value != true
+        }
+    }
+
+
+    private fun setRecyclerView(fragmentView: View) {
+
+        val shadowConstraintLayout = fragmentView.findViewById<ShadowConstraintLayout>(
+            R.id.include_shadow_constraintLayout_expandable_recyclerView
+        )
+        expandableRecyclerView = shadowConstraintLayout.recyclerView as ExpandableRecyclerView
+
+//        expandableRecyclerView = fragmentView.findViewById(R.id.expandableRecyclerView)
+
+//        refreshLayout = fragmentView.findViewById(R.id.refreshLayout)
+//        refreshLayout.setOnClickListener {
+//            Toast.makeText(myActivity, "点击", Toast.LENGTH_SHORT).show()
+//        }
+
+        expandableRecyclerView.setParameters(
+            viewModel = viewModel,
+            myActivity = myActivity,
+            isSchemeList = isSchemeList,
+            shadowConstraintLayout = shadowConstraintLayout,
+            emptyAreaClickListener = {
+                hideKeyboardAndClearFocus()
+            },
+            getQuery = {
+                searchQuery
+            },
+            updateSearchHistoryAndSuggestion = {
+                updateSearchHistoryAndSuggestion(it)
+            },
+            clearSearchHistoryOrSuggestion = {
+                clearSearchHistoryOrSuggestion(it)
+            },
+            setSearchBoxText = {
+                setSearchBoxText(it)
+            },
+            actionOnClick = {
+                if(isSchemeList) {
+                    refreshDynamicShortcutList()
+                }
+            },
+        )
+
+        // 设置数据
+        expandableRecyclerView.setGroups(getGroupList())
+
+        // 添加滚动监听器来自动隐藏键盘
+        expandableRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+
+                // 当列表开始滚动时，隐藏键盘并清除焦点
+                if(newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                    hideKeyboardAndClearFocus()
+                }
+            }
+        })
+
+
+        if(isSchemeList) {
+            val shadowConstraintLayout = fragmentView.findViewById<ShadowConstraintLayout>(
+                R.id.include_shadow_constraintLayout_recyclerView
+            )
+
+            dynamicShortcutRecyclerView = shadowConstraintLayout.recyclerView
+
+            viewModel.loadDynamicShortcutList()
+
+            dynamicShortcutAdapter = WidgetListAdapter(
+                myActivity = myActivity,
+                viewModel = viewModel,
+                fragment = this,
+                toolList = viewModel.getDynamicShortcutDisplayList(),
+            )
+
+            dynamicShortcutRecyclerView.adapter = dynamicShortcutAdapter
+            dynamicShortcutRecyclerView.layoutManager = LinearLayoutManager(myActivity)
+            shadowConstraintLayout.setShadow(
+                viewModel = viewModel,
+                addBottomPadding = false,
+            )
+
+            val splitView: SplitView = fragmentView.findViewById(R.id.view_divider)
+            splitView.setParameters(viewModel)
+        }
+    }
+
+
+    fun refreshDynamicShortcutList() {
+        dynamicShortcutAdapter.submitList(
+            viewModel.getDynamicShortcutDisplayList()
+        )
+    }
+
+
+    private fun setBackground(view: View) {
+
+        constraintLayoutBackground = view.findViewById(R.id.constraintLayout_background)
+        imageViewBackground = view.findViewById(R.id.imageView_background)
+        textViewSearchMode = view.findViewById(R.id.textView_searchMode)
+
+
+        setBackgroundImageAndTextSearchMode(
+            imageViewBackground = imageViewBackground,
+            textViewBackground = textViewSearchMode,
+            viewModel = viewModel,
+        )
+
+        hideBackground()
+    }
+
+
+    private fun showBackground() {
+//        constraintLayoutBackground.alpha = 0f
+        constraintLayoutBackground.visibility = View.VISIBLE
+//        constraintLayoutBackground.animate()
+//            .alpha(1f)
+//            .setDuration(UI.ANIMATION_DURATION_SEARCH_MODE)
+//            .start()
+    }
+
+
+    private fun hideBackground() {
+        constraintLayoutBackground.visibility = View.INVISIBLE
     }
 
 
@@ -263,11 +415,11 @@ class ToolListFragment(
 
 
         if(isSchemeList) {
-            editTextSearchBox.visibility = View.VISIBLE
-
-            val layoutParamsSearchBox = constraintLayoutSearchBox.layoutParams
-            layoutParamsSearchBox.width = ConstraintLayout.LayoutParams.MATCH_PARENT
-            constraintLayoutSearchBox.layoutParams = layoutParamsSearchBox
+//            editTextSearchBox.visibility = View.VISIBLE
+//
+//            val layoutParamsSearchBox = constraintLayoutSearchBox.layoutParams
+//            layoutParamsSearchBox.width = ConstraintLayout.LayoutParams.MATCH_PARENT
+//            constraintLayoutSearchBox.layoutParams = layoutParamsSearchBox
 //            constraintLayoutSearchBox.background = R.color.transparent.toDrawable()
 
         } else {
@@ -297,7 +449,7 @@ class ToolListFragment(
                 searchQuery = s.toString().trim()
 
                 // 检查文本框内容是否为空
-                if(searchQuery.isEmpty()) {
+                if(searchQuery.isEmpty() && isSearchMode()) {
 //                    expandableRecyclerView.alpha = alpha
                     showSearchHistoryAndSuggestion(saveState = false)
                 } else {
@@ -309,12 +461,10 @@ class ToolListFragment(
 //                refreshToolList()
             },
             onFocusGained = {
-                LogHelper.e("获取焦点", "获取焦点")
+//                LogHelper.e("ToolList", "获取焦点")
                 VibrationHelper.vibrateOnClick(viewModel)
                 if(isSchemeList) {
-                    if(viewModel.searchMode.value != true) {
-//                        updateSearchModeWithoutNotify(true)
-//                    } else {
+                    if(editTextSearchBox.text.isEmpty()) {
                         enterSearchMode()
                     }
                 }
@@ -327,7 +477,7 @@ class ToolListFragment(
 //                }
             },
             onClick = {
-                LogHelper.e("点击", "点击")
+//                LogHelper.e("点击", "点击")
                 VibrationHelper.vibrateOnClick(viewModel)
             },
             onEditorAction = {
@@ -350,7 +500,7 @@ class ToolListFragment(
         buttonCancel.visibility = View.GONE
         // 设置取消按钮点击事件
         buttonCancel.setOnClickListener {
-            LogHelper.e("取消按钮点击", "取消按钮点击")
+//            LogHelper.e("取消按钮点击", "取消按钮点击")
             VibrationHelper.vibrateOnClick(viewModel)
 //            isSearchMode = false
             exitSearchMode()
@@ -372,19 +522,25 @@ class ToolListFragment(
             historyExpandableGroup = searchHistoryExpandableGroup,
             suggestionExpandableGroup = searchSuggestionExpandableGroup,
         )
-        refreshToolList(searchHistoryAndSuggestionList)
+        refreshToolList(
+            dataList = searchHistoryAndSuggestionList,
+//            showAnimation = true,
+        )
 //        Toast.makeText(context, "显示搜索历史", Toast.LENGTH_SHORT).show()
+        showBackground()
     }
     // 显示搜索结果
     private fun showSearchResult() {
 //        expandableRecyclerView.visibility = View.VISIBLE
         refreshToolList()
+        showBackground()
 //        Toast.makeText(context, "显示搜索结果", Toast.LENGTH_SHORT).show()
     }
     // 显示原始列表
     private fun showOriginalList() {
         refreshToolList()
         restoreScrollState()
+        hideBackground()
 //        Toast.makeText(context, "显示原始列表", Toast.LENGTH_SHORT).show()
     }
 
@@ -460,7 +616,7 @@ class ToolListFragment(
             val layoutParamsSearchBox = constraintLayoutSearchBox.layoutParams
             layoutParamsSearchBox.width = 0
             constraintLayoutSearchBox.layoutParams = layoutParamsSearchBox
-            constraintLayoutSearchBox.background = R.color.transparent.toDrawable()
+            constraintLayoutSearchBox.background = null
 
             // 显示搜索相关控件
             editTextSearchBox.visibility = View.VISIBLE
@@ -550,7 +706,7 @@ class ToolListFragment(
     fun getGroupList(): List<ExpandableGroup> {
         // dataList 未初始化
         if(!::dataList.isInitialized) {
-            dataList = ToolList.getToolListByDeviceType(
+            dataList = getToolListByDeviceType(
                 viewModel = viewModel,
                 deviceType = if(viewModel.isWatch) {
                     DeviceType.WATCH
@@ -620,9 +776,26 @@ class ToolListFragment(
             it.dataList.isNotEmpty()
         }
 
-        return nowList.ifEmpty {
+
+// 如果 isSchemeList 为 true 且结果列表非空，在末尾添加一个项目
+        val finalList = if(isSchemeList && nowList.isNotEmpty()) {
+            // 创建一个额外的项目并添加到列表末尾
+            val extraGroup = ExpandableGroup(
+                ToolID.BLANK,
+                listOf()
+            )
+            nowList + extraGroup
+        } else {
+            nowList
+        }
+
+        return finalList.ifEmpty {
             getNoResult()
         }
+
+//        return nowList.ifEmpty {
+//            getNoResult()
+//        }
     }
 
 
@@ -638,35 +811,44 @@ class ToolListFragment(
 
 
     // 刷新工具列表
-    fun refreshToolList(dataList: List<ExpandableGroup> = getGroupList()) {
-        expandableRecyclerView.setGroups(dataList)
-    }
+    fun refreshToolList(
+        dataList: List<ExpandableGroup> = getGroupList(),
+        showAnimation: Boolean = false,
+    ) {
+//        Toast.makeText(myActivity, "刷新工具列表", Toast.LENGTH_SHORT).show()
 
+        if(showAnimation) {
+            // 淡出动画
+            expandableRecyclerView.animate()
+                .alpha(0f)
+                .setDuration(UI.ANIMATION_DURATION_SEARCH_MODE)
+                .withEndAction {
+                    expandableRecyclerView.alpha = 0f
+                    expandableRecyclerView.setGroups(dataList)
 
-    override fun onResume() {
-        super.onResume()
-//        LogHelper.e("onResume", "onResume")
-        val newConfigList = getConfigList()
-        if(newConfigList != configList) {
-            configList = newConfigList
-            refreshToolList()
+                    // 淡入动画
+                    expandableRecyclerView.animate()
+                        .alpha(1f)
+                        .setDuration(UI.ANIMATION_DURATION_SEARCH_MODE)
+                        .start()
+                }
+                .start()
+        } else {
+            expandableRecyclerView.setGroups(dataList)
         }
-        preloadAppIcons()
     }
 
-//    override fun onPause() {
-//        super.onPause()
-////        isSearchMode = false
-////        exitSearchMode()
-//    }
 
     // 设置观察者
     private fun setupObservers() {
         searchModeObserver = Observer { isSearchMode ->
-//            Toast.makeText(myActivity, "$isSearchMode", Toast.LENGTH_SHORT).show()
+            FragmentHelper.updateEnableBackPressedCallback(viewModel)
+
+//            Toast.makeText(myActivity, "${ignoreSearchModeChange},$isSearchMode", Toast.LENGTH_SHORT).show()
+
             when(viewModel.getFragmentName()) {
                 FragmentName.WIDGET_LIST_FRAGMENT,
-//                FragmentName.SCHEME_LIST_FRAGMENT,
+                FragmentName.SCHEME_LIST_FRAGMENT,
                     -> {
                     // 忽略搜索模式变化
                     if(ignoreSearchModeChange) {
@@ -680,30 +862,36 @@ class ToolListFragment(
                     }
                 }
             }
+
         }
-        addObservers()
-    }
+        if(isSchemeList) {
+            viewModel.searchModeSchemeList.observe(viewLifecycleOwner, searchModeObserver)
 
-
-    // 添加观察者
-    private fun addObservers() {
-//        if(!viewModel.searchMode.hasObservers()) {
-            LogHelper.e("添加观察者", "添加观察者")
-            viewModel.searchMode.observe(viewLifecycleOwner, searchModeObserver)
-//        }
+            dynamicShortcutIdListWasChangedObserver = Observer {
+//                // 刷新工具列表
+//                refreshToolList()TODO
+            }
+            viewModel.dynamicShortcutIdListWasChanged.observe(
+                viewLifecycleOwner,
+                dynamicShortcutIdListWasChangedObserver
+            )
+        } else {
+            viewModel.searchModeToolList.observe(viewLifecycleOwner, searchModeObserver)
+        }
     }
 
 
     // 移除观察者
     private fun removeObservers() {
-        LogHelper.e("移除观察者", "移除观察者")
-        viewModel.searchMode.removeObserver(searchModeObserver)
-    }
-
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        removeObservers()
+//        LogHelper.e("移除观察者", "移除观察者")
+        if(isSchemeList) {
+            viewModel.searchModeSchemeList.removeObserver(searchModeObserver)
+            viewModel.dynamicShortcutIdListWasChanged.removeObserver(
+                dynamicShortcutIdListWasChangedObserver
+            )
+        } else {
+            viewModel.searchModeToolList.removeObserver(searchModeObserver)
+        }
     }
 
 
@@ -717,8 +905,8 @@ class ToolListFragment(
                     val tool = data as Tool
                     // 跳过空白工具
                     if(tool.id != ToolID.BLANK) {
-                        // 预加载图标到缓存中
-                        viewModel.iconCacheHelper.getDrawable(tool)
+                        // 预加载图标
+                        viewModel.getDrawable(tool)
                     }
                 }
             }
@@ -739,7 +927,7 @@ class ToolListFragment(
     // 更新搜索模式但不触发观察者
     fun updateSearchModeWithoutNotify(value: Boolean) {
         ignoreSearchModeChange = true
-        viewModel.searchMode.value = value
+        setSearchModeValue(value)
     }
 
 }

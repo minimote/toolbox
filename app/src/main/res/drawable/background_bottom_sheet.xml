@@ -5,8 +5,8 @@
         <shape>
             <solid android:color="@color/very_deep_gray" />
             <corners
-                android:topLeftRadius="@dimen/layout_size_radius_size"
-                android:topRightRadius="@dimen/layout_size_radius_size" />
+                android:topLeftRadius="@dimen/layout_size_radius_size_0_normal"
+                android:topRightRadius="@dimen/layout_size_radius_size_0_normal" />
         </shape>
     </item>
 
@@ -19,7 +19,7 @@
                 android:endColor="@color/transparent"
                 android:startColor="@color/deep_gray"
                 android:type="linear" />
-            <corners android:topLeftRadius="@dimen/layout_size_radius_size" />
+            <corners android:topLeftRadius="@dimen/layout_size_radius_size_0_normal" />
             <size android:width="@dimen/layout_size_0_normal" />
         </shape>
     </item>
@@ -33,7 +33,7 @@
                 android:endColor="@color/transparent"
                 android:startColor="@color/deep_gray"
                 android:type="linear" />
-            <corners android:topRightRadius="@dimen/layout_size_radius_size" />
+            <corners android:topRightRadius="@dimen/layout_size_radius_size_0_normal" />
             <size android:width="@dimen/layout_size_0_normal" />
         </shape>
     </item>
@@ -48,8 +48,8 @@
                 android:startColor="@color/deep_gray"
                 android:type="linear" />
             <corners
-                android:topLeftRadius="@dimen/layout_size_radius_size"
-                android:topRightRadius="@dimen/layout_size_radius_size" />
+                android:topLeftRadius="@dimen/layout_size_radius_size_0_normal"
+                android:topRightRadius="@dimen/layout_size_radius_size_0_normal" />
             <size android:height="@dimen/layout_size_0_normal" />
         </shape>
     </item>

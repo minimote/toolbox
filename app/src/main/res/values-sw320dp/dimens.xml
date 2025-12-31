@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 页面间距 -->
+    <dimen name="layout_size_fragment_gapSize">@dimen/layout_size_1_small</dimen>
+    <!-- Tab 底部 Padding -->
+    <dimen name="tabPaddingBottom">@dimen/layout_size_2_small</dimen>
+
+    <!-- 渐变阴影高度 -->
+    <dimen name="layout_size_gradient_height">64dp</dimen>
+
+    <!-- 底部弹窗padding -->
+    <dimen name="layout_size_bottom_sheet_padding">@dimen/layout_size_1_5_small</dimen>
+    <!-- 底部弹窗取消按钮margin -->
+    <dimen name="layout_size_bottom_sheet_cancel_margin">@dimen/layout_size_fragment_gapSize</dimen>
+    <!-- 底部弹窗取消按钮padding -->
+    <dimen name="layout_size_bottom_sheet_cancel_padding">@dimen/layout_size_1_5_small</dimen>
+
+
+    <!-- Dialog 的垂直 padding -->
+    <dimen name="layout_size_dialog_paddingVertical">@dimen/layout_size_0_normal</dimen>
+
+
+</resources>

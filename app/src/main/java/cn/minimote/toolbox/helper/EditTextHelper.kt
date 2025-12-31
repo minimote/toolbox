@@ -27,13 +27,18 @@ object EditTextHelper {
         },
         onTextChanged: (s: CharSequence?, start: Int, before: Int, count: Int) -> Unit = { s: CharSequence?, start: Int, before: Int, count ->
         },
-        afterTextChanged: (s: Editable?) -> Unit = { s: Editable? -> },
-        onFocusGained: () -> Unit = {}, // 当获得焦点时执行的逻辑
-        onFocusLost: () -> Unit = {}, // 当失去焦点时执行的逻辑
-        onClick: () -> Unit = {}, // 点击时执行的逻辑
-        onEditorAction: () -> Unit = {}, // 回车键被按下时执行的逻辑
+        afterTextChanged: (s: Editable?) -> Unit = { s: Editable? ->
+        },
+        // 当获得焦点时执行的逻辑
+        onFocusGained: () -> Unit = { VibrationHelper.vibrateOnClick(viewModel) },
+        // 当失去焦点时执行的逻辑
+        onFocusLost: () -> Unit = {},
+        // 点击时执行的逻辑
+        onClick: () -> Unit = { VibrationHelper.vibrateOnClick(viewModel) },
+        // 回车键被按下时执行的逻辑
+        onEditorAction: () -> Unit = {},
         imageButtonClear: ImageButton,
-        onClickClearButton: () -> Unit = {},
+        onClickClearButton: () -> Unit = { VibrationHelper.vibrateOnClick(viewModel) },
     ) {
         setEditText(
             editText = editText,

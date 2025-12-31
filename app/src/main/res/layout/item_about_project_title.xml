@@ -9,7 +9,7 @@
         android:id="@+id/textView_title"
         android:layout_marginTop="@dimen/layout_size_0_normal"
         android:text="@string/projectPath_name"
-        android:textSize="@dimen/text_size_2_Large"
+        android:textSize="@dimen/text_size_2_large"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

@@ -9,18 +9,21 @@
     <color name="transparent">#00000000</color>
     <color name="transparent_close">#01000000</color>
     <color name="black">#FF000000</color>
+    <color name="black_trans_gradient_mid">#CC000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="my_white">#FFFFFEFF</color>
     <color name="text_white">#FFCCCCCC</color>
     <color name="deep_gray">#FF202020</color>
-    <color name="deep_gray_trans">#CC151515</color>
+    <color name="deep_gray_trans">#CC202020</color>
     <color name="very_deep_gray">#FF191919</color>
     <color name="mid_gray">#FF555555</color>
     <color name="mid_gray_trans">#88555555</color>
+    <color name="very_light_gray">#FFBBBBBB</color>
     <color name="light_gray">#FF999999</color>
     <color name="deep_blue">#FF214283</color>
     <color name="light_blue">#FF24ADF3</color>
     <color name="primary">#FF217CFF</color>
+    <color name="primary_trans">#80217CFF</color>
     <color name="green">#FF00FF00</color>
     <color name="red">#FFD1362F</color>
     <color name="switch_thumb_on">#FFDDDDDD</color>
@@ -30,10 +33,22 @@
     <color name="yellow">#FFF8D714</color>
 
     <color name="ic_color">#FF24ADF3</color>
+    <color name="ic_color_toolbox">#FFFFFFFF</color>
+    <color name="ic_color_toolbox_edge">@color/deep_gray</color>
     <color name="ic_color_developer_option">#4285F4</color>
     <color name="ic_color_accessibility_option">#34A853</color>
     <color name="ic_color_recent_task">#D9A300</color>
 
-    <color name="alipay_blue">#FF0066FF</color>
+
+    <color name="background_tool_ic">@color/black</color>
+
+    <color name="bilibili_pink">#FFEB4C89</color>
+    <color name="alipay_blue">#FF1677FF</color>
     <color name="wechat_green">#FF2CA138</color>
+    <color name="meituan_yellow">#FFFFC300</color>
+    <color name="yunshanfu_red">#FFFD2821</color>
+    <color name="jingdong_red">#FFE12319</color>
+    <color name="jingdong_red_trans">#99E12319</color>
+    <color name="netease_cloudmusic_red">#FFEA3E3C</color>
+    <color name="hello_bike_blue">#FF028DFF</color>
 </resources>

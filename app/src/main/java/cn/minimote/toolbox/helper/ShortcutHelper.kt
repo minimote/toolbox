@@ -13,10 +13,12 @@ import android.content.pm.ShortcutManager
 import android.widget.Toast
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.dataClass.Tool
+import cn.minimote.toolbox.helper.IconHelper.getHighResIcon
 import cn.minimote.toolbox.viewModel.MyViewModel
 import java.util.UUID
 
 object ShortcutHelper {
+
 
     fun createShortcut(
         context: Context,
@@ -37,7 +39,7 @@ object ShortcutHelper {
         }
 
         // 获取高清图标
-        val icon = viewModel.iconCacheHelper.getHighResIcon(tool)
+        val icon = viewModel.getHighResIcon(tool)
         // 生成唯一 ID
         val uniqueId = UUID.randomUUID().toString()
         val shortcutInfo = ShortcutInfo.Builder(context, uniqueId)
@@ -54,9 +56,9 @@ object ShortcutHelper {
                 // 创建一个 PendingIntent 用于请求固定快捷方式
                 val pendingIntent = PendingIntent.getBroadcast(
                     context,
-                    0,
+                    uniqueId.hashCode(),
                     Intent(),
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                    PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
                 shortcutManager.requestPinShortcut(
                     shortcutInfo,
@@ -72,6 +74,62 @@ object ShortcutHelper {
                 ).show()
             }
         }
+    }
+
+
+    fun MyViewModel.setDynamicShortcuts() {
+
+        val context = this.myContext
+
+        val toolList = this.getDynamicShortcutActualList()
+
+        val shortcutInfoList = toolList.mapNotNull { tool ->
+            try {
+                val intent = LaunchHelper.getShortcutIntent(context, tool) ?: return@mapNotNull null
+                val icon = this.getHighResIcon(tool)
+                ShortcutInfo.Builder(context, UUID.randomUUID().toString())
+                    .setShortLabel(tool.name)
+                    .setLongLabel(tool.name)
+                    .setIcon(icon)
+                    .setIntent(intent)
+                    .build()
+            } catch(_: Exception) {
+                null  // 跳过失败的工具
+            }
+        }
+
+        try {
+            val shortcutManager = context.getSystemService(
+                ShortcutManager::class.java
+            )
+            shortcutManager.dynamicShortcuts = shortcutInfoList
+        } catch(e: Exception) {
+            Toast.makeText(
+                context,
+                context.getString(
+                    R.string.some_error,
+                    e.javaClass.simpleName,
+                ),
+                Toast.LENGTH_LONG,
+            ).show()
+        }
+
+        // 最大数量 15，但建议 5 个以内
+//        LogHelper.e("快捷方式最大数量${shortcutManager.maxShortcutCountPerActivity}", "")
+
+    }
+
+
+    fun MyViewModel.getMaxShortcutCount(): Int {
+        val shortcutManager = this.myContext.getSystemService(
+            ShortcutManager::class.java
+        )
+        return shortcutManager.maxShortcutCountPerActivity
+    }
+
+
+    fun MyViewModel.reachShortcutMaxCnt(): Boolean {
+        return this.getDynamicShortcutListSize() >= this.getMaxShortcutCount()
     }
 
 }

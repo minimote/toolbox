@@ -7,10 +7,10 @@
 
     <!-- 设置边框颜色为白色，宽度为2dp -->
     <stroke
-        android:width="@dimen/layout_size_4_tiny"
-        android:color="@color/light_blue" />
+        android:width="@dimen/layout_size_4_small"
+        android:color="@color/primary" />
 
     <!-- 设置圆角半径 -->
     <corners
-        android:radius="@dimen/layout_size_radius_size" />
+        android:radius="@dimen/layout_size_radius_size_0_normal" />
 </shape>

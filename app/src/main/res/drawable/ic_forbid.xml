@@ -7,7 +7,7 @@
 
     <!-- 添加黑色背景 -->
     <path
-        android:fillColor="@color/black"
+        android:fillColor="@color/background_tool_ic"
         android:pathData="M0,0h1824v1824H0z" />
 
     <!-- 放大后需要向左右移动 -->

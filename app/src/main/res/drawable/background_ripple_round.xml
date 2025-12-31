@@ -4,16 +4,16 @@
     <item android:id="@android:id/mask">
         <shape>
             <solid android:color="@android:color/white" />
-            <corners android:radius="@dimen/layout_size_radius_size" />
+            <corners android:radius="@dimen/layout_size_radius_size_0_normal" />
         </shape>
     </item>
     <item android:id="@android:id/background">
         <shape>
-<!--            <stroke-->
-<!--                android:width="@dimen/layout_size_5_very_tiny"-->
-<!--                android:color="@color/deep_gray" />-->
+            <!--            <stroke-->
+            <!--                android:width="@dimen/layout_size_5_very_tiny"-->
+            <!--                android:color="@color/deep_gray" />-->
             <solid android:color="@color/transparent" />
-            <corners android:radius="@dimen/layout_size_radius_size" />
+            <corners android:radius="@dimen/layout_size_radius_size_0_normal" />
         </shape>
     </item>
 </ripple>

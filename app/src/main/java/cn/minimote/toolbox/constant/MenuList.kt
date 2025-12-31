@@ -9,12 +9,15 @@ object MenuList {
     // 工具的弹出菜单
     val tool by lazy {
         listOf(
+            MenuType.TOP,
             // 添加到主页或从移除
             MenuType.ADD_TO_HOME_OR_REMOVE_FROM_HOME,
             // 创建快捷方式
             MenuType.CREATE_SHORTCUT,
             // 工具信息
             MenuType.TOOL_DETAIL,
+            // 保存图标
+            MenuType.SAVE_ICON,
             // 取消
             MenuType.CANCEL,
         )
@@ -26,6 +29,7 @@ object MenuList {
     // 桌面组件的弹出菜单
     val widget by lazy {
         listOf(
+            MenuType.TOP,
             // 添加到主页或从移除
             MenuType.ADD_TO_HOME_OR_REMOVE_FROM_HOME,
             // 创建快捷方式
@@ -38,6 +42,8 @@ object MenuList {
             MenuType.MULTI_SELECT,
             // 排序
             MenuType.SORT,
+            // 保存图标
+            MenuType.SAVE_ICON,
             // 取消
             MenuType.CANCEL,
         )
@@ -49,6 +55,7 @@ object MenuList {
     // 排序的菜单
     val sort by lazy {
         listOf(
+            MenuType.TOP,
             MenuType.SortOrder.RESTORE_SORT,
             MenuType.SortOrder.FREE_SORT,
             // 启动次数
@@ -75,7 +82,20 @@ object MenuList {
     // 保存图片
     val saveImage by lazy {
         listOf(
+            MenuType.TOP,
             MenuType.SAVE_IMAGE,
+            MenuType.CANCEL,
+        )
+    }
+
+
+    // 长按菜单
+    val longPress by lazy {
+        listOf(
+            MenuType.TOP,
+            MenuType.LongPress.MOVE_TO_TOP,
+            MenuType.LongPress.MOVE_TO_BOTTOM,
+            MenuType.LongPress.REMOVE,
             MenuType.CANCEL,
         )
     }

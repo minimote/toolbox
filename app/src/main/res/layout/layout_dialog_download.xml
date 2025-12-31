@@ -2,98 +2,72 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     style="@style/ConstraintLayout.Toolbox.Dark"
-    android:background="@drawable/background_widget_full"
-    android:clipToOutline="true">
+    android:background="@null"
+    android:paddingVertical="@dimen/layout_size_fragment_gapSize">
 
-    <ScrollView
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout_root"
+        style="@style/ConstraintLayout.Toolbox.Dark"
+        android:background="@drawable/background_widget_full"
+        android:clipToOutline="true"
+        android:padding="@dimen/layout_size_radius_size_1_small"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            style="@style/ConstraintLayout.Toolbox.Dark"
+
+        <TextView
+            android:id="@+id/textView_title"
+            style="@style/TextView.Toolbox.Dark"
+            android:layout_width="wrap_content"
+            android:gravity="start"
+            android:padding="@dimen/layout_size_bottom_sheet_cancel_padding"
+            android:text="@string/downloading"
+            app:layout_constraintEnd_toStartOf="@id/textView_progress"
+            app:layout_constraintStart_toStartOf="@id/linearProgressIndicator"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textView_progress"
+            style="@style/TextView.Toolbox.Dark"
+            android:layout_width="0dp"
+            android:gravity="end"
+            android:text="0 %"
+            app:layout_constraintBottom_toBottomOf="@id/textView_title"
+            app:layout_constraintEnd_toEndOf="@id/linearProgressIndicator"
+            app:layout_constraintStart_toEndOf="@id/textView_title"
+            app:layout_constraintTop_toTopOf="@id/textView_title" />
+
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/linearProgressIndicator"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="0px"
-            android:background="@drawable/background_widget_full"
-            android:clipToOutline="true">
-
-            <!--            <TextView-->
-            <!--                android:id="@+id/textView_title"-->
-            <!--                style="@style/TextView.Toolbox.Dark"-->
-            <!--                android:layout_width="match_parent"-->
-            <!--                android:layout_marginHorizontal="@dimen/layout_size_2_footnote"-->
-            <!--                android:layout_marginTop="@dimen/layout_size_3_script"-->
-            <!--                android:gravity="start"-->
-            <!--                android:paddingTop="@dimen/layout_size_3_script"-->
-            <!--                android:text="@string/downloading"-->
-            <!--                android:textSize="@dimen/text_size_1_large"-->
-            <!--                android:textStyle="bold"-->
-            <!--                app:layout_constraintEnd_toEndOf="parent"-->
-            <!--                app:layout_constraintBottom_toTopOf="@id/textView_progress"-->
-            <!--                app:layout_constraintStart_toStartOf="parent"-->
-            <!--                app:layout_constraintTop_toTopOf="parent" />-->
-
-            <TextView
-                android:id="@+id/textView_title"
-                style="@style/TextView.Toolbox.Dark"
-                android:layout_width="wrap_content"
-                android:layout_marginVertical="@dimen/layout_size_1_small"
-                android:gravity="start"
-                android:text="@string/downloading"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/textView_progress"
-                app:layout_constraintStart_toStartOf="@id/linearProgressIndicator" />
-
-            <TextView
-                android:id="@+id/textView_progress"
-                style="@style/TextView.Toolbox.Dark"
-                android:layout_width="0dp"
-                android:gravity="end"
-                android:text="0 %"
-                app:layout_constraintEnd_toEndOf="@id/linearProgressIndicator"
-                app:layout_constraintStart_toEndOf="@id/textView_title"
-                app:layout_constraintBottom_toBottomOf="@id/textView_title"
-                app:layout_constraintTop_toTopOf="@id/textView_title" />
+            android:layout_marginHorizontal="@dimen/layout_size_1_small"
+            android:layout_marginVertical="@dimen/layout_size_2_small"
+            android:indeterminate="false"
+            app:indicatorColor="@color/primary"
+            app:indicatorTrackGapSize="0dp"
+            app:layout_constraintBottom_toTopOf="@id/constraintLayout_footer"
+            app:layout_constraintTop_toBottomOf="@id/textView_progress"
+            app:trackColor="@color/mid_gray"
+            app:trackStopIndicatorSize="0dp" />
 
 
-            <com.google.android.material.progressindicator.LinearProgressIndicator
-                android:id="@+id/linearProgressIndicator"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/layout_size_1_small"
-                android:layout_marginVertical="@dimen/layout_size_2_footnote"
-                android:indeterminate="false"
-                app:indicatorColor="@color/primary"
-                app:layout_constraintTop_toBottomOf="@id/textView_progress"
-                app:layout_constraintBottom_toTopOf="@id/button_negative"
-                app:trackColor="@color/mid_gray" />
-
-            <Button
-                android:id="@+id/button_negative"
-                style="@style/Button.Toolbox.Dialog.Dark"
-                android:paddingStart="@dimen/layout_size_4_tiny"
-                android:paddingEnd="@dimen/layout_size_4_tiny"
-                android:text="@string/background_download"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/button_positive"
-                app:layout_constraintStart_toStartOf="parent" />
-
-            <Button
-                android:id="@+id/button_positive"
-                style="@style/Button.Toolbox.Dialog.Dark"
-                android:paddingStart="@dimen/layout_size_4_tiny"
-                android:paddingEnd="@dimen/layout_size_4_tiny"
-                android:text="@string/cancel_download"
-                android:textColor="@color/red"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/button_negative" />
+        <include
+            android:id="@+id/constraintLayout_footer"
+            layout="@layout/layout_dialog_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="0dp"
+            android:background="@color/transparent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </ScrollView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

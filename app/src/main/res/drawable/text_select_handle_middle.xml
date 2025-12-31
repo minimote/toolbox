@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 外层蓝色圆环 -->
+    <item>
+        <shape android:shape="oval">
+            <stroke
+                android:width="2dp"
+                android:color="@color/primary" />
+            <size
+                android:width="20dp"
+                android:height="20dp" />
+        </shape>
+    </item>
+    <!-- 内层半透明蓝色圆 -->
+    <item
+        android:width="20dp"
+        android:height="20dp"
+        android:gravity="center">
+        <shape android:shape="oval">
+            <solid android:color="@color/primary_trans" />
+        </shape>
+    </item>
+</layer-list>

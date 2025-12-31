@@ -121,7 +121,7 @@ class RadioRecyclerView @JvmOverloads constructor(
         override fun onViewRecycled(holder: ViewHolder) {
             super.onViewRecycled(holder)
             // 当 ViewHolder 被回收时，从 map 中移除
-            items.getOrNull(holder.adapterPosition)?.let { (id, _) ->
+            items.getOrNull(holder.bindingAdapterPosition)?.let { (id, _) ->
                 viewHolderMap.remove(id)
             }
         }

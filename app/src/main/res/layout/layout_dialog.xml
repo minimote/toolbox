@@ -1,95 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/constraintLayout_root"
     style="@style/ConstraintLayout.Toolbox.Dark"
-    android:background="@drawable/background_widget_full"
-    android:clipToOutline="true">
-
-
-    <TextView
-        android:id="@+id/textView_title"
-        style="@style/TextView.Toolbox.Dark"
-        android:layout_width="match_parent"
-        android:padding="@dimen/layout_size_1_small"
-        android:textSize="@dimen/text_size_1_large"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
+    android:background="@null"
+    android:paddingVertical="@dimen/layout_size_dialog_paddingVertical">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraintLayout_message"
+        android:id="@+id/constraintLayout_root"
         style="@style/ConstraintLayout.Toolbox.Dark"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@color/transparent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/constraintLayout_footer"
-        app:layout_constraintTop_toBottomOf="@id/textView_title">
-
-        <com.scwang.smart.refresh.layout.SmartRefreshLayout
-            android:id="@+id/scrollView_message"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/transparent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <androidx.core.widget.NestedScrollView
-                android:id="@+id/nestedScrollView_message"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/transparent"
-                android:fillViewport="true">
-
-                <TextView
-                    android:id="@+id/textView_message"
-                    style="@style/TextView.Toolbox.Dark"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="start"
-                    android:padding="@dimen/layout_size_1_small" />
-
-            </androidx.core.widget.NestedScrollView>
-
-        </com.scwang.smart.refresh.layout.SmartRefreshLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraintLayout_footer"
-        style="@style/ConstraintLayout.Toolbox.Dark"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="0dp"
-        android:background="@color/transparent"
+        android:background="@drawable/background_widget_full"
+        android:clipToOutline="true"
+        android:padding="@dimen/layout_size_radius_size_1_small"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <Button
-            android:id="@+id/button_negative"
-            style="@style/Button.Toolbox.Dialog.Dark"
-            android:text="@string/cancel"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/button_positive"
+
+        <TextView
+            android:id="@+id/textView_title"
+            style="@style/TextView.Toolbox.Dark"
+            android:layout_width="match_parent"
+            android:padding="@dimen/layout_size_bottom_sheet_cancel_padding"
+            android:textSize="@dimen/text_size_1_large"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <Button
-            android:id="@+id/button_positive"
-            style="@style/Button.Toolbox.Dialog.Dark"
-            android:text="@string/confirm"
-            android:textColor="@color/red"
+
+        <include
+            android:id="@+id/include_shadow_constraintLayout_recyclerView"
+            style="@style/IncludeConstraintLayout.Toolbox.RecyclerView.Dark"
+            layout="@layout/layout_shadow_constraintlayout_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/layout_size_2_5_small"
+            app:layout_constraintBottom_toTopOf="@id/constraintLayout_footer"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textView_title" />
+
+
+        <include
+            android:id="@+id/constraintLayout_footer"
+            layout="@layout/layout_dialog_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="0dp"
+            android:background="@color/transparent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/button_negative"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/include_shadow_constraintLayout_recyclerView" />
+
+
+        <!--        <androidx.constraintlayout.widget.ConstraintLayout-->
+        <!--            android:id="@+id/constraintLayout_footer"-->
+        <!--            style="@style/ConstraintLayout.Toolbox.Dark"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:layout_marginHorizontal="0dp"-->
+        <!--            android:background="@color/transparent"-->
+        <!--            app:layout_constraintBottom_toBottomOf="parent"-->
+        <!--            app:layout_constraintEnd_toEndOf="parent"-->
+        <!--            app:layout_constraintStart_toStartOf="parent"-->
+        <!--            app:layout_constraintTop_toBottomOf="@id/include_shadow_constraintLayout_recyclerView">-->
+
+        <!--            <TextView-->
+        <!--                android:id="@+id/button_negative"-->
+        <!--                style="@style/TextView.Toolbox.Dark"-->
+        <!--                android:layout_width="0dp"-->
+        <!--                android:background="@drawable/background_ripple_round"-->
+        <!--                android:padding="@dimen/layout_size_bottom_sheet_cancel_padding"-->
+        <!--                android:text="@string/cancel"-->
+        <!--                android:textSize="@dimen/text_size_1_small"-->
+        <!--                app:layout_constraintBottom_toBottomOf="parent"-->
+        <!--                app:layout_constraintEnd_toStartOf="@id/button_positive"-->
+        <!--                app:layout_constraintStart_toStartOf="parent"-->
+        <!--                app:layout_constraintTop_toTopOf="parent" />-->
+
+        <!--            <TextView-->
+        <!--                android:id="@+id/button_positive"-->
+        <!--                style="@style/TextView.Toolbox.Dark"-->
+        <!--                android:layout_width="0dp"-->
+        <!--                android:background="@drawable/background_ripple_round"-->
+        <!--                android:padding="@dimen/layout_size_bottom_sheet_cancel_padding"-->
+        <!--                android:text="@string/confirm"-->
+        <!--                android:textColor="@color/red"-->
+        <!--                android:textSize="@dimen/text_size_1_small"-->
+        <!--                app:layout_constraintBottom_toBottomOf="parent"-->
+        <!--                app:layout_constraintEnd_toEndOf="parent"-->
+        <!--                app:layout_constraintStart_toEndOf="@id/button_negative"-->
+        <!--                app:layout_constraintTop_toTopOf="parent" />-->
+        <!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-
 </androidx.constraintlayout.widget.ConstraintLayout>
-

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/constraintLayout_footer"
+    style="@style/ConstraintLayout.Toolbox.Dark"
+    android:background="@color/transparent">
+
+
+    <View
+        android:id="@+id/view_footer_separator"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/layout_size_4_small"
+        android:layout_marginHorizontal="@dimen/layout_size_radius_size_0_normal"
+        android:background="@color/deep_gray"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <TextView
+        android:id="@+id/button_negative"
+        style="@style/TextView.Toolbox.Dark"
+        android:layout_width="0dp"
+        android:background="@drawable/background_ripple_round"
+        android:padding="@dimen/layout_size_bottom_sheet_cancel_padding"
+        android:text="@string/cancel"
+        android:textColor="@color/very_light_gray"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/button_positive"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view_footer_separator" />
+
+    <TextView
+        android:id="@+id/button_positive"
+        style="@style/TextView.Toolbox.Dark"
+        android:layout_width="0dp"
+        android:background="@drawable/background_ripple_round"
+        android:padding="@dimen/layout_size_bottom_sheet_cancel_padding"
+        android:text="@string/confirm"
+        android:textColor="@color/red"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/button_negative"
+        app:layout_constraintTop_toBottomOf="@id/view_footer_separator" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+

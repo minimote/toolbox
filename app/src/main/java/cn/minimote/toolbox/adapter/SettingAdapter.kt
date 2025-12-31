@@ -16,14 +16,14 @@ import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.constant.Config
-import cn.minimote.toolbox.constant.SeekBarValueList
+import cn.minimote.toolbox.constant.SeekBarConstants
 import cn.minimote.toolbox.constant.ViewList
 import cn.minimote.toolbox.constant.ViewTypes
 import cn.minimote.toolbox.constant.ViewTypes.Setting.radioViewSet
 import cn.minimote.toolbox.constant.ViewTypes.Setting.seekBarSet
 import cn.minimote.toolbox.constant.ViewTypes.Setting.switchViewSet
 import cn.minimote.toolbox.constant.ViewTypes.Setting.titleViewSet
-import cn.minimote.toolbox.helper.ConfigHelper.clearUserConfig
+import cn.minimote.toolbox.helper.ConfigHelper.clearUserConfigOnly
 import cn.minimote.toolbox.helper.ConfigHelper.getConfigValue
 import cn.minimote.toolbox.helper.ConfigHelper.updateConfigValue
 import cn.minimote.toolbox.helper.ConfigHelper.updateSettingWasModified
@@ -44,7 +44,7 @@ class SettingAdapter(
     private val viewTypes = ViewTypes.Setting
 
 
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 //
     }
 
@@ -176,7 +176,7 @@ class SettingAdapter(
                     titleId = R.string.title_check_update_frequency,
                     configKey = Config.ConfigKeys.CheckUpdate.CHECK_UPDATE_FREQUENCY,
                     idToStringIdMap = Config.ConfigValues.CheckUpdateFrequency.idToStringIdMap,
-                    onCheckedChangeListener = { selectedId ->
+                    onCheckedChangeListener = { _ ->
                         updateView()
                     },
                 )
@@ -226,12 +226,12 @@ class SettingAdapter(
                 holder.itemView.setOnClickListener {
                     VibrationHelper.vibrateOnClick(viewModel)
                     if(viewModel.userConfig.isNotEmpty()) {
-                        viewModel.clearUserConfig()
+                        viewModel.clearUserConfigOnly()
                         viewModel.updateSettingWasModified()
                         submitList()
                         Toast.makeText(
                             context,
-                            context.getString(R.string.restore_default_success),
+                            context.getString(R.string.restore_default_setting_success),
                             Toast.LENGTH_SHORT,
                         ).show()
                     } else {
@@ -247,7 +247,7 @@ class SettingAdapter(
             viewTypes.SEARCH_HISTORY_MAX_COUNT -> {
                 setSeekBar(
                     holder = holder,
-                    valueList = SeekBarValueList.searchHistoryMaxCount,
+                    valueList = SeekBarConstants.searchHistoryMaxCount,
                     titleId = R.string.search_history_max_count,
                     configKey = Config.ConfigKeys.SearchHistory.MAX_COUNT,
                 )
@@ -256,9 +256,17 @@ class SettingAdapter(
             viewTypes.SEARCH_SUGGESTION_MAX_COUNT -> {
                 setSeekBar(
                     holder = holder,
-                    valueList = SeekBarValueList.searchSuggestionMaxCount,
+                    valueList = SeekBarConstants.searchSuggestionMaxCount,
                     titleId = R.string.search_suggestion_max_count,
                     configKey = Config.ConfigKeys.SearchSuggestion.MAX_COUNT,
+                )
+            }
+
+            viewTypes.CHECK_UPDATE_IGNORE_NETWORK_RESTRICTIONS -> {
+                setSwitch(
+                    holder = holder,
+                    titleId = R.string.check_update_ignore_network_restrictions,
+                    configKey = Config.ConfigKeys.CheckUpdate.CHECK_UPDATE_IGNORE_NETWORK_RESTRICTIONS,
                 )
             }
         }
@@ -349,8 +357,6 @@ class SettingAdapter(
         textViewTitle.text = context.getString(titleId)
 
         val textViewContent: TextView = holder.itemView.findViewById(R.id.textView_content)
-//        textViewContent.minWidth = context.resources.getDimension(R.dimen.layout_size_1_large).toInt()
-//        textViewContent.width = context.resources.getDimension(R.dimen.layout_size_2_Large).toInt()
 
         val seekBar: SeekBar = holder.itemView.findViewById(R.id.seekBar)
         SeekBarHelper.setSeekBar(

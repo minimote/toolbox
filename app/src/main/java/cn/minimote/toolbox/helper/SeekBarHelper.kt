@@ -12,6 +12,8 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.SeekBar
 import android.widget.TextView
+import cn.minimote.toolbox.constant.SeekBarConstants.LONG_PRESS_DELAY_MS
+import cn.minimote.toolbox.constant.SeekBarConstants.REPEAT_INTERVAL_MS
 import cn.minimote.toolbox.viewModel.MyViewModel
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.abs
@@ -25,9 +27,7 @@ object SeekBarHelper {
         fun setupTextView(value: String)
     }
 
-    // 长按连续触发相关常量
-    private const val LONG_PRESS_DELAY_MS: Long = 600  // 初始延迟时间
-    private const val REPEAT_INTERVAL_MS: Long = 100   // 重复触发间隔
+
 
     // 用于处理长按连续触发的Handler
     private val handler = Handler(Looper.getMainLooper())

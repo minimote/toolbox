@@ -15,6 +15,7 @@ object ViewTypes {
         const val SEARCH_TITLE = 3
     }
 
+
     // 编辑视图类型
     object Edit {
         const val PREVIEW = 0
@@ -24,6 +25,7 @@ object ViewTypes {
         const val DELETE = 4
         const val ALIGNMENT = 5
     }
+
 
     // 我的视图类型
     object My {
@@ -39,7 +41,25 @@ object ViewTypes {
         const val PROBLEM_FEEDBACK = 9
         const val SCHEME_LIST = 10
         const val APP_DETAIL = 11
+        const val BACKUP_AND_RESTORE = 12
+        const val LONG_PRESS_MENU = 13
+
+        val normalSet by lazy {
+            setOf(
+                SUPPORT_AUTHOR,
+                ABOUT_PROJECT,
+                SETTING,
+                INSTRUCTION,
+                UPDATE_LOG,
+                PROBLEM_FEEDBACK,
+                SCHEME_LIST,
+                APP_DETAIL,
+                BACKUP_AND_RESTORE,
+                LONG_PRESS_MENU,
+            )
+        }
     }
+
 
     // 支持作者视图类型
     object SupportAuthor {
@@ -51,15 +71,18 @@ object ViewTypes {
         const val OPERATE_WECHAT = 5
     }
 
+
     // 关于项目视图类型
     object AboutProject {
+        const val NOTICE_TITLE = -1
         const val NOTICE = 0
-        const val PROJECT_PATH_NAME = 1
+        const val PROJECT_PATH_TITLE = 1
         const val PROJECT_PATH_GITEE = 2
         const val PROJECT_PATH_GITHUB = 3
         const val LICENSE_TITLE = 4
         const val LICENSE = 5
     }
+
 
     // 设置视图类型
     object Setting {
@@ -95,6 +118,8 @@ object ViewTypes {
         const val SEARCH_HISTORY_MAX_COUNT = 17
         const val SEARCH_SUGGESTION_MAX_COUNT = 18
 
+        const val CHECK_UPDATE_IGNORE_NETWORK_RESTRICTIONS = 19
+
 
         val titleViewSet by lazy {
             setOf(
@@ -107,13 +132,16 @@ object ViewTypes {
             )
         }
 
+
         val switchViewSet by lazy {
             setOf(
                 EXIT_AFTER_LAUNCH,
                 SHOW_LIKE_ICON,
                 SHOW_UNAVAILABLE_TOOLS,
+                CHECK_UPDATE_IGNORE_NETWORK_RESTRICTIONS,
             )
         }
+
 
         val radioViewSet by lazy {
             setOf(
@@ -125,6 +153,7 @@ object ViewTypes {
                 HOME_PAGE,
             )
         }
+
 
         val seekBarSet by lazy {
             setOf(
@@ -162,12 +191,64 @@ object ViewTypes {
 
 
     object ToolList {
-        const val GROUP = 0
-        const val CHILD = 1
-        const val SEPARATOR = 2
-        const val NO_RESULT = 3
-        const val HISTORY_OR_SUGGESTION = 4
-        const val SEARCH_TITLE = 5
+        const val GROUP_NO_MARGIN_TOP = -1
+        const val GROUP_WITH_MARGIN_TOP = 0
+        const val CHILD_ITEM = 1
+        const val CHILD_ITEM_SWITCH = 2
+        const val SEPARATOR = 3
+        const val NO_RESULT = 4
+        const val HISTORY_OR_SUGGESTION = 5
+        const val SEARCH_TITLE = 6
+        const val BOTTOM_SPACE = 7
+    }
+
+
+    // 组件对齐方式
+    object WidgetAlignment {
+        const val LEFT = 0
+        const val CENTER = 1
+        const val RIGHT = 2
+    }
+
+
+    object Widget {
+        const val NORMAL = 0
+        const val DYNAMIC_SHORTCUT_TITLE = 1
+        const val NO_DYNAMIC_SHORTCUT = 2
+    }
+
+
+    // 备份与恢复
+    object BackupAndRecovery {
+
+        const val COLLECTION_TITLE = 0
+        const val COLLECTION_IMPORT = 1
+        const val COLLECTION_EXPORT = 2
+        const val COLLECTION_CLEAR = 3
+
+
+        const val SETTING_TITLE = 4
+        const val SETTING_IMPORT = 5
+        const val SETTING_EXPORT = 6
+        const val SETTING_RESTORE = 7
+        const val SETTING_RECOMMEND = 8
+
+
+
+        val titleViewSet by lazy {
+            setOf(
+                COLLECTION_TITLE,
+                SETTING_TITLE,
+            )
+        }
+
+    }
+
+
+    object Dialog {
+        const val TEXT = 0
+        const val CREATE_SHORTCUT = 1
+        const val DOWNLOAD = 2
     }
 
 }

@@ -15,8 +15,13 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.recyclerview.widget.LinearLayoutManager
 import cn.minimote.toolbox.R
+import cn.minimote.toolbox.adapter.DialogAdapter
 import cn.minimote.toolbox.constant.UI.DIALOG_WIDTH_RATE
+import cn.minimote.toolbox.helper.DimensionHelper.getLayoutSize
+import cn.minimote.toolbox.helper.DimensionHelper.setTextSize
+import cn.minimote.toolbox.ui.widget.ShadowConstraintLayout
 import cn.minimote.toolbox.viewModel.MyViewModel
 import kotlin.math.min
 
@@ -31,6 +36,7 @@ object DialogHelper {
         titleText: String = "",
         titleTextColor: Int? = null,
         messageText: String = "",
+        messageTextList: List<String> = listOf(),
         messageTextColor: Int? = null,
         positiveButtonText: String = context.getString(R.string.confirm),
         negativeButtonText: String = context.getString(R.string.cancel),
@@ -38,7 +44,7 @@ object DialogHelper {
         negativeButtonTextColor: Int? = null,
         positiveAction: (() -> Unit) = {},
         negativeAction: (() -> Unit) = {},
-    ) {
+    ): AlertDialog {
 
         val view: View = LayoutInflater.from(context).inflate(
             R.layout.layout_dialog,
@@ -55,6 +61,7 @@ object DialogHelper {
             titleText = titleText,
             titleTextColor = titleTextColor,
             messageText = messageText,
+            messageTextList = messageTextList,
             messageTextColor = messageTextColor,
             positiveButtonText = positiveButtonText,
             negativeButtonText = negativeButtonText,
@@ -64,6 +71,8 @@ object DialogHelper {
             negativeAction = negativeAction,
         )
         dialog.showMyDialog(viewModel = viewModel)
+
+        return dialog
     }
 
 
@@ -75,6 +84,7 @@ object DialogHelper {
         titleText: String = "",
         titleTextColor: Int? = null,
         messageText: String = "",
+        messageTextList: List<String> = listOf(),
         messageTextColor: Int? = null,
         positiveButtonText: String = context.getString(R.string.confirm),
         negativeButtonText: String = context.getString(R.string.cancel),
@@ -83,106 +93,6 @@ object DialogHelper {
         positiveAction: (() -> Unit) = {},
         negativeAction: (() -> Unit) = {},
     ) {
-
-//        val constraintLayoutRoot = view.findViewById<ConstraintLayout>(R.id.constraintLayout_root)
-//        constraintLayoutRoot.maxHeight = (viewModel.screenHeight * 0.5).toInt()
-//        constraintLayoutRoot.maxWidth = context.resources.getDimension(R.dimen.layout_size_dialog_maxWidth).toInt()
-
-
-//        val container: ConstraintLayout = view.findViewById(R.id.scrollView_container)
-//
-//        // 设置最大高度，例如500像素
-//        container.maxHeight = (viewModel.screenHeight * 0.5).toInt()
-
-
-        val paddingSize = context.resources.getDimension(
-            R.dimen.layout_size_2_footnote
-        ).toInt()
-
-        val textViewTitle = view.findViewById<TextView>(R.id.textView_title)
-        if(titleText.isNotEmpty()) {
-            textViewTitle.text = titleText
-            if(viewModel.isWatch) {
-                textViewTitle.setPadding(
-                    paddingSize,
-                    paddingSize,
-                    paddingSize,
-                    paddingSize,
-                )
-            }
-
-            if(messageText.isEmpty()) {
-                textViewTitle.setPadding(
-                    textViewTitle.paddingLeft,
-                    2 * textViewTitle.paddingTop,
-                    textViewTitle.paddingRight,
-                    textViewTitle.paddingBottom,
-                )
-            }
-
-            if(titleTextColor != null) {
-                textViewTitle.setTextColor(titleTextColor)
-            }
-        } else {
-            textViewTitle.visibility = View.GONE
-        }
-
-//        val scrollViewMessage = view.findViewById<ScrollView>(R.id.scrollView_message)
-//        // 创建一个自定义ViewTreeObserver来设置ScrollView的最大高度
-//        scrollViewMessage.viewTreeObserver.addOnGlobalLayoutListener(object :
-//            android.view.ViewTreeObserver.OnGlobalLayoutListener {
-//            override fun onGlobalLayout() {
-//                // 移除监听器以避免重复调用
-//                scrollViewMessage.viewTreeObserver.removeOnGlobalLayoutListener(this)
-//
-//                val layoutParams = scrollViewMessage.layoutParams
-//                val maxHeight = (viewModel.screenHeight * 0.5).toInt()
-//                if(scrollViewMessage.height > maxHeight) {
-//                    layoutParams.height = maxHeight
-//                    scrollViewMessage.layoutParams = layoutParams
-//                }
-//            }
-//        })
-
-        val textViewMessage = view.findViewById<TextView>(R.id.textView_message)
-        if(messageText.isNotEmpty()) {
-//            val indent = context.getString(R.string.indent)
-//            if(!messageText.startsWith(indent)) {
-//                textViewMessage.text = context.getString(
-//                    R.string.indent_with_arg,
-//                    messageText,
-//                )
-//            } else {
-            textViewMessage.text = messageText
-//            }
-            if(viewModel.isWatch) {
-                textViewMessage.setPadding(
-                    paddingSize, paddingSize, paddingSize, paddingSize,
-                )
-            }
-            if(messageTextColor != null) {
-                textViewMessage.setTextColor(messageTextColor)
-            }
-            // 两者都有内容时，取消消息顶部的 padding
-            if(titleText.isNotEmpty()) {
-                textViewMessage.setPadding(
-                    textViewMessage.paddingLeft,
-                    0,
-                    textViewMessage.paddingRight,
-                    textViewMessage.paddingBottom,
-                )
-            } else {
-                textViewMessage.setPadding(
-                    textViewMessage.paddingLeft,
-                    2 * textViewMessage.paddingTop,
-                    textViewMessage.paddingRight,
-                    textViewMessage.paddingBottom,
-                )
-                textViewMessage.gravity = Gravity.CENTER
-            }
-        } else {
-            textViewMessage.visibility = View.GONE
-        }
 
         val buttonPositive = view.findViewById<TextView>(R.id.button_positive)
         buttonPositive.text = positiveButtonText
@@ -206,23 +116,76 @@ object DialogHelper {
             buttonNegative.setTextColor(negativeButtonTextColor)
         }
 
-        val buttonPaddingSize = context.resources.getDimension(
-            R.dimen.layout_size_4_tiny
-        ).toInt()
-        if(viewModel.isWatch) {
-            buttonNegative.setPadding(
-                buttonPaddingSize,
-                buttonNegative.paddingTop,
-                buttonPaddingSize,
-                buttonNegative.paddingBottom,
-            )
-            buttonPositive.setPadding(
-                buttonPaddingSize,
-                buttonPositive.paddingTop,
-                buttonPaddingSize,
-                buttonPositive.paddingBottom,
-            )
+        val shadowConstraintLayout =
+            view.findViewById<ShadowConstraintLayout>(R.id.include_shadow_constraintLayout_recyclerView)
+
+
+        val textViewTitle = view.findViewById<TextView>(R.id.textView_title)
+
+
+
+        if(titleText.isNotEmpty()) {
+
+            textViewTitle.text = titleText
+            textViewTitle.setTypeface(null, android.graphics.Typeface.BOLD)
+            if(titleTextColor != null) {
+                textViewTitle.setTextColor(titleTextColor)
+            }
+
         }
+
+
+        if(messageText.isNotEmpty()) {
+            if(titleText.isEmpty()) {
+                // 只有单条消息内容，没有标题
+                textViewTitle.text = messageText
+                textViewTitle.setTypeface(null, android.graphics.Typeface.NORMAL)
+                setTextSize(
+                    textView = textViewTitle,
+                    textSizeDimensionId = R.dimen.text_size_0_normal,
+                    context = context,
+                )
+
+                // 显示分割线
+                val viewFooterSeparator = view.findViewById<View>(R.id.view_footer_separator)
+                viewFooterSeparator.visibility = View.VISIBLE
+
+                if(messageTextColor != null) {
+                    textViewTitle.setTextColor(messageTextColor)
+                }
+                shadowConstraintLayout.visibility = View.GONE
+                return
+            }
+        } else if(titleText.isEmpty()) {
+            // 没有标题，没有单条消息(有多条消息)
+            textViewTitle.visibility = View.GONE
+        }
+
+        val recyclerView = shadowConstraintLayout.recyclerView
+
+        recyclerView.layoutManager = LinearLayoutManager(context)
+        recyclerView.adapter = DialogAdapter(
+            viewModel = viewModel,
+            context = context,
+            dataList = if(messageText.isEmpty()) {
+                messageTextList
+            } else {
+                listOf(messageText)
+            },
+            gravity = if(messageText.isEmpty()) {
+                Gravity.START
+            } else {
+                Gravity.CENTER
+            },
+            textColor = messageTextColor,
+        )
+        shadowConstraintLayout.setShadow(
+            viewModel = viewModel,
+            addBottomPadding = false,
+            shadowTopBackgroundResId = R.drawable.background_mask_top_verydeepgray,
+            shadowBottomBackgroundResId = R.drawable.background_mask_bottom_verydeepgray,
+        )
+
     }
 
 
@@ -233,6 +196,23 @@ object DialogHelper {
         val dialog = AlertDialog.Builder(
             context, R.style.dialog
         ).setView(view).create()
+
+        if(DeviceHelper.isWatch(context)) {
+            val buttonPositive = view.findViewById<TextView>(R.id.button_positive)
+            setTextSize(
+                textView = buttonPositive,
+                textSizeDimensionId = R.dimen.text_size_1_small,
+                context = context,
+            )
+
+            val buttonNegative = view.findViewById<TextView>(R.id.button_negative)
+            setTextSize(
+                textView = buttonNegative,
+                textSizeDimensionId = R.dimen.text_size_1_small,
+                context = context,
+            )
+        }
+
 
         // 允许点击外部区域关闭对话框
         dialog.setCanceledOnTouchOutside(true)
@@ -251,30 +231,19 @@ object DialogHelper {
 
 //        // 在显示后立即设置窗口属性，避免闪烁
         this.window?.let { window ->
-            val maxWidth = viewModel.myContext.resources.getDimension(
+            val maxWidth = getLayoutSize(
+                viewModel.myContext,
                 R.dimen.layout_size_dialog_maxWidth
-            ).toInt()
-//            val maxWidth = window.decorView.width
+            )
+
             val displayWidth = (viewModel.screenWidth * DIALOG_WIDTH_RATE).toInt()
             val dialogWidth = min(maxWidth, displayWidth)
-//
-//            val displayHeight = (viewModel.screenHeight * DIALOG_HEIGHT_RATE).toInt()
-//            val maxHeight = viewModel.myContext.resources.getDimension(
-//                R.dimen.layout_size_dialog_maxHeight
-//            ).toInt()
-//            val dialogHeight = min(maxHeight, displayHeight)
-//
-//            // 使用post确保在视图布局完成后再获取高度
-//            window.decorView.post {
-//                val currentHeight = window.decorView.height
-//                val dialogHeight = min(maxHeight, currentHeight)
-//
-//            window.setLayout(dialogWidth, dialogHeight)
-            window.setLayout(dialogWidth, WindowManager.LayoutParams.WRAP_CONTENT)
-                window.setGravity(Gravity.CENTER)
 
-                // 强制刷新窗口布局
-                window.decorView.requestLayout()
+            window.setLayout(dialogWidth, WindowManager.LayoutParams.WRAP_CONTENT)
+            window.setGravity(Gravity.CENTER)
+
+            // 强制刷新窗口布局
+            window.decorView.requestLayout()
 //
 //                // 恢复窗口可见性和焦点
 //                window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)

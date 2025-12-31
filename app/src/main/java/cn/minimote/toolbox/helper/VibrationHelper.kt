@@ -36,6 +36,7 @@ object VibrationHelper {
             delay(delayMillis)
 
             vibrateOnClick(viewModel, milliseconds)
+
         }
     }
 
@@ -43,7 +44,11 @@ object VibrationHelper {
     // 点击时震动
     fun vibrateOnClick(
         viewModel: MyViewModel,
-        milliseconds: Long = 100L,
+        milliseconds: Long = if(viewModel.isWatch) {
+            50L
+        } else {
+            100L
+        },
     ) {
         val context = viewModel.myContext
         val vibrator = getVibrator(context)
@@ -79,14 +84,68 @@ object VibrationHelper {
     }
 
 
+    // 彩蛋界面长按持续震动，频率逐渐加快，3秒后达到最大频率后保持
+    fun vibrateOnEasterEggPress(
+        viewModel: MyViewModel,
+    ) {
+        val context = viewModel.myContext
+        val vibrator = getVibrator(context)
+        if(enableVibration(
+                vibrator = vibrator, context = context,
+                viewModel = viewModel
+            )
+        ) {
+            easterEggVibration(vibrator)
+        }
+    }
+
+
+    // 越界回弹和滚动到边缘的振动
+    fun vibrateOnScrollToEdge(
+        viewModel: MyViewModel,
+        milliseconds: Long = if(viewModel.isWatch) {
+            5L
+        } else {
+            10L
+        },
+    ) {
+        vibrateOnClick(
+            viewModel = viewModel,
+            milliseconds = milliseconds,
+        )
+    }
+
+
+    fun vibrateOnViewPagerScroll(
+        viewModel: MyViewModel,
+        milliseconds: Long = if(viewModel.isWatch) {
+            10L
+        } else {
+            20L
+        },
+    ) {
+        vibrateOnClick(
+            viewModel = viewModel,
+            milliseconds = milliseconds,
+        )
+    }
+
+
+    // 停止所有振动
+    fun cancelVibration(viewModel: MyViewModel) {
+        val context = viewModel.myContext
+        val vibrator = getVibrator(context)
+        vibrator.cancel()
+    }
+
+
     // 不振动，仅用于占位
     fun vibrateNoVibration(
-        viewModel: MyViewModel,
         milliseconds: Long = 100L,
     ) {
         try {
             Thread.sleep(milliseconds)
-        } catch(e: InterruptedException) {
+        } catch(_: InterruptedException) {
             Thread.currentThread().interrupt()
         }
     }
@@ -159,25 +218,49 @@ object VibrationHelper {
     }
 
 
-    // 获取振动模式对应的字符串
-    fun getVibrationModeString(context: Context, vibrationMode: String): String {
-        return when(vibrationMode) {
-            VibrationMode.ON -> {
-                context.getString(cn.minimote.toolbox.R.string.vibration_mode_on)
-            }
+    // 彩蛋界面的渐进式振动样式
+    private fun easterEggVibration(vibrator: Vibrator) {
+        // 创建一个简单的渐进式振动效果，避免在主线程做复杂计算
+        // 初始: 震动100ms, 间隔100ms
+        // 最终: 震动50ms, 间隔20ms
+        // 使用预定义的模式，避免运行时计算
+        val vibrateTime = 25L
 
-            VibrationMode.OFF -> {
-                context.getString(cn.minimote.toolbox.R.string.vibration_mode_off)
-            }
-
-            VibrationMode.AUTO -> {
-                context.getString(cn.minimote.toolbox.R.string.vibration_mode_auto)
-            }
-
-            else -> {
-                throw IllegalArgumentException("非法的振动模式：$vibrationMode")
-            }
-        }
+        val timings = longArrayOf(
+            0, vibrateTime, 500, vibrateTime,
+            450, vibrateTime, 400, vibrateTime,
+            350, vibrateTime, 300, vibrateTime,
+            250, vibrateTime, 200, vibrateTime,
+            150, vibrateTime, 100, vibrateTime,
+            30, vibrateTime, 25, vibrateTime,
+//            15, vibrateTime, 15, vibrateTime,
+//            7, vibrateTime, 7, vibrateTime,
+        )
+        // 重复最后两个
+        val effect = VibrationEffect.createWaveform(timings, timings.size - 2)
+        vibrator.vibrate(effect)
     }
+
+
+//    // 获取振动模式对应的字符串
+//    fun getVibrationModeString(context: Context, vibrationMode: String): String {
+//        return when(vibrationMode) {
+//            VibrationMode.ON -> {
+//                context.getString(cn.minimote.toolbox.R.string.vibration_mode_on)
+//            }
+//
+//            VibrationMode.OFF -> {
+//                context.getString(cn.minimote.toolbox.R.string.vibration_mode_off)
+//            }
+//
+//            VibrationMode.AUTO -> {
+//                context.getString(cn.minimote.toolbox.R.string.vibration_mode_auto)
+//            }
+//
+//            else -> {
+//                throw IllegalArgumentException("非法的振动模式：$vibrationMode")
+//            }
+//        }
+//    }
 
 }

@@ -26,38 +26,36 @@ object StoredToolHelper {
     private val gson = Gson()
 
     // 获取存储文件对象
-    private fun getStoredFile(viewModel: MyViewModel): File {
-        return File(viewModel.dataPath, STORED_FILE_NAME)
+    fun MyViewModel.getStoredFile(): File {
+        return File(this.dataPath, STORED_FILE_NAME)
     }
 
 
     // 保存活动列表
-    fun saveStoredActivityList(
-        viewModel: MyViewModel,
-        storedToolList: MutableList<StoredTool>
+    fun MyViewModel.saveStoredActivityList(
+        storedToolList: MutableList<StoredTool>,
     ) {
         if(storedToolList.isNotEmpty()) {
             synchronized(this) {
-                val storedActivityContainer =
-                    StoredActivityContainer(
-                        version = Version.STORED_ACTIVITY,
-                        data = storedToolList,
-                    )
+                val storedActivityContainer = StoredActivityContainer(
+                    version = Version.STORED_ACTIVITY,
+                    data = storedToolList,
+                )
                 val json = gson.toJson(storedActivityContainer)
-                val file = getStoredFile(viewModel)
+                val file = getStoredFile()
                 FileOutputStream(file).use { outputStream ->
                     outputStream.write(json.toByteArray(ENCODING))
                 }
             }
         } else {
-            deleteStorageFile(viewModel)
+            deleteStorageFile()
         }
     }
 
 
     // 加载存储列表
-    fun loadStoredToolList(viewModel: MyViewModel): MutableList<StoredTool> {
-        val file = getStoredFile(viewModel)
+    fun MyViewModel.loadStoredToolList(): MutableList<StoredTool> {
+        val file = this.getStoredFile()
 //        LogHelper.e("loadStoredToolList", "读取文件: ${file.absolutePath}")
 
         if(!file.exists()) {
@@ -72,7 +70,7 @@ object StoredToolHelper {
                 if(json.isBlank()) {
                     // 文件存在但内容为空，视为无效文件
 //                    Log.e("ActivityStorageHelper", "文件内容为空")
-                    deleteStorageFile(viewModel)
+                    deleteStorageFile()
                     return mutableListOf()
                 }
 
@@ -81,37 +79,34 @@ object StoredToolHelper {
 
                 // 如果列表为空或者版本不一致，则删除文件
                 if(storedActivityContainer.data.isEmpty() || storedActivityContainer.version != Version.STORED_ACTIVITY) {
-                    deleteStorageFile(viewModel)
+                    deleteStorageFile()
                     return mutableListOf()
                 }
                 storedActivityContainer.data
             } catch(e: Exception) {
 //                Log.e("ActivityStorageHelper", "读取文件出错: ${e.message}", e)
                 e.printStackTrace()
-                deleteStorageFile(viewModel=viewModel, silence = false)
+                deleteStorageFile(silence = false)
                 mutableListOf()
             }
         }
     }
 
 
-    // 删除有问题的文件
-    private fun deleteStorageFile(
-        viewModel: MyViewModel,
+    // 删除文件
+    fun MyViewModel.deleteStorageFile(
         silence: Boolean = true, // 是否静默
     ) {
-        val context = viewModel.myContext
+        val context = this.myContext
         // Log.e("ActivityStorageHelper", "删除文件")
         if(!silence) {
             Toast.makeText(
                 context, context.getString(R.string.data_error_and_delete_file),
                 Toast.LENGTH_LONG,
             ).show()
-            return
         }
-        val file = getStoredFile(viewModel)
-        if(file.exists()) {
-            file.delete()
-        }
+
+        FileHelper.deleteFile(getStoredFile())
     }
+
 }

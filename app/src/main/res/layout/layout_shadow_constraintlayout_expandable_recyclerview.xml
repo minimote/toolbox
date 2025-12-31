@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cn.minimote.toolbox.ui.widget.ShadowConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/ConstraintLayout.Toolbox.Dark"
+    android:layout_height="match_parent">
+
+
+    <com.scwang.smart.refresh.layout.SmartRefreshLayout
+        android:id="@+id/refreshLayout"
+        style="@style/SmartRefreshLayout.Toolbox.Dark"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+
+        <cn.minimote.toolbox.ui.widget.ExpandableRecyclerView
+            android:id="@+id/recyclerView"
+            style="@style/RecyclerView.Toolbox.Dark"
+            android:layout_height="match_parent"
+            android:paddingHorizontal="@dimen/layout_size_fragment_gapSize"
+            tools:itemCount="2" />
+
+
+    </com.scwang.smart.refresh.layout.SmartRefreshLayout>
+
+
+    <View
+        android:id="@+id/view_shadow_top"
+        style="@style/View.Toolbox.MaskTop.Dark"
+        app:layout_constraintEnd_toEndOf="@id/refreshLayout"
+        app:layout_constraintStart_toStartOf="@id/refreshLayout"
+        app:layout_constraintTop_toTopOf="@id/refreshLayout" />
+
+
+    <View
+        android:id="@+id/view_shadow_bottom"
+        style="@style/View.Toolbox.MaskBottom.Dark"
+        app:layout_constraintBottom_toBottomOf="@id/refreshLayout"
+        app:layout_constraintEnd_toEndOf="@id/refreshLayout"
+        app:layout_constraintStart_toStartOf="@id/refreshLayout" />
+
+
+</cn.minimote.toolbox.ui.widget.ShadowConstraintLayout>

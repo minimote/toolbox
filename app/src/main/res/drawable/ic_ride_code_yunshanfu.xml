@@ -1,0 +1,78 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="924"
+    android:viewportHeight="924">
+
+
+    <path
+        android:fillColor="@color/background_tool_ic"
+        android:pathData="M0,0h1624v1624H0z" />
+
+
+    <group
+        android:translateX="-50"
+        android:translateY="-50">
+
+        <!--        <path-->
+        <!--            android:fillColor="@color/yunshanfu_red"-->
+        <!--            android:pathData="M587.6,472.4a36,36 0,0 0,36 -36V134a36,36 0,0 0,-72 0v302.4a36,36 0,0 0,36 36z" />-->
+        <!--        <path-->
+        <!--            android:fillColor="@color/yunshanfu_red"-->
+        <!--            android:pathData="M738.8,220.4a36,36 0,0 0,36 -36V134a36,36 0,0 0,-72 0v50.4a36,36 0,0 0,36 36z" />-->
+        <!--        <path-->
+        <!--            android:fillColor="@color/yunshanfu_red"-->
+        <!--            android:pathData="M738.8,472.4a36,36 0,0 0,36 -36V285.2a36,36 0,0 0,-72 0v151.2a36,36 0,0 0,36 36z" />-->
+        <!--        <path-->
+        <!--            android:fillColor="@color/yunshanfu_red"-->
+        <!--            android:pathData="M890,98a36,36 0,0 0,-36 36v151.2a36,36 0,0 0,72 0V134a36,36 0,0 0,-36 -36z" />-->
+        <!--        <path-->
+        <!--            android:fillColor="@color/yunshanfu_red"-->
+        <!--            android:pathData="M890,350a36,36 0,0 0,-36 36v50.4a36,36 0,0 0,72 0V386a36,36 0,0 0,-36 -36z" />-->
+        <!--        <path-->
+        <!--            android:fillColor="@color/yunshanfu_red"-->
+        <!--            android:pathData="M134,472.4h302.4a36,36 0,0 0,36 -36V134a36,36 0,0 0,-36 -36H134a36,36 0,0 0,-36 36v302.4a36,36 0,0 0,36 36zM170,170h230.4v230.4H170z" />-->
+        <!--        <path-->
+        <!--            android:fillColor="@color/yunshanfu_red"-->
+        <!--            android:pathData="M301.1,234.8H269a34.3,34.3 0,0 0,-34.3 34.3v32.1a34.3,34.3 0,0 0,34.3 34.3h32.1a34.3,34.3 0,0 0,34.3 -34.3v-32.1a34.2,34.2 0,0 0,-34.3 -34.3z" />-->
+        <!--        <path-->
+        <!--            android:fillColor="@color/yunshanfu_red"-->
+        <!--            android:pathData="M315.7,750h3.3a34.3,34.3 0,0 0,34.3 -34.3v-3.3a34.3,34.3 0,0 0,-34.3 -34.3h-3.3a34.3,34.3 0,0 0,-34.3 34.3v3.3a34.2,34.2 0,0 0,34.3 34.3z" />-->
+        <!--        <path-->
+        <!--            android:fillColor="@color/yunshanfu_red"-->
+        <!--            android:pathData="M700.5,750h3.3a34.3,34.3 0,0 0,34.3 -34.3v-3.3a34.3,34.3 0,0 0,-34.3 -34.3h-3.3a34.3,34.3 0,0 0,-34.3 34.3v3.3a34.2,34.2 0,0 0,34.3 34.3z" />-->
+        <!--        <path-->
+        <!--            android:fillColor="@color/yunshanfu_red"-->
+        <!--            android:pathData="M890,538.2L134,538.2a36,36 0,0 0,-36 36v209.4a108.1,108.1 0,0 0,108 108h36.4a64.7,64.7 0,0 0,22.2 21.9c13.7,8.2 30.8,12.1 52.4,12.1s38.7,-4 52.4,-12.1a63,63 0,0 0,22.2 -21.9h236.9a64.7,64.7 0,0 0,22.2 21.9c13.7,8.2 30.8,12.1 52.4,12.1s38.7,-4 52.4,-12.1a63,63 0,0 0,22.2 -21.9h40.4a108.1,108.1 0,0 0,108 -108L926.1,574.2a36.1,36.1 0,0 0,-36.1 -36zM854,783.6a36,36 0,0 1,-36 36h-67a36,36 0,0 0,-35.9 33,73.7 73.7,0 0,1 -24.2,0 36.3,36.3 0,0 0,-10.4 -22.5,35.8 35.8,0 0,0 -25.5,-10.5L365,819.6a36,36 0,0 0,-35.9 33,73.7 73.7,0 0,1 -24.2,0 36,36 0,0 0,-35.9 -33h-63a36,36 0,0 1,-36 -36L170,610.2h684z" />-->
+
+        <!--  <path-->
+        <!--      android:pathData="M512,0c282.8,0 512,229.2 512,512S794.8,1024 512,1024 0,794.8 0,512 229.2,0 512,0zM512,36.6C249.4,36.6 36.6,249.4 36.6,512s212.8,475.4 475.4,475.4 475.4,-212.8 475.4,-475.4S774.6,36.6 512,36.6z"-->
+        <!--      android:fillColor="#28C881"-->
+        <!--      android:fillAlpha="0.3"/>-->
+        <path
+            android:fillAlpha="0.8"
+            android:fillColor="@color/yunshanfu_red"
+            android:pathData="M372.3,663.7a58.4,58.4 0,1 1,0 116.8,58.4 58.4,0 0,1 0,-116.8zM664.2,663.7a58.4,58.4 0,1 1,0 116.8,58.4 58.4,0 0,1 0,-116.8z"
+            android:strokeAlpha="1" />
+        <path
+            android:fillColor="@color/yunshanfu_red"
+            android:pathData="M427.9,225.7L309,225.7a64.2,64.2 0,0 0,-64.2 64.2v136.3a53.7,53.7 0,0 0,53.7 53.7h129.3a64.2,64.2 0,0 0,64.2 -64.2L492.1,289.9a64.2,64.2 0,0 0,-64.2 -64.2zM427.9,278.2c6.4,0 11.7,5.2 11.7,11.7L439.6,415.7c0,6.4 -5.2,11.7 -11.7,11.7L298.5,427.4a1.2,1.2 0,0 1,-1.2 -1.2L297.4,289.9c0,-6.4 5.2,-11.7 11.7,-11.7L427.9,278.2z" />
+        <path
+            android:fillColor="@color/yunshanfu_red"
+            android:pathData="M267.2,501.9h493.9c12.9,0 23.4,10.5 23.4,23.4v106.9a93.4,93.4 0,0 1,-93.4 93.4H337.2A93.4,93.4 0,0 1,243.8 632.2v-106.9c0,-12.9 10.5,-23.4 23.4,-23.4z" />
+        <path
+            android:fillColor="@color/black"
+            android:pathData="M349.9,610.4m-52.6,0a52.6,52.6 0,1 0,105.1 0,52.6 52.6,0 1,0 -105.1,0Z" />
+        <path
+            android:fillColor="@color/black"
+            android:pathData="M676.1,610.4m-52.6,0a52.6,52.6 0,1 0,105.1 0,52.6 52.6,0 1,0 -105.1,0Z" />
+        <path
+            android:fillColor="@color/yunshanfu_red"
+            android:pathData="M598,343.5v74.6h46.6L644.6,343.5h139.8v95.5a35,35 0,0 1,-35 35L728.5,474v-74.6h-28v74.6L577.1,474a35,35 0,0 1,-35 -35v-95.5h55.9zM598,231.6v93.2h-55.9L542.1,266.7A35,35 0,0 1,577.1 231.6h20.9zM691.2,231.6v55.9h-55.9L635.3,231.6L691.2,231.6zM742.4,231.6a42,42 0,0 1,42 42v13.9L728.5,287.5L728.5,231.6h13.9z" />
+        <path
+            android:fillColor="@color/yunshanfu_red"
+            android:pathData="M327.7,315.5m10.5,0l53.6,0q10.5,0 10.5,10.5l0,53.6q0,10.5 -10.5,10.5l-53.6,0q-10.5,0 -10.5,-10.5l0,-53.6q0,-10.5 10.5,-10.5Z" />
+
+    </group>
+
+</vector>

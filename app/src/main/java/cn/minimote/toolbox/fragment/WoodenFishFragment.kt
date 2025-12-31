@@ -13,10 +13,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.viewModel.MyViewModel
-import dagger.hilt.android.AndroidEntryPoint
 
 
-@AndroidEntryPoint
 class WoodenFishFragment : Fragment() {
 
     private val viewModel: MyViewModel by activityViewModels()
@@ -37,14 +35,6 @@ class WoodenFishFragment : Fragment() {
 //        recyclerView.adapter = adapter
 //
 //        val context = requireContext()
-//        // 添加分割线
-//        recyclerView.addItemDecoration(
-//            MyDividerItemDecoration(
-//                context = context,
-//                dividerColor = context.getColor(R.color.deep_gray),
-//                width = resources.getDimension(R.dimen.layout_size_5_very_tiny).toInt(),
-//            )
-//        )
 
         return view
     }

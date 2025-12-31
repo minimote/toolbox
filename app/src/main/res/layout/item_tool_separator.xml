@@ -1,12 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<View xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/view_line"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/layout_size_5_very_tiny"
-        android:layout_marginHorizontal="@dimen/layout_size_3_script"
-        android:background="@color/deep_gray" />
-
-</LinearLayout>
+    android:layout_height="@dimen/layout_size_5_small"
+    android:layout_marginHorizontal="@dimen/layout_size_3_small"
+    android:background="@color/deep_gray_trans" />

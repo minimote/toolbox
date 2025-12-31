@@ -1,0 +1,25 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="1024"
+    android:viewportHeight="1024">
+
+
+    <path
+        android:fillColor="@color/background_tool_ic"
+        android:pathData="M-10,-10h1524v1524H-10z" />
+
+
+    <group
+        android:translateX="0"
+        android:translateY="0">
+
+
+        <path
+            android:fillColor="@color/alipay_blue"
+            android:pathData="M620.5,587.3c54.3,-98.3 73.7,-192 73.7,-192L512,395.3L512,326.1h216.6v-29.7L512,296.4L512,193h-98.8v103.4h-197.1v29.7h197.1v69.1L245.8,395.3v29.7h340c0,5.1 0,5.1 -5.1,9.7 0,34.3 -24.6,83.5 -44.5,123.4 -250.9,-98.8 -325.1,-39.4 -344.6,-29.7 -167.4,118.3 -9.7,266.2 14.8,261.1 177.2,39.4 290.8,-34.3 369.7,-128 5.1,5.1 9.7,5.1 14.8,5.1 54.3,29.7 315.4,152.6 315.4,152.6v-148c-39.4,-0.5 -182.3,-49.7 -285.7,-84zM492.5,631.3c-123.4,157.7 -270.8,108.5 -295.4,98.3 -58.9,-14.8 -78.8,-123.4 -5.1,-157.7 123.4,-39.4 231.4,5.1 310.3,44.5 -5.1,10.2 -9.7,14.8 -9.7,14.8z" />
+
+    </group>
+
+
+</vector>

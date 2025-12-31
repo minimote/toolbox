@@ -25,29 +25,28 @@ object BottomSheetDialogHelper {
         viewModel: MyViewModel,
         tool: Tool? = null,
         menuList: List<Int>,
-        activity: MainActivity,
+        myActivity: MainActivity,
         onMenuItemClick: (Int) -> Unit = {}, // 回调函数
     ): BottomSheetDialog {
-        val context = activity
-        val viewPager = activity.viewPager
+        val viewPager = myActivity.viewPager
         val bottomSheetDialog = BottomSheetDialog(
-            context,
+            myActivity,
             R.style.TranslucentBottomSheet,
         )
 
-        val view = LayoutInflater.from(context).inflate(R.layout.layout_bottom_sheet_menu, null)
+        val view = LayoutInflater.from(myActivity).inflate(R.layout.layout_bottom_sheet_menu, null)
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView_bottomSheet)
         recyclerView.adapter = BottomSheetAdapter(
-            context = context,
+            context = myActivity,
             viewModel = viewModel,
-            activity = activity,
+            myActivity = myActivity,
             tool = tool,
             bottomSheetDialog = bottomSheetDialog,
             menuList = menuList,
             onMenuItemClick = onMenuItemClick,
         )
-        recyclerView.layoutManager = LinearLayoutManager(context)
+        recyclerView.layoutManager = LinearLayoutManager(myActivity)
 
         bottomSheetDialog.setContentView(view)
         // 允许点击外部关闭
@@ -88,7 +87,7 @@ object BottomSheetDialogHelper {
             viewModel = viewModel,
             tool = tool,
             menuList = menuList,
-            activity = activity,
+            myActivity = activity,
             onMenuItemClick = onMenuItemClick,
         )
         bottomSheetDialog.show()

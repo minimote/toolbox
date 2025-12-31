@@ -5,101 +5,134 @@
 
 package cn.minimote.toolbox.ui.widget
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Typeface
 import android.util.AttributeSet
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
-import android.view.ViewConfiguration
 import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.fragment.app.Fragment
+import androidx.core.view.isVisible
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import cn.minimote.toolbox.R
 import cn.minimote.toolbox.activity.MainActivity
 import cn.minimote.toolbox.constant.Config
 import cn.minimote.toolbox.constant.MenuList
 import cn.minimote.toolbox.constant.MenuType
 import cn.minimote.toolbox.constant.ToolID
+import cn.minimote.toolbox.constant.UI
 import cn.minimote.toolbox.constant.ViewTypes
 import cn.minimote.toolbox.dataClass.ExpandableGroup
 import cn.minimote.toolbox.dataClass.Tool
+import cn.minimote.toolbox.helper.AnimationHelper.cancelAnimation
+import cn.minimote.toolbox.helper.AnimationHelper.rotate
+import cn.minimote.toolbox.helper.AnimationHelper.scaleDown
+import cn.minimote.toolbox.helper.AnimationHelper.scaleUp
 import cn.minimote.toolbox.helper.BottomSheetDialogHelper
 import cn.minimote.toolbox.helper.ClipboardHelper
 import cn.minimote.toolbox.helper.ConfigHelper.getConfigValue
-import cn.minimote.toolbox.helper.ConfigHelper.saveUserConfig
-import cn.minimote.toolbox.helper.ConfigHelper.updateConfigValue
 import cn.minimote.toolbox.helper.DialogHelper
+import cn.minimote.toolbox.helper.DimensionHelper.getLayoutSize
+import cn.minimote.toolbox.helper.IconHelper.cancelLoadImage
+import cn.minimote.toolbox.helper.IconHelper.getDrawable
+import cn.minimote.toolbox.helper.IconHelper.loadImage
+import cn.minimote.toolbox.helper.ImageSaveHelper.saveImage
 import cn.minimote.toolbox.helper.LaunchHelper
+import cn.minimote.toolbox.helper.OtherConfigHelper.getUiStateConfigValue
+import cn.minimote.toolbox.helper.OtherConfigHelper.saveUiStateConfig
+import cn.minimote.toolbox.helper.OtherConfigHelper.updateUiStateConfigValue
 import cn.minimote.toolbox.helper.SchemeHelper
 import cn.minimote.toolbox.helper.SearchHelper
+import cn.minimote.toolbox.helper.ShortcutHelper.getMaxShortcutCount
+import cn.minimote.toolbox.helper.ShortcutHelper.reachShortcutMaxCnt
+import cn.minimote.toolbox.helper.TypeConversionHelper.toStringList
 import cn.minimote.toolbox.helper.VibrationHelper
+import cn.minimote.toolbox.holder.NoResultViewHolder
 import cn.minimote.toolbox.viewModel.MyViewModel
 import com.google.android.flexbox.AlignItems
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
-import org.json.JSONArray
-import kotlin.math.abs
+import com.google.android.material.switchmaterial.SwitchMaterial
+
 
 class ExpandableRecyclerView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
-) : RecyclerView(context, attrs, defStyleAttr) {
+) : FixedSizeRecyclerView(context, attrs, defStyleAttr) {
 
 
+    //    private lateinit var coilIconHelper: CoilIconHelper
     private lateinit var adapter: ExpandableAdapter
     private lateinit var viewModel: MyViewModel
     private lateinit var myActivity: MainActivity
-    private lateinit var fragment: Fragment
     private var isSchemeList: Boolean = false
-    private lateinit var configKey: String
+    private val configKey: String
+        get() = if(isSchemeList) {
+            Config.ConfigKeys.CollapsedGroups.SCHEME_LIST
+        } else {
+            Config.ConfigKeys.CollapsedGroups.TOOL_LIST
+        }
     private var emptyAreaClickAction: () -> Unit = {}
-    private var getQuery: () -> String = {""}
+    private var getQuery: () -> String = { "" }
     private var updateSearchHistoryAndSuggestion: (String) -> Unit = {}
     private var clearSearchHistoryOrSuggestion: (String) -> Unit = {}
     private var setSearchBoxText: (String) -> Unit = {}
+
+    //    private lateinit var viewShadowTop: View
+//    private lateinit var viewShadowBottom: View
+    private lateinit var shadowConstraintLayout: ShadowConstraintLayout
+
+
+//    init {
+    // 设置带有展开/折叠动画的 ItemAnimator
+//        itemAnimator = ExpandableItemAnimator()
+//        itemAnimator = null
+//    }
 
 
     fun setParameters(
         viewModel: MyViewModel,
         myActivity: MainActivity,
         isSchemeList: Boolean,
-        fragment: Fragment,
+        shadowConstraintLayout: ShadowConstraintLayout,
         emptyAreaClickListener: () -> Unit,
         getQuery: () -> String,
         updateSearchHistoryAndSuggestion: (String) -> Unit,
         clearSearchHistoryOrSuggestion: (String) -> Unit,
         setSearchBoxText: (String) -> Unit,
+        actionOnClick: ((Tool) -> Unit) = {},
     ) {
         this.viewModel = viewModel
         this.myActivity = myActivity
         this.isSchemeList = isSchemeList
-        this.fragment = fragment
+//        this.fragment = fragment
         this.emptyAreaClickAction = emptyAreaClickListener
         this.getQuery = getQuery
         this.updateSearchHistoryAndSuggestion = updateSearchHistoryAndSuggestion
         this.clearSearchHistoryOrSuggestion = clearSearchHistoryOrSuggestion
         this.setSearchBoxText = setSearchBoxText
+//        this.coilIconHelper = CoilIconHelper(viewModel)
+        this.shadowConstraintLayout = shadowConstraintLayout
 
-        configKey = if(isSchemeList) {
-            Config.ConfigKeys.CollapsedGroups.SCHEME_LIST
-        } else {
-            Config.ConfigKeys.CollapsedGroups.TOOL_LIST
-        }
 
         // 初始化适配器
-        adapter = ExpandableAdapter()
+        adapter = ExpandableAdapter(
+            actionOnClick = actionOnClick,
+        )
 
         // 手表使用 LinearLayoutManager
+        // 使用后会出现项目错位问题，所以统一用 LinearLayoutManager
         if(viewModel.isWatch) {
             layoutManager = LinearLayoutManager(context)
         } else {
@@ -114,11 +147,18 @@ class ExpandableRecyclerView @JvmOverloads constructor(
         }
 
 
-        // 设置带有展开/折叠动画的 ItemAnimator
-//        itemAnimator = ExpandableItemAnimator()
-        itemAnimator = null
-
         setAdapter(adapter)
+
+
+//        if(parent is ShadowConstraintLayout) {
+//            (parent as ShadowConstraintLayout).setShadow()
+//        }
+//        LogHelper.e(
+//            "折叠列表",
+//            "${parent.javaClass.simpleName}"
+//        )
+        shadowConstraintLayout.setShadow(viewModel = viewModel, addBottomPadding = false)
+
 
         // 添加点击监听器到 RecyclerView 本身
 //        this.addOnItemTouchListener(object : SimpleOnItemTouchListener() {
@@ -132,44 +172,44 @@ class ExpandableRecyclerView @JvmOverloads constructor(
 //            }
 //        })
 
-        this.addOnItemTouchListener(object : SimpleOnItemTouchListener() {
-            private var startX = 0f
-            private var startY = 0f
-            private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
-
-            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
-                when(e.action) {
-                    MotionEvent.ACTION_DOWN -> {
-                        startX = e.x
-                        startY = e.y
-                        // 不拦截 ACTION_DOWN 事件
-                        return false
-                    }
-
-                    MotionEvent.ACTION_UP -> {
-                        val endX = e.x
-                        val endY = e.y
-                        val deltaX = abs(endX - startX)
-                        val deltaY = abs(endY - startY)
-
-                        // 只有当是点击事件（移动距离小于 touchSlop）并且点击在空白区域时才处理
-                        if(deltaX < touchSlop && deltaY < touchSlop) {
-                            val childView = rv.findChildViewUnder(e.x, e.y)
-                            if(childView == null) {
-                                // 在 post 中执行回调，避免阻塞触摸事件处理
-                                rv.post {
-                                    emptyAreaClickListener()
-                                }
-                                return true
-                            }
-                        }
-                        return false
-                    }
-
-                    else -> return false // 不拦截其他事件，保证滚动和越界回弹正常工作
-                }
-            }
-        })
+//        this.addOnItemTouchListener(object : SimpleOnItemTouchListener() {
+//            private var startX = 0f
+//            private var startY = 0f
+//            private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
+//
+//            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
+//                when(e.action) {
+//                    MotionEvent.ACTION_DOWN -> {
+//                        startX = e.x
+//                        startY = e.y
+//                        // 不拦截 ACTION_DOWN 事件
+//                        return false
+//                    }
+//
+//                    MotionEvent.ACTION_UP -> {
+//                        val endX = e.x
+//                        val endY = e.y
+//                        val deltaX = abs(endX - startX)
+//                        val deltaY = abs(endY - startY)
+//
+//                        // 只有当是点击事件（移动距离小于 touchSlop）并且点击在空白区域时才处理
+//                        if(deltaX < touchSlop && deltaY < touchSlop) {
+//                            val childView = rv.findChildViewUnder(e.x, e.y)
+//                            if(childView == null) {
+//                                // 在 post 中执行回调，避免阻塞触摸事件处理
+//                                rv.post {
+//                                    emptyAreaClickListener()
+//                                }
+//                                return true
+//                            }
+//                        }
+//                        return false
+//                    }
+//
+//                    else -> return false // 不拦截其他事件，保证滚动和越界回弹正常工作
+//                }
+//            }
+//        })
 
 //        this.setOnClickListener {
 //            // 检查当前是否正在触摸 RecyclerView 本身而不是子项
@@ -193,217 +233,90 @@ class ExpandableRecyclerView @JvmOverloads constructor(
 //        Toast.makeText(context, "inSearchMode: ${this@ExpandableRecyclerView.alpha}", Toast.LENGTH_SHORT).show()
 //        return viewModel.searchMode.value == true && this@ExpandableRecyclerView.alpha != 1f
 //        return searchMode
-        return viewModel.searchMode.value == true
+        return if(isSchemeList) {
+            viewModel.searchModeSchemeList.value == true
+        } else {
+            viewModel.searchModeToolList.value == true
+        }
     }
 
 
-//    fun updateSearchMode(searchMode: Boolean) {
-//        this.searchMode = searchMode
-//    }
-
-//    fun setOnItemClickListener(listener: (Tool) -> Unit) {
-//        adapter.setOnItemClickListener(listener)
-//    }
-
-//    /**
-//     * 自定义 ItemAnimator，为 ExpandableRecyclerView 提供展开和折叠动画
-//     * 使用透明度和垂直缩放组合动画，模拟抽屉效果
-//     */
-//    inner class ExpandableItemAnimator : DefaultItemAnimator() {
-//        override fun animateAdd(holder: ViewHolder): Boolean {
-//            holder.itemView.alpha = 0f
-//            holder.itemView.scaleY = 0f
-//
-//            val animator = ValueAnimator.ofFloat(0f, 1f).apply {
-//                duration = 250
-//                interpolator = DecelerateInterpolator()
-//                addUpdateListener { animation ->
-//                    val fraction = animation.animatedFraction
-//                    holder.itemView.alpha = fraction
-//                    holder.itemView.scaleY = fraction
-//                }
-//                addListener(object : AnimatorListenerAdapter() {
-//                    override fun onAnimationEnd(animation: Animator) {
-//                        holder.itemView.alpha = 1f
-//                        holder.itemView.scaleY = 1f
-//                        dispatchAddFinished(holder)
-//                    }
-//                })
-//            }
-//
-//            animator.start()
-//            dispatchAddStarting(holder)
-//            return true
-//        }
-//
-//        override fun animateRemove(holder: ViewHolder): Boolean {
-//            val animator = ValueAnimator.ofFloat(0f, 1f).apply {
-//                duration = 250
-//                interpolator = DecelerateInterpolator()
-//                addUpdateListener { animation ->
-//                    val fraction = animation.animatedFraction
-//                    holder.itemView.alpha = 1f - fraction
-//                    holder.itemView.scaleY = 1f - fraction
-//                }
-//                addListener(object : AnimatorListenerAdapter() {
-//                    override fun onAnimationEnd(animation: Animator) {
-//                        holder.itemView.alpha = 1f
-//                        holder.itemView.scaleY = 1f
-//                        dispatchRemoveFinished(holder)
-//                    }
-//                })
-//            }
-//
-//            animator.start()
-//            dispatchRemoveStarting(holder)
-//            return true
-//        }
-//
-//        override fun isRunning(): Boolean {
-//            return false
-//        }
-//    }
-
-
-//    /**
-//     * 自定义 ItemAnimator，为 ExpandableRecyclerView 提供展开和折叠动画
-//     * 组内元素整体上移并逐渐透明的动画效果，精确控制避免越界回弹
-//     */
-//    inner class ExpandableItemAnimator : DefaultItemAnimator() {
-//        override fun animateAdd(holder: ViewHolder): Boolean {
-//            // 取消可能正在进行的动画
-//            holder.itemView.animate().cancel()
-//
-//            // 展开时：从透明和稍微向下位置开始，然后移动到正常位置
-//            holder.itemView.alpha = 0f
-////            holder.itemView.translationY = 30f
-//
-//            val animator = ValueAnimator.ofFloat(0f, 1f).apply {
-//                duration = 600
-//                // 使用加速减速插值器
-//                interpolator = android.view.animation.AccelerateDecelerateInterpolator()
-//                addUpdateListener { animation ->
-//                    val fraction = animation.animatedFraction
-//                    holder.itemView.alpha = fraction
-////                    holder.itemView.translationY = 30f * (1 - fraction)
-//                }
-//                addListener(object : AnimatorListenerAdapter() {
-//                    override fun onAnimationEnd(animation: Animator) {
-//                        holder.itemView.alpha = 1f
-//                        holder.itemView.translationY = 0f
-//                        dispatchAddFinished(holder)
-//                    }
-//                })
-//            }
-//
-//            animator.start()
-//            dispatchAddStarting(holder)
-//            return true
-//        }
-//
-//        override fun animateRemove(holder: ViewHolder): Boolean {
-//            // 取消可能正在进行的动画
-//            holder.itemView.animate().cancel()
-//
-//            // 折叠时：向上移动并逐渐变透明
-//            val animator = ValueAnimator.ofFloat(0f, 1f).apply {
-//                duration = 400
-//                // 使用加速减速插值器
-//                interpolator = android.view.animation.AccelerateDecelerateInterpolator()
-//                addUpdateListener { animation ->
-//                    val fraction = animation.animatedFraction
-//                    holder.itemView.alpha = 1f - fraction
-////                    holder.itemView.translationY = -30f * fraction
-//                }
-//                addListener(object : AnimatorListenerAdapter() {
-//                    override fun onAnimationEnd(animation: Animator) {
-//                        holder.itemView.alpha = 1f
-//                        holder.itemView.translationY = 0f
-//                        dispatchRemoveFinished(holder)
-//                    }
-//                })
-//            }
-//
-//            animator.start()
-//            dispatchRemoveStarting(holder)
-//            return true
-//        }
-//
-//        override fun isRunning(): Boolean {
-//            return false
-//        }
-//    }
-
-
-//
-
     /**
      * 自定义 ItemAnimator，为 ExpandableRecyclerView 提供展开和折叠动画
-     * 组内元素整体上移并逐渐透明的动画效果，使用线性插值避免越界回弹
+     * 组内元素整体上移并逐渐透明的动画效果，精确控制避免越界回弹
      */
-//    inner class ExpandableItemAnimator : DefaultItemAnimator() {
-//        override fun animateAdd(holder: ViewHolder): Boolean {
-//            // 展开时：从透明和稍微向下位置开始，然后移动到正常位置
-//            holder.itemView.alpha = 0f
-//            holder.itemView.translationY = 0f
-//
-//            val animator = ValueAnimator.ofFloat(0f, 1f).apply {
-//                duration = 300
-//                interpolator = android.view.animation.LinearInterpolator() // 使用线性插值器
-//                addUpdateListener { animation ->
-//                    val fraction = animation.animatedFraction
-//                    holder.itemView.alpha = fraction
-//                    holder.itemView.translationY = 0f * (1 - fraction)
-//                }
-//                addListener(object : AnimatorListenerAdapter() {
-//                    override fun onAnimationEnd(animation: Animator) {
-//                        holder.itemView.alpha = 1f
-//                        holder.itemView.translationY = 0f
-//                        dispatchAddFinished(holder)
-//                    }
-//                })
-//            }
-//
-//            animator.start()
-//            dispatchAddStarting(holder)
-//            return true
-//        }
-//
-//        override fun animateRemove(holder: ViewHolder): Boolean {
-//            // 折叠时：向上移动并逐渐变透明
-//            val animator = ValueAnimator.ofFloat(0f, 1f).apply {
-//                duration = 300
-//                interpolator = android.view.animation.LinearInterpolator() // 使用线性插值器
-//                addUpdateListener { animation ->
-//                    val fraction = animation.animatedFraction
-//                    holder.itemView.alpha = 1f - fraction
+    inner class ExpandableItemAnimator : DefaultItemAnimator() {
+        override fun animateAdd(holder: ViewHolder): Boolean {
+            // 取消可能正在进行的动画
+            holder.itemView.cancelAnimation()
+
+            // 展开时：从透明和稍微向下位置开始，然后移动到正常位置
+            holder.itemView.alpha = 0f
+//            holder.itemView.translationY = 30f
+
+            val animator = ValueAnimator.ofFloat(0f, 1f).apply {
+                duration = 600
+                // 使用加速减速插值器
+                interpolator = AccelerateDecelerateInterpolator()
+                addUpdateListener { animation ->
+                    val fraction = animation.animatedFraction
+                    holder.itemView.alpha = fraction
+//                    holder.itemView.translationY = 30f * (1 - fraction)
+                }
+                addListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        holder.itemView.alpha = 1f
+                        holder.itemView.translationY = 0f
+                        dispatchAddFinished(holder)
+                    }
+                })
+            }
+
+            animator.start()
+            dispatchAddStarting(holder)
+            return true
+        }
+
+        override fun animateRemove(holder: ViewHolder): Boolean {
+            // 取消可能正在进行的动画
+            holder.itemView.cancelAnimation()
+
+            // 折叠时：向上移动并逐渐变透明
+            val animator = ValueAnimator.ofFloat(0f, 1f).apply {
+                duration = 600
+                // 使用加速减速插值器
+                interpolator = AccelerateDecelerateInterpolator()
+                addUpdateListener { animation ->
+                    val fraction = animation.animatedFraction
+                    holder.itemView.alpha = 1f - fraction
 //                    holder.itemView.translationY = -30f * fraction
-//                }
-//                addListener(object : AnimatorListenerAdapter() {
-//                    override fun onAnimationEnd(animation: Animator) {
-//                        holder.itemView.alpha = 1f
-//                        holder.itemView.translationY = 0f
-//                        dispatchRemoveFinished(holder)
-//                    }
-//                })
-//            }
-//
-//            animator.start()
-//            dispatchRemoveStarting(holder)
-//            return true
-//        }
-//
-//        override fun isRunning(): Boolean {
-//            return false
-//        }
-//    }
+                }
+                addListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        holder.itemView.alpha = 1f
+                        holder.itemView.translationY = 0f
+                        dispatchRemoveFinished(holder)
+                    }
+                })
+            }
+
+            animator.start()
+            dispatchRemoveStarting(holder)
+            return true
+        }
+
+        override fun isRunning(): Boolean {
+            return false
+        }
+    }
 
 
-    inner class ExpandableAdapter : Adapter<ViewHolder>() {
+    inner class ExpandableAdapter(
+        private var actionOnClick: ((Tool) -> Unit),
+    ) : Adapter<ViewHolder>() {
 
         private var groups = listOf<ExpandableGroup>()
         private var collapsedGroups = mutableSetOf<String>()
-        private var onItemClickListener: ((Tool) -> Unit)? = null
 
         @SuppressLint("NotifyDataSetChanged")
         fun setGroups(newGroups: List<ExpandableGroup>) {
@@ -423,33 +336,11 @@ class ExpandableRecyclerView @JvmOverloads constructor(
 //                }
 //            }
 
+//            Toast.makeText(context, "刷新${groups.size}", Toast.LENGTH_SHORT).show()
+
             notifyDataSetChanged()
         }
 
-        // 获取当前折叠的组
-        fun getCollapsedGroups(): List<String> {
-            return collapsedGroups.toList()
-        }
-
-        // 获取保存的折叠组
-        fun getSavedCollapsedGroups() {
-            val configValue = viewModel.getConfigValue(
-                key = configKey,
-            )
-            if(configValue is JSONArray) {
-                // 如果是JSONArray类型，逐个提取字符串
-                for(i in 0 until configValue.length()) {
-                    val item = configValue.opt(i)
-                    if(item is String) {
-                        collapsedGroups.add(item)
-                    }
-                }
-            }
-        }
-
-//        fun setOnItemClickListener(listener: (Tool) -> Unit) {
-//            onItemClickListener = listener
-//        }
 
         override fun getItemViewType(position: Int): Int {
             val (item, _) = getItemWithGroupIndex(position)
@@ -466,17 +357,33 @@ class ExpandableRecyclerView @JvmOverloads constructor(
                             ViewTypes.ToolList.SEARCH_TITLE
                         }
 
+                        context.getString(R.string.app_tool) -> {
+                            ViewTypes.ToolList.GROUP_NO_MARGIN_TOP
+                        }
+
+                        ToolID.BLANK -> {
+                            ViewTypes.ToolList.BOTTOM_SPACE
+                        }
+
                         else -> {
-                            ViewTypes.ToolList.GROUP
+                            ViewTypes.ToolList.GROUP_WITH_MARGIN_TOP
                         }
                     }
                 }
 
                 is Tool -> {
-                    if(item.id != ToolID.BLANK) {
-                        ViewTypes.ToolList.CHILD
-                    } else {
-                        ViewTypes.ToolList.SEPARATOR
+                    when(item.id) {
+                        ToolID.BLANK -> {
+                            ViewTypes.ToolList.SEPARATOR
+                        }
+
+                        else -> {
+                            if(isSchemeList) {
+                                ViewTypes.ToolList.CHILD_ITEM_SWITCH
+                            } else {
+                                ViewTypes.ToolList.CHILD_ITEM
+                            }
+                        }
                     }
                 }
 
@@ -490,18 +397,31 @@ class ExpandableRecyclerView @JvmOverloads constructor(
             }
         }
 
+
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             return when(viewType) {
-                ViewTypes.ToolList.GROUP -> {
+                ViewTypes.ToolList.GROUP_NO_MARGIN_TOP -> {
                     val view = LayoutInflater.from(parent.context)
-                        .inflate(R.layout.item_tool_title, parent, false)
+                        .inflate(R.layout.item_tool_title_no_margin_top, parent, false)
                     GroupViewHolder(view)
                 }
 
-                ViewTypes.ToolList.CHILD -> {
+                ViewTypes.ToolList.GROUP_WITH_MARGIN_TOP -> {
+                    val view = LayoutInflater.from(parent.context)
+                        .inflate(R.layout.item_tool_title_with_margin_top, parent, false)
+                    GroupViewHolder(view)
+                }
+
+                ViewTypes.ToolList.CHILD_ITEM -> {
                     val view = LayoutInflater.from(parent.context)
                         .inflate(R.layout.item_tool, parent, false)
                     ChildViewHolder(view)
+                }
+
+                ViewTypes.ToolList.CHILD_ITEM_SWITCH -> {
+                    val view = LayoutInflater.from(parent.context)
+                        .inflate(R.layout.item_installed_app, parent, false)
+                    ChildSwitchViewHolder(view)
                 }
 
                 ViewTypes.ToolList.SEPARATOR -> {
@@ -511,9 +431,12 @@ class ExpandableRecyclerView @JvmOverloads constructor(
                 }
 
                 ViewTypes.ToolList.NO_RESULT -> {
-                    val view = LayoutInflater.from(parent.context)
-                        .inflate(R.layout.item_setting_title, parent, false)
-                    NoResultViewHolder(view)
+                    NoResultViewHolder(
+                        parent = parent,
+                        actionOnClick = {
+                            emptyAreaClickAction()
+                        },
+                    )
                 }
 
                 ViewTypes.ToolList.HISTORY_OR_SUGGESTION -> {
@@ -528,9 +451,16 @@ class ExpandableRecyclerView @JvmOverloads constructor(
                     SearchTitleViewHolder(view)
                 }
 
+                ViewTypes.ToolList.BOTTOM_SPACE -> {
+                    val view = LayoutInflater.from(parent.context)
+                        .inflate(R.layout.item_bottom_space, parent, false)
+                    BottomSpaceViewHolder(view)
+                }
+
                 else -> throw IllegalArgumentException("未知的类型 type: $viewType")
             }
         }
+
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val (item, groupIndex) = getItemWithGroupIndex(position)
@@ -539,19 +469,33 @@ class ExpandableRecyclerView @JvmOverloads constructor(
                 is GroupViewHolder -> {
                     val group = item as ExpandableGroup
                     holder.bind(
-                        group,
-                        groupIndex,
-                    ) {
-                        toggleGroup(groupIndex)
-                    }
+                        group = group,
+                        groupIndex = groupIndex,
+                        onGroupClick = { toggleGroup(groupIndex) },
+                    )
                 }
 
                 is ChildViewHolder -> {
                     val child = item as Tool
-                    holder.bind(child) {
-                        onItemClickListener?.invoke(child)
-                    }
+                    holder.bind(
+                        tool = child,
+                        actionOnClick = {
+                            actionOnClick.invoke(child)
+                        },
+                    )
                 }
+
+
+                is ChildSwitchViewHolder -> {
+                    val child = item as Tool
+                    holder.bind(
+                        tool = child,
+                        actionOnClick = {
+                            actionOnClick.invoke(child)
+                        },
+                    )
+                }
+
 
                 is SeparatorViewHolder -> {
 //                    val separator = item as AppSeparator
@@ -570,12 +514,35 @@ class ExpandableRecyclerView @JvmOverloads constructor(
                     holder.bind((item as ExpandableGroup).titleString)
                 }
             }
-        }
 
+
+            // 为第一个项目设置顶部 margin
+//            if(position == 0) {
+//                val layoutParams = holder.itemView.layoutParams as MarginLayoutParams
+//                layoutParams.topMargin = 0
+//                holder.itemView.layoutParams = layoutParams
+//            }
+
+//            // 为最后一个项目设置底部 margin
+//            if(isSchemeList) {
+//                if(position == itemCount - 1) {
+//                    val layoutParams = holder.itemView.layoutParams as MarginLayoutParams
+//                    layoutParams.bottomMargin = getLayoutSize(
+//                        context = context,
+//                        layoutDimensionId = R.dimen.layout_size_bottom_sheet_cancel_margin,
+//                    )
+//                    holder.itemView.layoutParams = layoutParams
+//                } else {
+//                    val layoutParams = holder.itemView.layoutParams as MarginLayoutParams
+//                    layoutParams.bottomMargin = 0
+//                    holder.itemView.layoutParams = layoutParams
+//                }
+//            }
+        }
 
         override fun getItemCount(): Int {
             var count = 0
-            groups.forEachIndexed { index, group ->
+            groups.forEachIndexed { _, group ->
                 // 只有当组内有元素或组名需要显示时才计算
                 if(shouldShowGroup(group)) {
                     // Always count the group header if it should be shown
@@ -587,6 +554,7 @@ class ExpandableRecyclerView @JvmOverloads constructor(
                         count += getDisplayedItemCount(group)
                     }
                 }
+//                LogHelper.e("${group.titleString}数量", "groupIndex: $index, count: $count")
             }
             return count
         }
@@ -595,7 +563,7 @@ class ExpandableRecyclerView @JvmOverloads constructor(
         private fun getDisplayedItemCount(group: ExpandableGroup): Int {
             // 如果设置了最大显示数量且数据量超过最大显示数量，则返回最大显示数量，否则返回实际数据量
             val maxDisplayedItems = group.maxDisplayedCount
-            return if (maxDisplayedItems != null && group.getSize() > maxDisplayedItems) {
+            return if(maxDisplayedItems != null && group.getSize() > maxDisplayedItems) {
                 maxDisplayedItems
             } else {
                 group.getSize()
@@ -611,9 +579,9 @@ class ExpandableRecyclerView @JvmOverloads constructor(
 
             // 对于没有子元素的组，不显示组标题，除非是特殊组
             return group.dataList.isNotEmpty() ||
-                    group.titleString == context.getString(R.string.no_result)
+                    group.titleString == context.getString(R.string.no_result) ||
+                    group.titleString == ToolID.BLANK
         }
-
 
 
         private fun getItemWithGroupIndex(position: Int): Pair<Any, Int> {
@@ -649,49 +617,75 @@ class ExpandableRecyclerView @JvmOverloads constructor(
 
 
         private fun toggleGroup(groupIndex: Int) {
-            val startPosition = getGroupStartPosition(groupIndex)
+            // 加 1 是因为不通知组标题变化
+            val startPosition = getGroupStartPosition(groupIndex) + 1
             val displayedItemCount = getDisplayedItemCount(groups[groupIndex])
 //            Toast.makeText(
 //                context,
-//                "startPosition: $startPosition, cnt=${groups[groupIndex].dataList.size}",
+//                "start: $startPosition, cnt=${groups[groupIndex].getSize()},${displayedItemCount}",
 //                Toast.LENGTH_SHORT
 //            ).show()
 
-            if(!collapsedGroups.contains(groups[groupIndex].titleString)) {
-                collapsedGroups.add(groups[groupIndex].titleString)
-                notifyItemRangeInserted(
-                    startPosition + 1,
-                    displayedItemCount,
-                )
-                // 只通知该组范围内的项目变化
-            } else {
+            if(collapsedGroups.contains(groups[groupIndex].titleString)) {
                 collapsedGroups.remove(groups[groupIndex].titleString)
                 // 只通知该组范围内的项目变化
+                notifyItemRangeInserted(
+                    startPosition,
+
+                    displayedItemCount,
+                )
+            } else {
+                collapsedGroups.add(groups[groupIndex].titleString)
+                // 只通知该组范围内的项目变化
                 notifyItemRangeRemoved(
-                    startPosition + 1,
+                    startPosition,
                     displayedItemCount,
                 )
             }
+//            notifyDataSetChanged()
 
-            // 使用 notifyDataSetChanged() 代替范围通知，避免闪烁
-//            adapter.notifyDataSetChanged()
-            // 更新组标题本身
-            notifyItemChanged(startPosition)
-//            Toast.makeText(context, "保存:${!inSearchMode()}", Toast.LENGTH_SHORT).show()
             if(!inSearchMode()) {
                 saveCollapsedGroups()
             }
 
+            this@ExpandableRecyclerView.shadowConstraintLayout.updateShadow()
+
+        }
+
+
+        // 获取当前折叠的组
+        fun getCollapsedGroups(): List<String> {
+            return collapsedGroups.toList()
+        }
+
+
+        // 获取保存的折叠组
+        fun getSavedCollapsedGroups() {
+//            if(viewModel.isWatch) {
+//                return
+//            }
+            val configValue = viewModel.getUiStateConfigValue(
+                key = configKey,
+            ).toStringList()
+
+            configValue.map {
+                collapsedGroups.add(it)
+            }
+//            Toast.makeText(context, "${configValue!!::class.java.simpleName }${collapsedGroups}", Toast.LENGTH_SHORT).show()
         }
 
 
         // 保存折叠状态到配置中
         private fun saveCollapsedGroups() {
-            viewModel.updateConfigValue(
+//            if(viewModel.isWatch) {
+//                return
+//            }
+            viewModel.updateUiStateConfigValue(
                 key = configKey,
                 value = getCollapsedGroups(),
             )
-            viewModel.saveUserConfig()
+            viewModel.saveUiStateConfig()
+//            Toast.makeText(context, "保存状态${getCollapsedGroups()}", Toast.LENGTH_SHORT).show()
         }
 
 
@@ -737,50 +731,61 @@ class ExpandableRecyclerView @JvmOverloads constructor(
                     itemView.visibility = VISIBLE
                 }
 
+
                 textViewName.text = group.titleString
-//                if(group.titleString == context.getString(ToolList.GroupNameId.addLocalApp)) {
-//                    // 如果是添加本机软件，将图标设置为加号
-//                    imageViewGroupIndicator.setImageResource(R.drawable.ic_add)
-//
-//                    // 点击后跳转到软件列表
-//                    itemView.setOnClickListener {
-//                        VibrationHelper.vibrateOnClick(viewModel)
-//                        FragmentHelper.switchFragment(
-//                            fragmentName = FragmentName.INSTALLED_APP_LIST_FRAGMENT,
-//                            fragmentManager = myActivity.supportFragmentManager,
-//                            viewModel = viewModel,
-//                            viewPager = myActivity.viewPager,
-//                            constraintLayoutOrigin = myActivity.constraintLayoutOrigin,
-//                        )
-//                    }
-//                } else {
+
                 imageViewGroupIndicator.setImageResource(R.drawable.ic_arrow_right)
                 // 根据展开状态设置图标旋转角度
-                val isExpanded = !collapsedGroups.contains(groups[groupIndex].titleString)
-                imageViewGroupIndicator.rotation = if(isExpanded) 90f else 0f
+                imageViewGroupIndicator.rotation = getRotation(groupIndex)
 
                 itemView.setOnClickListener {
                     VibrationHelper.vibrateOnClick(viewModel)
                     // 执行指示器旋转动画
-//                    animateIndicator(!isExpanded)
+                    animateIndicator(!getExpandedState(groupIndex))
                     onGroupClick()
+
+//                    val delayMillis = if(isSchemeList) {
+//                        0L
+//                    } else {
+//                        ANIMATION_DURATION
+//                    }
+//                    // 延迟展开/折叠，保证涟漪动画流畅
+//                    itemView.postDelayed({
+//                        onGroupClick()
+//                    }, delayMillis)
                 }
 //                }
             }
 
 
-//            fun animateIndicator(expanded: Boolean) {
-//                val endRotation = if(expanded) 90f else 0f
-////                Toast.makeText(context, "expanded: $expanded", Toast.LENGTH_SHORT).show()
-//                // 取消之前的动画，避免冲突
-////                imageViewGroupIndicator.animate().cancel()
-//
-//                imageViewGroupIndicator.animate()
-//                    .rotation(endRotation)
-//                    .setDuration(250) // 动画时长
-//                    .setInterpolator(android.view.animation.AccelerateDecelerateInterpolator()) // 使用更平滑的插值器
-//                    .start()
-//            }
+            private fun getExpandedState(groupIndex: Int): Boolean {
+                return !collapsedGroups.contains(groups[groupIndex].titleString)
+            }
+
+            private fun getRotation(groupIndex: Int): Float {
+                return if(getExpandedState(groupIndex)) 90f else 0f
+            }
+
+            private fun getRotation(expanded: Boolean): Float {
+                return if(expanded) 90f else 0f
+            }
+
+
+            fun animateIndicator(expanded: Boolean) {
+                val endRotation = getRotation(expanded)
+//                Toast.makeText(context, "expanded: $expanded", Toast.LENGTH_SHORT).show()
+                // 如果是手表，直接设置旋转角度，不使用动画
+                if(viewModel.isWatch) {
+                    imageViewGroupIndicator.rotation = endRotation
+                } else {
+                    // 取消之前的动画，避免冲突
+                    imageViewGroupIndicator.cancelAnimation()
+
+                    imageViewGroupIndicator.rotate(
+                        rotationTo = endRotation,
+                    )
+                }
+            }
 
 
         }
@@ -803,15 +808,62 @@ class ExpandableRecyclerView @JvmOverloads constructor(
                 }
 
                 // 设置最大宽度
-                textViewName.maxWidth =
-                    (viewModel.screenWidth - resources.getDimensionPixelSize(R.dimen.layout_size_1_large) * 1.5).toInt()
+                textViewName.maxWidth = viewModel.screenWidth - getLayoutSize(
+                    context = context,
+                    layoutDimensionId = R.dimen.layout_size_1_large,
+                    rate = 1.5f,
+                )
                 textViewDescription.maxWidth = textViewName.maxWidth
             }
 
 
-            fun bind(tool: Tool, onItemClick: () -> Unit) {
+            fun bind(tool: Tool, actionOnClick: (Tool) -> Unit) {
 
-                imageViewIcon.setImageDrawable(viewModel.iconCacheHelper.getCircularDrawable(tool))
+//                imageViewIcon.setImageDrawable(viewModel.getCircularDrawable(tool))
+
+                imageViewIcon.loadImage(
+                    viewModel = viewModel,
+                    tool = tool,
+                    progressBar = itemView.findViewById(R.id.progressBar),
+                )
+
+
+//                CoroutineScope(Dispatchers.Main).launch {
+//                    val drawable = withContext(Dispatchers.IO) {
+//                        viewModel.iconCacheHelper.getCircularDrawable(tool)
+//                    }
+//                    imageViewIcon.load(drawable)
+//                }
+
+//                viewModel.viewModelScope.launch {
+//                    val drawable = withContext(Dispatchers.IO) {
+//                        viewModel.iconCacheHelper.getCircularDrawable(tool)
+//                    }
+//                    imageViewIcon.load(drawable)
+//                }
+
+//                imageViewIcon.load(viewModel.iconCacheHelper.getCircularDrawable(tool))
+
+
+// 取消之前的加载任务
+//                loadJob?.cancel()
+//
+//                // 使用协程异步加载图片
+//                loadJob = viewModel.viewModelScope.launch {
+//                    try {
+//                        val drawable = withContext(Dispatchers.IO) {
+//                            viewModel.iconCacheHelper.getCircularDrawable(tool)
+//                        }
+//                        // 确保在主线程更新 UI
+//                        withContext(Dispatchers.Main) {
+//                            imageViewIcon.setImageDrawable(drawable)
+//                        }
+//                    } catch (_: Exception) {
+//                        // 处理异常情况
+//                    }
+//                }
+
+
                 textViewName.text = SearchHelper.highlightSearchTermForDevice(
                     viewModel = viewModel,
                     text = tool.name,
@@ -848,7 +900,7 @@ class ExpandableRecyclerView @JvmOverloads constructor(
                     } else {
                         LaunchHelper.launch(myActivity, viewModel, tool)
                     }
-                    onItemClick()
+                    actionOnClick(tool)
                 }
 
 
@@ -862,20 +914,43 @@ class ExpandableRecyclerView @JvmOverloads constructor(
                         ClipboardHelper.copyToClipboard(
                             context = myActivity,
                             text = SchemeHelper.getSchemeFromId(tool.id),
-                            toastString = tool.name + myActivity.getString(R.string.some_scheme),
+                            toastString = tool.name,
+                            secondToastString = myActivity.getString(
+                                R.string.link
+                            ),
                         )
                     } else {
                         BottomSheetDialogHelper.setAndShowBottomSheetDialog(
                             viewModel = viewModel,
                             activity = myActivity,
                             tool = tool,
-                            menuList = if(viewModel.isWatch) MenuList.tool_watch else MenuList.tool,
+                            menuList = if(viewModel.isWatch) {
+                                MenuList.tool_watch
+                            } else {
+                                MenuList.tool
+                            },
                             onMenuItemClick = {
                                 when(it) {
                                     MenuType.ADD_TO_HOME_OR_REMOVE_FROM_HOME -> {
+//                                        Toast.makeText(
+//                                            myActivity,
+//                                            "更新图标",
+//                                            Toast.LENGTH_SHORT,
+//                                        ).show()
                                         updateLikeIcon(
                                             tool = tool,
                                             imageViewLikeIcon = imageViewLikeIcon,
+                                            showAnimation = true,
+                                        )
+                                    }
+
+
+                                    MenuType.SAVE_IMAGE, MenuType.SAVE_ICON -> {
+                                        saveImage(
+                                            drawable = viewModel.getDrawable(tool),
+                                            fileName = tool.nickname,
+                                            viewModel = viewModel,
+                                            context = myActivity,
                                         )
                                     }
                                 }
@@ -887,11 +962,29 @@ class ExpandableRecyclerView @JvmOverloads constructor(
             }
 
 
-            private fun updateLikeIcon(tool: Tool, imageViewLikeIcon: ImageView) {
-                if(shouldShowLikeIcon(tool)) {
-                    imageViewLikeIcon.visibility = VISIBLE
+            private fun updateLikeIcon(
+                tool: Tool,
+                imageViewLikeIcon: ImageView,
+                // 是否显示动画
+                showAnimation: Boolean = false,
+            ) {
+                val shouldShowLikeIcon = shouldShowLikeIcon(tool)
+
+                if(showAnimation) {
+                    if(shouldShowLikeIcon && !imageViewLikeIcon.isVisible) {
+                        imageViewLikeIcon.visibility = VISIBLE
+                        // 放大出现动画
+                        imageViewLikeIcon.scaleUp()
+                    } else if(!shouldShowLikeIcon && imageViewLikeIcon.isVisible) {
+                        // 缩小消失动画
+                        imageViewLikeIcon.scaleDown()
+                    }
                 } else {
-                    imageViewLikeIcon.visibility = INVISIBLE
+                    if(shouldShowLikeIcon) {
+                        imageViewLikeIcon.visibility = VISIBLE
+                    } else {
+                        imageViewLikeIcon.visibility = INVISIBLE
+                    }
                 }
             }
 
@@ -906,6 +999,124 @@ class ExpandableRecyclerView @JvmOverloads constructor(
         }
 
 
+        inner class ChildSwitchViewHolder(itemView: View) : ViewHolder(itemView) {
+
+            val imageViewIcon: ImageView = itemView.findViewById(R.id.imageView_app_icon)
+            val textViewName: TextView = itemView.findViewById(R.id.textView_app_name)
+            val textViewDescription: TextView = itemView.findViewById(R.id.textView_activity_name)
+
+            val switch: SwitchMaterial = itemView.findViewById(R.id.switch_whether_show_in_home)
+
+
+            fun bind(tool: Tool, actionOnClick: (Tool) -> Unit) {
+
+//                imageViewIcon.setImageDrawable(viewModel.getCircularDrawable(tool))
+
+                imageViewIcon.loadImage(
+                    viewModel = viewModel,
+                    tool = tool,
+                    progressBar = itemView.findViewById(R.id.progressBar),
+                )
+
+                textViewName.text = SearchHelper.highlightSearchTermForDevice(
+                    viewModel = viewModel,
+                    text = tool.name,
+                    query = getQuery(),
+                )
+
+                val descriptionText = if(isSchemeList) {
+                    SchemeHelper.getSchemeFromId(tool.id)
+                } else {
+                    tool.description.orEmpty().trim()
+                }
+                if(descriptionText.isNotBlank()) {
+                    textViewDescription.text = SearchHelper.highlightSearchTermForDevice(
+                        viewModel = viewModel,
+                        text = descriptionText,
+                        query = getQuery(),
+                    )
+                    textViewDescription.visibility = VISIBLE
+                } else {
+                    textViewDescription.visibility = GONE
+                }
+
+                switch.isChecked = viewModel.inToolInDynamicShortcutList(tool.id)
+
+                setDimmingEffect(this, !switch.isChecked)
+
+                itemView.setOnClickListener {
+                    VibrationHelper.vibrateOnClick(viewModel)
+                    updateSearchHistory(tool.name)
+
+                    if(!switch.isChecked && viewModel.reachShortcutMaxCnt()) {
+
+                        Toast.makeText(
+                            myActivity,
+                            myActivity.getString(
+                                R.string.reach_max_shortcut_count,
+                                viewModel.getMaxShortcutCount(),
+                            ),
+                            Toast.LENGTH_SHORT,
+                        ).show()
+
+                    } else {
+
+                        switch.isChecked = !switch.isChecked
+                        setDimmingEffect(this, !switch.isChecked)
+
+                        if(switch.isChecked) {
+                            viewModel.addDynamicShortcutTool(tool.id)
+                        } else {
+                            viewModel.removeDynamicShortcutTool(tool.id)
+                        }
+                    }
+
+                    actionOnClick(tool)
+                }
+
+
+                // 取消长按震动
+                itemView.isHapticFeedbackEnabled = false
+                itemView.setOnLongClickListener { _ ->
+
+                    VibrationHelper.vibrateOnLongPress(viewModel)
+                    updateSearchHistory(tool.name)
+                    ClipboardHelper.copyToClipboard(
+                        context = myActivity,
+                        text = SchemeHelper.getSchemeFromId(tool.id),
+                        toastString = tool.name,
+                        secondToastString = myActivity.getString(
+                            R.string.link
+                        ),
+                    )
+                    true
+                }
+            }
+
+
+            private fun setDimmingEffect(holder: ViewHolder, shouldDim: Boolean) {
+                // 调整亮度为原来的比例(透明度)
+                val alpha = UI.Alpha.ALPHA_7
+                val originAlpha = UI.Alpha.ALPHA_10
+
+                if(shouldDim) {
+                    holder.itemView.alpha = alpha
+                } else {
+                    holder.itemView.alpha = originAlpha
+                }
+            }
+
+        }
+
+
+        override fun onViewRecycled(holder: ViewHolder) {
+            super.onViewRecycled(holder)
+            if(holder is ChildViewHolder) {
+                holder.imageViewIcon.cancelLoadImage()
+            }
+        }
+
+
         inner class SeparatorViewHolder(itemView: View) : ViewHolder(itemView) {
 //            private val textViewSeparator: TextView = itemView.findViewById(R.id.textView_separator)
 //
@@ -915,20 +1126,8 @@ class ExpandableRecyclerView @JvmOverloads constructor(
         }
 
 
-        inner class NoResultViewHolder(itemView: View) : ViewHolder(itemView) {
-            private val textViewNoResult: TextView = itemView.findViewById(R.id.textView_name)
-
-            fun bind() {
-                textViewNoResult.text = context.getString(R.string.no_result)
-                // 设置字体样式为正常
-                textViewNoResult.setTypeface(null, Typeface.NORMAL)
-                // 设置字体颜色为灰色
-                textViewNoResult.setTextColor(context.getColor(R.color.mid_gray))
-
-                itemView.setOnClickListener {
-                    emptyAreaClickAction()
-                }
-            }
+        inner class BottomSpaceViewHolder(itemView: View) : ViewHolder(itemView) {
+//
         }
 
 
@@ -948,7 +1147,8 @@ class ExpandableRecyclerView @JvmOverloads constructor(
 
         inner class SearchTitleViewHolder(itemView: View) : ViewHolder(itemView) {
             private val textView: TextView = itemView.findViewById(R.id.textView_name)
-            private val imageButtonClear: ImageButton = itemView.findViewById(R.id.imageButton_clear)
+            private val imageButtonClear: ImageButton =
+                itemView.findViewById(R.id.imageButton_clear)
 
             fun bind(text: String) {
                 textView.text = text

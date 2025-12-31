@@ -2,83 +2,82 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     style="@style/ConstraintLayout.Toolbox.Dark"
-    android:background="@drawable/background_widget_full"
-    android:clipToOutline="true">
+    android:background="@null"
+    android:paddingVertical="@dimen/layout_size_fragment_gapSize">
 
-    <ScrollView
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout_root"
+        style="@style/ConstraintLayout.Toolbox.Dark"
+        android:background="@drawable/background_widget_full"
+        android:clipToOutline="true"
+        android:padding="@dimen/layout_size_radius_size_1_small"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            style="@style/ConstraintLayout.Toolbox.Dark"
+        <TextView
+            android:id="@+id/textView_name"
+            style="@style/TextView.Toolbox.EditName.EditText.Dark"
+            android:padding="@dimen/layout_size_bottom_sheet_cancel_padding"
+            android:text="@string/create_shortcut"
+            app:layout_constraintEnd_toStartOf="@id/button_reset"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/button_reset"
+            style="@style/TextView.Toolbox.Reset.Dark"
+            app:layout_constraintBottom_toBottomOf="@id/textView_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/textView_name"
+            app:layout_constraintTop_toTopOf="@id/textView_name" />
+
+
+        <ImageView
+            android:id="@+id/imageView_icon"
+            style="@style/ImageView.Toolbox.AppIcon.Dark"
+            android:contentDescription="@string/shortcut_icon"
+            android:src="@drawable/ic_default"
+            android:layout_marginStart="@dimen/layout_size_radius_size_1_small"
+            app:layout_constraintBottom_toBottomOf="@id/editText_nickName"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/editText_nickName" />
+
+        <EditText
+            android:id="@+id/editText_nickName"
+            style="@style/EditText.Toolbox.Dark"
+            android:layout_width="0dp"
+            android:layout_margin="@dimen/layout_size_radius_size_1_small"
+            android:autofillHints=""
+            android:hint="@string/can_be_empty"
+            app:layout_constraintBottom_toTopOf="@id/constraintLayout_footer"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/imageView_icon"
+            app:layout_constraintTop_toBottomOf="@id/textView_name" />
+
+        <ImageButton
+            android:id="@+id/imageButton_clear"
+            style="@style/ImageButton.Toolbox.ClearEditText.Dark"
+            android:contentDescription="@string/clear_button"
+            app:layout_constraintBottom_toBottomOf="@id/editText_nickName"
+            app:layout_constraintEnd_toEndOf="@id/editText_nickName"
+            app:layout_constraintTop_toTopOf="@id/editText_nickName" />
+
+
+        <include
+            android:id="@+id/constraintLayout_footer"
+            layout="@layout/layout_dialog_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="0px"
-            android:background="@drawable/background_widget_full"
-            android:clipToOutline="true">
+            android:layout_marginHorizontal="0dp"
+            android:background="@color/transparent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
-            <TextView
-                android:id="@+id/textView_name"
-                style="@style/TextView.Toolbox.EditName.EditText.Dark"
-                android:layout_marginStart="@dimen/layout_size_1.5_footnote"
-                android:padding="@dimen/layout_size_1.5_footnote"
-                android:text="@string/name"
-                app:layout_constraintBottom_toTopOf="@id/editText_nickName"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
 
-            <Button
-                android:id="@+id/button_reset"
-                style="@style/Button.Toolbox.Reset.Dark"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/layout_size_1.5_footnote"
-                app:layout_constraintBottom_toTopOf="@id/editText_nickName"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/textView_name"
-                app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <EditText
-                android:id="@+id/editText_nickName"
-                style="@style/EditText.Toolbox.Dark"
-                android:layout_margin="@dimen/layout_size_1.5_footnote"
-                android:autofillHints=""
-                android:hint="@string/can_be_empty"
-                app:layout_constraintBottom_toTopOf="@id/button_cancel"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
 
-            <ImageButton
-                android:id="@+id/imageButton_clear"
-                style="@style/ImageButton.Toolbox.ClearEditText.Dark"
-                android:contentDescription="@string/clear_button"
-                app:layout_constraintBottom_toBottomOf="@id/editText_nickName"
-                app:layout_constraintEnd_toEndOf="@id/editText_nickName"
-                app:layout_constraintTop_toTopOf="@id/editText_nickName" />
-
-            <Button
-                android:id="@+id/button_cancel"
-                style="@style/Button.Toolbox.SelectAll.Dark"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@string/cancel"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/button_confirm"
-                app:layout_constraintStart_toStartOf="parent" />
-
-            <Button
-                android:id="@+id/button_confirm"
-                style="@style/Button.Toolbox.SelectAll.Dark"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@string/create"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/button_cancel" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

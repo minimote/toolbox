@@ -19,6 +19,7 @@ import cn.minimote.toolbox.constant.Tools
 import cn.minimote.toolbox.constant.ViewList
 import cn.minimote.toolbox.constant.ViewTypes
 import cn.minimote.toolbox.helper.ImageSaveHelper
+import cn.minimote.toolbox.helper.ImageSaveHelper.setSavePopupMenuListener
 import cn.minimote.toolbox.helper.LaunchHelper
 import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.viewModel.MyViewModel
@@ -102,11 +103,10 @@ class SupportAuthorAdapter(
             viewTypes.QR_ALIPAY -> {
                 holder.imageViewQRAlipay.layoutParams.width = imageSize
                 holder.imageViewQRAlipay.layoutParams.height = imageSize
-                ImageSaveHelper.setPopupMenu(
-                    imageView = holder.imageViewQRAlipay,
+                holder.imageViewQRAlipay.setSavePopupMenuListener(
                     fileName = myActivity.getString(R.string.qr_alipay_file_name),
                     viewModel = viewModel,
-                    activity = myActivity,
+                    myActivity = myActivity,
                 )
             }
 
@@ -117,11 +117,10 @@ class SupportAuthorAdapter(
             viewTypes.QR_WECHAT -> {
                 holder.imageViewQRWechat.layoutParams.width = imageSize
                 holder.imageViewQRWechat.layoutParams.height = imageSize
-                ImageSaveHelper.setPopupMenu(
-                    imageView = holder.imageViewQRWechat,
+                holder.imageViewQRWechat.setSavePopupMenuListener(
                     fileName = myActivity.getString(R.string.qr_wechat_file_name),
                     viewModel = viewModel,
-                    activity = myActivity,
+                    myActivity = myActivity,
                 )
             }
 
@@ -181,7 +180,7 @@ class SupportAuthorAdapter(
     private fun saveWechatQR(context: Context) {
         val drawable = ContextCompat.getDrawable(context, R.drawable.qr_wechat)
         ImageSaveHelper.saveImage(
-            drawable = drawable,
+            drawable = drawable!!,
             context = context,
             fileName = context.getString(R.string.qr_wechat_file_name),
             viewModel = viewModel,

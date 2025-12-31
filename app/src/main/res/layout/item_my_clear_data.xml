@@ -6,8 +6,6 @@
     <TextView
         android:id="@+id/textView_name"
         style="@style/TextView.Toolbox.MyList.Name.Dark"
-        android:gravity="start"
-        android:text="@string/clear_cache"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/textView_dataSize"
         app:layout_constraintStart_toStartOf="parent"
@@ -17,7 +15,7 @@
         android:id="@+id/textView_dataSize"
         style="@style/TextView.Toolbox.MyListDetail.Dark"
         android:text="@string/unknown"
-        android:textSize="@dimen/text_size_3_script"
+        android:textSize="@dimen/text_size_3_small"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/textView_name"

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:paddingVertical="@dimen/layout_size_3_script"
+    android:paddingVertical="@dimen/layout_size_3_small"
     style="@style/ConstraintLayout.Toolbox.Dark">
 
     <View
@@ -15,7 +15,7 @@
         android:id="@+id/textView_name"
         style="@style/TextView.Toolbox.EditName.Dark"
         android:layout_width="0dp"
-        android:layout_marginStart="@dimen/layout_size_2_footnote"
+        android:layout_marginStart="@dimen/layout_size_2_small"
         android:gravity="start"
         android:paddingEnd="0dp"
         android:text="@string/widgetSize"
@@ -35,7 +35,7 @@
         <TextView
             android:id="@+id/textView_decrease"
             style="@style/TextView.Toolbox.Dark"
-            android:background="@drawable/background_ripple"
+            android:background="@drawable/background_ripple_round"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/widgetSize_decrease"
@@ -62,7 +62,7 @@
         <TextView
             android:id="@+id/textView_increase"
             style="@style/TextView.Toolbox.Dark"
-            android:background="@drawable/background_ripple"
+            android:background="@drawable/background_ripple_round"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/widgetSize_increase"

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 外部背景颜色 -->
+    <item>
+        <shape>
+            <solid android:color="@color/mid_gray_trans" />
+            <corners android:radius="@dimen/layout_size_radius_size_2_large" />
+        </shape>
+    </item>
+
+<!--    &lt;!&ndash; 左侧渐变层 &ndash;&gt;-->
+<!--    <item android:gravity="start">-->
+<!--        <shape>-->
+<!--            <gradient-->
+<!--                android:angle="0"-->
+<!--                android:centerColor="@color/transparent"-->
+<!--                android:endColor="@color/transparent"-->
+<!--                android:startColor="@color/mid_gray"-->
+<!--                android:type="linear" />-->
+<!--            <corners-->
+<!--                android:bottomLeftRadius="@dimen/layout_size_radius_size_2_large"-->
+<!--                android:topLeftRadius="@dimen/layout_size_radius_size_2_large" />-->
+<!--            <size android:width="@dimen/layout_size_shadow_width" />-->
+<!--        </shape>-->
+<!--    </item>-->
+
+<!--    &lt;!&ndash; 右侧渐变层 &ndash;&gt;-->
+<!--    <item android:gravity="end">-->
+<!--        <shape>-->
+<!--            <gradient-->
+<!--                android:angle="180"-->
+<!--                android:centerColor="@color/transparent"-->
+<!--                android:endColor="@color/transparent"-->
+<!--                android:startColor="@color/mid_gray"-->
+<!--                android:type="linear" />-->
+<!--            <corners-->
+<!--                android:bottomRightRadius="@dimen/layout_size_radius_size_2_large"-->
+<!--                android:topRightRadius="@dimen/layout_size_radius_size_2_large" />-->
+<!--            <size android:width="@dimen/layout_size_shadow_width" />-->
+<!--        </shape>-->
+<!--    </item>-->
+
+<!--    &lt;!&ndash; 上侧渐变层 &ndash;&gt;-->
+<!--    <item android:gravity="top">-->
+<!--        <shape>-->
+<!--            <gradient-->
+<!--                android:angle="270"-->
+<!--                android:centerColor="@color/transparent"-->
+<!--                android:endColor="@color/transparent"-->
+<!--                android:startColor="@color/mid_gray"-->
+<!--                android:type="linear" />-->
+<!--            <corners-->
+<!--                android:topLeftRadius="@dimen/layout_size_radius_size_2_large"-->
+<!--                android:topRightRadius="@dimen/layout_size_radius_size_2_large" />-->
+<!--            <size android:height="@dimen/layout_size_shadow_width" />-->
+<!--        </shape>-->
+<!--    </item>-->
+
+<!--    &lt;!&ndash; 下侧渐变层 &ndash;&gt;-->
+<!--    <item android:gravity="bottom">-->
+<!--        <shape>-->
+<!--            <gradient-->
+<!--                android:angle="90"-->
+<!--                android:centerColor="@color/transparent"-->
+<!--                android:endColor="@color/transparent"-->
+<!--                android:startColor="@color/mid_gray"-->
+<!--                android:type="linear" />-->
+<!--            <corners-->
+<!--                android:bottomLeftRadius="@dimen/layout_size_radius_size_2_large"-->
+<!--                android:bottomRightRadius="@dimen/layout_size_radius_size_2_large" />-->
+<!--            <size android:height="@dimen/layout_size_shadow_width" />-->
+<!--        </shape>-->
+<!--    </item>-->
+
+
+    <!-- Ripple 效果 -->
+    <item>
+        <ripple android:color="?attr/colorControlHighlight">
+            <item android:id="@android:id/mask">
+                <shape>
+                    <solid android:color="@android:color/white" />
+                    <corners android:radius="@dimen/layout_size_radius_size_2_large" />
+                </shape>
+            </item>
+        </ripple>
+    </item>
+</layer-list>

@@ -13,15 +13,15 @@
     <TextView
         android:id="@+id/textView_name"
         style="@style/TextView.Toolbox.EditName.EditText.Dark"
-        android:layout_marginStart="@dimen/layout_size_2_footnote"
+        android:layout_marginStart="@dimen/layout_size_2_small"
         android:text="@string/widgetName"
         app:layout_constraintBottom_toTopOf="@id/textView_editText"
         app:layout_constraintStart_toEndOf="@id/point"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
+    <TextView
         android:id="@+id/button_reset"
-        style="@style/Button.Toolbox.Reset.Dark"
+        style="@style/TextView.Toolbox.Reset.Dark"
         app:layout_constraintBottom_toTopOf="@id/textView_editText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/textView_name"

@@ -8,7 +8,6 @@ package cn.minimote.toolbox.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,8 +22,13 @@ import cn.minimote.toolbox.constant.ViewTypes
 import cn.minimote.toolbox.dataClass.InstalledApp
 import cn.minimote.toolbox.fragment.InstalledAppListFragment
 import cn.minimote.toolbox.helper.DialogHelper
+import cn.minimote.toolbox.helper.IconHelper.cancelLoadImage
+import cn.minimote.toolbox.helper.IconHelper.getDrawable
+import cn.minimote.toolbox.helper.IconHelper.loadImage
+import cn.minimote.toolbox.helper.ImageSaveHelper.setSavePopupMenuListener
 import cn.minimote.toolbox.helper.SearchHelper.highlightSearchTermForDevice
 import cn.minimote.toolbox.helper.VibrationHelper
+import cn.minimote.toolbox.holder.NoResultViewHolder
 import cn.minimote.toolbox.viewModel.MyViewModel
 import com.google.android.material.switchmaterial.SwitchMaterial
 
@@ -65,16 +69,29 @@ class InstalledAppListAdapter(
             }
         }
 
-        fun bind(activity: InstalledApp) {
+        fun bind(installedApp: InstalledApp) {
 
-            appIcon.setImageDrawable(
-                viewModel.iconCacheHelper.getCircularDrawable(activity)
+//            appIcon.setImageDrawable(
+//                viewModel.getCircularDrawable(activity)
+//            )
+            appIcon.loadImage(
+                viewModel = viewModel,
+                installedApp = installedApp,
+                progressBar = itemView.findViewById(R.id.progressBar),
             )
 
-            // 高亮显示搜索结果
-            highlightAppNameAndActivityName(activity)
+            appIcon.setSavePopupMenuListener(
+                fileName = installedApp.name,
+                viewModel = viewModel,
+                myActivity = fragment.myActivity,
+                drawable = viewModel.getDrawable(installedApp),
+            )
 
-            switch.isChecked = viewModel.inSizeChangeMap(activity.activityName)
+
+            // 高亮显示搜索结果
+            highlightAppNameAndActivityName(installedApp)
+
+            switch.isChecked = viewModel.inSizeChangeMap(installedApp.activityName)
             // 设置暗淡效果的滤镜
             setDimmingEffect(this, !switch.isChecked)
 
@@ -90,31 +107,15 @@ class InstalledAppListAdapter(
 
                 // 根据开关状态更新字典
                 if(switch.isChecked) {
-                    viewModel.addToSizeChangeMap(activity)
+                    viewModel.addToSizeChangeMap(installedApp)
                 } else {
-                    viewModel.removeFromSizeChangeMap(activity.id)
+                    viewModel.removeFromSizeChangeMap(installedApp.id)
                 }
                 // 如果修改后的关键字集合与原来的一样，复制映射
                 viewModel.syncSizeChangeMapIfSameKeys()
-                if(viewModel.searchMode.value == true) {
-                    fragment.updateSearchHistoryAndSuggestion(activity.name.trim())
+                if(viewModel.searchModeInstalledAppList.value == true) {
+                    fragment.updateSearchHistoryAndSuggestion(installedApp.name.trim())
                 }
-            }
-        }
-    }
-
-
-    inner class NoResultViewHolder(itemView: View) : ViewHolder(itemView) {
-        var name: TextView = itemView.findViewById(R.id.textView_name)
-
-        fun bind(text: String) {
-            name.text = text
-            name.setTypeface(null, Typeface.NORMAL)
-            // 设置字体颜色为灰色
-            name.setTextColor(context.getColor(R.color.mid_gray))
-
-            itemView.setOnClickListener {
-                fragment.hideKeyboardAndClearFocus()
             }
         }
     }
@@ -170,10 +171,14 @@ class InstalledAppListAdapter(
                 viewType,
             )
 
-            ViewTypes.InstalledAppList.NO_RESULT -> NoResultViewHolder(
-                LayoutInflater.from(parent.context)
-                    .inflate(R.layout.item_setting_title, parent, false),
-            )
+            ViewTypes.InstalledAppList.NO_RESULT -> {
+                NoResultViewHolder(
+                    parent = parent,
+                    actionOnClick = {
+                        fragment.hideKeyboardAndClearFocus()
+                    },
+                )
+            }
 
             ViewTypes.InstalledAppList.HISTORY_OR_SUGGESTION -> HistoryOrSuggestionViewHolder(
                 LayoutInflater.from(parent.context)
@@ -200,7 +205,7 @@ class InstalledAppListAdapter(
             }
 
             is NoResultViewHolder -> {
-                holder.bind(data as String)
+                holder.bind()
             }
 
             is HistoryOrSuggestionViewHolder -> {
@@ -212,6 +217,14 @@ class InstalledAppListAdapter(
             }
         }
 
+    }
+
+
+    override fun onViewRecycled(holder: ViewHolder) {
+        super.onViewRecycled(holder)
+        if(holder is AppViewHolder) {
+            holder.appIcon.cancelLoadImage()
+        }
     }
 
 

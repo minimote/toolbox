@@ -14,8 +14,6 @@
         android:id="@+id/textView_name"
         style="@style/TextView.Toolbox.CheckUpdate.Dark"
         android:layout_width="match_parent"
-        android:paddingVertical="@dimen/layout_size_1_large"
-        android:background="@drawable/background_ripple"
         android:text="@string/check_update"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

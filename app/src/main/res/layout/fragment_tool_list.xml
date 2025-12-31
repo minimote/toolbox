@@ -1,37 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    style="@style/ConstraintLayout.Toolbox.RecyclerView.Dark"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/ConstraintLayout.Toolbox.Fragment.Dark"
     android:layout_height="match_parent">
 
-    <com.scwang.smart.refresh.layout.SmartRefreshLayout
-        android:id="@+id/refreshLayout"
-        style="@style/SmartRefreshLayout.Toolbox.Dark"
+    <!--    <com.scwang.smart.refresh.layout.SmartRefreshLayout-->
+    <!--        android:id="@+id/refreshLayout"-->
+    <!--        style="@style/SmartRefreshLayout.Toolbox.Dark"-->
+    <!--        android:layout_height="0dp"-->
+    <!--        android:layout_marginTop="@dimen/layout_size_3_script"-->
+    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toBottomOf="@id/constraintLayout_add_app">-->
+
+    <!--        <cn.minimote.toolbox.ui.widget.ExpandableRecyclerView-->
+    <!--            android:id="@+id/expandableRecyclerView"-->
+    <!--            style="@style/RecyclerView.Toolbox.Dark"-->
+    <!--            android:layout_height="match_parent" />-->
+
+    <!--    </com.scwang.smart.refresh.layout.SmartRefreshLayout>-->
+
+
+    <include
+        android:id="@+id/include_shadow_constraintLayout_expandable_recyclerView"
+        style="@style/IncludeConstraintLayout.Toolbox.RecyclerView.Dark"
+        layout="@layout/layout_shadow_constraintlayout_expandable_recyclerview"
+        android:layout_marginTop="@dimen/layout_size_3_small"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/constraintLayout_add_app"
+        tools:ignore="IncludeLayoutParam" />
+
+
+    <!-- 背景图片和文字 -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout_background"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="@dimen/layout_size_4_tiny"
-        android:minHeight="@dimen/layout_size_1_large"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/constraintLayout_add_app">
 
-        <cn.minimote.toolbox.ui.widget.ExpandableRecyclerView
-            android:id="@+id/expandableRecyclerView"
-            style="@style/RecyclerView.Toolbox.Dark"
+        <ImageView
+            android:id="@+id/imageView_background"
+            style="@style/ImageView.Toolbox.EditBackground.Dark"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_search"
+            app:layout_constraintBottom_toTopOf="@id/textView_searchMode"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
+
+        <TextView
+            android:id="@+id/textView_searchMode"
+            style="@style/TextView.Toolbox.Dark"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:padding="@dimen/layout_size_2_small"
+            android:text="@string/search_mode"
+            android:textSize="@dimen/text_size_4_large"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/imageView_background" />
 
-    </com.scwang.smart.refresh.layout.SmartRefreshLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
+    <!-- 添加软件 -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout_add_app"
         style="@style/ConstraintLayout.Toolbox.Clickable.Dark"
         android:layout_width="0dp"
-        android:layout_marginStart="@dimen/layout_size_3_script"
         android:background="@drawable/background_widget_full"
+        android:layout_marginStart="@dimen/layout_size_fragment_gapSize"
+        android:layout_marginTop="@dimen/layout_size_4_small"
+        android:layout_marginEnd="@dimen/layout_size_3_small"
         android:paddingHorizontal="@dimen/layout_size_1_small"
-        android:paddingVertical="10dp"
+        android:paddingVertical="@dimen/layout_size_toolTile_vertical_padding"
         app:layout_constraintEnd_toStartOf="@id/constraintLayout_searchBox"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -40,7 +91,7 @@
             android:id="@+id/group_indicator"
             android:layout_width="@dimen/layout_size_1_small"
             android:layout_height="@dimen/layout_size_1_small"
-            android:layout_marginVertical="@dimen/layout_size_2.5_script"
+            android:layout_marginVertical="@dimen/layout_size_2_5_small"
             android:background="@color/transparent"
             android:contentDescription="@string/group_indicator"
             android:src="@drawable/ic_add"
@@ -52,7 +103,7 @@
             android:id="@+id/textView_name"
             style="@style/TextView.Toolbox.Dark"
             android:layout_width="0dp"
-            android:layout_marginStart="@dimen/layout_size_1.5_footnote"
+            android:layout_marginStart="@dimen/layout_size_1_5_small"
             android:layout_marginEnd="0dp"
             android:gravity="start"
             android:padding="0px"
@@ -67,14 +118,15 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
+    <!-- 搜索框 -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout_searchBox"
         style="@style/ConstraintLayout.Toolbox.Clickable.Dark"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_marginHorizontal="@dimen/layout_size_3_script"
         android:background="@drawable/background_widget_full"
         app:layout_constraintBottom_toBottomOf="@+id/constraintLayout_add_app"
+        android:layout_marginEnd="@dimen/layout_size_fragment_gapSize"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/constraintLayout_add_app"
         app:layout_constraintTop_toTopOf="@id/constraintLayout_add_app">
@@ -104,7 +156,7 @@
         <Button
             android:id="@+id/button_negative"
             style="@style/Button.Toolbox.Dark"
-            android:layout_width="@dimen/layout_size_2_Large"
+            android:layout_width="@dimen/layout_size_2_large"
             android:layout_height="0dp"
             android:text="@string/cancel"
             android:visibility="gone"
@@ -127,6 +179,23 @@
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <!--    <View-->
+    <!--        android:id="@+id/view_shadow_top"-->
+    <!--        style="@style/View.Toolbox.MaskTop.Dark"-->
+    <!--        android:background="@drawable/background_mask_top"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toTopOf="@id/refreshLayout" />-->
+
+
+    <!--    <View-->
+    <!--        android:id="@+id/view_shadow_bottom"-->
+    <!--        style="@style/View.Toolbox.MaskBottom.Dark"-->
+    <!--        app:layout_constraintBottom_toBottomOf="@id/refreshLayout"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent" />-->
 
 
     <!--    <androidx.constraintlayout.widget.ConstraintLayout-->
@@ -153,5 +222,16 @@
     <!--            app:layout_constraintTop_toTopOf="parent" />-->
 
     <!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
+
+
+    <!--    <View-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="0dp"-->
+    <!--        android:background="@drawable/background_mask_fragment"-->
+    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toBottomOf="@id/constraintLayout_add_app"/>-->
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

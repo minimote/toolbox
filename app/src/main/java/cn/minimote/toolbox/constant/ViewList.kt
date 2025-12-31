@@ -16,9 +16,10 @@ object ViewList {
             ViewTypes.Edit.WIDTH, // 组件宽度
             ViewTypes.Edit.ALIGNMENT, // 对齐方式
 
-            ViewTypes.Edit.DELETE, // 删除组件
+//            ViewTypes.Edit.DELETE, // 删除组件
         )
     }
+
 
     // 我的列表
     val myList by lazy {
@@ -29,17 +30,20 @@ object ViewList {
             ViewTypes.My.APP_DETAIL, // 应用详情
 
             ViewTypes.My.SETTING, // 设置
+            ViewTypes.My.BACKUP_AND_RESTORE, // 备份与恢复
+            ViewTypes.My.LONG_PRESS_MENU, // 长按菜单
+//            ViewTypes.My.SCHEME_LIST, // Scheme 列表
             ViewTypes.My.INSTRUCTION, // 使用说明
             ViewTypes.My.PROBLEM_FEEDBACK, // 问题反馈
 
             ViewTypes.My.UPDATE_LOG, // 更新日志
             ViewTypes.My.ABOUT_PROJECT, // 关于项目
             ViewTypes.My.SUPPORT_AUTHOR, // 支持作者
-            ViewTypes.My.SCHEME_LIST, // Scheme 列表
 
             ViewTypes.My.CHECK_UPDATE, // 检查更新
         )
     }
+
 
     // 支持作者
     val supportAuthorViewList by lazy {
@@ -53,17 +57,20 @@ object ViewList {
         )
     }
 
+
     // 关于项目
     val aboutProjectViewList by lazy {
         listOf(
+            ViewTypes.AboutProject.NOTICE_TITLE, // 说明的标题
             ViewTypes.AboutProject.NOTICE, // 说明
-            ViewTypes.AboutProject.PROJECT_PATH_NAME, // 项目地址
+            ViewTypes.AboutProject.PROJECT_PATH_TITLE, // 项目的地址
             ViewTypes.AboutProject.PROJECT_PATH_GITEE, // Gitee 地址
             ViewTypes.AboutProject.PROJECT_PATH_GITHUB, // Github 地址
-            ViewTypes.AboutProject.LICENSE_TITLE, // 开源许可标题
+            ViewTypes.AboutProject.LICENSE_TITLE, // 开源许可的标题
             ViewTypes.AboutProject.LICENSE, // 开放源代码许可
         )
     }
+
 
     // 设置
     val settingViewList by lazy {
@@ -88,11 +95,12 @@ object ViewList {
             ViewTypes.Setting.NETWORK_ACCESS_MODE_OTHER, // 其他网络
 
             ViewTypes.Setting.TITLE_CHECK_UPDATE, // 更新设置的标题
+            ViewTypes.Setting.CHECK_UPDATE_IGNORE_NETWORK_RESTRICTIONS, // 检查更新时忽略网络限制
             ViewTypes.Setting.UPDATE_CHECK_FREQUENCY, // 更新检查频率
 
-            ViewTypes.Setting.TITLE_RESTORE, // 恢复设置的标题(只是要个分隔线)
-            ViewTypes.Setting.RESTORE_DEFAULT, // 恢复默认
-            ViewTypes.Setting.TITLE_RESTORE, // 恢复设置的标题(只是要个分隔线)
+//            ViewTypes.Setting.TITLE_RESTORE, // 恢复设置的标题(只是要个分隔线)
+//            ViewTypes.Setting.RESTORE_DEFAULT, // 恢复默认
+//            ViewTypes.Setting.TITLE_RESTORE, // 恢复设置的标题(只是要个分隔线)
         )
     }
 
@@ -137,6 +145,22 @@ object ViewList {
         widgetDetailList.filter {
             it !in onlyInWidget
         }
+    }
+
+
+    val backupAndRecoveryViewList by lazy {
+        listOf(
+            ViewTypes.BackupAndRecovery.COLLECTION_TITLE, // 收藏管理
+            ViewTypes.BackupAndRecovery.COLLECTION_IMPORT, // 导入收藏
+            ViewTypes.BackupAndRecovery.COLLECTION_EXPORT, // 导出收藏
+            ViewTypes.BackupAndRecovery.COLLECTION_CLEAR, // 清空收藏
+
+            ViewTypes.BackupAndRecovery.SETTING_TITLE, // 设置管理
+            ViewTypes.BackupAndRecovery.SETTING_IMPORT, // 导入设置
+            ViewTypes.BackupAndRecovery.SETTING_EXPORT, // 导出设置
+            ViewTypes.BackupAndRecovery.SETTING_RECOMMEND, // 推荐设置
+            ViewTypes.BackupAndRecovery.SETTING_RESTORE, // 恢复设置
+        )
     }
 
 }

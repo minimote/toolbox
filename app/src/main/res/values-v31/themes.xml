@@ -2,20 +2,47 @@
 <resources>
     <!-- API 大于等于 31 的样式 -->
     <style name="Theme.Toolbox.Dark" parent="Theme.Material3.Dark.NoActionBar">
-        <item name="android:background">@color/black</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="android:background">@null</item>
+        <item name="android:textColor">@color/text_white</item>
         <item name="android:textSize">@dimen/text_size_0_normal</item>
         <item name="android:gravity">center</item>
         <!-- 右滑返回 -->
         <item name="android:windowSwipeToDismiss">true</item>
+        <item name="android:windowBackground">@color/black</item>
         <!--<item name="android:windowIsTranslucent">true</item>-->
         <!-- 启动页周围背景 -->
         <item name="android:windowSplashScreenBackground">@color/black</item>
         <!-- 启动页图片 -->
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_toolbox</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_toolbox_splash</item>
+        <item name="android:windowSplashScreenAnimationDuration">100000</item>
+        <!-- 状态栏颜色 -->
+        <item name="android:statusBarColor">@color/black</item>
+        <!-- 导航栏颜色 -->
+        <item name="android:navigationBarColor">@color/black</item>
+
         <!-- 启动页底部图片 -->
         <!-- <item name="android:windowSplashScreenBrandingImage">@drawable/ic_toolbox</item> -->
         <!-- <item name="android:windowSplashScreenAnimatedIcon">@drawable/anim_ai_loading</item> -->
+        <!-- 应用主题色 -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="android:colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary</item>
+        <item name="android:colorPrimaryDark">@color/primary</item>
+        <item name="colorAccent">@color/primary</item>
+        <item name="android:colorAccent">@color/primary</item>
+        <!-- 选中文字的背景颜色 -->
+        <item name="android:textColorHighlight">@color/primary_trans</item>
+        <!-- 硬件加速 -->
+        <item name="android:hardwareAccelerated">true</item>
+    </style>
+
+
+    <style name="ConstraintLayout.Toolbox.Dark" parent="Theme.Toolbox.Dark">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="layout_constrainedHeight">true</item>
+        <item name="android:background">@color/black</item>
+        <item name="android:clipToOutline">true</item>
     </style>
 
 </resources>

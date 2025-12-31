@@ -19,6 +19,7 @@ object ClipboardHelper {
         context: Context,
         text: String,
         toastString: String? = null,
+        secondToastString: String = "",
         label: String? = toastString,
     ) {
         val clipboard =
@@ -34,6 +35,7 @@ object ClipboardHelper {
                 context.getString(
                     R.string.clipboard_copy_success,
                     toastString,
+                    secondToastString,
                 ),
                 Toast.LENGTH_SHORT,
             ).show()

@@ -71,13 +71,27 @@ object ToolMap {
             ToolID.AppTool.QQMusic.PERSONAL_RADIO to Tools.AppTool.QQMusic.personalRadio,
             ToolID.AppTool.QQMusic.PLAY_HOT_SONG to Tools.AppTool.QQMusic.playHotSong,
             ToolID.AppTool.QQMusic.POINT_CENTER to Tools.AppTool.QQMusic.pointCenter,
+            ToolID.AppTool.QQMusic.RECOGNIZE to Tools.AppTool.QQMusic.recognize,
 
             ToolID.AppTool.Douyin.HOT_RANK to Tools.AppTool.Douyin.hotRank,
 
-            ToolID.AppTool.JD.ORDER to Tools.AppTool.JD.order,
-            ToolID.AppTool.JD.JD_BEAN to Tools.AppTool.JD.jdBean,
+            ToolID.AppTool.Jingdong.ORDER to Tools.AppTool.JingDong.order,
+            ToolID.AppTool.Jingdong.JD_BEAN to Tools.AppTool.JingDong.jdBean,
 
             ToolID.AppTool.AMap.REAL_TIME_BUS to Tools.AppTool.AMap.realTimeBus,
+
+            ToolID.AppTool.Meituan.SCAN to Tools.AppTool.Meituan.scan,
+            ToolID.AppTool.Meituan.PAY_CODE to Tools.AppTool.Meituan.payCode,
+            ToolID.AppTool.Meituan.BIKE to Tools.AppTool.Meituan.bike,
+            ToolID.AppTool.Meituan.SEARCH to Tools.AppTool.Meituan.search,
+            ToolID.AppTool.Meituan.ORDER to Tools.AppTool.Meituan.order,
+            ToolID.AppTool.Meituan.COLLECTION to Tools.AppTool.Meituan.collection,
+            ToolID.AppTool.Meituan.FOOD to Tools.AppTool.Meituan.food,
+            ToolID.AppTool.Meituan.TAKEOUT to Tools.AppTool.Meituan.takeout,
+            ToolID.AppTool.Meituan.HOME to Tools.AppTool.Meituan.home,
+            ToolID.AppTool.Meituan.HOTEL to Tools.AppTool.Meituan.hotel,
+
+            ToolID.AppTool.HelloBike.SCAN to Tools.AppTool.HelloBike.scan,
         )
     }
 

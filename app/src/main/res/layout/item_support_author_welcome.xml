@@ -6,9 +6,9 @@
 
     <TextView
         style="@style/TextView.Toolbox.Dark"
-        android:paddingVertical="@dimen/layout_size_2_footnote"
+        android:paddingVertical="@dimen/layout_size_2_small"
         android:text="@string/supportAuthor_welcome"
-        android:textSize="@dimen/text_size_2_Large"
+        android:textSize="@dimen/text_size_2_large"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

@@ -2,12 +2,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/container"
     style="@style/ConstraintLayout.Toolbox.Clickable.Dark"
-    android:paddingHorizontal="@dimen/layout_size_3_script"
+    android:background="@drawable/background_ripple_round"
     android:layout_width="wrap_content">
 
     <RadioButton
         android:id="@+id/radioButton"
         style="@style/RadioButton.Toolbox.Dark"
+        android:layout_margin="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -16,8 +17,9 @@
         android:id="@+id/textView_name"
         style="@style/TextView.Toolbox.Dark"
         android:gravity="start"
-        android:padding="@dimen/layout_size_3_script"
-        android:text="@string/app_name"
+        android:paddingVertical="@dimen/layout_size_3_small"
+        android:paddingStart="0dp"
+        android:paddingEnd="@dimen/layout_size_3_small"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/radioButton"
         app:layout_constraintTop_toTopOf="parent" />

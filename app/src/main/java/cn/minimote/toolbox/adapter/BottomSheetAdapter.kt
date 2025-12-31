@@ -9,9 +9,9 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
@@ -27,6 +27,7 @@ import cn.minimote.toolbox.helper.DialogHelper
 import cn.minimote.toolbox.helper.DialogHelper.showMyDialog
 import cn.minimote.toolbox.helper.EditTextHelper
 import cn.minimote.toolbox.helper.FragmentHelper
+import cn.minimote.toolbox.helper.IconHelper.getHighResIcon
 import cn.minimote.toolbox.helper.ShortcutHelper
 import cn.minimote.toolbox.helper.VibrationHelper
 import cn.minimote.toolbox.viewModel.MyViewModel
@@ -36,34 +37,53 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 class BottomSheetAdapter(
     private val context: Context,
     private val viewModel: MyViewModel,
-    private val activity: MainActivity,
+    private val myActivity: MainActivity,
     private val tool: Tool? = null,
     private val bottomSheetDialog: BottomSheetDialog,
     private val menuList: List<Int>,
-    private val onMenuItemClick: (Int) -> Unit = {}// 回调函数
+    private val onMenuItemClick: (Int) -> Unit = {}, // 回调函数
 ) : RecyclerView.Adapter<BottomSheetAdapter.BottomSheetHolder>() {
 
-    val viewPager = activity.viewPager
+    val viewPager = myActivity.viewPager
 
-    inner class BottomSheetHolder(itemView: View, val viewType: Int) :
+    class BottomSheetHolder(itemView: View, val viewType: Int) :
         RecyclerView.ViewHolder(itemView) {
-        val textViewMenuItem: TextView = itemView.findViewById(R.id.textView_menuItem)
+        val textViewMenuItem: TextView? = itemView.findViewById(R.id.textView_menuItem)
     }
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
     ): BottomSheetHolder {
-        val layoutId = R.layout.item_bottom_sheet_menu
-        val view = LayoutInflater.from(context).inflate(layoutId, parent, false)
+        val layoutId = when(viewType) {
+            MenuType.CANCEL -> {
+                R.layout.item_bottom_sheet_menu_cancel
+            }
+
+            MenuType.TOP -> {
+                R.layout.item_bottom_sheet_menu_top
+            }
+
+            else -> {
+                R.layout.item_bottom_sheet_menu
+            }
+        }
+        val view = LayoutInflater.from(context).inflate(
+            layoutId, parent, false
+        )
 
         return BottomSheetHolder(view, viewType)
     }
+
 
     override fun onBindViewHolder(
         holder: BottomSheetHolder,
         position: Int
     ) {
+
+        if(holder.viewType == MenuType.TOP) {
+            return
+        }
         // 设置菜单项文本
         setMenuItemText(holder)
         // 设置菜单项点击事件
@@ -90,6 +110,12 @@ class BottomSheetAdapter(
             MenuType.TOOL_DETAIL -> R.string.tool_detail
             MenuType.WIDGET_DETAIL -> R.string.tool_detail
 
+            MenuType.SAVE_ICON -> R.string.save_icon
+
+            MenuType.LongPress.MOVE_TO_TOP -> R.string.move_to_top
+            MenuType.LongPress.MOVE_TO_BOTTOM -> R.string.move_to_bottom
+            MenuType.LongPress.REMOVE -> R.string.remove
+
             // 排序方式
             else -> when(holder.viewType) {
                 MenuType.SortOrder.FREE_SORT -> R.string.free_sort
@@ -113,14 +139,8 @@ class BottomSheetAdapter(
                 else -> R.string.unknown
             }
         }
-        holder.textViewMenuItem.text = context.getString(textId)
+        holder.textViewMenuItem?.text = context.getString(textId)
 
-        if(viewModel.isWatch) {
-            val paddingSize = context.resources.getDimension(R.dimen.layout_size_2_footnote).toInt()
-            holder.textViewMenuItem.setPadding(
-                paddingSize, paddingSize, paddingSize, paddingSize,
-            )
-        }
     }
 
 
@@ -143,7 +163,11 @@ class BottomSheetAdapter(
                     addToHomeOrRemoveFromHome(
                         context = context,
                         tool = tool!!,
-                        afterAction = { onMenuItemClick(holder.viewType) })
+                        afterAction = {
+                            onMenuItemClick(holder.viewType)
+                        },
+                    )
+                    return@setOnClickListener
                 }
 
                 MenuType.EDIT_THIS_WIDGET -> {
@@ -152,8 +176,8 @@ class BottomSheetAdapter(
 
                     FragmentHelper.switchFragment(
                         fragmentName = FragmentName.EDIT_LIST_FRAGMENT,
+                        activity = myActivity,
                         viewModel = viewModel,
-                        activity = activity,
                     )
                 }
 
@@ -165,13 +189,16 @@ class BottomSheetAdapter(
 
                 MenuType.CANCEL -> {}
 
+                MenuType.SAVE_ICON -> {}
+
+
                 MenuType.TOOL_DETAIL -> {
                     viewModel.originTool.value = tool!!.toStoredTool()
                     viewModel.updateDetailList(toolDetailList)
                     FragmentHelper.switchFragment(
                         fragmentName = FragmentName.DETAIL_LIST_FRAGMENT,
+                        activity = myActivity,
                         viewModel = viewModel,
-                        activity = activity,
                     )
                 }
 
@@ -180,15 +207,15 @@ class BottomSheetAdapter(
                     viewModel.updateDetailList(widgetDetailList)
                     FragmentHelper.switchFragment(
                         fragmentName = FragmentName.DETAIL_LIST_FRAGMENT,
+                        activity = myActivity,
                         viewModel = viewModel,
-                        activity = activity,
                     )
                 }
 
                 // 排序方式
                 else -> {
                     if(holder.viewType in MenuType.SortOrderSet) {
-                        viewModel.sortModeString = holder.textViewMenuItem.text.toString()
+                        viewModel.sortModeString = holder.textViewMenuItem?.text.toString()
 
                         viewPager.isUserInputEnabled = false
                         if(holder.viewType == MenuType.SortOrder.FREE_SORT) {
@@ -244,19 +271,13 @@ class BottomSheetAdapter(
 
         val editTextNickname: EditText = view.findViewById(R.id.editText_nickName)
         val imageButtonClear: ImageButton = view.findViewById(R.id.imageButton_clear)
-        val buttonReset: Button = view.findViewById(R.id.button_reset)
-        val buttonCancel: Button = view.findViewById(R.id.button_cancel)
-        val buttonConfirm: Button = view.findViewById(R.id.button_confirm)
+        val buttonReset: TextView = view.findViewById(R.id.button_reset)
+        val buttonCancel: TextView = view.findViewById(R.id.button_negative)
+        val buttonConfirm: TextView = view.findViewById(R.id.button_positive)
+        val imageViewIcon: ImageView = view.findViewById(R.id.imageView_icon)
 
-        val paddingSize = context.resources.getDimension(R.dimen.layout_size_2_footnote).toInt()
-        if(viewModel.isWatch) {
-            buttonReset.setPadding(
-                paddingSize, paddingSize, paddingSize, paddingSize,
-            )
-            val layoutParams = editTextNickname.layoutParams as ViewGroup.MarginLayoutParams
-            layoutParams.bottomMargin = 0
-            editTextNickname.layoutParams = layoutParams
-        }
+        imageViewIcon.setImageIcon(viewModel.getHighResIcon(tool))
+        buttonConfirm.text = context.getString(R.string.create)
 
 
         fun setButtonReset() {
@@ -267,11 +288,15 @@ class BottomSheetAdapter(
             }
         }
 
+        val originalBackground = buttonConfirm.background
+
         fun setConfirmButton() {
             if(editTextNickname.text.isNotBlank()) {
                 buttonConfirm.setTextColor(context.getColor(R.color.primary))
+                buttonConfirm.background = originalBackground
             } else {
                 buttonConfirm.setTextColor(context.getColor(R.color.mid_gray))
+                buttonConfirm.background = null
             }
         }
 
@@ -285,7 +310,16 @@ class BottomSheetAdapter(
             afterTextChanged = {
                 setButtonReset()
                 setConfirmButton()
-            }
+            },
+            onClick = {
+                VibrationHelper.vibrateOnClick(viewModel)
+            },
+            onFocusGained = {
+                VibrationHelper.vibrateOnClick(viewModel)
+            },
+            onClickClearButton = {
+                VibrationHelper.vibrateOnClick(viewModel)
+            },
         )
 
 
@@ -331,7 +365,7 @@ class BottomSheetAdapter(
     }
 
 
-    // 添加到主页或从主页移除
+    // 收藏或取消收藏
     private fun addToHomeOrRemoveFromHome(
         context: Context,
         tool: Tool,
@@ -349,6 +383,7 @@ class BottomSheetAdapter(
                 positiveAction = {
                     viewModel.removeFromSizeChangeMap(tool.id)
                     viewModel.saveWidgetList()
+                    afterAction()
                     // 触发无组件提示
                     viewModel.toolListSizeChanged.value = true
                     viewModel.toolListSizeChanged.value = false
@@ -360,13 +395,13 @@ class BottomSheetAdapter(
                         ),
                         Toast.LENGTH_SHORT
                     ).show()
-                    afterAction()
                 },
             )
         } else {
             // 不在主页：添加到主页
             viewModel.addToSizeChangeMap(tool)
             viewModel.saveWidgetList()
+            afterAction()
             Toast.makeText(
                 context,
                 context.getString(

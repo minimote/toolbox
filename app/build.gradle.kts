@@ -3,6 +3,8 @@
  * 本项目遵循 MIT 许可协议，请务必保留此声明和署名。
  */
 
+//import android.R.attr.versionCode
+//import android.R.attr.versionName
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -10,8 +12,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    id("kotlin-kapt")
-    id("com.google.dagger.hilt.android")
+    alias(libs.plugins.kotlinx.serialization)
+//    alias(libs.plugins.com.google.devtools.ksp)
 }
 
 android {
@@ -26,10 +28,10 @@ android {
         var testSuffix = ""
 
         // 版本号
-        val versionCodeList = listOf(2, 1, 0)
+        val versionCodeList = listOf(2, 2, 0)
 
         // 测试的后缀
-//        testSuffix = "-alpha.5"
+//        testSuffix = "-alpha.1"
 
         var versionCodeCombined = 0
         for(x in versionCodeList) {
@@ -44,6 +46,7 @@ android {
         // 使用当前时间动态设置版本名
         val formatter = DateTimeFormatter.ofPattern("yyMMdd.HHmmss")
         val dateTime = LocalDateTime.now().format(formatter)
+
         versionName = versionCodeList.joinToString(".") + "-" + dateTime + testSuffix
 //        versionName = "1.0.1-$dateTime"
 
@@ -79,8 +82,11 @@ android {
             )
         }
     }
-    kotlinOptions {
-        jvmTarget = "17"
+//    kotlinOptions {
+//        jvmTarget = "17"
+//    }
+    kotlin {
+        jvmToolchain(17)
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -90,7 +96,7 @@ android {
         compose = true
         buildConfig = true
     }
-//    afterEvaluate {
+    //    afterEvaluate {
 //        tasks.named("assembleRelease") {
 //            finalizedBy("copyAndRenameApkTask")
 //        }
@@ -125,7 +131,7 @@ android {
                         include("**/*.apk")
                     }
                     into(outDir)
-                    println("> My Task :copy from $fromDir into $outDir")
+                    println("> 保存 apk: copy from $fromDir into $outDir")
 //                    rename { _ -> filename }
                 }
             }
@@ -167,6 +173,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.activity)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
@@ -180,12 +187,12 @@ dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.gson)
     implementation(libs.androidx.core.splashscreen)
-    implementation(libs.hilt.android)
+//    implementation(libs.hilt.android)
     implementation(libs.androidx.room.ktx)
-    kapt(libs.hilt.android.compiler)
+    implementation(libs.androidx.navigation.fragment)
+//    ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.viewpager2)
     implementation(libs.google.flexbox)
-
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -196,6 +203,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     implementation(libs.androidx.work.runtime.ktx)
+    implementation("androidx.documentfile:documentfile:1.0.1")
 
     // 越界回弹
     implementation("io.github.scwang90:refresh-layout-kernel:3.0.0-alpha")
@@ -203,7 +211,18 @@ dependencies {
     // 拼音匹配
     implementation("com.github.promeg:tinypinyin:2.0.3")
 
+
+    // 图片加载
+    implementation("io.coil-kt.coil3:coil-compose:3.3.0")
+
+//    implementation("com.github.lihangleo2:ShadowLayout:3.4.1")
+
+//    implementation("com.google.accompanist:accompanist-permissions:0.37.3")
+
+    // 序列化
+    implementation(libs.kotlinx.serialization.json)
+
 }
-kapt {
-    correctErrorTypes = true
-}
+//ksp {
+//    correctErrorTypes = true
+//}

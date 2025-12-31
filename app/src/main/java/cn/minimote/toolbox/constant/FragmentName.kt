@@ -20,6 +20,8 @@ object FragmentName {
     const val SCHEME_LIST_FRAGMENT = "SchemeListFragment"
     const val DETAIL_LIST_FRAGMENT = "DetailListFragment"
     const val EASTER_EGG_FRAGMENT = "EasterEggFragment"
+    const val BACKUP_AND_RECOVERY_FRAGMENT = "BackupAndRecoveryFragment"
+    const val LONG_PRESS_MENU_FRAGMENT = "LongPressMenuFragment"
 
 
     const val WOODEN_FISH_FRAGMENT = "WoodenFishFragment"

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/constraintLayout_container"
     style="@style/ConstraintLayout.Toolbox.Clickable.Dark">
 
     <TextView
         android:id="@+id/textView_name"
         style="@style/TextView.Toolbox.MyList.Name.Dark"
-        android:text="@string/setting"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/imageView_enter"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,11 +26,12 @@
         style="@style/ImageView.Toolbox.Dark"
         android:layout_width="@dimen/layout_size_1_small"
         android:layout_height="@dimen/layout_size_1_small"
+        android:layout_marginEnd="@dimen/layout_size_3_small"
+        android:alpha="0.8"
         android:contentDescription="@string/enter_arrow"
+        android:src="@drawable/ic_arrow_right"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:alpha="0.8"
-        android:src="@drawable/ic_arrow_right" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

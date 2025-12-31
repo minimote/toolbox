@@ -9,7 +9,7 @@
 <!--        </item>-->
     <item>
         <shape android:shape="rectangle">
-            <size android:width="@dimen/layout_size_3_script" />
+            <size android:width="@dimen/layout_size_3_small" />
             <size android:height="@dimen/layout_size_1_small" />
             <solid android:color="@color/primary" />
         </shape>
